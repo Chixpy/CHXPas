@@ -29,7 +29,8 @@ uses
   // Custom
   uCHXStrUtils;
 
-procedure ReadActionsIcons(const aFileName, Section: string; BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
+procedure ReadActionsIcons(const aFileName, Section: string;
+  BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
 {< Reads icons for the diferent actions a ImageList and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
@@ -45,7 +46,8 @@ procedure ReadActionsIcons(const aFileName, Section: string; BaseDir: string; Im
   @param(ActionList An action list which actions will be assigned an image.)
 }
 
-procedure ReadMenuIcons(const aFileName, Section: string; BaseDir: string; ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string;
+  BaseDir: string; ImageList: TImageList; Menu: TMenu);
 {< Reads icons for menu items with no action assigned and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
@@ -72,7 +74,7 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
     action.}
 
 function AddToImageList(aImageList: TImageList;
-  const FileName: String): integer;
+  const FileName: string): integer;
 
 function CorrectAspetRatio(OrigRect: TRect; aImage: TPicture): TRect;
 {< Returns a TRect with the correct aspect ratio for the picture inside the
@@ -81,25 +83,28 @@ function CorrectAspetRatio(OrigRect: TRect; aImage: TPicture): TRect;
 
 implementation
 
-procedure ReadActionsIcons(const aFileName, Section: string; BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
+procedure ReadActionsIcons(const aFileName, Section: string;
+  BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
 var
   IniFile: TMemIniFile;
   Cont: integer;
-  IconFile: String;
+  IconFile: string;
 begin
   BaseDir := SetAsFolder(BaseDir);
   if BaseDir = '' then
     BaseDir := ExtractFilePath(aFileName);
   ActionList.Images := ImageList;
 
-  if Section = '' then Exit;
+  if Section = '' then
+    Exit;
 
   IniFile := TMemIniFile.Create(UTF8ToSys(aFileName));
   try
     Cont := 0;
     while Cont < ActionList.ActionCount do
     begin
-      IconFile := IniFile.ReadString(Section, ActionList.Actions[Cont].Name, '');
+      IconFile := IniFile.ReadString(Section,
+        ActionList.Actions[Cont].Name, '');
       if IconFile = '' then
       begin
         IconFile := ActionList.Actions[Cont].Name + '.png';
@@ -115,10 +120,11 @@ begin
   end;
 end;
 
-procedure ReadMenuIcons(const aFileName, Section: string; BaseDir: string; ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string;
+  BaseDir: string; ImageList: TImageList; Menu: TMenu);
 
   procedure ReadIcon(IniFile: TMemIniFile; ImageList: TImageList;
-    Menu: TMenuItem; Section: String; BaseDir: String);
+    Menu: TMenuItem; Section: string; BaseDir: string);
   var
     IconFile: string;
     Cont: integer;
@@ -165,10 +171,11 @@ begin
   finally
     FreeAndNil(IniFile);
   end;
-end;        
+end;
 
 procedure FixComponentImagesFromActions(aComponent: TComponent);
-  Procedure FixComponent(aComponent: TComponent);
+
+  procedure FixComponent(aComponent: TComponent);
   var
     ImageList: TCustomImageList;
     aAction: TCustomAction;
@@ -205,8 +212,9 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
       end;
     end;
   end;
+
 var
-  i : integer;
+  i: integer;
 begin
   i := 0;
   while i < aComponent.ComponentCount do
@@ -217,10 +225,10 @@ begin
 end;
 
 function AddToImageList(aImageList: TImageList;
-  const FileName: String): integer;
+  const FileName: string): integer;
 var
   Image: TPicture;
-  Extension: String;
+  Extension: string;
 begin
   Result := -1;
   if aImageList = nil then
@@ -267,4 +275,3 @@ begin
 end;
 
 end.
-

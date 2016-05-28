@@ -50,7 +50,7 @@ type
     { private declarations }
   public
     { public declarations }
-  end; 
+  end;
 
 var
   frmSMAskFile: TfrmSMAskFile;
@@ -63,4 +63,3 @@ initialization
   {$I ufSMAskFile.lrs}
 
 end.
-

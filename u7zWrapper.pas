@@ -45,7 +45,7 @@ resourcestring
   w7zFileNotFound = '"%0:s" file not found';
   //< Translatable string: '"%0:s" file not found'
   w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
-  //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
+//< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
 
 const
   kw7zCacheFileExt = '.txt';
@@ -74,6 +74,7 @@ var
   }
 
   w7zCacheDir: string;
+
   {< Directory were lists of files from compressed archives are stored.
 
     Defaults to '%USERTEMPDIR%/w7zCache', and the directory is deleted at
@@ -102,8 +103,9 @@ procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
   @return(Exit code)
 }
 
-function w7zExtractFile(const a7zArchive: string; const aFileMask: string;
-  aFolder: string; const ShowProgress: boolean; const Password: string): integer;
+function w7zExtractFile(const a7zArchive: string;
+  const aFileMask: string; aFolder: string; const ShowProgress: boolean;
+  const Password: string): integer;
 {< Extract de file (or files) from 7z archive.
 
   @param(aFilename Name of the 7z archive.)
@@ -195,7 +197,8 @@ begin
   begin
     if FileExistsUTF8(w7zCacheDir + FileSHA1 + kw7zCacheFileExt) then
     begin
-      PackedFiles.LoadFromFile(UTF8ToSys(w7zCacheDir + FileSHA1 + kw7zCacheFileExt));
+      PackedFiles.LoadFromFile(UTF8ToSys(w7zCacheDir + FileSHA1 +
+        kw7zCacheFileExt));
       if OnlyPaths then
         ReturnOnlyPaths(PackedFiles);
       Exit; // Job done.
@@ -233,7 +236,8 @@ begin
             Sleep(100); // Waiting for more output
           }
     end;
-    msOutput.SaveToFile(UTF8ToSys(w7zCacheDir + 'w7zOutput' + kw7zCacheFileExt));
+    msOutput.SaveToFile(UTF8ToSys(w7zCacheDir + 'w7zOutput' +
+      kw7zCacheFileExt));
   finally
     i := aProcess.ExitStatus;
     FreeAndNil(aProcess);
@@ -250,7 +254,8 @@ begin
   slOutput := TStringList.Create;
   slLine := TStringList.Create;
   try
-    slOutput.LoadFromFile(UTF8ToSys(w7zCacheDir + 'w7zOutput' + kw7zCacheFileExt));
+    slOutput.LoadFromFile(UTF8ToSys(w7zCacheDir + 'w7zOutput' +
+      kw7zCacheFileExt));
 
     // Skipping until '----------'
     i := 0;
@@ -318,7 +323,8 @@ begin
       PackedFiles.Add(slLine.CommaText);
 
       // Only save if there is at least one file in the compressed archive
-      PackedFiles.SaveToFile(UTF8ToSys(w7zCacheDir + FileSHA1 + kw7zCacheFileExt));
+      PackedFiles.SaveToFile(UTF8ToSys(w7zCacheDir + FileSHA1 +
+        kw7zCacheFileExt));
     end;
   finally
     FreeAndNil(slLine);
@@ -330,8 +336,9 @@ begin
 
 end;
 
-function w7zExtractFile(const a7zArchive: string; const aFileMask: string;
-  aFolder: string; const ShowProgress: boolean; const Password: string): integer;
+function w7zExtractFile(const a7zArchive: string;
+  const aFileMask: string; aFolder: string; const ShowProgress: boolean;
+  const Password: string): integer;
 var
   aProcess: TProcess;
   aOptions: TProcessOptions;
@@ -339,7 +346,7 @@ var
 begin
   Result := 0;
   if not FileExistsUTF8(a7zArchive) then
-  raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
+    raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
 
   aOptions := [poWaitOnExit];
   aExeString := w7zPathTo7zexe;
@@ -349,7 +356,7 @@ begin
   else
   begin
     if not FileExistsUTF8(w7zPathTo7zexe) then
-    raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
+      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
 
     if ShowProgress then
       aOptions := aOptions + [poNewConsole]
@@ -405,7 +412,7 @@ begin
   else
   begin
     if FileExistsUTF8(w7zPathTo7zexe) then
-    raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
+      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zPathTo7zexe]);
 
     if ShowProgress then
       aOptions := aOptions + [poNewConsole]
@@ -473,16 +480,6 @@ finalization
   DeleteDirectory(SetAsFolder(GetTempDir(False)) + 'w7zCache', False);
 
   if DirectoryExistsUTF8(w7zCacheDir) = True then
-    DeleteDirectory(w7zCacheDir, false);
+    DeleteDirectory(w7zCacheDir, False);
 
 end.
-
-
-
-
-
-
-
-
-
-

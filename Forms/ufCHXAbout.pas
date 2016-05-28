@@ -54,7 +54,7 @@ begin
     GetWidgetSet + LineEnding + '(' + GetCompiledDate + ')';
 
   lImageExt.Caption := AnsiReplaceText(AnsiReplaceText(
-  GraphicFileMask(TGraphic),'*.', ''),';', ' ');
+    GraphicFileMask(TGraphic), '*.', ''), ';', ' ');
 
 end;
 

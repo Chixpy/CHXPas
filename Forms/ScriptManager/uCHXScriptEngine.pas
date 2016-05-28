@@ -43,14 +43,14 @@ uses
   //uEmutecaCommon, uEmutecaRscStr { TODO : This must go out of Emuteca Core }
 
   // Pascal Script Emuteca clases import
-  { }
+
   // TODO 2: Generalize input and output as events,
   //   and move these units to fScriptManager.
   ufSMAskFile, ufSMAskFolder
   // Common
   // uRscStr
   // Emuteca
-;
+  ;
 
 resourcestring
   rsSEECompilationMsg = 'Compiling: %s.';
@@ -106,8 +106,10 @@ type
     procedure PasScriptOnExecImport(Sender: TObject; se: TPSExec;
       x: TPSRuntimeClassImporter);
     procedure PasScriptOnExecute(Sender: TPSScript);
-    function PasScriptOnFindUnknownFile(Sender: TObject; const OrginFileName: tbtstring; var FileName, Output: tbtstring): Boolean;
-    function PasScriptOnNeedFile(Sender: TObject; const OriginFileName: tbtstring; var FileName, Output: tbtstring): Boolean;
+    function PasScriptOnFindUnknownFile(Sender: TObject;
+      const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
+    function PasScriptOnNeedFile(Sender: TObject;
+      const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 
     // Added functions
     // ---------------
@@ -131,7 +133,8 @@ type
 
   public
     property ScriptFile: string read getScriptFile write setScriptFile;
-    property CommonUnitFolder: string read FCommonUnitFolder write SetCommonUnitFolder;
+    property CommonUnitFolder: string read FCommonUnitFolder
+      write SetCommonUnitFolder;
 
     property ScriptText: TStrings read getScriptText write setScriptText;
     property ScriptOutput: TStrings read FScriptOutput write SetScriptOutput;
@@ -335,9 +338,9 @@ begin
 end;
 
 function cScriptEngEmuteca.PasScriptOnFindUnknownFile(Sender: TObject;
-  const OrginFileName: tbtstring; var FileName, Output: tbtstring): Boolean;
+  const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
-  FullFileName: String;
+  FullFileName: string;
   f: TFileStream;
 begin
   Result := False;
@@ -364,16 +367,15 @@ begin
 end;
 
 function cScriptEngEmuteca.PasScriptOnNeedFile(Sender: TObject;
-  const OriginFileName: tbtstring; var FileName, Output: tbtstring): Boolean;
+  const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
-  FullFileName: String;
+  FullFileName: string;
   F: TFileStream;
 begin
   ShowMessage('PSScriptNeedFile:' + sLineBreak +
-  'OriginFileName: ' +OriginFileName +  sLineBreak +
-  'FileName: ' +FileName +  sLineBreak +
-  'Output: ' +Output +  sLineBreak
-  );
+    'OriginFileName: ' + OriginFileName + sLineBreak +
+    'FileName: ' + FileName + sLineBreak + 'Output: ' + Output + sLineBreak
+    );
 
 
   Result := False;

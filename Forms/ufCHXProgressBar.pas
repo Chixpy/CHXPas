@@ -24,17 +24,17 @@ type
 
   private
     { private declarations }
-    FContinue: Boolean;
-    procedure SetContinue(AValue: Boolean);
+    FContinue: boolean;
+    procedure SetContinue(AValue: boolean);
 
   protected
-    property Continue: Boolean read FContinue write SetContinue;
+    property Continue: boolean read FContinue write SetContinue;
 
   public
     { public declarations }
-    function UpdateProgressBar(const Value, MaxValue : Int64): Boolean;
-    function UpdTextAndBar(const aAction, Info1, Info2: String;
-      const Value, MaxValue: Int64): Boolean;
+    function UpdateProgressBar(const Value, MaxValue: int64): boolean;
+    function UpdTextAndBar(const aAction, Info1, Info2: string;
+      const Value, MaxValue: int64): boolean;
     procedure Start;
     procedure Finnish;
   end;
@@ -52,9 +52,10 @@ begin
   Visible := False;
 end;
 
-procedure TfrmCHXProgressBar.SetContinue(AValue: Boolean);
+procedure TfrmCHXProgressBar.SetContinue(AValue: boolean);
 begin
-  if FContinue = AValue then Exit;
+  if FContinue = AValue then
+    Exit;
   FContinue := AValue;
 end;
 
@@ -64,7 +65,8 @@ begin
   Self.Visible := False;
 end;
 
-function TfrmCHXProgressBar.UpdateProgressBar(const Value, MaxValue : Int64): Boolean;
+function TfrmCHXProgressBar.UpdateProgressBar(
+  const Value, MaxValue: int64): boolean;
 begin
   // Showing Form
   if not Self.Visible then
@@ -85,10 +87,10 @@ begin
   ProgressBar.Position := Value;
 end;
 
-function TfrmCHXProgressBar.UpdTextAndBar(const aAction, Info1, Info2: String;
-  const Value, MaxValue: Int64): Boolean;
+function TfrmCHXProgressBar.UpdTextAndBar(const aAction, Info1, Info2: string;
+  const Value, MaxValue: int64): boolean;
 begin
-  lAction.Caption:= aAction;
+  lAction.Caption := aAction;
   lInfo1.Caption := Info1;
   lInfo2.Caption := Info2;
   Result := UpdateProgressBar(Value, MaxValue);
@@ -110,4 +112,3 @@ initialization
   {$I ufCHXProgressBar.lrs}
 
 end.
-

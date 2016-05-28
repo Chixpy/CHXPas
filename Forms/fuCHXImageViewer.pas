@@ -88,20 +88,20 @@ type
     procedure FormResize(Sender: TObject);
     procedure ImageDblClick(Sender: TObject);
     procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState; X, Y: integer);
     procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
+      Shift: TShiftState; X, Y: integer);
     procedure ImageResize(Sender: TObject);
 
   private
-    FDragBeginX: Longint;
-    FDragBeginY: Longint;
-    procedure SetDragBeginX(AValue: Longint);
-    procedure SetDragBeginY(AValue: Longint);
+    FDragBeginX: longint;
+    FDragBeginY: longint;
+    procedure SetDragBeginX(AValue: longint);
+    procedure SetDragBeginY(AValue: longint);
 
   protected
-    property DragBeginX: Longint read FDragBeginX write SetDragBeginX;
-    property DragBeginY: Longint read FDragBeginY write SetDragBeginY;
+    property DragBeginX: longint read FDragBeginX write SetDragBeginX;
+    property DragBeginY: longint read FDragBeginY write SetDragBeginY;
 
     procedure ChangeImage;
     procedure FixPosition;
@@ -112,8 +112,8 @@ type
   public
     procedure LoadIcons(aIconIniFile: TFilename);
 
-    procedure AddImages(aImageList: TStrings; Index: Integer = 0);
-    procedure AddImage(aImageFile: String);
+    procedure AddImages(aImageList: TStrings; Index: integer = 0);
+    procedure AddImage(aImageFile: string);
   end;
 
 var
@@ -149,7 +149,7 @@ end;
 procedure TfrmCHXImageViewer.actPreviousExecute(Sender: TObject);
 begin
   if eCurrImage.Value > 1 then
-    eCurrImage.Value :=  eCurrImage.Value - 1;
+    eCurrImage.Value := eCurrImage.Value - 1;
 end;
 
 procedure TfrmCHXImageViewer.actStretchExecute(Sender: TObject);
@@ -191,7 +191,7 @@ end;
 procedure TfrmCHXImageViewer.actNextExecute(Sender: TObject);
 begin
   if eCurrImage.Value < vmImages.Lines.Count then
-    eCurrImage.Value :=  eCurrImage.Value + 1;
+    eCurrImage.Value := eCurrImage.Value + 1;
 end;
 
 procedure TfrmCHXImageViewer.actZoomOutExecute(Sender: TObject);
@@ -228,7 +228,7 @@ begin
 end;
 
 procedure TfrmCHXImageViewer.ImageMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   case Button of
     mbLeft:
@@ -240,7 +240,7 @@ begin
 end;
 
 procedure TfrmCHXImageViewer.ImageMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
 begin
   case Button of
     mbLeft:
@@ -255,19 +255,21 @@ end;
 procedure TfrmCHXImageViewer.ImageResize(Sender: TObject);
 begin
   if Image.Align = alClient then
-    sbInfo.Panels[0].Text := '(' + IntToStr(Image.Width) + 'x' +
-      IntToStr(Image.Height) + ')';
+    sbInfo.Panels[0].Text :=
+      '(' + IntToStr(Image.Width) + 'x' + IntToStr(Image.Height) + ')';
 end;
 
-procedure TfrmCHXImageViewer.SetDragBeginX(AValue: Longint);
+procedure TfrmCHXImageViewer.SetDragBeginX(AValue: longint);
 begin
-  if FDragBeginX = AValue then Exit;
+  if FDragBeginX = AValue then
+    Exit;
   FDragBeginX := AValue;
 end;
 
-procedure TfrmCHXImageViewer.SetDragBeginY(AValue: Longint);
+procedure TfrmCHXImageViewer.SetDragBeginY(AValue: longint);
 begin
-  if FDragBeginY = AValue then Exit;
+  if FDragBeginY = AValue then
+    Exit;
   FDragBeginY := AValue;
 end;
 
@@ -287,8 +289,8 @@ begin
   if FileExistsUTF8(vmImages.Lines[eCurrImage.Value - 1]) then
   begin
     Image.Picture.LoadFromFile(vmImages.Lines[eCurrImage.Value - 1]);
-    sbInfo.Panels[1].Text := IntToStr(Image.Picture.Width) + 'x' +
-      IntToStr(Image.Picture.Height);
+    sbInfo.Panels[1].Text :=
+      IntToStr(Image.Picture.Width) + 'x' + IntToStr(Image.Picture.Height);
     sbInfo.Panels[2].Text := vmImages.Lines[eCurrImage.Value - 1];
     StretchImage;
   end
@@ -347,7 +349,7 @@ begin
     begin
       if factor < Image.Width / Image.Picture.Width then
         factor := Image.Height / Image.Picture.Height;
-      factor := 1/(round(1/factor));
+      factor := 1 / (round(1 / factor));
     end
     else
     begin
@@ -370,12 +372,13 @@ begin
   begin
     Image.Align := alClient;
     actStretch.Checked := True;
-    sbInfo.Panels[0].Text := '(' + IntToStr(Image.Width) + 'x' +
-      IntToStr(Image.Height) + ')';
+    sbInfo.Panels[0].Text :=
+      '(' + IntToStr(Image.Width) + 'x' + IntToStr(Image.Height) + ')';
   end;
 end;
 
-procedure TfrmCHXImageViewer.AddImages(aImageList: TStrings; Index: Integer = 0);
+procedure TfrmCHXImageViewer.AddImages(aImageList: TStrings;
+  Index: integer = 0);
 begin
   vmImages.Lines.AddStrings(aImageList);
   eCurrImage.MaxValue := vmImages.Lines.Count;
@@ -383,7 +386,7 @@ begin
   ChangeImage;
 end;
 
-procedure TfrmCHXImageViewer.AddImage(aImageFile: String);
+procedure TfrmCHXImageViewer.AddImage(aImageFile: string);
 begin
   vmImages.Lines.Add(aImageFile);
   eCurrImage.Value := 1;
@@ -395,4 +398,3 @@ initialization
   {$I fuImageViewer.lrs}
 
 end.
-

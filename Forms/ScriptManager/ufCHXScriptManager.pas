@@ -27,7 +27,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, ActnList, Controls, ComCtrls, ExtCtrls, LResources,
-  StdCtrls, ShellCtrls, FileUtil, Dialogs, StdActns, Buttons, EditBtn, IniFiles,
+  StdCtrls, ShellCtrls, FileUtil, Dialogs, StdActns, Buttons,
+  EditBtn, IniFiles,
   SynHighlighterPas, SynEdit, SynMacroRecorder, LazFileUtils,
   uCHXScriptEngine,
   // CHX
@@ -35,9 +36,9 @@ uses
 
 const
   kFileExtensionScript = 'pas';
-    kFileMaskScript = '*.' + kFileExtensionScript;
-    kFileMaskAllFiles = '*.*';
-    kFSMDataSection = 'SCRIPTDATA';
+  kFileMaskScript = '*.' + kFileExtensionScript;
+  kFileMaskAllFiles = '*.*';
+  kFSMDataSection = 'SCRIPTDATA';
 
 resourcestring
   rsFSMScriptFileSaved = 'File saved: %s';
@@ -177,7 +178,8 @@ procedure TfrmScriptManager.actFileSaveAsAccept(Sender: TObject);
 begin
   SynEdit.Lines.SaveToFile(actFileSaveAs.Dialog.FileName);
 
-  mInfo.Lines.Add(Format(rsFSMScriptFileSaved, [actFileSaveAs.Dialog.FileName]));
+  mInfo.Lines.Add(Format(rsFSMScriptFileSaved,
+    [actFileSaveAs.Dialog.FileName]));
   CurrentFile := actFileSaveAs.Dialog.FileName;
   UpdateSLV;
   if SynEdit.CanFocus then
@@ -189,8 +191,9 @@ begin
   actFileSaveAs.Dialog.InitialDir := ExtractFileDir(CurrentFile);
   actFileSaveAs.Dialog.FileName := ExtractFileName(CurrentFile);
 
-  actFileSaveAs.Dialog.Filter := rsFileMaskScriptDescription + '|' + kFileMaskScript
-  + '|' + rsFileMaskAllFilesDescription + '|' + kFileMaskAllFiles;
+  actFileSaveAs.Dialog.Filter :=
+    rsFileMaskScriptDescription + '|' + kFileMaskScript + '|' +
+    rsFileMaskAllFilesDescription + '|' + kFileMaskAllFiles;
   actFileSaveAs.Dialog.DefaultExt := kFileExtensionScript;
 end;
 

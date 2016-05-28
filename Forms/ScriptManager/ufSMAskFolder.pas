@@ -50,7 +50,7 @@ type
     { private declarations }
   public
     { public declarations }
-  end; 
+  end;
 
 var
   frmSMAskFolder: TfrmSMAskFolder;
@@ -61,4 +61,3 @@ initialization
   {$I ufSMAskFolder.lrs}
 
 end.
-
