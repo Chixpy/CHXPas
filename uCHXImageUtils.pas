@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, Menus, ActnList, Graphics,
-  IniFiles, FileUtil, Buttons, ImgList,
+  IniFiles, LazFileUtils, LazUTF8, Buttons, ImgList,
   // Custom
   uCHXStrUtils;
 

@@ -492,6 +492,7 @@ end;
 
 function cScriptEngEmuteca.RunScript: boolean;
 begin
+  Result := False;
   if not CompileScript then
     Exit;
 
