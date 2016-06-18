@@ -6,6 +6,7 @@ unit uCHXStrUtils;
 interface
 
 uses Classes, Strutils, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
+  Math,
   uCHXConst, uCHXRscStr;
 
 
@@ -13,6 +14,8 @@ uses Classes, Strutils, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
 // ------------
 function RemoveFromBrackets(const aString: string): string;
 {< Removes text from the first '(' o '[' found in the aString. }
+function CopyFromBrackets(const aString: string): string;
+{< Copy text from the first '(' o '[' found in the aString. }
 
 function TextSimilarity(const aString1, aString2: string): byte;
 {< Returns the similarity between 2 strings.
@@ -52,6 +55,12 @@ function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
 function SetAsFile(const aFileName: string): string;
 {< Paths are converted to Linux one as Windows AND
   MS-DOS (+2.0) can recognise them without problem.
+}
+
+function SupportedExt(aFilename: string; aExt: TStrings): boolean;
+{< Search if a file is in a list of supported extensions.
+
+  aExt has a list of extensions (with or without dot).
 }
 
 // TSTRINGLIST UTILS
@@ -103,15 +112,34 @@ implementation
 // ------------
 function RemoveFromBrackets(const aString: string): string;
 var
-  Position: integer;
+  Pos1, Pos2: integer;
 begin
-  Result := aString;
-  Position := UTF8Pos('(', Result);
-  if Position <> 0 then
-    Result := UTF8Copy(Result, 1, Position - 1);
-  Position := UTF8Pos('[', Result);
-  if Position <> 0 then
-    Result := UTF8Copy(Result, 1, Position - 1);
+  Pos1 := UTF8Pos('(', aString);
+  Pos2 := UTF8Pos('[', aString);
+
+  // if not found...
+  if Pos1 < 1 then
+    Pos1 := MaxInt;
+  if Pos2 < 1 then
+    Pos2 := MaxInt;
+
+  Result := Copy(aString, 1, min(Pos1, Pos2) - 1);
+end;
+
+function CopyFromBrackets(const aString: string): string;
+var
+  Pos1, Pos2: integer;
+begin
+  Pos1 := UTF8Pos('(', aString);
+  Pos2 := UTF8Pos('[', aString);
+
+  // if not found...
+  if Pos1 < 1 then
+    Pos1 := MaxInt;
+  if Pos2 < 1 then
+    Pos2 := MaxInt;
+
+  Result := Copy(aString, min(Pos1, Pos2), MaxInt);
 end;
 
 function TextSimilarity(const aString1, aString2: string): byte;
@@ -232,6 +260,33 @@ end;
 function SetAsFile(const aFileName: string): string;
 begin
   Result := UnixPath(aFileName);
+end;
+
+function SupportedExt(aFilename: string; aExt: TStrings): boolean;
+var
+  i: integer;
+  TempExt: string;
+begin
+  Result := False;
+  if not assigned(aExt) then
+    Exit;
+  if aFilename = '' then
+    Exit;
+
+  // Extract extension, remove dot.
+  aFilename := copy(ExtractFileExt(aFilename), 2, MaxInt);
+
+  i := 0;
+  while (i < aExt.Count) and (not Result) do
+  begin
+    TempExt := aExt[i];
+    if (Length(TempExt) > 0) then // Take care about no extension
+      if TempExt[1] = ExtensionSeparator then // remove dot
+        TempExt := copy(TempExt, 2, MaxInt);
+
+    Result := UTF8CompareText(aFilename, TempExt) = 0;
+    Inc(i);
+  end;
 end;
 
 function SysPath(const aPath: string): string;
@@ -410,8 +465,6 @@ begin
 end;
 
 function StrToCardinal(const aString: string): cardinal;
-
-
 
 
 
