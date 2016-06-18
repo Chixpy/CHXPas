@@ -20,9 +20,13 @@
 
 { Simple 7z.exe AND 7zG.exe wrapper until something better is found.
 
+  Last version tested 16.02, although may be works with any newer.
+
+  On Win10, older versions don't work.
+
   @definitionList(
     @itemLabel(NOTE:)
-    @item(7z.exe and 7zG.exe have their own licenses.)
+    @item(7z.exe, 7zG.exe and 7z.dll have their own licenses.)
   )
 
   @definitionList(
@@ -457,11 +461,11 @@ end;
 initialization
   // Meh, hardcoding pseudo-constants
 
-  w7zFileExts := '001,7z,arj,bpl,bzip2,cab,cb7,cbr,cbz,chi,chm,chq,chw,' +
+  w7zFileExts := '001,7z,arj,bpl,bz2,bzip2,cab,cb7,cbr,cbz,chi,chm,chq,chw,' +
     'cpio,cramfs,deb,dll,dmg,doc,exe,fat,flv,gz,gzip,hfs,hxi,hxq,hxr,hxs,' +
     'hxw,img,iso,jar,lha,lit,lzh,lzma,lzma86,mbr,msi,msp,nsis,ntfs,ppt,' +
-    'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,vhd,' +
-    'wim,xar,xls,xpi,xz,z,zip';
+    'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,txz,' +
+    'vhd,wim,xar,xls,xpi,xz,z,zip';
 
   // Little checks before default location...
   w7zPathTo7zexe := '7z.exe';
