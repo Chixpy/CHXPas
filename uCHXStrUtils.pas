@@ -23,6 +23,7 @@ function TextSimilarity(const aString1, aString2: string): byte;
   Based on http://www.catalysoft.com/articles/StrikeAMatch.html method tweaked
     a little.
 }
+function SetAsID(const aID: string): string;
 
 // DIRECTORY NAME UTILS
 // --------------------
@@ -227,6 +228,11 @@ begin
 
   if Union <> 0 then
     Result := Round(Intersection / Union * 100);
+end;
+
+function SetAsID(const aID: string): string;
+begin
+  Result := UTF8LowerString(UTF8Trim(aID));
 end;
 
 // DIRECTORY NAME UTILS
