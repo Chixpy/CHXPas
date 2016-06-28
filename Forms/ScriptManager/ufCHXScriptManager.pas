@@ -1,6 +1,4 @@
-{ This file is part of Emuteca
-
-  Copyright (C) 2006-2013 Chixpy
+{ Copyright (C) 2006-2016 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -30,7 +28,7 @@ uses
   StdCtrls, ShellCtrls, FileUtil, Dialogs, StdActns, Buttons,
   EditBtn, IniFiles,
   SynHighlighterPas, SynEdit, SynMacroRecorder, LazFileUtils,
-  uCHXScriptEngine,
+  ucCHXScriptEngine,
   // CHX
   uCHXStrUtils; //, uCHXImageUtils;
 
@@ -48,13 +46,9 @@ resourcestring
 
 
 type
+  { TfrmCHXScriptManager }
 
-  TSMLoadingListCallBack = function(const Game, Version: string;
-    const Max, Value: int64): boolean of object;
-
-  { TfrmScriptManager }
-
-  TfrmScriptManager = class(TForm)
+  TfrmCHXScriptManager = class(TForm)
     actCompile: TAction;
     actExecute: TAction;
     ActionList: TActionList;
@@ -120,15 +114,15 @@ type
   private
     { private declarations }
     FCurrentFile: string;
-    FScriptEngine: cScriptEngEmuteca;
+    FScriptEngine: cCHXScriptEngine;
     FScriptFolder: string;
     procedure SetCurrentFile(AValue: string);
-    procedure SetScriptEngine(AValue: cScriptEngEmuteca);
+    procedure SetScriptEngine(AValue: cCHXScriptEngine);
     procedure SetScriptFolder(AValue: string);
 
   protected
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
-    property ScriptEngine: cScriptEngEmuteca
+    property ScriptEngine: cCHXScriptEngine
       read FScriptEngine write SetScriptEngine;
 
     procedure LoadScriptFile(const aFile: string);
@@ -143,13 +137,13 @@ type
   end;
 
 var
-  frmScriptManager: TfrmScriptManager;
+  frmCHXScriptManager: TfrmCHXScriptManager;
 
 implementation
 
-{ TfrmScriptManager }
+{ TfrmCHXScriptManager }
 
-procedure TfrmScriptManager.slvSelectItem(Sender: TObject;
+procedure TfrmCHXScriptManager.slvSelectItem(Sender: TObject;
   Item: TListItem; Selected: boolean);
 var
   aSLV: TShellListView;
@@ -164,17 +158,17 @@ begin
     LoadScriptFile('');
 end;
 
-procedure TfrmScriptManager.actCompileExecute(Sender: TObject);
+procedure TfrmCHXScriptManager.actCompileExecute(Sender: TObject);
 begin
   Compile;
 end;
 
-procedure TfrmScriptManager.actExecuteExecute(Sender: TObject);
+procedure TfrmCHXScriptManager.actExecuteExecute(Sender: TObject);
 begin
   Execute;
 end;
 
-procedure TfrmScriptManager.actFileSaveAsAccept(Sender: TObject);
+procedure TfrmCHXScriptManager.actFileSaveAsAccept(Sender: TObject);
 begin
   SynEdit.Lines.SaveToFile(actFileSaveAs.Dialog.FileName);
 
@@ -186,7 +180,7 @@ begin
     SynEdit.SetFocus;
 end;
 
-procedure TfrmScriptManager.actFileSaveAsBeforeExecute(Sender: TObject);
+procedure TfrmCHXScriptManager.actFileSaveAsBeforeExecute(Sender: TObject);
 begin
   actFileSaveAs.Dialog.InitialDir := ExtractFileDir(CurrentFile);
   actFileSaveAs.Dialog.FileName := ExtractFileName(CurrentFile);
@@ -197,38 +191,38 @@ begin
   actFileSaveAs.Dialog.DefaultExt := kFileExtensionScript;
 end;
 
-procedure TfrmScriptManager.FormCreate(Sender: TObject);
+procedure TfrmCHXScriptManager.FormCreate(Sender: TObject);
 begin
-  FScriptEngine := cScriptEngEmuteca.Create;
+  FScriptEngine := cCHXScriptEngine.Create;
 end;
 
-procedure TfrmScriptManager.FormDestroy(Sender: TObject);
+procedure TfrmCHXScriptManager.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FScriptEngine);
 end;
 
-procedure TfrmScriptManager.SetCurrentFile(AValue: string);
+procedure TfrmCHXScriptManager.SetCurrentFile(AValue: string);
 begin
   if FCurrentFile = AValue then
     Exit;
   FCurrentFile := AValue;
 end;
 
-procedure TfrmScriptManager.SetScriptEngine(AValue: cScriptEngEmuteca);
+procedure TfrmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);
 begin
   if FScriptEngine = AValue then
     Exit;
   FScriptEngine := AValue;
 end;
 
-procedure TfrmScriptManager.SetScriptFolder(AValue: string);
+procedure TfrmCHXScriptManager.SetScriptFolder(AValue: string);
 begin
   if FScriptFolder = AValue then
     Exit;
   FScriptFolder := AValue;
 end;
 
-procedure TfrmScriptManager.LoadScriptFile(const aFile: string);
+procedure TfrmCHXScriptManager.LoadScriptFile(const aFile: string);
 var
   i: SizeInt;
   aIni: TIniFile;
@@ -266,7 +260,7 @@ begin
   end;
 end;
 
-function TfrmScriptManager.Compile: boolean;
+function TfrmCHXScriptManager.Compile: boolean;
 begin
   ScriptEngine.ScriptText := SynEdit.Lines;
 
@@ -281,7 +275,7 @@ begin
   Result := ScriptEngine.CompileScript;
 end;
 
-function TfrmScriptManager.Execute: boolean;
+function TfrmCHXScriptManager.Execute: boolean;
 begin
   PageControl.ActivePage := pagOutput;
 
@@ -293,7 +287,7 @@ begin
   Result := ScriptEngine.RunScript;
 end;
 
-procedure TfrmScriptManager.UpdateSLV;
+procedure TfrmCHXScriptManager.UpdateSLV;
 begin
   slvGeneral.Update;
 end;

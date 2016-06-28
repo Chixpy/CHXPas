@@ -13,11 +13,11 @@ object frmCHXImageViewer: TfrmCHXImageViewer
   OnCreate = FormCreate
   OnResize = FormResize
   Position = poMainFormCenter
-  LCLVersion = '1.5'
+  LCLVersion = '5.7'
   object sbInfo: TStatusBar
     Left = 0
-    Height = 20
-    Top = 460
+    Height = 23
+    Top = 457
     Width = 640
     Panels = <    
       item
@@ -158,7 +158,7 @@ object frmCHXImageViewer: TfrmCHXImageViewer
   object Image: TImage
     Cursor = crHandPoint
     Left = 155
-    Height = 438
+    Height = 435
     Top = 22
     Width = 485
     Align = alClient
@@ -173,19 +173,20 @@ object frmCHXImageViewer: TfrmCHXImageViewer
   end
   object Splitter: TSplitter
     Left = 150
-    Height = 438
+    Height = 435
     Top = 22
     Width = 5
     Visible = False
   end
   object vmImages: TVirtualMemo
     Left = 0
-    Height = 438
+    Height = 435
     Top = 22
     Width = 150
     Align = alLeft
     BorderStyle = bsSingle
     Color = clWhite
+    Colors.UnfocusedColor = clMedGray
     DefaultNodeHeight = 13
     DefaultText = 'Node'
     Header.AutoSizeIndex = 0

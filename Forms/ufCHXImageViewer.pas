@@ -17,20 +17,22 @@
 }
 
 { Unit of a simple Image Viewer. }
-unit fuCHXImageViewer;
+unit ufCHXImageViewer;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, FileUtil, vte_stringlist, LResources, Forms, Controls,
+  Classes, SysUtils, LazFileUtils, vte_stringlist, LResources, Forms, Controls,
   Graphics, Dialogs, ActnList, ComCtrls, Spin, ExtCtrls, StdCtrls, Menus,
-  Buttons,
+  Buttons, ShellCtrls,
   // Custom
-  uCHXImageUtils;
+  uCHXImageUtils, uCHXStrUtils;
 
 type
+
+  { TODO : Make it as a Frame }
 
   { TfrmCHXImageViewer }
 
@@ -96,8 +98,10 @@ type
   private
     FDragBeginX: longint;
     FDragBeginY: longint;
+    FIconsIniFile: string;
     procedure SetDragBeginX(AValue: longint);
     procedure SetDragBeginY(AValue: longint);
+    procedure SetIconsIniFile(AValue: TFilename);
 
   protected
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
@@ -110,7 +114,9 @@ type
     procedure StretchImage;
 
   public
-    procedure LoadIcons(aIconIniFile: TFilename);
+    property IconsIniFile: TFilename read FIconsIniFile write SetIconsIniFile;
+
+    procedure LoadIcons(aIconIniFile: TFilename); deprecated;
 
     procedure AddImages(aImageList: TStrings; Index: integer = 0);
     procedure AddImage(aImageFile: string);
@@ -273,12 +279,20 @@ begin
   FDragBeginY := AValue;
 end;
 
+procedure TfrmCHXImageViewer.SetIconsIniFile(AValue: TFilename);
+begin
+  FIconsIniFile:=SetAsFile(AValue);
+  ReadActionsIcons(IconsIniFile, Self.Name, '', ilActions, ActionList);
+end;
+
 procedure TfrmCHXImageViewer.LoadIcons(aIconIniFile: TFilename);
 begin
-  ReadActionsIcons(aIconIniFile, Self.Name, '', ilActions, ActionList);
+  IconsIniFile := aIconIniFile;
 end;
 
 procedure TfrmCHXImageViewer.ChangeImage;
+var
+  aFilename: string;
 begin
   if vmImages.Lines.Count = 0 then
     Exit;
@@ -286,17 +300,19 @@ begin
   if eCurrImage.Value > vmImages.Lines.Count then
     eCurrImage.Value := vmImages.Lines.Count;
 
-  if FileExistsUTF8(vmImages.Lines[eCurrImage.Value - 1]) then
+  aFilename:= vmImages.Lines[eCurrImage.Value - 1];
+
+  if FileExistsUTF8(aFilename) then
   begin
-    Image.Picture.LoadFromFile(vmImages.Lines[eCurrImage.Value - 1]);
+    Image.Picture.LoadFromFile(aFilename);
     sbInfo.Panels[1].Text :=
       IntToStr(Image.Picture.Width) + 'x' + IntToStr(Image.Picture.Height);
-    sbInfo.Panels[2].Text := vmImages.Lines[eCurrImage.Value - 1];
+    sbInfo.Panels[2].Text := aFilename;
     StretchImage;
   end
   else
   begin
-    vmImages.Lines.Delete(eCurrImage.Value);
+    vmImages.Lines.Delete(eCurrImage.Value - 1);
     eCurrImage.MaxValue := vmImages.Lines.Count;
     ChangeImage;
   end;
@@ -395,6 +411,6 @@ begin
 end;
 
 initialization
-  {$I fuImageViewer.lrs}
+  {$I ufCHXImageViewer.lrs}
 
 end.

@@ -41,8 +41,9 @@ procedure ReadActionsIcons(const aFileName, Section: string;
   @param(aFileName Filename of a ini file where the icons filenames are
     stored.)
   @param(Section Section where nfo will be searched.)
-  @param(BaseDir Base directory where icons wth rlative path are searched from.)
-  @param(ImageList An image list where images ade stored)
+  @param(BaseDir Base directory where icons wth relative path are searched
+    from. If '' search from ini file Folder.)
+  @param(ImageList An image list where images are stored)
   @param(ActionList An action list which actions will be assigned an image.)
 }
 
@@ -57,9 +58,10 @@ procedure ReadMenuIcons(const aFileName, Section: string;
 
   @param(aFileName Filename of a ini file where the icons filenames are
     stored.)
-  @param(Section Section where nfo will be searched.)
-  @param(BaseDir Base directory where icons wth rlative path are searched from.)
-  @param(ImageList An image list where images ade stored)
+  @param(Section Section where info will be searched.)
+    @param(BaseDir Base directory where icons wth relative path are searched
+    from. If '' search from ini file Folder.)
+  @param(ImageList An image list where images are stored)
   @param(Menu An menu which its items will be assigned an image.)
 }
 

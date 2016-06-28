@@ -1,4 +1,4 @@
-object frmScriptManager: TfrmScriptManager
+object frmCHXScriptManager: TfrmCHXScriptManager
   Left = 270
   Height = 480
   Top = 131
@@ -9,7 +9,7 @@ object frmScriptManager: TfrmScriptManager
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poMainFormCenter
-  LCLVersion = '1.5'
+  LCLVersion = '5.7'
   object pInfo: TPanel
     Left = 0
     Height = 58
@@ -719,13 +719,13 @@ object frmScriptManager: TfrmScriptManager
     end
     object pagOutput: TTabSheet
       Caption = 'Output'
-      ClientHeight = 284
-      ClientWidth = 810
+      ClientHeight = 326
+      ClientWidth = 711
       object mOutPut: TMemo
         Left = 0
-        Height = 284
+        Height = 326
         Top = 0
-        Width = 810
+        Width = 711
         Align = alClient
         ReadOnly = True
         ScrollBars = ssAutoBoth

@@ -19,7 +19,7 @@
 }
 
 { Unit of Script Engine class. }
-unit uCHXScriptEngine;
+unit ucCHXScriptEngine;
 
 {$mode objfpc}{$H+}
 
@@ -39,31 +39,22 @@ uses
   uPSC_graphics, uPSC_menus, uPSC_strutils,
   // CHX
   uCHXStrUtils,
-  // Emuteca
-  //uEmutecaCommon, uEmutecaRscStr { TODO : This must go out of Emuteca Core }
-
-  // Pascal Script Emuteca clases import
-
   // TODO 2: Generalize input and output as events,
   //   and move these units to fScriptManager.
-  ufSMAskFile, ufSMAskFolder
-  // Common
-  // uRscStr
-  // Emuteca
-  ;
+  ufSMAskFile, ufSMAskFolder;
 
 resourcestring
   rsSEECompilationMsg = 'Compiling: %s.';
   rsSEEExecutionMsg = 'Executing: %s.';
   rsSEEError = 'Error!';
-  rsSEEOK = 'Sucess!';
+  rsSEEOK = 'Success!';
 
 
 type
 
-  { cScriptEngEmuteca }
+  { cCHXScriptEngine }
 
-  cScriptEngEmuteca = class(TObject)
+  cCHXScriptEngine = class(TObject)
 
   private
     FCommonUnitFolder: string;
@@ -150,53 +141,53 @@ type
 
 implementation
 
-{ cScriptEngEmuteca }
+{ cCHXScriptEngine }
 
 
-function cScriptEngEmuteca.getScriptFile: string;
+function cCHXScriptEngine.getScriptFile: string;
 begin
   Result := PasScript.MainFileName;
 end;
 
-function cScriptEngEmuteca.getScriptText: TStrings;
+function cCHXScriptEngine.getScriptText: TStrings;
 begin
   Result := PasScript.Script;
 end;
 
-procedure cScriptEngEmuteca.SetCommonUnitFolder(AValue: string);
+procedure cCHXScriptEngine.SetCommonUnitFolder(AValue: string);
 begin
   FCommonUnitFolder := SetAsFolder(AValue);
 end;
 
-procedure cScriptEngEmuteca.SetOwnsScriptError(AValue: boolean);
+procedure cCHXScriptEngine.SetOwnsScriptError(AValue: boolean);
 begin
   if FOwnsScriptError = AValue then
     Exit;
   FOwnsScriptError := AValue;
 end;
 
-procedure cScriptEngEmuteca.SetOwnsScriptInfo(AValue: boolean);
+procedure cCHXScriptEngine.SetOwnsScriptInfo(AValue: boolean);
 begin
   if FOwnsScriptInfo = AValue then
     Exit;
   FOwnsScriptInfo := AValue;
 end;
 
-procedure cScriptEngEmuteca.SetOwnsScriptOutput(AValue: boolean);
+procedure cCHXScriptEngine.SetOwnsScriptOutput(AValue: boolean);
 begin
   if FOwnsScriptOutput = AValue then
     Exit;
   FOwnsScriptOutput := AValue;
 end;
 
-procedure cScriptEngEmuteca.SetPasScript(AValue: TPSScript);
+procedure cCHXScriptEngine.SetPasScript(AValue: TPSScript);
 begin
   if FPasScript = AValue then
     Exit;
   FPasScript := AValue;
 end;
 
-procedure cScriptEngEmuteca.SetScriptError(AValue: TStrings);
+procedure cCHXScriptEngine.SetScriptError(AValue: TStrings);
 begin
   if OwnsScriptError then
     FreeAndNil(FScriptError);
@@ -213,12 +204,12 @@ begin
   end;
 end;
 
-procedure cScriptEngEmuteca.setScriptFile(AValue: string);
+procedure cCHXScriptEngine.setScriptFile(AValue: string);
 begin
   PasScript.MainFileName := SetAsFile(AValue);
 end;
 
-procedure cScriptEngEmuteca.SetScriptInfo(AValue: TStrings);
+procedure cCHXScriptEngine.SetScriptInfo(AValue: TStrings);
 begin
   if OwnsScriptInfo then
     FreeAndNil(FScriptInfo);
@@ -235,7 +226,7 @@ begin
   end;
 end;
 
-procedure cScriptEngEmuteca.SetScriptOutput(AValue: TStrings);
+procedure cCHXScriptEngine.SetScriptOutput(AValue: TStrings);
 begin
   if OwnsScriptOutput then
     FreeAndNil(FScriptOutput);
@@ -252,12 +243,12 @@ begin
   end;
 end;
 
-procedure cScriptEngEmuteca.SetScriptText(AValue: TStrings);
+procedure cCHXScriptEngine.SetScriptText(AValue: TStrings);
 begin
   PasScript.Script := AValue;
 end;
 
-procedure cScriptEngEmuteca.PasScriptOnCompImport(Sender: TObject;
+procedure cCHXScriptEngine.PasScriptOnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
   SIRegister_StrUtils(x);
@@ -276,12 +267,12 @@ begin
 
 end;
 
-procedure cScriptEngEmuteca.PasScriptOnCompile(Sender: TPSScript);
+procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
 begin
   // Input and Output
-  Sender.AddMethod(Self, @cScriptEngEmuteca.WriteLn,
+  Sender.AddMethod(Self, @cCHXScriptEngine.WriteLn,
     'procedure WriteLn(const s: String)');
-  Sender.AddMethod(Self, @cScriptEngEmuteca.ReadLn,
+  Sender.AddMethod(Self, @cCHXScriptEngine.ReadLn,
     'function ReadLn(const aQuestion, DefAnswer: String): String;');
 
   // String handling UTF8 from LazUTF8 unit
@@ -293,13 +284,13 @@ begin
     'function UTF8ToSys(const S: String): String;');
   Sender.AddFunction(@SysToUTF8,
     'function SysToUTF8(const S: String): String;');
-  Sender.AddMethod(Self, @cScriptEngEmuteca.UTF8LowerCase,
+  Sender.AddMethod(Self, @cCHXScriptEngine.UTF8LowerCase,
     'function UTF8LowerCase(const AInStr: String): String;');
-  Sender.AddMethod(Self, @cScriptEngEmuteca.UTF8UpperCase,
+  Sender.AddMethod(Self, @cCHXScriptEngine.UTF8UpperCase,
     'function UTF8UpperCase(const AInStr: String): String;');
 
   // Misc string functions
-  Sender.AddMethod(Self, @cScriptEngEmuteca.RPos,
+  Sender.AddMethod(Self, @cCHXScriptEngine.RPos,
     'function RPos(const Substr: String; const Source: String) : Integer;');
 
   // Path and filename strings
@@ -325,19 +316,19 @@ begin
     'function DirectoryExistsUTF8(const aFileName: String): Boolean;');
 
   // Dialogs
-  Sender.AddMethod(Self, @cScriptEngEmuteca.AskFile,
+  Sender.AddMethod(Self, @cCHXScriptEngine.AskFile,
     'function AskFile(const aTitle, aExt, DefFile: String): String;');
-  Sender.AddMethod(Self, @cScriptEngEmuteca.AskFolder,
+  Sender.AddMethod(Self, @cCHXScriptEngine.AskFolder,
     'function AskFolder(const aTitle, DefFolder: String): String;');
 
 end;
 
-procedure cScriptEngEmuteca.PasScriptOnExecute(Sender: TPSScript);
+procedure cCHXScriptEngine.PasScriptOnExecute(Sender: TPSScript);
 begin
 
 end;
 
-function cScriptEngEmuteca.PasScriptOnFindUnknownFile(Sender: TObject;
+function cCHXScriptEngine.PasScriptOnFindUnknownFile(Sender: TObject;
   const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
@@ -366,7 +357,7 @@ begin
   Result := True;
 end;
 
-function cScriptEngEmuteca.PasScriptOnNeedFile(Sender: TObject;
+function cCHXScriptEngine.PasScriptOnNeedFile(Sender: TObject;
   const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
@@ -401,7 +392,7 @@ begin
   Result := True;
 end;
 
-procedure cScriptEngEmuteca.PasScriptOnExecImport(Sender: TObject;
+procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
   se: TPSExec; x: TPSRuntimeClassImporter);
 begin
   RIRegister_StrUtils_Routines(se);
@@ -429,32 +420,32 @@ begin
   }
 end;
 
-procedure cScriptEngEmuteca.WriteLn(const Str: string);
+procedure cCHXScriptEngine.WriteLn(const Str: string);
 begin
   ScriptOutput.Add(Str);
 end;
 
-function cScriptEngEmuteca.ReadLn(const aQuestion, DefAnswer: string): string;
+function cCHXScriptEngine.ReadLn(const aQuestion, DefAnswer: string): string;
 begin
   Result := InputBox(Application.Title, aQuestion, DefAnswer);
 end;
 
-function cScriptEngEmuteca.RPos(const Substr, Source: string): integer;
+function cCHXScriptEngine.RPos(const Substr, Source: string): integer;
 begin
   Result := strutils.RPos(Substr, Source);
 end;
 
-function cScriptEngEmuteca.UTF8LowerCase(const AInStr: string): string;
+function cCHXScriptEngine.UTF8LowerCase(const AInStr: string): string;
 begin
   Result := LazUTF8.UTF8LowerCase(AInStr, '');
 end;
 
-function cScriptEngEmuteca.UTF8UpperCase(const AInStr: string): string;
+function cCHXScriptEngine.UTF8UpperCase(const AInStr: string): string;
 begin
   Result := LazUTF8.UTF8UpperCase(AInStr, '');
 end;
 
-function cScriptEngEmuteca.AskFile(
+function cCHXScriptEngine.AskFile(
   const aTitle, aExt, DefFile: string): string;
 begin
   {
@@ -473,7 +464,7 @@ begin
   }
 end;
 
-function cScriptEngEmuteca.AskFolder(const aTitle, DefFolder: string): string;
+function cCHXScriptEngine.AskFolder(const aTitle, DefFolder: string): string;
 begin
   {
   Result := '';
@@ -490,7 +481,7 @@ begin
   }
 end;
 
-function cScriptEngEmuteca.RunScript: boolean;
+function cCHXScriptEngine.RunScript: boolean;
 begin
   Result := False;
   if not CompileScript then
@@ -509,7 +500,7 @@ begin
   ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEOK]));
 end;
 
-function cScriptEngEmuteca.CompileScript: boolean;
+function cCHXScriptEngine.CompileScript: boolean;
 var
   i: integer;
 begin
@@ -531,7 +522,7 @@ begin
   ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEOK]));
 end;
 
-constructor cScriptEngEmuteca.Create;
+constructor cCHXScriptEngine.Create;
 begin
   inherited Create;
 
@@ -550,7 +541,7 @@ begin
 
 end;
 
-destructor cScriptEngEmuteca.Destroy;
+destructor cCHXScriptEngine.Destroy;
 begin
   if OwnsScriptError then
     FreeAndNil(FScriptError);
