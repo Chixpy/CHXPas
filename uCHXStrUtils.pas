@@ -81,6 +81,9 @@ function AddToStringList(aList: TStrings; aString: string): integer;
     aTStrings.AddStrings(aTStrings)
 }
 
+function FileMaskFromStringList(aList: TStrings): string;
+{< Creates a file mask from a TStrings with an extension by line}
+
 // MISC
 // ----
 
@@ -412,6 +415,16 @@ begin
   Result := aList.IndexOf(aString);
   if Result = -1 then
     Result := aList.Add(aString);
+end;
+
+function FileMaskFromStringList(aList: TStrings): string;
+begin
+  Result := '';
+  if not assigned(aList) then Exit;
+
+  Result := aList.CommaText;
+  Result := AnsiReplaceText(Result,'"','');
+  Result := '*.' + AnsiReplaceText(Result,',',';*.');
 end;
 
 // UTILIDADES VARIAS
