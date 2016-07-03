@@ -461,7 +461,7 @@ end;
 initialization
   // Meh, hardcoding pseudo-constants
 
-  w7zFileExts := '001,7z,arj,bpl,bz2,bzip2,cab,cb7,cbr,cbz,chi,chm,chq,chw,' +
+  w7zFileExts := '001,7z,arj,bpl,bz2,bzip2,cab,cba,cb7,cbr,cbz,chi,chm,chq,chw,' +
     'cpio,cramfs,deb,dll,dmg,doc,exe,fat,flv,gz,gzip,hfs,hxi,hxq,hxr,hxs,' +
     'hxw,img,iso,jar,lha,lit,lzh,lzma,lzma86,mbr,msi,msp,nsis,ntfs,ppt,' +
     'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,txz,' +
