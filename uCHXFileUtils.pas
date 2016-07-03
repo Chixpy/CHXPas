@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, crc, FileUtil, LazFileUtils, LazUTF8,
-  uCHXStrUtils;
+  uCHXStrUtils, u7zWrapper;
 
 type
   TItFolderObj = function(Folder: string;
@@ -15,6 +15,22 @@ type
 
 { RemoveDir does the job...
 procedure RemoveEmptyFolders(aPath: string);
+}
+
+procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean = True);
+{< Searches all files with selected extensions, searching in compressed archives too.
+
+     @param(AOutFolderList StringList with the folder or compressed archive
+       were files in AOutFileList are found. If nil it will be created,
+       so must be freed elsewhere.)
+     @param(AOutFileList Files found (if they are in a compressed archive,
+       they have the internal folder structure). If nil it will be created,
+       so must be freed elsewhere.)
+     @param(aBaseFolder Folder were search.)
+     @param(aExtList Extensions StringList, one extension by line.)
+     @param(Recursive Search in (actual) subfolders too? If compressed archives
+       have internal folder structure file are found any way)
 }
 
 procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
@@ -79,6 +95,63 @@ begin
   end;
 end;
 
+procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
+var
+  FileMask: string;
+  Archives, Compressed: TStringList;
+  i, j: integer;
+begin
+  if not assigned(AOutFolderList) then
+    AOutFolderList := TStringList.Create;
+  if not assigned(AOutFileList) then
+    AOutFileList := TStringList.Create;
+
+  FileMask := FileMaskFromStringList(aExtList);
+
+  // 1.- Straight search
+  FindAllFiles(AOutFileList, aBaseFolder, FileMask, Recursive);
+
+  // 1.1.- Splitting Folders and Filenames
+  i := 0;
+  while i < AOutFileList.Count do
+  begin
+    AOutFolderList.Add(ExtractFilePath(AOutFileList[i]));
+    AOutFileList[i] := ExtractFileName(AOutFileList[i]);
+    Inc(i);
+  end;
+
+  // 2.- Search compressed archives
+  Archives := TStringList.Create;
+  Compressed := TStringList.Create;
+  try
+    FileMask := '*.' + UTF8StringReplace(w7zFileExts, ',', ';*.',  [rfReplaceAll, rfIgnoreCase]);
+    FindAllFiles(Archives, aBaseFolder, FileMask, Recursive);
+
+    // 2.1.- For every archive search files with this extension
+    i := 0;
+    while i < Archives.Count do
+    begin
+      Compressed.Clear;
+      w7zListFiles(Archives[i], Compressed, True, True, '');
+      j := 0;
+      while j < Compressed.Count do
+      begin
+        if SupportedExt(Compressed[j], aExtList) then
+        begin
+          AOutFolderList.Add(Archives[i]);
+          AOutFileList.Add(Compressed[j]);
+        end;
+        Inc(j);
+      end;
+      Inc(i);
+    end;
+    FreeAndNil(Archives);
+    FreeAndNil(Compressed);
+  finally
+  end;
+end;
+
 procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
   aFileName: string; Extensions: TStrings);
 
@@ -140,6 +213,7 @@ var
   Info: TSearchRec;
 begin
   { TODO : Check this }
+  {
   if FileList = nil then
     FileList := TStringList.Create
   else
@@ -213,6 +287,7 @@ begin
     finally
       FindCloseUTF8(Info);
     end;
+  }
 end;
 
 function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
