@@ -481,8 +481,10 @@ initialization
 finalization
 
   // We want to delete this directory anyways on finalization.
+  //   It's created before any change was made.
   DeleteDirectory(SetAsFolder(GetTempDir(False)) + 'w7zCache', False);
 
+  // Removing actual used Temp dir
   if DirectoryExistsUTF8(w7zCacheDir) = True then
     DeleteDirectory(w7zCacheDir, False);
 
