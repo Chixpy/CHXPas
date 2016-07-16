@@ -1,0 +1,56 @@
+object fmCHX7zConfig: TfmCHX7zConfig
+  Left = 0
+  Height = 240
+  Top = 0
+  Width = 320
+  AutoSize = True
+  ClientHeight = 240
+  ClientWidth = 320
+  TabOrder = 0
+  DesignLeft = 543
+  DesignTop = 230
+  object l7zExePath: TLabel
+    Left = 0
+    Height = 13
+    Top = 0
+    Width = 320
+    Align = alTop
+    Caption = 'Path to 7z.exe'
+    ParentColor = False
+  end
+  object e7zExePath: TFileNameEdit
+    Left = 0
+    Height = 21
+    Top = 13
+    Width = 320
+    FilterIndex = 0
+    HideDirectories = False
+    ButtonWidth = 23
+    NumGlyphs = 1
+    Align = alTop
+    MaxLength = 0
+    TabOrder = 0
+  end
+  object l7zGExePath: TLabel
+    Left = 0
+    Height = 13
+    Top = 34
+    Width = 320
+    Align = alTop
+    Caption = 'Path to 7zG.exe'
+    ParentColor = False
+  end
+  object e7zGExePath: TFileNameEdit
+    Left = 0
+    Height = 21
+    Top = 47
+    Width = 320
+    FilterIndex = 0
+    HideDirectories = False
+    ButtonWidth = 23
+    NumGlyphs = 1
+    Align = alTop
+    MaxLength = 0
+    TabOrder = 1
+  end
+end
