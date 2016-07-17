@@ -140,10 +140,10 @@ type
     property EscapeLFChar: string read FEscapeLFChar write SetEscapeLFChar;
     property EscapeLFMaxWidth: word read FEscapeLFMaxWidth write SetEscapeLFMaxWidth;
 
-    procedure LoadFromFile(const aFilename: string);
+    procedure LoadFromFile(aFilename: string = '');
     {< Reads a ini file from disk.
     }
-    procedure SaveToFile(const aFilename: string);
+    procedure SaveToFile(aFilename: string = '');
     {< Save a ini file to disk (it doesn't merge content).
 
       For merging, target file must be loaded first.
@@ -519,7 +519,7 @@ begin
   RemoveTralingEmptyLines(CurrSection);
 end;
 
-procedure cCHXIni.LoadFromFile(aFilename: string = '');
+procedure cCHXIni.LoadFromFile(aFilename: string);
 var
   StrList: TStringList;
 begin
@@ -535,7 +535,7 @@ begin
   end;
 end;
 
-procedure cCHXIni.SaveToFile(aFilename: string = '');
+procedure cCHXIni.SaveToFile(aFilename: string);
 var
   StrList: TStringList;
   CurrSection: cCHXIniSection;
