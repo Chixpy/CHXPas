@@ -9,6 +9,24 @@ uses
 
 type
 
+  { TODO : Use this from IniFiles }
+  TCHXIniOption = (ociStripComments,    // Strip comments when reading file
+    ociStripInvalid,
+    // Strip invalid lines when reading file.
+    ociEscapeLineFeeds, // Escape linefeeds when reading file.
+    ociCaseSensitive,   // Use Case sensitive section/key names
+    ociStripQuotes,
+    // Strip quotes when reading string values.
+    ociFormatSettingsActive);
+  // Use format settings when writing date/float etc.
+  TCHXIniOptions = set of TCHXIniOption;
+
+  TCHXIniSectionOption = (svoIncludeComments, svoIncludeInvalid,
+    svoIncludeQuotes);
+  TCHXIniSectionOptions = set of TCHXIniSectionOption;
+
+  TCHXIniValueOption = (ociNoQuotes, ociAutoQuotes, ociAlwaysQuotes);
+
   { cCHXIniLine class.
 
     This class represents a single line of an Ini file, with its Key, Value and
@@ -69,7 +87,8 @@ type
     {< Gets a cCHXIniLine by its key.}
     function ValueByKey(aKey, aDefault: string): string;
     {< Gets the value.}
-    function AddLine(aKey, aValue, aComment: string; MergeKeys: Boolean): cCHXIniLine;
+    function AddLine(aKey, aValue, aComment: string;
+      MergeKeys: boolean): cCHXIniLine;
 
     constructor Create(const aName, aComment: string); overload;
     destructor Destroy; override;
@@ -92,10 +111,11 @@ type
     FNewLine: string;
     FQuoteBegin: string;
     FQuoteEnd: string;
-    FRemoveQuotes: Boolean;
+    FRemoveQuotes: boolean;
     FSectionBegin: string;
     FSectionEnd: string;
     FSectionList: cCHXIniSectionList;
+    FWriteQuotes: TCHXIniValueOption;
     procedure SetAssignChar(AValue: string);
     procedure SetCommentBegin(AValue: string);
     procedure SetEscapeLF(AValue: boolean);
@@ -107,9 +127,10 @@ type
     procedure SetNewLine(AValue: string);
     procedure SetQuoteBegin(AValue: string);
     procedure SetQuoteEnd(AValue: string);
-    procedure SetRemoveQuotes(AValue: Boolean);
+    procedure SetRemoveQuotes(AValue: boolean);
     procedure SetSectionBegin(AValue: string);
     procedure SetSectionEnd(AValue: string);
+    procedure SetWriteQuotes(AValue: TCHXIniValueOption);
 
   protected
     property SectionList: cCHXIniSectionList read FSectionList;
@@ -119,18 +140,17 @@ type
   public
     property FileName: string read FFileName write SetFileName;
     {< Filename of Ini file.
-
-
     }
     property EscapeLF: boolean read FEscapeLF write SetEscapeLF;
-    property MergeSections: boolean read FMergeSections write SetMergeSections;
+    property MergeSections: boolean
+      read FMergeSections write SetMergeSections;
     property MergeKeys: boolean read FMergeKeys write SetMergeKeys;
 
     property CommentBegin: string read FCommentBegin write SetCommentBegin;
     property SectionBegin: string read FSectionBegin write SetSectionBegin;
     property SectionEnd: string read FSectionEnd write SetSectionEnd;
     property NewLine: string read FNewLine write SetNewLine;
-    property RemoveQuotes: Boolean read FRemoveQuotes write SetRemoveQuotes;
+    property RemoveQuotes: boolean read FRemoveQuotes write SetRemoveQuotes;
     {< Quotes are removed when a Value is readed, internally
       the value is stored as is.
     }
@@ -138,7 +158,10 @@ type
     property QuoteEnd: string read FQuoteEnd write SetQuoteEnd;
     property AssignChar: string read FAssignChar write SetAssignChar;
     property EscapeLFChar: string read FEscapeLFChar write SetEscapeLFChar;
-    property EscapeLFMaxWidth: word read FEscapeLFMaxWidth write SetEscapeLFMaxWidth;
+    property EscapeLFMaxWidth: word read FEscapeLFMaxWidth
+      write SetEscapeLFMaxWidth;
+    property WriteQuotes: TCHXIniValueOption
+      read FWriteQuotes write SetWriteQuotes;
 
     procedure LoadFromFile(aFilename: string = '');
     {< Reads a ini file from disk.
@@ -175,26 +198,34 @@ type
     }
 
     // Main reading string functions
-    function ReadString(const aSectionName, aKeyName, aDefault: string): string;
+    function ReadString(const aSectionName, aKeyName, aDefault:
+      string): string;
     {< Accesses a value by section and key name. }
-    function ReadString(const aSectionIndex: integer; const aKeyName,
-      aDefault: string): string;
+    function ReadString(const aSectionIndex: integer;
+      const aKeyName, aDefault: string): string;
     {< Accesses a value by section index and key name. }
-    function ReadString(const aSectionIndex, aKeyIndex: integer; const
-      aDefault: string): string;
+    function ReadString(const aSectionIndex, aKeyIndex: integer;
+      const aDefault: string): string;
     {< Accesses a value by section index and line. }
 
 
     // Common ini read functions
-    function ReadBoolean(const aSectionName, aKeyName: string; const aDefault: Boolean): Boolean;
-    function ReadMultiStrings(const aSectionName, aKeyName, aDefault: string; const Separator: char = ','): TStringList;
-    function ReadInteger(const aSectionName, aKeyName: string; const aDefault: integer): integer;
-    function ReadTPoint(const aSectionName, aKeyName: string; const aDefault: TPoint): TPoint;
+    function ReadBoolean(const aSectionName, aKeyName: string;
+      const aDefault: boolean): boolean;
+    function ReadMultiStrings(const aSectionName, aKeyName, aDefault: string;
+      const Separator: char = ','): TStringList;
+    function ReadInteger(const aSectionName, aKeyName: string;
+      const aDefault: integer): integer;
+    function ReadTPoint(const aSectionName, aKeyName: string;
+      const aDefault: TPoint): TPoint;
 
     // Common ini writing functions
-    procedure WriteString(const aSectionName, aKeyName, aValue: string);
-    procedure WriteBoolean(const aSectionName, aKeyName: string; const aValue: Boolean);
-    procedure WriteInteger(const aSectionName, aKeyName: string; const aValue: integer);
+    procedure WriteString(const aSectionName, aKeyName: string;
+      aValue: string);
+    procedure WriteBoolean(const aSectionName, aKeyName: string;
+      const aValue: boolean);
+    procedure WriteInteger(const aSectionName, aKeyName: string;
+      const aValue: integer);
 
     // Other methods (may be they must be protected...)
     procedure StrRemoveQuotes(var aString: string);
@@ -230,10 +261,10 @@ end;
 
 constructor cCHXIniLine.Create(const aKey, aValue, aComment: string);
 begin
-  inherited create;
+  inherited Create;
 
   Key := aKey;
-  Value:=aValue;
+  Value := aValue;
   Comment := aComment;
 end;
 
@@ -285,12 +316,13 @@ var
 begin
   Result := aDefault;
   aLine := LineByKey(aKey);
-  if aLine = nil then Exit;
+  if aLine = nil then
+    Exit;
   Result := aLine.Value;
 end;
 
 function cCHXIniSection.AddLine(aKey, aValue, aComment: string;
-  MergeKeys: Boolean): cCHXIniLine;
+  MergeKeys: boolean): cCHXIniLine;
 begin
   Result := nil;
 
@@ -327,92 +359,114 @@ end;
 
 procedure cCHXIni.SetAssignChar(AValue: string);
 begin
-  if FAssignChar = AValue then Exit;
+  if FAssignChar = AValue then
+    Exit;
   FAssignChar := AValue;
 end;
 
 procedure cCHXIni.SetCommentBegin(AValue: string);
 begin
-  if FCommentBegin = AValue then Exit;
+  if FCommentBegin = AValue then
+    Exit;
   FCommentBegin := AValue;
 end;
 
 procedure cCHXIni.SetEscapeLF(AValue: boolean);
 begin
-  if FEscapeLF = AValue then Exit;
+  if FEscapeLF = AValue then
+    Exit;
   FEscapeLF := AValue;
 end;
 
 procedure cCHXIni.SetEscapeLFChar(AValue: string);
 begin
-  if FEscapeLFChar = AValue then Exit;
+  if FEscapeLFChar = AValue then
+    Exit;
   FEscapeLFChar := AValue;
 end;
 
 procedure cCHXIni.SetEscapeLFMaxWidth(AValue: word);
 begin
-  if FEscapeLFMaxWidth = AValue then Exit;
+  if FEscapeLFMaxWidth = AValue then
+    Exit;
   FEscapeLFMaxWidth := AValue;
 end;
 
 procedure cCHXIni.SetFileName(AValue: string);
 begin
-  if FFileName = AValue then Exit;
+  if FFileName = AValue then
+    Exit;
   FFileName := AValue;
 end;
 
 procedure cCHXIni.SetMergeKeys(AValue: boolean);
 begin
-  if FMergeKeys = AValue then Exit;
+  if FMergeKeys = AValue then
+    Exit;
   FMergeKeys := AValue;
 end;
 
 procedure cCHXIni.SetMergeSections(AValue: boolean);
 begin
-  if FMergeSections = AValue then Exit;
+  if FMergeSections = AValue then
+    Exit;
   FMergeSections := AValue;
 end;
 
 procedure cCHXIni.SetNewLine(AValue: string);
 begin
-  if FNewLine = AValue then Exit;
+  if FNewLine = AValue then
+    Exit;
   FNewLine := AValue;
 end;
 
 procedure cCHXIni.SetQuoteBegin(AValue: string);
 begin
-  if FQuoteBegin = AValue then Exit;
+  if FQuoteBegin = AValue then
+    Exit;
   FQuoteBegin := AValue;
 end;
 
 procedure cCHXIni.SetQuoteEnd(AValue: string);
 begin
-  if FQuoteEnd = AValue then Exit;
+  if FQuoteEnd = AValue then
+    Exit;
   FQuoteEnd := AValue;
 end;
 
-procedure cCHXIni.SetRemoveQuotes(AValue: Boolean);
+procedure cCHXIni.SetRemoveQuotes(AValue: boolean);
 begin
-  if FRemoveQuotes = AValue then Exit;
+  if FRemoveQuotes = AValue then
+    Exit;
   FRemoveQuotes := AValue;
 end;
 
 procedure cCHXIni.SetSectionBegin(AValue: string);
 begin
-  if FSectionBegin = AValue then Exit;
+  if FSectionBegin = AValue then
+    Exit;
   FSectionBegin := AValue;
 end;
 
 procedure cCHXIni.SetSectionEnd(AValue: string);
 begin
-  if FSectionEnd = AValue then Exit;
+  if FSectionEnd = AValue then
+    Exit;
   FSectionEnd := AValue;
+end;
+
+procedure cCHXIni.SetWriteQuotes(AValue: TCHXIniValueOption);
+begin
+  if FWriteQuotes = AValue then
+    Exit;
+  FWriteQuotes := AValue;
 end;
 
 { cCHXIni }
 procedure cCHXIni.FillSectionList(aStringList: TStrings);
 
-  procedure ExtractInlineComment(const Str: string; var aValue, aComment: string);
+  procedure ExtractInlineComment(const Str: string;
+  var aValue, aComment: string);
   var
     aPos: integer;
   begin
@@ -433,11 +487,11 @@ procedure cCHXIni.FillSectionList(aStringList: TStrings);
 
   procedure RemoveTralingEmptyLines(aSection: cCHXIniSection);
   begin
-          while (aSection.Lines.Count > 0) and
-          (aSection.Lines[aSection.Lines.Count-1].Key = '') and
-          (aSection.Lines[aSection.Lines.Count-1].Value = '') and
-          (aSection.Lines[aSection.Lines.Count-1].Comment = '') do
-            aSection.Lines.Delete(aSection.Lines.Count-1);
+    while (aSection.Lines.Count > 0) and
+      (aSection.Lines[aSection.Lines.Count - 1].Key = '') and
+      (aSection.Lines[aSection.Lines.Count - 1].Value = '') and
+      (aSection.Lines[aSection.Lines.Count - 1].Comment = '') do
+      aSection.Lines.Delete(aSection.Lines.Count - 1);
 
   end;
 
@@ -469,8 +523,8 @@ begin
 
       // Is it a Section?
       aPos := UTF8Pos(SectionEnd, aValue);
-      if (UTF8Copy(aValue, 1, UTF8Length(SectionBegin)) = SectionBegin)
-        and (aPos <> 0) then
+      if (UTF8Copy(aValue, 1, UTF8Length(SectionBegin)) =
+        SectionBegin) and (aPos <> 0) then
       begin
         // Yes, it's a section
 
@@ -478,11 +532,11 @@ begin
         RemoveTralingEmptyLines(CurrSection);
 
         // Extracting Section Key
-        aKey := UTF8Trim(UTF8Copy(aValue, UTF8Length(SectionBegin) + 1,
-          aPos - 1 - UTF8Length(SectionBegin)));
+        aKey := UTF8Trim(UTF8Copy(aValue, UTF8Length(SectionBegin) +
+          1, aPos - 1 - UTF8Length(SectionBegin)));
         // Adding text after SectionEnd to aComment;
-        aComment := UTF8Trim(UTF8Copy(aValue, aPos + UTF8Length(SectionEnd),
-          MaxInt)) + aComment;
+        aComment := UTF8Trim(UTF8Copy(aValue, aPos +
+          UTF8Length(SectionEnd), MaxInt)) + aComment;
 
         CurrSection := SectionByName(aKey);
 
@@ -506,8 +560,8 @@ begin
         begin
           // Yes, it's a "key=value" line
           aKey := UTF8Trim(UTF8Copy(aValue, 1, aPos - 1));
-          aValue := UTF8Trim(UTF8Copy(aValue, aPos + UTF8Length(AssignChar),
-            Maxint));
+          aValue := UTF8Trim(UTF8Copy(aValue, aPos +
+            UTF8Length(AssignChar), Maxint));
         end;
         CurrSection.AddLine(aKey, aValue, aComment, MergeKeys);
       end;
@@ -523,7 +577,8 @@ procedure cCHXIni.LoadFromFile(aFilename: string);
 var
   StrList: TStringList;
 begin
-  if aFilename = '' then aFilename := FileName;
+  if aFilename = '' then
+    aFilename := FileName;
   StrList := TStringList.Create;
   try
     FileName := aFilename;
@@ -543,7 +598,8 @@ var
   aLine: string;
   i, j: integer;
 begin
-  if aFilename = '' then aFileName := FileName;
+  if aFilename = '' then
+    aFileName := FileName;
 
   StrList := TStringList.Create;
   try
@@ -555,10 +611,10 @@ begin
       if (i <> 0) or (CurrSection.Name <> '') then
       begin
         // aLine is holding the last line
-        if (aLine <> '') and (StrList.count > 0) then
+        if (aLine <> '') and (StrList.Count > 0) then
           // Adding a empty line between sections if there is not one already
           //   or it's the first line of the file...
-           StrList.Add('');
+          StrList.Add('');
         aLine := SectionBegin + CurrSection.Name + SectionEnd;
         if CurrSection.Comment <> '' then
           aLine := aline + ' ' + CommentBegin + ' ' + CurrSection.Comment;
@@ -596,11 +652,12 @@ end;
 
 function cCHXIni.SectionNameList: TStringList;
 var
-  i: Integer;
+  i: integer;
 begin
   Result := nil;
 
-  if SectionCount = 0 then Exit;
+  if SectionCount = 0 then
+    Exit;
 
   Result := TStringList.Create;
 
@@ -614,7 +671,7 @@ end;
 
 function cCHXIni.SectionByIndex(aIndex: integer): cCHXIniSection;
 begin
-  result := SectionList.Items[aIndex];
+  Result := SectionList.Items[aIndex];
 end;
 
 function cCHXIni.SectionByName(aSectionName: string): cCHXIniSection;
@@ -642,7 +699,8 @@ begin
   Result := SectionList.Count;
 end;
 
-function cCHXIni.ReadString(const aSectionName, aKeyName, aDefault: string): string;
+function cCHXIni.ReadString(
+  const aSectionName, aKeyName, aDefault: string): string;
 var
   aSection: cCHXIniSection;
 begin
@@ -652,20 +710,23 @@ begin
     Exit;
   Result := aSection.ValueByKey(aKeyName, aDefault);
 
-  if RemoveQuotes then StrRemoveQuotes(Result);
+  if RemoveQuotes then
+    StrRemoveQuotes(Result);
 end;
 
-function cCHXIni.ReadString(const aSectionIndex: integer; const aKeyName,
-  aDefault: string): string;
+function cCHXIni.ReadString(const aSectionIndex: integer;
+  const aKeyName, aDefault: string): string;
 var
   aSection: cCHXIniSection;
 begin
   Result := aDefault;
-  if SectionList.Count <= aSectionIndex then Exit;
+  if SectionList.Count <= aSectionIndex then
+    Exit;
   aSection := Self.SectionList[aSectionIndex];
   Result := aSection.ValueByKey(aKeyName, aDefault);
 
-  if RemoveQuotes then StrRemoveQuotes(Result);
+  if RemoveQuotes then
+    StrRemoveQuotes(Result);
 end;
 
 function cCHXIni.ReadString(const aSectionIndex, aKeyIndex: integer;
@@ -674,34 +735,38 @@ var
   aSection: cCHXIniSection;
 begin
   Result := aDefault;
-  if SectionList.Count <= aSectionIndex then Exit;
+  if SectionList.Count <= aSectionIndex then
+    Exit;
   aSection := Self.SectionList[aSectionIndex];
-  if aSection.Lines.Count <= aKeyIndex then Exit;
+  if aSection.Lines.Count <= aKeyIndex then
+    Exit;
   Result := aSection.Lines[aKeyIndex].Value;
 
-  if RemoveQuotes then StrRemoveQuotes(Result);
+  if RemoveQuotes then
+    StrRemoveQuotes(Result);
 end;
 
 function cCHXIni.ReadBoolean(const aSectionName, aKeyName: string;
-  const aDefault: Boolean): Boolean;
+  const aDefault: boolean): boolean;
 begin
-  Result := StrToBoolDef(ReadString(aSectionName,aKeyName,''), aDefault);
+  Result := StrToBoolDef(ReadString(aSectionName, aKeyName, ''), aDefault);
 end;
 
-function cCHXIni.ReadMultiStrings(const aSectionName, aKeyName, aDefault: string;
+function cCHXIni.ReadMultiStrings(
+  const aSectionName, aKeyName, aDefault: string;
   const Separator: char): TStringList;
 var
   aStr: string;
-  tmpRemoveQuotes: Boolean;
+  tmpRemoveQuotes: boolean;
 begin
   // TStringList Trick
   Result := TStringList.Create;
-  Result.StrictDelimiter := true;
+  Result.StrictDelimiter := True;
   Result.Delimiter := Separator;
   tmpRemoveQuotes := RemoveQuotes;
 
   if Result.QuoteChar + Result.QuoteChar = QuoteBegin + QuoteEnd then
-    RemoveQuotes := false; // Handled by TStringList
+    RemoveQuotes := False; // Handled by TStringList
   aStr := ReadString(aSectionName, aKeyName, '');
 
   RemoveQuotes := tmpRemoveQuotes;
@@ -714,7 +779,7 @@ end;
 function cCHXIni.ReadInteger(const aSectionName, aKeyName: string;
   const aDefault: integer): integer;
 begin
-  Result := StrToIntDef(ReadString(aSectionName,aKeyName,''),aDefault);
+  Result := StrToIntDef(ReadString(aSectionName, aKeyName, ''), aDefault);
 end;
 
 function cCHXIni.ReadTPoint(const aSectionName, aKeyName: string;
@@ -722,38 +787,57 @@ function cCHXIni.ReadTPoint(const aSectionName, aKeyName: string;
 var
   aSL: TStringList;
 begin
-    aSL := ReadMultiStrings(aSectionName, aKeyName, IntToStr(aDefault.x) + ','
-      + IntToStr(aDefault.y));
-    try
-      Result.x := StrToInt(aSL[0]);
-      Result.y := StrToInt(aSL[1]);
-    except
-      Result.x := aDefault.x;
-      Result.y := aDefault.y;
-    end;
-    FreeAndNil(aSL);
+  aSL := ReadMultiStrings(aSectionName, aKeyName, IntToStr(aDefault.x) +
+    ',' + IntToStr(aDefault.y));
+  try
+    Result.x := StrToInt(aSL[0]);
+    Result.y := StrToInt(aSL[1]);
+  except
+    Result.x := aDefault.x;
+    Result.y := aDefault.y;
+  end;
+  FreeAndNil(aSL);
 end;
 
 procedure cCHXIni.WriteBoolean(const aSectionName, aKeyName: string;
-  const aValue: Boolean);
+  const aValue: boolean);
 begin
-  WriteString(aSectionName, aKeyName, BoolToStr(aValue, true));
+  WriteString(aSectionName, aKeyName, BoolToStr(aValue, True));
 end;
 
-procedure cCHXIni.WriteString(const aSectionName, aKeyName, aValue: string);
+procedure cCHXIni.WriteString(const aSectionName, aKeyName: string;
+  aValue: string);
 var
   aSection: cCHXIniSection;
   aKey: cCHXIniLine;
 begin
+  // Write quotes?
+  // Already have quotes?
+  if (UTF8Pos(QuoteBegin, aValue) <> 1) or
+    (UTF8Copy(aValue, UTF8Length(aValue) - UTF8Length(QuoteEnd) +
+    1, UTF8Length(QuoteEnd)) <> QuoteEnd) then
+  begin
+    case Self.WriteQuotes of
+      ociAutoQuotes:
+      begin
+        { TODO : Only spaces are tested }
+        if (UTF8Copy(aValue, 1, 1) = ' ') or
+          (UTF8Copy(aValue, UTF8Length(aValue), 1) = ' ') then
+          aValue := self.QuoteBegin + aValue + Self.QuoteEnd;
+      end;
+      ociAlwaysQuotes: aValue := self.QuoteBegin + aValue + Self.QuoteEnd;
+    end;
+  end;
+
   aSection := SectionByName(aSectionName);
   if aSection = nil then
   begin
-    aSection:= cCHXIniSection.Create(aSectionName, '');
+    aSection := cCHXIniSection.Create(aSectionName, '');
     SectionList.add(aSection);
   end;
   aKey := aSection.LineByKey(aKeyName);
   if aKey = nil then
-    aKey:= aSection.AddLine(aKeyName,aValue,'',MergeKeys)
+    aKey := aSection.AddLine(aKeyName, aValue, '', MergeKeys)
   else
     aKey.Value := aValue;
 end;
@@ -761,18 +845,20 @@ end;
 procedure cCHXIni.WriteInteger(const aSectionName, aKeyName: string;
   const aValue: integer);
 begin
-  WriteString(aSectionName,aKeyName, IntToStr(aValue));
+  WriteString(aSectionName, aKeyName, IntToStr(aValue));
 end;
 
 procedure cCHXIni.StrRemoveQuotes(var aString: string);
 begin
-    if UTF8Pos(QuoteBegin, aString) <> 1 then exit;
-    if UTF8Copy(aString, UTF8Length(aString) - UTF8Length(QuoteEnd) + 1,
-      UTF8Length(QuoteEnd)) <> QuoteEnd then Exit;
+  if UTF8Pos(QuoteBegin, aString) <> 1 then
+    exit;
+  if UTF8Copy(aString, UTF8Length(aString) - UTF8Length(QuoteEnd) +
+    1, UTF8Length(QuoteEnd)) <> QuoteEnd then
+    Exit;
 
-    // Removing quotes
-    aString := UTF8Copy(aString, UTF8Length(QuoteBegin) + 1,
-      UTF8Length(aString) - UTF8Length(QuoteEnd) - UTF8Length(QuoteBegin));
+  // Removing quotes
+  aString := UTF8Copy(aString, UTF8Length(QuoteBegin) + 1,
+    UTF8Length(aString) - UTF8Length(QuoteEnd) - UTF8Length(QuoteBegin));
 end;
 
 
@@ -790,8 +876,9 @@ begin
   self.AssignChar := '=';
   self.EscapeLFChar := '\';
   self.EscapeLFMaxWidth := 80;
+  Self.WriteQuotes := ociAutoQuotes;
 
-  FSectionList := cCHXIniSectionList.Create(true);
+  FSectionList := cCHXIniSectionList.Create(True);
 end;
 
 destructor cCHXIni.Destroy;
@@ -801,28 +888,27 @@ begin
 end;
 
 initialization
-// Initializating some strings for boleean conversion...
+  // Initializating some strings for boleean conversion...
 
-// Weak Pascal syntax here...
-if length(TrueBoolStrs) = 0 then
-begin
-  setlength(TrueBoolStrs, 7);
-  TrueBoolStrs[0] := 'True';
-  TrueBoolStrs[1] := 'Yes';
-  TrueBoolStrs[2] := 'Si';
-  TrueBoolStrs[3] := 'Sí';
-  TrueBoolStrs[4] := '1';
-  TrueBoolStrs[5] := '-1';
-  TrueBoolStrs[6] := 'Enabled';
-end;
+  // Weak Pascal syntax here...
+  if length(TrueBoolStrs) = 0 then
+  begin
+    setlength(TrueBoolStrs, 7);
+    TrueBoolStrs[0] := 'True';
+    TrueBoolStrs[1] := 'Yes';
+    TrueBoolStrs[2] := 'Si';
+    TrueBoolStrs[3] := 'Sí';
+    TrueBoolStrs[4] := '1';
+    TrueBoolStrs[5] := '-1';
+    TrueBoolStrs[6] := 'Enabled';
+  end;
 
-if length(FalseBoolStrs) = 0 then
-begin
-  setlength(FalseBoolStrs, 4);
-  FalseBoolStrs[0] := 'False';
-  FalseBoolStrs[1] := 'No';
-  FalseBoolStrs[2] := '0';
-  FalseBoolStrs[3] := 'Disabled';
-end;
+  if length(FalseBoolStrs) = 0 then
+  begin
+    setlength(FalseBoolStrs, 4);
+    FalseBoolStrs[0] := 'False';
+    FalseBoolStrs[1] := 'No';
+    FalseBoolStrs[2] := '0';
+    FalseBoolStrs[3] := 'Disabled';
+  end;
 end.
-
