@@ -6,7 +6,6 @@ object frmCHXScriptManager: TfrmCHXScriptManager
   Caption = 'Script Manager'
   ClientHeight = 480
   ClientWidth = 719
-  OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poMainFormCenter
   LCLVersion = '5.7'

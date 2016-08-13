@@ -106,7 +106,6 @@ type
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure slvSelectItem(Sender: TObject; Item: TListItem;
       Selected: boolean);
@@ -194,11 +193,6 @@ begin
   actFileSaveAs.Dialog.DefaultExt := kFileExtensionScript;
 end;
 
-procedure TfrmCHXScriptManager.FormCreate(Sender: TObject);
-begin
-  FScriptEngine := cCHXScriptEngine.Create;
-end;
-
 procedure TfrmCHXScriptManager.FormDestroy(Sender: TObject);
 begin
   FreeAndNil(FScriptEngine);
@@ -268,6 +262,13 @@ end;
 
 function TfrmCHXScriptManager.Compile: boolean;
 begin
+  // Why not in FormCreate? jajajaja
+  // Simple reason, if ScripEngine is not assigned already we will create
+  //   a default one. This way, a children form can create a custom engine in
+  //   it's FormCreate overriding the default one.
+  if not assigned(ScriptEngine) then
+   FScriptEngine := cCHXScriptEngine.Create;
+
   ScriptEngine.ScriptText := SynEdit.Lines;
 
   // TODO 4: Put this in a better place near ScriptEngine creation.

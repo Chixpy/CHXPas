@@ -92,15 +92,15 @@ type
       write SetOwnsScriptError;
     {< Script error must be freed? }
 
-    procedure PasScriptOnCompImport(Sender: TObject; x: TPSPascalCompiler);
-    procedure PasScriptOnCompile(Sender: TPSScript);
+    procedure PasScriptOnCompImport(Sender: TObject; x: TPSPascalCompiler); virtual;
+    procedure PasScriptOnCompile(Sender: TPSScript); virtual;
     procedure PasScriptOnExecImport(Sender: TObject; se: TPSExec;
-      x: TPSRuntimeClassImporter);
-    procedure PasScriptOnExecute(Sender: TPSScript);
+      x: TPSRuntimeClassImporter); virtual;
+    procedure PasScriptOnExecute(Sender: TPSScript); virtual;
     function PasScriptOnFindUnknownFile(Sender: TObject;
-      const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
+      const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean; virtual;
     function PasScriptOnNeedFile(Sender: TObject;
-      const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
+      const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean; virtual;
 
     // Added functions
     // ---------------
