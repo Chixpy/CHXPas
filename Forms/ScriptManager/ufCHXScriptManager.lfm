@@ -66,6 +66,7 @@ object frmCHXScriptManager: TfrmCHXScriptManager
         TabOrder = 0
         OnSelectItem = slvSelectItem
         ObjectTypes = [otNonFolders]
+        ShellTreeView = ShellTreeView1
       end
       object Panel1: TPanel
         Left = 0
@@ -85,6 +86,7 @@ object frmCHXScriptManager: TfrmCHXScriptManager
           FileSortType = fstNone
           TabOrder = 0
           ObjectTypes = [otFolders]
+          ShellListView = slvGeneral
         end
         object DirectoryEdit1: TDirectoryEdit
           Left = 1

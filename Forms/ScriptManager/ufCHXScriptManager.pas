@@ -30,7 +30,7 @@ uses
   SynHighlighterPas, SynEdit, SynMacroRecorder, LazFileUtils,
   ucCHXScriptEngine,
   // CHX
-  uCHXStrUtils; //, uCHXImageUtils;
+  uCHXStrUtils, uCHXImageUtils;
 
 const
   kFileExtensionScript = 'pas';
@@ -114,11 +114,11 @@ type
   private
     { private declarations }
     FCurrentFile: string;
+    FIconsIni: string;
     FScriptEngine: cCHXScriptEngine;
-    FScriptFolder: string;
     procedure SetCurrentFile(AValue: string);
+    procedure SetIconsIni(AValue: string);
     procedure SetScriptEngine(AValue: cCHXScriptEngine);
-    procedure SetScriptFolder(AValue: string);
 
   protected
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
@@ -133,6 +133,9 @@ type
     procedure UpdateSLV;
 
   public
+     property IconsIni: string read FIconsIni write SetIconsIni;
+
+    procedure SetBaseFolder(const aFolder: string);
 
   end;
 
@@ -208,18 +211,21 @@ begin
   FCurrentFile := AValue;
 end;
 
+procedure TfrmCHXScriptManager.SetIconsIni(AValue: string);
+begin
+  if FIconsIni = AValue then
+    Exit;
+  FIconsIni := AValue;
+
+  if IconsIni <> '' then
+    ReadActionsIcons(IconsIni, Self.Name, '', ilActions, ActionList);
+end;
+
 procedure TfrmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);
 begin
   if FScriptEngine = AValue then
     Exit;
   FScriptEngine := AValue;
-end;
-
-procedure TfrmCHXScriptManager.SetScriptFolder(AValue: string);
-begin
-  if FScriptFolder = AValue then
-    Exit;
-  FScriptFolder := AValue;
 end;
 
 procedure TfrmCHXScriptManager.LoadScriptFile(const aFile: string);
@@ -290,6 +296,12 @@ end;
 procedure TfrmCHXScriptManager.UpdateSLV;
 begin
   slvGeneral.Update;
+end;
+
+procedure TfrmCHXScriptManager.SetBaseFolder(const aFolder: string);
+begin
+  DirectoryEdit1.Directory:=aFolder;
+  ShellTreeView1.Root:=aFolder;
 end;
 
 initialization
