@@ -27,7 +27,8 @@ interface
 
 uses
   // Common units
-  Classes, SysUtils, Controls, StrUtils, LazUTF8, Dialogs, Forms, LazFileUtils,
+  Classes, SysUtils, Controls, StrUtils, LazUTF8, Dialogs,
+  Forms, LazFileUtils,
   // Pascal Script main units
   uPSComponent, uPSRuntime, uPSCompiler, uPSUtils,
   // Pascal script common units import
@@ -88,19 +89,22 @@ type
     property OwnsScriptInfo: boolean read FOwnsScriptInfo
       write SetOwnsScriptInfo;
     {< Script info must be freed? }
-    property OwnsScriptError: boolean read FOwnsScriptError
-      write SetOwnsScriptError;
+    property OwnsScriptError: boolean
+      read FOwnsScriptError write SetOwnsScriptError;
     {< Script error must be freed? }
 
-    procedure PasScriptOnCompImport(Sender: TObject; x: TPSPascalCompiler); virtual;
+    procedure PasScriptOnCompImport(Sender: TObject;
+      x: TPSPascalCompiler); virtual;
     procedure PasScriptOnCompile(Sender: TPSScript); virtual;
     procedure PasScriptOnExecImport(Sender: TObject; se: TPSExec;
       x: TPSRuntimeClassImporter); virtual;
     procedure PasScriptOnExecute(Sender: TPSScript); virtual;
     function PasScriptOnFindUnknownFile(Sender: TObject;
-      const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean; virtual;
+      const OrginFileName: tbtstring;
+      var FileName, Output: tbtstring): boolean; virtual;
     function PasScriptOnNeedFile(Sender: TObject;
-      const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean; virtual;
+      const OriginFileName: tbtstring;
+      var FileName, Output: tbtstring): boolean; virtual;
 
     // Added functions
     // ---------------
@@ -124,8 +128,8 @@ type
 
   public
     property ScriptFile: string read getScriptFile write setScriptFile;
-    property CommonUnitFolder: string read FCommonUnitFolder
-      write SetCommonUnitFolder;
+    property CommonUnitFolder: string
+      read FCommonUnitFolder write SetCommonUnitFolder;
 
     property ScriptText: TStrings read getScriptText write setScriptText;
     property ScriptOutput: TStrings read FScriptOutput write SetScriptOutput;
@@ -265,6 +269,7 @@ begin
   SIRegister_Menus(x);
   SIRegister_DB(x);
 
+  SIRegister_u7zWrapper(x)
 end;
 
 procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
@@ -363,9 +368,9 @@ var
   FullFileName: string;
   F: TFileStream;
 begin
-  ShowMessage('PSScriptNeedFile:' + sLineBreak +
-    'OriginFileName: ' + OriginFileName + sLineBreak +
-    'FileName: ' + FileName + sLineBreak + 'Output: ' + Output + sLineBreak
+  ShowMessage('PSScriptNeedFile:' + sLineBreak + 'OriginFileName: ' +
+    OriginFileName + sLineBreak + 'FileName: ' + FileName +
+    sLineBreak + 'Output: ' + Output + sLineBreak
     );
 
 
@@ -409,15 +414,8 @@ begin
   RIRegister_Menus(x);
   RIRegister_DB(x);
 
-  {
-  RIRegister_u7zWrapper_Routines(se);
-  RIRegister_uEmulator(x);
-  RIRegister_uSystem(x);
-  RIRegister_uPlayingStats(x);
-  RIRegister_uGame(x);
-  RIRegister_uGameGroup(x);
-  RIRegister_uGameManager(x);
-  }
+  // CHX
+  SIRegister_u7zWrapper
 end;
 
 procedure cCHXScriptEngine.WriteLn(const Str: string);
@@ -432,7 +430,7 @@ end;
 
 function cCHXScriptEngine.RPos(const Substr, Source: string): integer;
 begin
-  Result := strutils.RPos(Substr, Source);
+  Result := StrUtils.RPos(Substr, Source);
 end;
 
 function cCHXScriptEngine.UTF8LowerCase(const AInStr: string): string;
