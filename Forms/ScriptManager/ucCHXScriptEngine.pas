@@ -39,7 +39,9 @@ uses
   uPSC_classes, uPSC_dateutils, uPSC_dll, uPSC_DB, uPSC_extctrls,
   uPSC_graphics, uPSC_menus, uPSC_strutils,
   // CHX
-  uCHXStrUtils,
+  uCHXStrUtils, u7zWrapper,
+  // Imported units
+  uPSI_u7zWrapper,
   // TODO 2: Generalize input and output as events,
   //   and move these units to fScriptManager.
   ufSMAskFile, ufSMAskFolder;
@@ -100,7 +102,7 @@ type
       x: TPSRuntimeClassImporter); virtual;
     procedure PasScriptOnExecute(Sender: TPSScript); virtual;
     function PasScriptOnFindUnknownFile(Sender: TObject;
-      const OrginFileName: tbtstring;
+      const OriginFileName: tbtstring;
       var FileName, Output: tbtstring): boolean; virtual;
     function PasScriptOnNeedFile(Sender: TObject;
       const OriginFileName: tbtstring;
@@ -269,6 +271,7 @@ begin
   SIRegister_Menus(x);
   SIRegister_DB(x);
 
+  // CHX
   SIRegister_u7zWrapper(x)
 end;
 
@@ -334,13 +337,13 @@ begin
 end;
 
 function cCHXScriptEngine.PasScriptOnFindUnknownFile(Sender: TObject;
-  const OrginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
+  const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
   f: TFileStream;
 begin
   Result := False;
-  FullFileName := SetAsFolder(ExtractFilePath(OrginFileName)) + FileName;
+  FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) + FileName;
   if not FileExistsUTF8(FullFileName) then
   begin
     FullFileName := SetAsFolder(CommonUnitFolder) + FileName;
@@ -415,7 +418,8 @@ begin
   RIRegister_DB(x);
 
   // CHX
-  SIRegister_u7zWrapper
+  RIRegister_u7zWrapper_Routines(se);
+  RIRegister_u7zWrapper(x);
 end;
 
 procedure cCHXScriptEngine.WriteLn(const Str: string);
