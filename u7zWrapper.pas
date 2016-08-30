@@ -1,6 +1,6 @@
 { 7z.exe and 7zG.exe Wrapper
 
-  Copyright (C) 2011-2012 Chixpy
+  Copyright (C) 2011-2016 Chixpy
 
   This source is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -22,17 +22,11 @@
 
   Last version tested 16.02, although may be works with any newer.
 
-  On Win10, older versions don't work.
+  On Win10, older versions of 7zip don't work.
 
   @definitionList(
     @itemLabel(NOTE:)
     @item(7z.exe, 7zG.exe and 7z.dll have their own licenses.)
-  )
-
-  @definitionList(
-    @itemLabel(NOTE:)
-    @item(Because PascalScript don't suport overloaded methods,
-      we don't use them right here.)
   )
 }
 unit u7zWrapper;
