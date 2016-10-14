@@ -5,7 +5,7 @@ unit uCHXFileUtils;
 interface
 
 uses
-  Classes, SysUtils, crc, FileUtil, LazFileUtils, LazUTF8,
+  Classes, SysUtils, crc, sha1, FileUtil, LazFileUtils, LazUTF8,
   uCHXStrUtils, u7zWrapper;
 
 type
@@ -36,8 +36,16 @@ procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
 procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
   aFileName: string; Extensions: TStrings);
 
-function CRC32File(const aFileName: string): cardinal;
-{< Calculates the CRC32 checksum of a file.
+
+// Some hashing
+function CRC32FileInt(const aFileName: string): cardinal;
+{< Calculates CRC32 checksum of a file.
+}
+function CRC32FileStr(const aFileName: string): string;
+{< Calculates CRC32 checksum of a file and return as string.
+}
+function SHA1FileStr(const aFileName: string): string;
+{< Calculates SHA1 checksum of a file and return as string.
 }
 
 function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
@@ -66,7 +74,7 @@ function FilesInFolder(Folder: string): integer;
 
 implementation
 
-function CRC32File(const aFileName: string): cardinal;
+function CRC32FileInt(const aFileName: string): cardinal;
 var
   aFile: TFileStream;
   BufferCRC: array[0..32767] of char;
@@ -93,6 +101,20 @@ begin
   finally
     FreeAndNil(aFile);
   end;
+end;
+
+function CRC32FileStr(const aFileName: string): string;
+begin
+  Result := '';
+  if FileExistsUTF8(aFileName) then
+    Result := IntToHex(CRC32FileInt(aFileName),8);
+end;
+
+function SHA1FileStr(const aFileName: string): string;
+begin
+  Result := '';
+  if FileExistsUTF8(aFileName) then
+    Result := SHA1Print(SHA1File(aFileName,32768));
 end;
 
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
