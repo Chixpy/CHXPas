@@ -12,6 +12,10 @@ uses Classes, Strutils, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
 
 // STRING UTILS
 // ------------
+function UTF8TextReplace(const S, OldPattern, NewPattern: string;
+  ALanguage: string = ''): string;
+{< Until it is not in LazUTF8...}
+
 function RemoveFromBrackets(const aString: string): string;
 {< Removes text from the first '(' o '[' found in the aString. }
 function CopyFromBrackets(const aString: string): string;
@@ -43,8 +47,8 @@ function UnixPath(const aPath: string): string;
 
 // FILENAME UTILS
 // ---------------
-function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
-  const PathAware: boolean = False): string;
+function CleanFileName(const AFileName: string;
+  const DoTrim: boolean = True; const PathAware: boolean = False): string;
 {< Changes some invalid characters in filenames.
 
   @param(DoTrim Trim spaces at beggining and end, preventing filenames beggining
@@ -111,6 +115,13 @@ function SecondsToFmtStr(aValue: int64): string;
 
 
 implementation
+
+function UTF8TextReplace(const S, OldPattern, NewPattern: string;
+  ALanguage: string): string;
+begin
+  Result := UTF8StringReplace(S, OldPattern, NewPattern,
+    [rfReplaceAll, rfIgnoreCase], ALanguage);
+end;
 
 // STRING UTILS
 // ------------
@@ -311,7 +322,7 @@ function WinPath(const aPath: string): string;
 var
   i: integer;
 begin
-  // Seems to be faster than StringReplace...
+  // Seems to be faster than UTF8TextReplace...
   Result := aPath;
   i := Length(Result);
   while i > 0 do
@@ -326,7 +337,7 @@ function UnixPath(const aPath: string): string;
 var
   i: integer;
 begin
-  // Seems to be faster than StringReplace...
+  // Seems to be faster than UTF8TextReplace...
   Result := aPath;
   i := Length(Result);
   while i > 0 do
@@ -339,49 +350,50 @@ end;
 
 // FILE NAME UTILS
 // ---------------
-function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
-  const PathAware: boolean = False): string;
+function CleanFileName(const AFileName: string;
+  const DoTrim: boolean = True; const PathAware: boolean = False): string;
 begin
 
   // Windows (and Linux) invalid characters
-  Result := AnsiReplaceText(AFileName, '?', '_');
-  Result := AnsiReplaceText(Result, '*', '-');
-  Result := AnsiReplaceText(Result, '"', '_');
-  Result := AnsiReplaceText(Result, '|', '-');
-  Result := AnsiReplaceText(Result, '<', '-');
-  Result := AnsiReplaceText(Result, '>', '-');
+  Result := UTF8TextReplace(AFileName, '?', '_');
+  Result := UTF8TextReplace(Result, '*', 'ª');
+  Result := UTF8TextReplace(Result, '"', '·');
+  Result := UTF8TextReplace(Result, '|', '$');
+  Result := UTF8TextReplace(Result, '<', '{');
+  Result := UTF8TextReplace(Result, '>', '}');
 
   if not PathAware then
   begin
-    Result := AnsiReplaceText(Result, '\', '-');
-    Result := AnsiReplaceText(Result, '/', '-');
+    Result := UTF8TextReplace(Result, '\', '&');
+    Result := UTF8TextReplace(Result, '/', '%');
   end;
 
-  if DoTrim then
+  if (length(Result) > 1) and (Result[2] = ':') and (PathAware) then
   begin
-    Result := AnsiReplaceText(Result, '  ', ' ');
-    Result := Trim(Result);
-    if PathAware then
-    begin
-      Result := AnsiReplaceText(Result, ' \', '\');
-      Result := AnsiReplaceText(Result, '\ ', '\');
-      Result := AnsiReplaceText(Result, ' /', '/');
-      Result := AnsiReplaceText(Result, '/ ', '/');
-    end;
-  end;
-
-  // Playing with ":"...
-  Result := AnsiReplaceText(Result, ' : ', ' - ');
-  Result := AnsiReplaceText(Result, ': ', ' - ');
-  Result := AnsiReplaceText(Result, ' :', ' - ');
-
-  if (length(Result) > 1) and (Result[2] = ':') and (PathAware) then  // C:\...
-  begin
-    Result := AnsiReplaceText(Result, ':', ' - ');
+    // C:\...
+    Result := UTF8TextReplace(Result, ':', '=');
     Result[2] := ':';
   end
   else
-    Result := AnsiReplaceText(Result, ':', ' - ');
+    Result := UTF8TextReplace(Result, ':', '=');
+
+  if DoTrim then
+  begin
+    while UTF8Pos('  ', Result) <> 0 do
+      Result := UTF8TextReplace(Result, '  ', ' ');
+    Result := Trim(Result);
+    if PathAware then
+    begin
+      while UTF8Pos(' \', Result) <> 0 do
+        Result := UTF8TextReplace(Result, ' \', '\');
+      while UTF8Pos('\ ', Result) <> 0 do
+        Result := UTF8TextReplace(Result, '\ ', '\');
+      while UTF8Pos(' /', Result) <> 0 do
+        Result := UTF8TextReplace(Result, ' /', '/');
+      while UTF8Pos('/ ', Result) <> 0 do
+        Result := UTF8TextReplace(Result, '/ ', '/');
+    end;
+  end;
 end;
 
 // UTILIDADES TSTRINGLIST
@@ -420,11 +432,12 @@ end;
 function FileMaskFromStringList(aList: TStrings): string;
 begin
   Result := '';
-  if not assigned(aList) then Exit;
+  if not assigned(aList) then
+    Exit;
 
   Result := aList.CommaText;
-  Result := AnsiReplaceText(Result,'"','');
-  Result := '*.' + AnsiReplaceText(Result,',',';*.');
+  Result := UTF8TextReplace(Result, '"', '');
+  Result := '*.' + UTF8TextReplace(Result, ',', ';*.');
 end;
 
 // UTILIDADES VARIAS
@@ -484,13 +497,9 @@ begin
 end;
 
 function StrToCardinal(const aString: string): cardinal;
-
-
-
 var
   h: int64;
 begin
-
   h := StrToInt64(aString);
   if (h > High(cardinal)) or (h < 0) then
     raise EConvertError.CreateFmt(rsCUExcCardRange, [h]);
