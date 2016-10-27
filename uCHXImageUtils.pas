@@ -78,7 +78,7 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
 function AddToImageList(aImageList: TImageList;
   const FileName: string): integer;
 
-function CorrectAspetRatio(OrigRect: TRect; aImage: TPicture): TRect;
+function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 {< Returns a TRect with the correct aspect ratio for the picture inside the
   OrigRect.
 }
@@ -254,13 +254,15 @@ begin
   end;
 end;
 
-function CorrectAspetRatio(OrigRect: TRect; aImage: TPicture): TRect;
+function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 var
   Adjustment: integer;
 begin
   Result := OrigRect;
+
   if aImage.Width > aImage.Height then
   begin
+    if aImage.Width = 0 then Exit;
     // Crazy formula, don't ask
     Adjustment := Round(((OrigRect.Right - OrigRect.Left) *
       (1 - (aImage.Height / aImage.Width))) / 2);
@@ -269,6 +271,7 @@ begin
   end
   else
   begin
+    if aImage.Height = 0 then Exit;
     Adjustment := Round(((OrigRect.Bottom - OrigRect.Top) *
       (1 - (aImage.Width / aImage.Height))) / 2);
     Result.Left := OrigRect.Left + Adjustment;
