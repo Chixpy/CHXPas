@@ -1,30 +1,27 @@
 { cImageList unit. }
-unit uCHXImageList;
+unit ucCHXImageList;
 
 {$mode objfpc}{$H+}
 
 interface
 
 uses
-  Classes, SysUtils, Graphics, FileUtil, fgl;
+  Classes, SysUtils, Graphics, FileUtil, LazFileUtils, fgl;
 
 type
 
-  { cImageList }
-  cImageList = class (specialize TFPGObjectList<TPicture>)
+  { cCHXImageList }
+  cCHXImageList = class (specialize TFPGObjectList<TPicture>)
   public
     function AddImageFile(aFile: String): Integer;
     function AddEmptyImage: Integer;
-
-    constructor Create;
-    destructor Destroy; override;
   end;
 
 implementation
 
-{ cImageList }
+{ cCHXImageList }
 
-function cImageList.AddImageFile(aFile: String): Integer;
+function cCHXImageList.AddImageFile(aFile: String): Integer;
 var
   Img: TPicture;
 begin
@@ -41,22 +38,12 @@ begin
   Result := Self.Add(Img);
 end;
 
-function cImageList.AddEmptyImage: Integer;
+function cCHXImageList.AddEmptyImage: Integer;
 var
   aImage: TPicture;
 begin
   aImage := TPicture.Create;
   Result := Self.Add(aImage);
-end;
-
-constructor cImageList.Create;
-begin
-  Inherited Create;
-end;
-
-destructor cImageList.Destroy;
-begin
-  inherited Destroy;
 end;
 
 end.

@@ -246,7 +246,7 @@ end;
 
 function SetAsID(const aID: string): string;
 begin
-  Result := UTF8LowerString(UTF8Trim(aID));
+  Result := UTF8Trim(aID);
 end;
 
 // DIRECTORY NAME UTILS
