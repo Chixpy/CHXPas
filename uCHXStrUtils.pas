@@ -371,11 +371,12 @@ begin
   if (length(Result) > 1) and (Result[2] = ':') and (PathAware) then
   begin
     // C:\...
-    Result := UTF8TextReplace(Result, ':', '=');
+    Result := UTF8TextReplace(Result, ':', '*'); // '*' allready replaced
     Result[2] := ':';
+    Result := UTF8TextReplace(Result, '*', ' - ');
   end
   else
-    Result := UTF8TextReplace(Result, ':', '=');
+    Result := UTF8TextReplace(Result, ':', ' - ');
 
   if DoTrim then
   begin
