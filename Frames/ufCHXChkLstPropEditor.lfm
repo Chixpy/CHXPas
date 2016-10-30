@@ -1,0 +1,195 @@
+inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
+  Height = 552
+  Width = 802
+  ClientHeight = 552
+  ClientWidth = 802
+  DesignLeft = 287
+  DesignTop = 118
+  inherited pButtons: TPanel
+    Top = 525
+    Width = 802
+    ClientWidth = 802
+    inherited bSave: TBitBtn
+      Left = 217
+    end
+    inherited bCancel: TBitBtn
+      Left = 504
+    end
+  end
+  object pPropChkList: TPanel[1]
+    Left = 0
+    Height = 525
+    Top = 0
+    Width = 200
+    Align = alLeft
+    ClientHeight = 525
+    ClientWidth = 200
+    TabOrder = 1
+    object tbPropChkList: TToolBar
+      Left = 1
+      Height = 26
+      Top = 1
+      Width = 198
+      Caption = 'tbPropChkList'
+      Images = ilListPropEditor
+      TabOrder = 0
+      object tbAddItem: TToolButton
+        Left = 1
+        Top = 2
+        Action = actAddItem
+      end
+      object tbSaveList: TToolButton
+        Left = 24
+        Top = 2
+        Action = actSaveList
+      end
+      object ToolButton3: TToolButton
+        Left = 47
+        Height = 22
+        Top = 2
+        Width = 8
+        Caption = 'ToolButton3'
+        Style = tbsSeparator
+      end
+      object tbImportList: TToolButton
+        Left = 55
+        Top = 2
+        Action = actImportList
+      end
+      object tbExportList: TToolButton
+        Left = 78
+        Top = 2
+        Action = actExportList
+      end
+      object ToolButton6: TToolButton
+        Left = 101
+        Height = 22
+        Top = 2
+        Width = 8
+        Caption = 'ToolButton6'
+        Style = tbsSeparator
+      end
+      object tbDeleteItem: TToolButton
+        Left = 109
+        Top = 2
+        Action = actDeleteItem
+      end
+    end
+    object clbPropItems: TCheckListBox
+      Left = 1
+      Height = 474
+      Top = 27
+      Width = 198
+      Align = alClient
+      ItemHeight = 0
+      OnClick = clbPropItemsClick
+      OnClickCheck = clbPropItemsClickCheck
+      TabOrder = 1
+    end
+    object sbPropChkList: TStatusBar
+      Left = 1
+      Height = 23
+      Top = 501
+      Width = 198
+      Panels = <>
+    end
+  end
+  object splPropChkList: TSplitter[2]
+    Left = 200
+    Height = 525
+    Top = 0
+    Width = 5
+  end
+  object ilListPropEditor: TImageList[3]
+    left = 32
+    top = 320
+  end
+  object alPropChkList: TActionList[4]
+    Images = ilListPropEditor
+    left = 32
+    top = 448
+    object actAddItem: TAction
+      Category = 'ItemList'
+      Caption = 'Add Item'
+      OnExecute = actAddItemExecute
+    end
+    object actSaveList: TAction
+      Category = 'ItemList'
+      Caption = 'Save List'
+      OnExecute = actSaveListExecute
+    end
+    object actDeleteItem: TAction
+      Category = 'ItemList'
+      Caption = 'Delete Item'
+      OnExecute = actDeleteItemExecute
+    end
+    object actExportList: TAction
+      Category = 'ItemList'
+      Caption = 'Export List'
+      OnExecute = actExportListExecute
+    end
+    object actImportList: TAction
+      Category = 'ItemList'
+      Caption = 'Import List'
+      OnExecute = actImportListExecute
+    end
+    object actSaveAndExit: TAction
+      Category = 'Form'
+      Caption = 'Save and Exit'
+      OnExecute = actSaveAndExitExecute
+    end
+    object actCancelAndExit: TAction
+      Category = 'Form'
+      Caption = 'actCancelAndExit'
+      OnExecute = actCancelAndExitExecute
+    end
+    object actCheckAll: TAction
+      Category = 'ItemList'
+      Caption = 'Check All'
+      OnExecute = actCheckAllExecute
+    end
+    object actUncheckAll: TAction
+      Category = 'ItemList'
+      Caption = 'Uncheck All'
+      OnExecute = actUncheckAllExecute
+    end
+    object actCreateSystemStructure: TAction
+      Category = 'ItemList'
+      Caption = 'actCreateSystemStructure'
+    end
+  end
+  object pmPropChkList: TPopupMenu[5]
+    left = 32
+    top = 384
+    object miCheckAll: TMenuItem
+      Action = actCheckAll
+    end
+    object miUncheckAll: TMenuItem
+      Action = actUncheckAll
+    end
+    object MenuItem10: TMenuItem
+      Caption = '-'
+    end
+    object miAddItem: TMenuItem
+      Action = actAddItem
+    end
+    object miSaveList: TMenuItem
+      Action = actSaveList
+    end
+    object MenuItem4: TMenuItem
+      Caption = '-'
+    end
+    object miImportList: TMenuItem
+      Action = actImportList
+    end
+    object miExportList: TMenuItem
+      Action = actExportList
+    end
+    object MenuItem7: TMenuItem
+      Caption = '-'
+    end
+    object miDeleteItem: TMenuItem
+      Action = actDeleteItem
+    end
+  end
+end

@@ -1,0 +1,51 @@
+object fmCHXPropEditor: TfmCHXPropEditor
+  Left = 0
+  Height = 240
+  Top = 0
+  Width = 320
+  Align = alTop
+  AutoSize = True
+  ClientHeight = 240
+  ClientWidth = 320
+  TabOrder = 0
+  DesignLeft = 398
+  DesignTop = 221
+  object pButtons: TPanel
+    Left = 0
+    Height = 27
+    Top = 213
+    Width = 320
+    Align = alBottom
+    AutoSize = True
+    Caption = '-'
+    ChildSizing.EnlargeHorizontal = crsHomogenousSpaceResize
+    ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 27
+    ClientWidth = 320
+    TabOrder = 0
+    object bSave: TBitBtn
+      Left = 56
+      Height = 26
+      Top = 0
+      Width = 70
+      Caption = 'Save'
+      Default = True
+      Kind = bkOK
+      OnClick = bSaveClick
+      TabOrder = 0
+    end
+    object bCancel: TBitBtn
+      Left = 182
+      Height = 26
+      Top = 0
+      Width = 82
+      Cancel = True
+      DefaultCaption = True
+      Kind = bkCancel
+      OnClick = bCancelClick
+      TabOrder = 1
+    end
+  end
+end
