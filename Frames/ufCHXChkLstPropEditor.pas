@@ -8,7 +8,6 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, StdCtrls,
   Graphics, Dialogs, ExtCtrls, Buttons, ComCtrls, CheckLst,
   ActnList, Menus,
-  uCHXImageUtils,
   ufCHXPropEditor;
 
 resourcestring
@@ -20,18 +19,12 @@ type
 
   TfmCHXChkLstPropEditor = class(TfmCHXPropEditor)
     actAddItem: TAction;
-    actCancelAndExit: TAction;
-    actCheckAll: TAction;
-    actCreateSystemStructure: TAction;
     actDeleteItem: TAction;
     actExportList: TAction;
     actImportList: TAction;
-    alPropChkList: TActionList;
-    actSaveAndExit: TAction;
-    actSaveList: TAction;
+    actCheckAll: TAction;
     actUncheckAll: TAction;
     clbPropItems: TCheckListBox;
-    ilListPropEditor: TImageList;
     miAddItem: TMenuItem;
     MenuItem10: TMenuItem;
     miDeleteItem: TMenuItem;
@@ -55,31 +48,18 @@ type
     tbExportList: TToolButton;
     ToolButton6: TToolButton;
     procedure actAddItemExecute(Sender: TObject);
-    procedure actCancelAndExitExecute(Sender: TObject);
     procedure actCheckAllExecute(Sender: TObject);
     procedure actDeleteItemExecute(Sender: TObject);
     procedure actExportListExecute(Sender: TObject);
     procedure actImportListExecute(Sender: TObject);
-    procedure actSaveAndExitExecute(Sender: TObject);
-    procedure actSaveListExecute(Sender: TObject);
     procedure actUncheckAllExecute(Sender: TObject);
     procedure clbPropItemsClick(Sender: TObject);
     procedure clbPropItemsClickCheck(Sender: TObject);
 
   private
-    FIconsIni: string;
-    procedure SetIconsIni(AValue: string);
     { private declarations }
 
   protected
-    procedure SaveData; override;
-    procedure LoadData; override;
-
-  public
-    property IconsIni: string read FIconsIni write SetIconsIni;
-
-    procedure SaveList; virtual; abstract;
-    procedure LoadList; virtual; abstract;
 
     procedure ExportList; virtual; abstract;
     procedure ImportList; virtual; abstract;
@@ -87,11 +67,15 @@ type
     procedure AddItemToList; virtual; abstract;
     procedure DeleteItemFromList; virtual; abstract;
 
-    procedure OnListCheckAll; virtual; abstract;
-    procedure OnListUncheckAll; virtual; abstract;
-    procedure OnListClick;  virtual; abstract;
-    procedure OnListClickCheck;  virtual; abstract;
+    procedure OnListClick(aObject: TObject);  virtual; abstract;
+    procedure OnListClickCheck(aObject: TObject; aBool: Boolean);  virtual; abstract;
+    procedure SetCheckedAll(aBool: Boolean); virtual; abstract;
 
+  public
+    procedure SaveData; override; abstract;
+    {< Save current data. }
+    procedure LoadData; override; abstract;
+    {< Load data. }
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -103,52 +87,35 @@ implementation
 
 { TfmCHXChkLstPropEditor }
 
-procedure TfmCHXChkLstPropEditor.actSaveAndExitExecute(Sender: TObject);
-begin
-  SaveData;
-end;
-
-procedure TfmCHXChkLstPropEditor.actSaveListExecute(Sender: TObject);
-begin
-  SaveData;
-end;
-
 procedure TfmCHXChkLstPropEditor.actUncheckAllExecute(Sender: TObject);
 begin
   clbPropItems.CheckAll(cbUnchecked);
-  OnListUncheckAll;
+  SetCheckedAll(False);
 end;
 
 procedure TfmCHXChkLstPropEditor.clbPropItemsClick(Sender: TObject);
 begin
   // TODO 3: Until TCheckListBox.OnItemClick works as expected...
   // http://www.lazarus.freepascal.org/index.php?topic=12319.0
-  OnListClick;
+  if clbPropItems.ItemIndex = -1 then
+    OnListClick(nil)
+  else
+    OnListClick(clbPropItems.Items.Objects[clbPropItems.ItemIndex]);
 end;
 
 procedure TfmCHXChkLstPropEditor.clbPropItemsClickCheck(Sender: TObject);
 begin
-  OnListClickCheck;
-end;
-
-procedure TfmCHXChkLstPropEditor.SetIconsIni(AValue: string);
-begin
-  if FIconsIni = AValue then Exit;
-  FIconsIni := AValue;
-
-    if IconsIni <> '' then
-    ReadActionsIcons(IconsIni, Self.Name, '', ilListPropEditor, alPropChkList);
-end;
-
-procedure TfmCHXChkLstPropEditor.actCancelAndExitExecute(Sender: TObject);
-begin
-  LoadData;
+   if clbPropItems.ItemIndex = -1 then
+    OnListClickCheck(nil, False)
+  else
+    OnListClickCheck(clbPropItems.Items.Objects[clbPropItems.ItemIndex],
+      clbPropItems.Checked[clbPropItems.ItemIndex]);
 end;
 
 procedure TfmCHXChkLstPropEditor.actCheckAllExecute(Sender: TObject);
 begin
-  clbPropItems.CheckAll(cbChecked);
-  OnListCheckAll;
+   clbPropItems.CheckAll(cbChecked);
+  SetCheckedAll(True);
 end;
 
 procedure TfmCHXChkLstPropEditor.actDeleteItemExecute(Sender: TObject);
@@ -163,7 +130,7 @@ end;
 
 procedure TfmCHXChkLstPropEditor.actImportListExecute(Sender: TObject);
 begin
-  ImportList;
+   ImportList;
 end;
 
 procedure TfmCHXChkLstPropEditor.actAddItemExecute(Sender: TObject);
@@ -171,21 +138,11 @@ begin
   AddItemToList;
 end;
 
-procedure TfmCHXChkLstPropEditor.SaveData;
-begin
-  SaveList;
-end;
-
-procedure TfmCHXChkLstPropEditor.LoadData;
-begin
-  LoadList;
-end;
-
 constructor TfmCHXChkLstPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
-  bSave.Caption := rsLECLPESaveList; // Make clear that is item list save
+  actSaveData.Caption := rsLECLPESaveList; // Make clear that is item list save
 end;
 
 destructor TfmCHXChkLstPropEditor.Destroy;

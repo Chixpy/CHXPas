@@ -31,7 +31,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Top = 1
       Width = 198
       Caption = 'tbPropChkList'
-      Images = ilListPropEditor
+      Images = ilPropEditor
       TabOrder = 0
       object tbAddItem: TToolButton
         Left = 1
@@ -41,7 +41,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       object tbSaveList: TToolButton
         Left = 24
         Top = 2
-        Action = actSaveList
+        Action = actSaveData
       end
       object ToolButton3: TToolButton
         Left = 47
@@ -84,6 +84,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       ItemHeight = 0
       OnClick = clbPropItemsClick
       OnClickCheck = clbPropItemsClickCheck
+      PopupMenu = pmPropChkList
       TabOrder = 1
     end
     object sbPropChkList: TStatusBar
@@ -100,67 +101,46 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Top = 0
     Width = 5
   end
-  object ilListPropEditor: TImageList[3]
+  inherited alPropEditor: TActionList[3]
     left = 32
-    top = 320
-  end
-  object alPropChkList: TActionList[4]
-    Images = ilListPropEditor
-    left = 32
-    top = 448
-    object actAddItem: TAction
-      Category = 'ItemList'
-      Caption = 'Add Item'
+    top = 184
+    object actAddItem: TAction[2]
+      Category = 'ChkLstProp'
+      Caption = 'Add item'
       OnExecute = actAddItemExecute
     end
-    object actSaveList: TAction
-      Category = 'ItemList'
-      Caption = 'Save List'
-      OnExecute = actSaveListExecute
-    end
-    object actDeleteItem: TAction
-      Category = 'ItemList'
-      Caption = 'Delete Item'
+    object actDeleteItem: TAction[3]
+      Category = 'ChkLstProp'
+      Caption = 'Delete item'
       OnExecute = actDeleteItemExecute
     end
-    object actExportList: TAction
-      Category = 'ItemList'
-      Caption = 'Export List'
+    object actExportList: TAction[4]
+      Category = 'ChkLstProp'
+      Caption = 'Export list'
       OnExecute = actExportListExecute
     end
-    object actImportList: TAction
-      Category = 'ItemList'
-      Caption = 'Import List'
+    object actImportList: TAction[5]
+      Category = 'ChkLstProp'
+      Caption = 'Import list'
       OnExecute = actImportListExecute
     end
-    object actSaveAndExit: TAction
-      Category = 'Form'
-      Caption = 'Save and Exit'
-      OnExecute = actSaveAndExitExecute
-    end
-    object actCancelAndExit: TAction
-      Category = 'Form'
-      Caption = 'actCancelAndExit'
-      OnExecute = actCancelAndExitExecute
-    end
-    object actCheckAll: TAction
-      Category = 'ItemList'
-      Caption = 'Check All'
+    object actCheckAll: TAction[6]
+      Category = 'ChkLstProp'
+      Caption = 'Check all'
       OnExecute = actCheckAllExecute
     end
-    object actUncheckAll: TAction
-      Category = 'ItemList'
-      Caption = 'Uncheck All'
+    object actUncheckAll: TAction[7]
+      Category = 'ChkLstProp'
+      Caption = 'Uncheck all'
       OnExecute = actUncheckAllExecute
     end
-    object actCreateSystemStructure: TAction
-      Category = 'ItemList'
-      Caption = 'actCreateSystemStructure'
-    end
+  end
+  inherited ilPropEditor: TImageList[4]
   end
   object pmPropChkList: TPopupMenu[5]
+    Images = ilPropEditor
     left = 32
-    top = 384
+    top = 432
     object miCheckAll: TMenuItem
       Action = actCheckAll
     end
@@ -174,7 +154,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Action = actAddItem
     end
     object miSaveList: TMenuItem
-      Action = actSaveList
+      Action = actSaveData
     end
     object MenuItem4: TMenuItem
       Caption = '-'
