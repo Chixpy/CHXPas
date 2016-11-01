@@ -60,6 +60,7 @@ type
     { private declarations }
 
   protected
+    procedure ClearData; override;
 
     procedure ExportList; virtual; abstract;
     procedure ImportList; virtual; abstract;
@@ -110,6 +111,11 @@ begin
   else
     OnListClickCheck(clbPropItems.Items.Objects[clbPropItems.ItemIndex],
       clbPropItems.Checked[clbPropItems.ItemIndex]);
+end;
+
+procedure TfmCHXChkLstPropEditor.ClearData;
+begin
+  clbPropItems.Clear;
 end;
 
 procedure TfmCHXChkLstPropEditor.actCheckAllExecute(Sender: TObject);

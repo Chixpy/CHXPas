@@ -17,7 +17,20 @@ type
     function AddEmptyImage: Integer;
   end;
 
+  { cCHXImageMap }
+
+  cCHXImageMap= class (specialize TFPGMapObject<string, TPicture>)
+   public
+    function AddImageFile(aKey, aFile: String): Integer;
+  end;
 implementation
+
+{ cCHXImageMap }
+
+function cCHXImageMap.AddImageFile(aKey, aFile: String): Integer;
+begin
+
+end;
 
 { cCHXImageList }
 
@@ -33,6 +46,7 @@ begin
   except
     // WOOPS, it can't be loaded.
     FreeAndNil(Img);
+    AddEmptyImage;
     Exit;
   end;
   Result := Self.Add(Img);
