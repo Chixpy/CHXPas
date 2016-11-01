@@ -28,8 +28,19 @@ implementation
 { cCHXImageMap }
 
 function cCHXImageMap.AddImageFile(aKey, aFile: String): Integer;
+var
+  Img: TPicture;
 begin
-
+  Result := 1;
+    Img := TPicture.Create;
+  try
+    Img.LoadFromFile(aFile);
+  except
+    // WOOPS, it can't be loaded.
+    FreeAndNil(Img);
+    Result := -1;
+  end;
+  Self.AddOrSetData(aKey, Img);
 end;
 
 { cCHXImageList }
@@ -39,14 +50,13 @@ var
   Img: TPicture;
 begin
   Result := -1;
-  if not FileExistsUTF8(aFile) then Exit;
   Img := TPicture.Create;
   try
     Img.LoadFromFile(aFile);
   except
     // WOOPS, it can't be loaded.
     FreeAndNil(Img);
-    AddEmptyImage;
+    Result := AddEmptyImage;
     Exit;
   end;
   Result := Self.Add(Img);
