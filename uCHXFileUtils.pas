@@ -9,9 +9,9 @@ uses
   uCHXStrUtils, u7zWrapper;
 
 type
-  TItFolderObj = function(Folder: string;
+  TItFolderObj = function(aFolder: string;
     FileInfo: TSearchRec): boolean of object;
-  TItFolderFun = function(Folder: string; FileInfo: TSearchRec): boolean;
+  TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
 
 { RemoveDir does the job...
 procedure RemoveEmptyFolders(aPath: string);

@@ -30,6 +30,9 @@ type
     procedure SetIconsIni(AValue: string);
     procedure SetSaveButtons(AValue: boolean);
 
+  protected
+    procedure ClearData; virtual; abstract;
+
   public
     { public declarations }
     property SaveButtons: boolean read FSaveButtons write SetSaveButtons;
