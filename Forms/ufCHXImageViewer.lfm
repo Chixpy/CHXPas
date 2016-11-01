@@ -13,7 +13,7 @@ object frmCHXImageViewer: TfrmCHXImageViewer
   OnCreate = FormCreate
   OnResize = FormResize
   Position = poMainFormCenter
-  LCLVersion = '5.7'
+  LCLVersion = '6.0'
   object sbInfo: TStatusBar
     Left = 0
     Height = 23

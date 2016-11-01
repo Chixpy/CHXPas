@@ -119,7 +119,7 @@ type
     procedure LoadIcons(aIconIniFile: TFilename); deprecated;
 
     procedure AddImages(aImageList: TStrings; Index: integer = 0);
-    procedure AddImage(aImageFile: string);
+    procedure AddImage(aImageFile: string; aObject: TObject = nil);
   end;
 
 var
@@ -402,10 +402,9 @@ begin
   ChangeImage;
 end;
 
-procedure TfrmCHXImageViewer.AddImage(aImageFile: string);
+procedure TfrmCHXImageViewer.AddImage(aImageFile: string; aObject: TObject);
 begin
-  vmImages.Lines.Add(aImageFile);
-  eCurrImage.Value := 1;
+  vmImages.Lines.AddObject(aImageFile, aObject);
   eCurrImage.MaxValue := vmImages.Lines.Count;
   ChangeImage;
 end;
