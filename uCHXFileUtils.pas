@@ -147,7 +147,11 @@ begin
   Archives := TStringList.Create;
   Compressed := TStringList.Create;
   try
-    FileMask := '*.' + UTF8StringReplace(w7zFileExts, ',', ';*.',  [rfReplaceAll, rfIgnoreCase]);
+    // Creating FileMask for compressed archives
+    Compressed.CommaText := w7zFileExts;
+    FileMask := FileMaskFromStringList(Compressed);
+    Compressed.Clear;
+
     FindAllFiles(Archives, aBaseFolder, FileMask, Recursive);
 
     // 2.1.- For every archive search files with this extension
@@ -168,9 +172,9 @@ begin
       end;
       Inc(i);
     end;
+  finally
     FreeAndNil(Archives);
     FreeAndNil(Compressed);
-  finally
   end;
 end;
 

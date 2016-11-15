@@ -22,6 +22,9 @@ type
   cCHXImageMap= class (specialize TFPGMapObject<string, TPicture>)
    public
     function AddImageFile(aKey, aFile: String): Boolean;
+
+    constructor Create(AFreeObjects: Boolean);
+    constructor Create;
   end;
 implementation
 
@@ -41,6 +44,19 @@ begin
     Result := False; // Not added.
   end;
   Self.AddOrSetData(aKey, Img);
+end;
+
+constructor cCHXImageMap.Create(AFreeObjects: Boolean);
+begin
+  inherited Create(AFreeObjects);
+
+  // FIX: Key not found !!!???
+  Sorted := True;
+end;
+
+constructor cCHXImageMap.Create;
+begin
+  Create(True);
 end;
 
 { cCHXImageList }
