@@ -494,7 +494,16 @@ begin
   aValue := aValue div 60;
   Result := RightStr('00' + IntToStr(aValue mod 60), 2) + ':' + Result;
   aValue := aValue div 60;
-  Result := IntToStr(aValue) + ':' + Result;
+
+  // days too.. :-P
+  if aValue > 23 then
+  begin
+    Result := RightStr('00' + IntToStr(aValue mod 24), 2) + ':' + Result;
+    aValue := aValue div 24;
+    Result := IntToStr(aValue) + 'd ' + Result;
+  end
+  else
+    Result := IntToStr(aValue) + ':' + Result;
 end;
 
 function StrToCardinal(const aString: string): cardinal;
