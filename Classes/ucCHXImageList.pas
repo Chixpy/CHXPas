@@ -50,7 +50,7 @@ constructor cCHXImageMap.Create(AFreeObjects: Boolean);
 begin
   inherited Create(AFreeObjects);
 
-  // FIX: Key not found !!!???
+  // FIX: Sometimes Key is not found !!!???
   Sorted := True;
 end;
 
