@@ -16,15 +16,15 @@ type
   private
     FConfigFile: string;
     procedure SetConfigFile(AValue: string);
+
   protected
     procedure OnLoadConfig(IniFile: TIniFile); virtual; abstract;
     procedure OnSaveConfig(IniFile: TIniFile); virtual; abstract;
-    procedure OnSetDefaults; virtual; abstract;
 
   public
     procedure LoadConfig(aFileName: string);
     procedure SaveConfig(aFilename: string);
-    procedure ResetDefaultConfig;
+    procedure ResetDefaultConfig; virtual; abstract;
 
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
@@ -82,11 +82,6 @@ begin
   finally
     FreeAndNil(aIniFile);
   end;
-end;
-
-procedure vcConfig.ResetDefaultConfig;
-begin
-  OnSetDefaults;
 end;
 
 constructor vcConfig.Create(aOwner: TComponent);

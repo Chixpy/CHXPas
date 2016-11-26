@@ -36,6 +36,9 @@ procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
 procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
   aFileName: string; Extensions: TStrings);
 
+function SearchFirstMediaFile(aFolder: string; aFileName: string;
+  Extensions: TStrings): string;
+{< Same as SearchMediaFiles but returns only first matched file. }
 
 // Some hashing
 function CRC32FileInt(const aFileName: string): cardinal;
@@ -107,14 +110,14 @@ function CRC32FileStr(const aFileName: string): string;
 begin
   Result := '';
   if FileExistsUTF8(aFileName) then
-    Result := IntToHex(CRC32FileInt(aFileName),8);
+    Result := IntToHex(CRC32FileInt(aFileName), 8);
 end;
 
 function SHA1FileStr(const aFileName: string): string;
 begin
   Result := '';
   if FileExistsUTF8(aFileName) then
-    Result := SHA1Print(SHA1File(aFileName,32768));
+    Result := SHA1Print(SHA1File(aFileName, 32768));
 end;
 
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
@@ -314,6 +317,51 @@ begin
       FindCloseUTF8(Info);
     end;
   }
+end;
+
+function SearchFirstMediaFile(aFolder: string; aFileName: string;
+  Extensions: TStrings): string;
+
+  function SearchFileByExt(aBaseFileName: string; aExtList: TStrings): string;
+  var
+    i: integer;
+  begin
+    Result := '';
+    i := 0;
+    while (i < aExtList.Count) and (Result = '') do
+    begin
+      if FileExistsUTF8(aBaseFileName + ExtensionSeparator + aExtList[i]) then
+        Result := aBaseFileName + ExtensionSeparator + aExtList[i];
+      Inc(i);
+    end;
+  end;
+
+begin
+  Result := '';
+
+  aFolder := SetAsFolder(aFolder);
+  aFileName := RemoveFromBrackets(aFileName);
+  if (aFileName = '') or (aFolder = '') or
+    (not DirectoryExistsUTF8(aFolder)) or (Extensions = nil) or
+    (Extensions.Count = 0) then
+    Exit;
+
+  // 1. Basic search
+  // Folder/aFileName.mext
+  Result := SearchFileByExt(aFolder + aFileName, Extensions);
+
+  // 2. Search in folder
+  // Folder/aFileName/*.mext
+
+  // 3.a Search in cache folder
+  // TempFolder/Type/aFileName/*.mext
+
+  // 3.b Search in compressed archive
+  // Folder/aFileName.zip/*.mext (extract to TempFolder/Type/aFileName/*.mext)
+
+  // 4. If none found, search ONLY ONE from every compressed archive.
+  // Folder/*.zip/aFileName.mext
+
 end;
 
 function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
