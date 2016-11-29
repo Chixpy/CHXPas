@@ -43,6 +43,7 @@ resourcestring
   w7zFileNotFound = '"%0:s" file not found';
   //< Translatable string: '"%0:s" file not found'
   w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
+
 //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
 
 const
@@ -64,7 +65,7 @@ var
   w7zPathTo7zexe: string;
   {< Path to 7z.exe executable.
 
-    It can be usefull for hidding the process, but it's
+    It can be useful for hidding the process, but it's
       needed for listing archives anyways.
   }
   w7zPathTo7zGexe: string;
@@ -72,7 +73,6 @@ var
   }
 
   w7zCacheDir: string;
-
   {< Directory were lists of files from compressed archives are stored.
 
     Defaults to '%USERTEMPDIR%/w7zCache', and the directory is deleted at
