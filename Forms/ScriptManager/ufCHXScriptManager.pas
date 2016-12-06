@@ -132,7 +132,7 @@ type
     procedure UpdateSLV;
 
   public
-     property IconsIni: string read FIconsIni write SetIconsIni;
+    property IconsIni: string read FIconsIni write SetIconsIni;
 
     procedure SetBaseFolder(const aFolder: string);
 
@@ -211,8 +211,7 @@ begin
     Exit;
   FIconsIni := AValue;
 
-  if IconsIni <> '' then
-    ReadActionsIcons(IconsIni, Self.Name, '', ilActions, ActionList);
+  ReadActionsIcons(IconsIni, Self.Name, ilActions, ActionList);
 end;
 
 procedure TfrmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);
@@ -267,7 +266,7 @@ begin
   //   a default one. This way, a children form can create a custom engine in
   //   it's FormCreate overriding the default one.
   if not assigned(ScriptEngine) then
-   FScriptEngine := cCHXScriptEngine.Create;
+    FScriptEngine := cCHXScriptEngine.Create;
 
   ScriptEngine.ScriptText := SynEdit.Lines;
 
@@ -301,8 +300,8 @@ end;
 
 procedure TfrmCHXScriptManager.SetBaseFolder(const aFolder: string);
 begin
-  DirectoryEdit1.Directory:=aFolder;
-  ShellTreeView1.Root:=aFolder;
+  DirectoryEdit1.Directory := aFolder;
+  ShellTreeView1.Root := aFolder;
 end;
 
 initialization

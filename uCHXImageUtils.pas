@@ -30,7 +30,7 @@ uses
   uCHXStrUtils;
 
 procedure ReadActionsIcons(const aFileName, Section: string;
-  BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
+  ImageList: TImageList; ActionList: TCustomActionList);
 {< Reads icons for the diferent actions a ImageList and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
@@ -41,14 +41,12 @@ procedure ReadActionsIcons(const aFileName, Section: string;
   @param(aFileName Filename of a ini file where the icons filenames are
     stored.)
   @param(Section Section where nfo will be searched.)
-  @param(BaseDir Base directory where icons wth relative path are searched
-    from. If '' search from ini file Folder.)
   @param(ImageList An image list where images are stored)
   @param(ActionList An action list which actions will be assigned an image.)
 }
 
-procedure ReadMenuIcons(const aFileName, Section: string;
-  BaseDir: string; ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string; ImageList: TImageList;
+  Menu: TMenu);
 {< Reads icons for menu items with no action assigned and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
@@ -59,8 +57,6 @@ procedure ReadMenuIcons(const aFileName, Section: string;
   @param(aFileName Filename of a ini file where the icons filenames are
     stored.)
   @param(Section Section where info will be searched.)
-    @param(BaseDir Base directory where icons wth relative path are searched
-    from. If '' search from ini file Folder.)
   @param(ImageList An image list where images are stored)
   @param(Menu An menu which its items will be assigned an image.)
 }
@@ -86,19 +82,22 @@ function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 implementation
 
 procedure ReadActionsIcons(const aFileName, Section: string;
-  BaseDir: string; ImageList: TImageList; ActionList: TCustomActionList);
+  ImageList: TImageList; ActionList: TCustomActionList);
 var
   IniFile: TMemIniFile;
   Cont: integer;
   IconFile: string;
+  BaseDir: string;
 begin
-  BaseDir := SetAsFolder(BaseDir);
-  if BaseDir = '' then
-    BaseDir := ExtractFilePath(aFileName);
-  ActionList.Images := ImageList;
-
+  if aFileName = '' then
+    Exit;
   if Section = '' then
     Exit;
+  if not Assigned(ImageList) then
+    Exit;
+
+  BaseDir := ExtractFilePath(aFileName);
+  ActionList.Images := ImageList;
 
   IniFile := TMemIniFile.Create(UTF8ToSys(aFileName));
   try
@@ -122,8 +121,8 @@ begin
   end;
 end;
 
-procedure ReadMenuIcons(const aFileName, Section: string;
-  BaseDir: string; ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string; ImageList: TImageList;
+  Menu: TMenu);
 
   procedure ReadIcon(IniFile: TMemIniFile; ImageList: TImageList;
     Menu: TMenuItem; Section: string; BaseDir: string);
@@ -154,20 +153,25 @@ procedure ReadMenuIcons(const aFileName, Section: string;
   //procedure ReadMenuIcons(const aFileName, Section, BaseDir: String;
   //  ImageList: TImageList; Menu: TMenu);
 var
+  BaseDir: string;
   IniFile: TMemIniFile;
   Cont: integer;
 begin
-  BaseDir := SetAsFolder(BaseDir);
-  if BaseDir = '' then
-    BaseDir := ExtractFilePath(aFileName);
+  if aFileName = '' then
+    Exit;
+  if Section = '' then
+    Exit;
+  if not Assigned(ImageList) then
+    Exit;
+
+  BaseDir := ExtractFilePath(aFileName);
 
   IniFile := TMemIniFile.Create(UTF8ToSys(aFileName));
   try
     Cont := 0;
     while Cont < Menu.Items.Count do
     begin
-      ReadIcon(IniFile, ImageList, Menu.Items[Cont], Section,
-        SetAsFolder(BaseDir));
+      ReadIcon(IniFile, ImageList, Menu.Items[Cont], Section, BaseDir);
       Inc(Cont);
     end;
   finally
@@ -235,22 +239,22 @@ begin
   Result := -1;
   if aImageList = nil then
     Exit;
-  if FileExistsUTF8(FileName) then
-  begin
-    Image := TPicture.Create;
-    try
-      Image.LoadFromFile(FileName);
-      // Cutrada para que los iconos se dibujen transparentes...
-      Extension := ExtractFileExt(FileName);
-      if (Extension = '.ico') or (Extension = '.icns') or
-        (Extension = '.cur') then
-        Result := aImageList.AddMasked(Image.Bitmap,
-          Image.Icon.TransparentColor)
-      else
-        Result := aImageList.Add(Image.PNG, nil);
-    finally
-      FreeAndNil(Image);
-    end;
+  if not FileExistsUTF8(FileName) then
+    Exit;
+
+  Image := TPicture.Create;
+  try
+    Image.LoadFromFile(FileName);
+    // Cutrada para que los iconos se dibujen transparentes...
+    Extension := ExtractFileExt(FileName);
+    if (Extension = '.ico') or (Extension = '.icns') or
+      (Extension = '.cur') then
+      Result := aImageList.AddMasked(Image.Bitmap,
+        Image.Icon.TransparentColor)
+    else
+      Result := aImageList.Add(Image.PNG, nil);
+  finally
+    FreeAndNil(Image);
   end;
 end;
 
@@ -262,7 +266,8 @@ begin
 
   if aImage.Width > aImage.Height then
   begin
-    if aImage.Width = 0 then Exit;
+    if aImage.Width = 0 then
+      Exit;
     // Crazy formula, don't ask
     Adjustment := Round(((OrigRect.Right - OrigRect.Left) *
       (1 - (aImage.Height / aImage.Width))) / 2);
@@ -271,7 +276,8 @@ begin
   end
   else
   begin
-    if aImage.Height = 0 then Exit;
+    if aImage.Height = 0 then
+      Exit;
     Adjustment := Round(((OrigRect.Bottom - OrigRect.Top) *
       (1 - (aImage.Width / aImage.Height))) / 2);
     Result.Left := OrigRect.Left + Adjustment;

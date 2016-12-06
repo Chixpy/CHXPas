@@ -84,8 +84,7 @@ begin
     Exit;
   FIconsIni := AValue;
 
-  if IconsIni <> '' then
-    ReadActionsIcons(IconsIni, Self.Name, '', ilPropEditor, alPropEditor);
+  ReadActionsIcons(IconsIni, Self.Name, ilPropEditor, alPropEditor);
 end;
 
 procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);

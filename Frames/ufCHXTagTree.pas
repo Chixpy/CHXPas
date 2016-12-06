@@ -1,4 +1,4 @@
-unit ufTagTree;
+unit ufCHXTagTree;
 
 {$mode objfpc}{$H+}
 
@@ -10,22 +10,22 @@ uses
   uCHXStrUtils;
 
 const
-  kTTFileMask = '*.ini';
+  krsCHXTagTreeFileMask = '*.ini';
 
 type
-  PTreeData = ^TTreeData;
-
-  TTreeData = record
+  TCHXTagTreeData = record
     Title: string;
     Folder: string;
     FileName: string;
   end;
 
+  PCHXTagTreeData = ^TCHXTagTreeData;
+
   TFuncCheckChange = procedure(aList: TStrings) of object;
 
-  { TfmTagTree }
+  { TfmCHXTagTree }
 
-  TfmTagTree = class(TFrame)
+  TfmCHXTagTree = class(TFrame)
     VST: TVirtualStringTree;
     procedure VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -39,7 +39,6 @@ type
 
   private
     FCheckedList: TStringList;
-    { private declarations }
     FFolder: string;
     FOnCheckChange: TFuncCheckChange;
     FTagsFileMask: string;
@@ -61,7 +60,6 @@ type
 
     procedure UpdateTree;
 
-
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -70,11 +68,11 @@ implementation
 
 {$R *.lfm}
 
-{ TfmTagTree }
+{ TfmCHXTagTree }
 
-procedure TfmTagTree.VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
+procedure TfmCHXTagTree.VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
-  Data: PTreeData;
+  Data: PCHXTagTreeData;
 begin
   Data := VST.GetNodeData(Node);
   if Assigned(Data) then
@@ -86,9 +84,9 @@ begin
   Finalize(Data^);
 end;
 
-procedure TfmTagTree.VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
+procedure TfmCHXTagTree.VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
 var
-  Data: PTreeData;
+  Data: PCHXTagTreeData;
   i: integer;
 begin
   Data := VST.GetNodeData(Node);
@@ -107,17 +105,17 @@ begin
     OnCheckChange(CheckedList);
 end;
 
-procedure TfmTagTree.VSTGetNodeDataSize(Sender: TBaseVirtualTree;
+procedure TfmCHXTagTree.VSTGetNodeDataSize(Sender: TBaseVirtualTree;
   var NodeDataSize: integer);
 begin
-  NodeDataSize := SizeOf(TTreeData);
+  NodeDataSize := SizeOf(TCHXTagTreeData);
 end;
 
-procedure TfmTagTree.VSTGetText(Sender: TBaseVirtualTree;
+procedure TfmCHXTagTree.VSTGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
   var CellText: string);
 var
-  Data: PTreeData;
+  Data: PCHXTagTreeData;
 begin
   Data := VST.GetNodeData(Node);
   case Column of
@@ -128,10 +126,10 @@ begin
   end;
 end;
 
-procedure TfmTagTree.VSTInitNode(Sender: TBaseVirtualTree;
+procedure TfmCHXTagTree.VSTInitNode(Sender: TBaseVirtualTree;
   ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
 var
-  pData: PTreeData;
+  pData: PCHXTagTreeData;
 begin
   pdata := Sender.GetNodeData(Node);
 
@@ -149,38 +147,38 @@ begin
   end;
 end;
 
-procedure TfmTagTree.SetFolder(AValue: string);
+procedure TfmCHXTagTree.SetFolder(AValue: string);
 begin
   FFolder := SetAsFolder(AValue);
   UpdateTree;
 end;
 
-procedure TfmTagTree.SetOnCheckChange(AValue: TFuncCheckChange);
+procedure TfmCHXTagTree.SetOnCheckChange(AValue: TFuncCheckChange);
 begin
   if FOnCheckChange = AValue then
     Exit;
   FOnCheckChange := AValue;
 end;
 
-procedure TfmTagTree.SetCheckedList(AValue: TStringList);
+procedure TfmCHXTagTree.SetCheckedList(AValue: TStringList);
 begin
   if FCheckedList = AValue then
     Exit;
   FCheckedList := AValue;
 end;
 
-procedure TfmTagTree.SetTagsFileMask(AValue: string);
+procedure TfmCHXTagTree.SetTagsFileMask(AValue: string);
 begin
   if FTagsFileMask = AValue then
     Exit;
   FTagsFileMask := AValue;
 end;
 
-procedure TfmTagTree.SearchTagFiles(aFolder: string; aRootNode: PVirtualNode);
+procedure TfmCHXTagTree.SearchTagFiles(aFolder: string; aRootNode: PVirtualNode);
 var
   aList: TStringList;
   CurrNode: PVirtualNode;
-  Pdata: PTreeData;
+  Pdata: PCHXTagTreeData;
   i: integer;
 begin
   if not assigned(aRootNode) then
@@ -222,7 +220,7 @@ begin
   end;
 end;
 
-procedure TfmTagTree.UpdateTree;
+procedure TfmCHXTagTree.UpdateTree;
 begin
   VST.Clear;
   if not DirectoryExistsUTF8(Folder) then
@@ -232,16 +230,16 @@ begin
   VST.EndUpdate;
 end;
 
-constructor TfmTagTree.Create(TheOwner: TComponent);
+constructor TfmCHXTagTree.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
-  TagsFileMask := kTTFileMask;
-  VST.NodeDataSize := SizeOf(TTreeData);
+  TagsFileMask := krsCHXTagTreeFileMask;
+  VST.NodeDataSize := SizeOf(TCHXTagTreeData);
   FCheckedList := TStringList.Create;
 end;
 
-destructor TfmTagTree.Destroy;
+destructor TfmCHXTagTree.Destroy;
 begin
   FreeAndNil(FCheckedList);
   inherited Destroy;

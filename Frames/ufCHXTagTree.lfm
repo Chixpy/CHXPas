@@ -1,4 +1,4 @@
-object fmTagTree: TfmTagTree
+object fmCHXTagTree: TfmCHXTagTree
   Left = 0
   Height = 240
   Top = 0
