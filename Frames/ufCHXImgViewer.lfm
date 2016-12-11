@@ -1,19 +1,13 @@
-object frmCHXImageViewer: TfrmCHXImageViewer
-  Left = 350
+object fmCHXImgViewer: TfmCHXImgViewer
+  Left = 0
   Height = 480
-  Top = 132
+  Top = 0
   Width = 640
-  HorzScrollBar.Page = 600
-  HorzScrollBar.Range = 158
-  VertScrollBar.Page = 480
-  VertScrollBar.Range = 132
-  Caption = 'Image Viewer'
   ClientHeight = 480
   ClientWidth = 640
-  OnCreate = FormCreate
-  OnResize = FormResize
-  Position = poMainFormCenter
-  LCLVersion = '5.9'
+  TabOrder = 0
+  DesignLeft = 398
+  DesignTop = 196
   object sbInfo: TStatusBar
     Left = 0
     Height = 23
@@ -53,7 +47,6 @@ object frmCHXImageViewer: TfrmCHXImageViewer
       Align = alLeft
       MaxValue = 1
       MinValue = 1
-      OnChange = eCurrImageChange
       TabOrder = 0
       Value = 1
     end
@@ -163,10 +156,6 @@ object frmCHXImageViewer: TfrmCHXImageViewer
     Width = 439
     Align = alClient
     Center = True
-    OnDblClick = ImageDblClick
-    OnMouseDown = ImageMouseDown
-    OnMouseUp = ImageMouseUp
-    OnResize = ImageResize
     PopupMenu = pmAction
     Proportional = True
     Stretch = True
@@ -188,91 +177,10 @@ object frmCHXImageViewer: TfrmCHXImageViewer
     TabOrder = 3
     Visible = False
   end
-  object ActionList: TActionList
-    Images = ilActions
-    left = 64
-    top = 408
-    object actZoomIn: TAction
-      Category = 'Image'
-      Caption = 'Zoom In'
-      Hint = 'Zoom In|Zooms in the image (x2)'
-      OnExecute = actZoomInExecute
-      ShortCut = 187
-    end
-    object actZoomOut: TAction
-      Category = 'Image'
-      Caption = 'Zoom Out'
-      Hint = 'Zoom Out|Zooms out the image (/2)'
-      OnExecute = actZoomOutExecute
-      ShortCut = 109
-    end
-    object actOriginalSize: TAction
-      Category = 'Image'
-      Caption = 'Original Size'
-      Hint = 'Original Size|Shows image in its original size'
-      OnExecute = actOriginalSizeExecute
-      ShortCut = 110
-    end
-    object actClose: TAction
-      Category = 'File'
-      Caption = 'Close'
-      Hint = 'Close the window (Dbl Click)'
-      OnExecute = actCloseExecute
-      ShortCut = 16499
-    end
-    object actStretch: TAction
-      Category = 'Image'
-      AutoCheck = True
-      Caption = 'Stretch'
-      Checked = True
-      Hint = 'Strech Image|Resizes the image to the window'
-      OnExecute = actStretchExecute
-      ShortCut = 83
-    end
-    object actFirst: TAction
-      Category = 'File'
-      Caption = 'First'
-      Hint = 'First Image|Show first image in the list'
-      OnExecute = actFirstExecute
-      ShortCut = 36
-    end
-    object actLast: TAction
-      Category = 'File'
-      Caption = 'Last'
-      Hint = 'Last Image|Show last image in the list'
-      OnExecute = actLastExecute
-      ShortCut = 35
-    end
-    object actPrevious: TAction
-      Category = 'File'
-      Caption = 'Previous'
-      Hint = 'Previous Image|Show previous image in the list'
-      OnExecute = actPreviousExecute
-      ShortCut = 33
-    end
-    object actNext: TAction
-      Category = 'File'
-      Caption = 'Next'
-      Hint = 'Next Image|Show next image in the list'
-      OnExecute = actNextExecute
-      ShortCut = 34
-    end
-    object actShowFileList: TAction
-      Category = 'Window'
-      AutoCheck = True
-      Caption = 'Shows file list'
-      OnExecute = actShowFileListExecute
-      ShortCut = 76
-    end
-  end
-  object ilActions: TImageList
-    left = 16
-    top = 408
-  end
   object pmAction: TPopupMenu
     Images = ilActions
-    left = 168
-    top = 400
+    left = 136
+    top = 408
     object mOriginalSize: TMenuItem
       Action = actOriginalSize
     end
@@ -285,5 +193,77 @@ object frmCHXImageViewer: TfrmCHXImageViewer
     object mClose: TMenuItem
       Action = actClose
     end
+  end
+  object ActionList: TActionList
+    Images = ilActions
+    left = 68
+    top = 404
+    object actZoomIn: TAction
+      Category = 'Image'
+      Caption = 'Zoom In'
+      Hint = 'Zoom In|Zooms in the image (x2)'
+      ShortCut = 187
+    end
+    object actZoomOut: TAction
+      Category = 'Image'
+      Caption = 'Zoom Out'
+      Hint = 'Zoom Out|Zooms out the image (/2)'
+      ShortCut = 109
+    end
+    object actOriginalSize: TAction
+      Category = 'Image'
+      Caption = 'Original Size'
+      Hint = 'Original Size|Shows image in its original size'
+      ShortCut = 110
+    end
+    object actClose: TAction
+      Category = 'File'
+      Caption = 'Close'
+      Hint = 'Close the window (Dbl Click)'
+      ShortCut = 16499
+    end
+    object actStretch: TAction
+      Category = 'Image'
+      AutoCheck = True
+      Caption = 'Stretch'
+      Checked = True
+      Hint = 'Strech Image|Resizes the image to the window'
+      ShortCut = 83
+    end
+    object actFirst: TAction
+      Category = 'File'
+      Caption = 'First'
+      Hint = 'First Image|Show first image in the list'
+      ShortCut = 36
+    end
+    object actLast: TAction
+      Category = 'File'
+      Caption = 'Last'
+      Hint = 'Last Image|Show last image in the list'
+      ShortCut = 35
+    end
+    object actPrevious: TAction
+      Category = 'File'
+      Caption = 'Previous'
+      Hint = 'Previous Image|Show previous image in the list'
+      ShortCut = 33
+    end
+    object actNext: TAction
+      Category = 'File'
+      Caption = 'Next'
+      Hint = 'Next Image|Show next image in the list'
+      ShortCut = 34
+    end
+    object actShowFileList: TAction
+      Category = 'Window'
+      AutoCheck = True
+      Caption = 'Shows file list'
+      Hint = 'Show file list.|Shows the of files'
+      ShortCut = 76
+    end
+  end
+  object ilActions: TImageList
+    left = 20
+    top = 404
   end
 end

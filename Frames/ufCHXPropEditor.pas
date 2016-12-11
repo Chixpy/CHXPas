@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, Buttons, ActnList,
   LazFileUtils,
-  uCHXImageUtils;
+  uCHXStrUtils, uCHXImageUtils;
 
 type
 
@@ -26,13 +26,13 @@ type
 
   private
     FButtonClose: boolean;
-    FIconsIni: string;
+    FIconsIni: TFilename;
     FSaveButtons: boolean;
     procedure SetButtonClose(AValue: boolean);
-    procedure SetIconsIni(AValue: string);
     procedure SetSaveButtons(AValue: boolean);
 
   protected
+    procedure SetIconsIni(AValue: string); virtual;
     procedure ClearData; virtual; abstract;
 
   public
@@ -42,7 +42,7 @@ type
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
 
-    property IconsIni: string read FIconsIni write SetIconsIni;
+    property IconsIni: TFilename read FIconsIni write SetIconsIni;
 
     procedure SaveData; virtual; abstract;
     {< Save current data. }
@@ -80,9 +80,7 @@ end;
 
 procedure TfmCHXPropEditor.SetIconsIni(AValue: string);
 begin
-  if FIconsIni = AValue then
-    Exit;
-  FIconsIni := AValue;
+  FIconsIni := SetAsFile(AValue);
 
   ReadActionsIcons(IconsIni, Self.Name, ilPropEditor, alPropEditor);
 end;

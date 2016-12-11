@@ -24,7 +24,7 @@ unit ufCHXImageViewer;
 interface
 
 uses
-  Classes, SysUtils, LazFileUtils, vte_stringlist, LResources, Forms, Controls,
+  Classes, SysUtils, LazFileUtils, LResources, Forms, Controls,
   Graphics, Dialogs, ActnList, ComCtrls, Spin, ExtCtrls, StdCtrls, Menus,
   Buttons, ShellCtrls,
   // Custom
@@ -51,6 +51,7 @@ type
     eCurrImage: TSpinEdit;
     ilActions: TImageList;
     Image: TImage;
+    lbxFiles: TListBox;
     lTotalImages: TLabel;
     mClose: TMenuItem;
     mOriginalSize: TMenuItem;
@@ -74,7 +75,6 @@ type
     bSep3: TToolButton;
     bShowFileList: TToolButton;
     bSep4: TToolButton;
-    vmImages: TVirtualMemo;
     procedure actCloseExecute(Sender: TObject);
     procedure actFirstExecute(Sender: TObject);
     procedure actShowFileListExecute(Sender: TObject);
@@ -94,7 +94,6 @@ type
     procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure ImageResize(Sender: TObject);
-
   private
     FDragBeginX: longint;
     FDragBeginY: longint;
@@ -155,7 +154,9 @@ end;
 procedure TfrmCHXImageViewer.actPreviousExecute(Sender: TObject);
 begin
   if eCurrImage.Value > 1 then
-    eCurrImage.Value := eCurrImage.Value - 1;
+    eCurrImage.Value := eCurrImage.Value - 1
+  else
+    eCurrImage.Value := lbxFiles.Items.Count;
 end;
 
 procedure TfrmCHXImageViewer.actStretchExecute(Sender: TObject);
@@ -185,19 +186,21 @@ end;
 procedure TfrmCHXImageViewer.actShowFileListExecute(Sender: TObject);
 begin
   Splitter.Visible := actShowFileList.Checked;
-  vmImages.Visible := actShowFileList.Checked;
+  lbxFiles.Visible := actShowFileList.Checked;
 end;
 
 procedure TfrmCHXImageViewer.actLastExecute(Sender: TObject);
 begin
-  eCurrImage.Value := vmImages.Lines.Count;
+  eCurrImage.Value := lbxFiles.Items.Count;
   // ChangeImage; OnChange is called;
 end;
 
 procedure TfrmCHXImageViewer.actNextExecute(Sender: TObject);
 begin
-  if eCurrImage.Value < vmImages.Lines.Count then
-    eCurrImage.Value := eCurrImage.Value + 1;
+  if eCurrImage.Value < lbxFiles.Items.Count then
+    eCurrImage.Value := eCurrImage.Value + 1
+  else
+    eCurrImage.Value := 1;
 end;
 
 procedure TfrmCHXImageViewer.actZoomOutExecute(Sender: TObject);
@@ -282,7 +285,7 @@ end;
 procedure TfrmCHXImageViewer.SetIconsIniFile(AValue: TFilename);
 begin
   FIconsIniFile:=SetAsFile(AValue);
-  ReadActionsIcons(IconsIniFile, Self.Name, '', ilActions, ActionList);
+  ReadActionsIcons(IconsIniFile, Self.Name, ilActions, ActionList);
 end;
 
 procedure TfrmCHXImageViewer.LoadIcons(aIconIniFile: TFilename);
@@ -294,13 +297,16 @@ procedure TfrmCHXImageViewer.ChangeImage;
 var
   aFilename: string;
 begin
-  if vmImages.Lines.Count = 0 then
+  if lbxFiles.Items.Count = 0 then
     Exit;
 
-  if eCurrImage.Value > vmImages.Lines.Count then
-    eCurrImage.Value := vmImages.Lines.Count;
+  if eCurrImage.Value > lbxFiles.Items.Count then
+    eCurrImage.Value := 1;
 
-  aFilename:= vmImages.Lines[eCurrImage.Value - 1];
+  if eCurrImage.Value < 1 then
+    eCurrImage.Value := lbxFiles.Items.Count;
+
+  aFilename:= lbxFiles.Items[eCurrImage.Value - 1];
 
   if FileExistsUTF8(aFilename) then
   begin
@@ -312,12 +318,12 @@ begin
   end
   else
   begin
-    vmImages.Lines.Delete(eCurrImage.Value - 1);
-    eCurrImage.MaxValue := vmImages.Lines.Count;
+    lbxFiles.Items.Delete(eCurrImage.Value - 1);
+    eCurrImage.MaxValue := lbxFiles.Items.Count;
     ChangeImage;
   end;
 
-  lTotalImages.Caption := '/ ' + IntToStr(vmImages.Lines.Count);
+  lTotalImages.Caption := '/ ' + IntToStr(lbxFiles.Items.Count);
 end;
 
 procedure TfrmCHXImageViewer.FixPosition;
@@ -396,16 +402,16 @@ end;
 procedure TfrmCHXImageViewer.AddImages(aImageList: TStrings;
   Index: integer = 0);
 begin
-  vmImages.Lines.AddStrings(aImageList);
-  eCurrImage.MaxValue := vmImages.Lines.Count;
+  lbxFiles.Items.AddStrings(aImageList);
+  eCurrImage.MaxValue := lbxFiles.Items.Count;
   eCurrImage.Value := Index + 1;
   ChangeImage;
 end;
 
 procedure TfrmCHXImageViewer.AddImage(aImageFile: string; aObject: TObject);
 begin
-  vmImages.Lines.AddObject(aImageFile, aObject);
-  eCurrImage.MaxValue := vmImages.Lines.Count;
+  lbxFiles.Items.AddObject(aImageFile, aObject);
+  eCurrImage.MaxValue := lbxFiles.Items.Count;
   ChangeImage;
 end;
 
