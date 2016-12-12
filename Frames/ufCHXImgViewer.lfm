@@ -51,7 +51,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Value = 1
     end
     object bSep1: TToolButton
-      Left = 191
+      Left = 230
       Height = 22
       Top = 0
       Width = 10
@@ -59,17 +59,17 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Style = tbsSeparator
     end
     object tbZoomIn: TToolButton
-      Left = 201
+      Left = 240
       Top = 0
       Action = actZoomIn
     end
     object tbOriginalSize: TToolButton
-      Left = 224
+      Left = 263
       Top = 0
       Action = actOriginalSize
     end
     object tbZoomOut: TToolButton
-      Left = 247
+      Left = 286
       Top = 0
       Action = actZoomOut
     end
@@ -77,20 +77,20 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Left = 55
       Height = 22
       Top = 0
-      Width = 1
+      Width = 40
       Align = alLeft
-      Alignment = taCenter
+      AutoSize = False
       BorderSpacing.Left = 4
       Layout = tlCenter
       ParentColor = False
     end
     object tbClose: TToolButton
-      Left = 303
+      Left = 342
       Top = 0
       Action = actClose
     end
     object bSep2: TToolButton
-      Left = 293
+      Left = 332
       Height = 22
       Top = 0
       Width = 10
@@ -98,7 +98,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Style = tbsSeparator
     end
     object bStretch: TToolButton
-      Left = 270
+      Left = 309
       Top = 0
       Action = actStretch
       ParentShowHint = False
@@ -106,27 +106,27 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Style = tbsCheck
     end
     object bFirst: TToolButton
-      Left = 99
+      Left = 138
       Top = 0
       Action = actFirst
     end
     object bPrevious: TToolButton
-      Left = 122
+      Left = 161
       Top = 0
       Action = actPrevious
     end
     object bNext: TToolButton
-      Left = 145
+      Left = 184
       Top = 0
       Action = actNext
     end
     object bLast: TToolButton
-      Left = 168
+      Left = 207
       Top = 0
       Action = actLast
     end
     object bSep3: TToolButton
-      Left = 89
+      Left = 128
       Height = 22
       Top = 0
       Width = 10
@@ -134,31 +134,19 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Style = tbsSeparator
     end
     object bShowFileList: TToolButton
-      Left = 66
+      Left = 105
       Top = 0
       Action = actShowFileList
       Style = tbsCheck
     end
     object bSep4: TToolButton
-      Left = 56
+      Left = 95
       Height = 22
       Top = 0
       Width = 10
       Caption = 'bSep4'
       Style = tbsSeparator
     end
-  end
-  object Image: TImage
-    Cursor = crHandPoint
-    Left = 201
-    Height = 435
-    Top = 22
-    Width = 439
-    Align = alClient
-    Center = True
-    PopupMenu = pmAction
-    Proportional = True
-    Stretch = True
   end
   object Splitter: TSplitter
     Left = 196
@@ -176,6 +164,30 @@ object fmCHXImgViewer: TfmCHXImgViewer
     ItemHeight = 0
     TabOrder = 3
     Visible = False
+  end
+  object ScrollBox1: TScrollBox
+    Left = 201
+    Height = 435
+    Top = 22
+    Width = 439
+    HorzScrollBar.Page = 90
+    VertScrollBar.Page = 90
+    Align = alClient
+    ClientHeight = 431
+    ClientWidth = 435
+    TabOrder = 4
+    object Image: TImage
+      Cursor = crHandPoint
+      Left = 0
+      Height = 431
+      Top = 0
+      Width = 435
+      Align = alClient
+      Center = True
+      PopupMenu = pmAction
+      Proportional = True
+      Stretch = True
+    end
   end
   object pmAction: TPopupMenu
     Images = ilActions
@@ -228,18 +240,21 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Caption = 'Stretch'
       Checked = True
       Hint = 'Strech Image|Resizes the image to the window'
+      OnExecute = actStretchExecute
       ShortCut = 83
     end
     object actFirst: TAction
       Category = 'File'
       Caption = 'First'
       Hint = 'First Image|Show first image in the list'
+      OnExecute = actFirstExecute
       ShortCut = 36
     end
     object actLast: TAction
       Category = 'File'
       Caption = 'Last'
       Hint = 'Last Image|Show last image in the list'
+      OnExecute = actLastExecute
       ShortCut = 35
     end
     object actPrevious: TAction
