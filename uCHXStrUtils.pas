@@ -137,7 +137,7 @@ begin
   if Pos2 < 1 then
     Pos2 := MaxInt;
 
-  Result := Copy(aString, 1, min(Pos1, Pos2) - 1);
+  Result := UTF8Trim(UTF8Copy(aString, 1, min(Pos1, Pos2) - 1));
 end;
 
 function CopyFromBrackets(const aString: string): string;
@@ -153,7 +153,7 @@ begin
   if Pos2 < 1 then
     Pos2 := MaxInt;
 
-  Result := Copy(aString, min(Pos1, Pos2), MaxInt);
+  Result := UTF8Trim(UTF8Copy(aString, min(Pos1, Pos2), MaxInt));
 end;
 
 function TextSimilarity(const aString1, aString2: string): byte;

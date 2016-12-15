@@ -11,10 +11,20 @@ uses
 type
 
   { cCHXImageList }
-  cCHXImageList = class (specialize TFPGObjectList<TPicture>)
+  cCHXFPGImageList = specialize TFPGObjectList<TPicture>;
+
+  cCHXImageList = class (cCHXFPGImageList)
+  private
+    FFileList: TStringList;
+  protected
+    property FileList: TStringList read FFileList;
+
   public
     function AddImageFile(aFile: String): Integer;
     function AddEmptyImage: Integer;
+
+    constructor Create(aFreeObjects: Boolean = True);
+    destructor Destroy; override;
   end;
 
   { cCHXImageMap }
@@ -66,6 +76,8 @@ var
   Img: TPicture;
 begin
   Result := -1;
+
+  { TODO : Check if file is already loaded and return its index }
   Img := TPicture.Create;
   try
     Img.LoadFromFile(aFile);
@@ -84,6 +96,20 @@ var
 begin
   aImage := TPicture.Create;
   Result := Self.Add(aImage);
+end;
+
+constructor cCHXImageList.Create(aFreeObjects: Boolean);
+begin
+  inherited Create(aFreeObjects);
+
+  FFileList := TStringList.Create;
+  FileList.CaseSensitive := False;
+end;
+
+destructor cCHXImageList.Destroy;
+begin
+  FreeAndNil(FFileList);
+  inherited Destroy;
 end;
 
 end.
