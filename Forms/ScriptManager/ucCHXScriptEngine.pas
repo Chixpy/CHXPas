@@ -450,8 +450,8 @@ end;
 function cCHXScriptEngine.AskFile(
   const aTitle, aExt, DefFile: string): string;
 begin
-  {
   Result := '';
+  {
   Application.CreateForm(TfrmSMAskFile, frmSMAskFile);
   try
     frmSMAskFile.lTitle.Caption := aTitle;
@@ -468,8 +468,8 @@ end;
 
 function cCHXScriptEngine.AskFolder(const aTitle, DefFolder: string): string;
 begin
-  {
   Result := '';
+  {
   Application.CreateForm(TfrmSMAskFolder, frmSMAskFolder);
   try
     frmSMAskFolder.lTitle.Caption := aTitle;

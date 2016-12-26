@@ -26,13 +26,13 @@ type
 
   private
     FButtonClose: boolean;
-    FIconsIni: TFilename;
+    FGUIIconsIni: TFilename;
     FSaveButtons: boolean;
     procedure SetButtonClose(AValue: boolean);
     procedure SetSaveButtons(AValue: boolean);
 
   protected
-    procedure SetIconsIni(AValue: string); virtual;
+    procedure SetGUIIconsIni(AValue: TFilename); virtual;
     procedure ClearData; virtual; abstract;
 
   public
@@ -42,7 +42,7 @@ type
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
 
-    property IconsIni: TFilename read FIconsIni write SetIconsIni;
+    property GUIIconsIni: TFilename read FGUIIconsIni write SetGUIIconsIni;
 
     procedure SaveData; virtual; abstract;
     {< Save current data. }
@@ -78,11 +78,11 @@ begin
   pButtons.Enabled := SaveButtons;
 end;
 
-procedure TfmCHXPropEditor.SetIconsIni(AValue: string);
+procedure TfmCHXPropEditor.SetGUIIconsIni(AValue: TFilename);
 begin
-  FIconsIni := SetAsFile(AValue);
+  FGUIIconsIni := SetAsFile(AValue);
 
-  ReadActionsIcons(IconsIni, Self.Name, ilPropEditor, alPropEditor);
+  ReadActionsIcons(GUIIconsIni, Self.Name, ilPropEditor, alPropEditor);
 end;
 
 procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);

@@ -5,7 +5,7 @@ unit uCHXStrUtils;
 
 interface
 
-uses Classes, Strutils, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
+uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
   Math,
   uCHXConst, uCHXRscStr;
 

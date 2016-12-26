@@ -1,0 +1,24 @@
+object frmCHXForm: TfrmCHXForm
+  Left = 320
+  Height = 480
+  Top = 199
+  Width = 640
+  Caption = 'frmCHXForm'
+  Position = poMainFormCenter
+  SessionProperties = 'Height;Width;WindowState'
+  LCLVersion = '5.9'
+  object alCHXActions: TActionList
+    Images = ilCHXActIcons
+    left = 560
+    top = 416
+  end
+  object ilCHXActIcons: TImageList
+    left = 408
+    top = 416
+  end
+  object IniPropStorage1: TIniPropStorage
+    StoredValues = <>
+    left = 488
+    top = 416
+  end
+end
