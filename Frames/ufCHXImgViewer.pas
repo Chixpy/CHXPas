@@ -127,6 +127,8 @@ begin
   DisableStretch;
   Image.Height := Image.Picture.Height;
   Image.Width := Image.Picture.Width;
+  sbxImage.HorzScrollBar.Position := Image.Width shr 1;
+  sbxImage.VertScrollBar.Position := Image.Height shr 1;
   FixPosition;
 end;
 
@@ -161,12 +163,16 @@ begin
   DisableStretch;
   Image.Height := Image.Height shl 1;
   Image.Width := Image.Width shl 1;
+  sbxImage.HorzScrollBar.Position := (sbxImage.HorzScrollBar.Position shl 1) + (sbxImage.ClientWidth shr 1);
+  sbxImage.VertScrollBar.Position := (sbxImage.VertScrollBar.Position shl 1) + (sbxImage.ClientHeight shr 1);
   FixPosition;
 end;
 
 procedure TfmCHXImgViewer.actZoomOutExecute(Sender: TObject);
 begin
   DisableStretch;
+    sbxImage.HorzScrollBar.Position := (sbxImage.HorzScrollBar.Position shr 1) - (sbxImage.ClientWidth shr 2);
+  sbxImage.VertScrollBar.Position := (sbxImage.VertScrollBar.Position shr 1) - (sbxImage.ClientHeight shr 2);
   Image.Height := Image.Height shr 1;
   Image.Width := Image.Width shr 1;
   FixPosition;
@@ -195,9 +201,10 @@ begin
   case Button of
     mbLeft:
     begin
-      sbxImage.VertScrollBar.Position := sbxImage.VertScrollBar.Position + (DragBeginY - Y);
-      sbxImage.HorzScrollBar.Position := sbxImage.HorzScrollBar.Position + (DragBeginX - X);
-
+      sbxImage.VertScrollBar.Position :=
+        sbxImage.VertScrollBar.Position + (DragBeginY - Y);
+      sbxImage.HorzScrollBar.Position :=
+        sbxImage.HorzScrollBar.Position + (DragBeginX - X);
 
     end;
   end;
