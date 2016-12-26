@@ -65,6 +65,7 @@ type
     procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure ImageResize(Sender: TObject);
+    procedure lbxFilesSelectionChange(Sender: TObject; User: boolean);
     procedure sbxImageResize(Sender: TObject);
   private
     FDragBeginX: longint;
@@ -80,7 +81,6 @@ type
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
     property DragBeginY: longint read FDragBeginY write SetDragBeginY;
 
-    procedure DisableStretch;
     procedure StretchImage;
     procedure FixPosition;
 
@@ -124,12 +124,12 @@ end;
 
 procedure TfmCHXImgViewer.actOriginalSizeExecute(Sender: TObject);
 begin
-  DisableStretch;
+  actStretch.Checked := False;
   Image.Height := Image.Picture.Height;
   Image.Width := Image.Picture.Width;
+  FixPosition;
   sbxImage.HorzScrollBar.Position := Image.Width shr 1;
   sbxImage.VertScrollBar.Position := Image.Height shr 1;
-  FixPosition;
 end;
 
 procedure TfmCHXImgViewer.actPreviousExecute(Sender: TObject);
@@ -149,30 +149,38 @@ end;
 procedure TfmCHXImgViewer.actStretchExecute(Sender: TObject);
 begin
   if actStretch.Checked then
-  begin
-    StretchImage;
-  end
-  else
-  begin
-    DisableStretch;
-  end;
+     StretchImage;
+
+    FixPosition;
 end;
 
 procedure TfmCHXImgViewer.actZoomInExecute(Sender: TObject);
+var
+  CorrectX, CorrectY: integer;
 begin
-  DisableStretch;
+  actStretch.Checked := False;
+  CorrectX := 0;
+   CorrectY := 0;
+  if Image.Left > 0 then
+    CorrectX := sbxImage.ClientWidth - Image.Width;
+  if Image.Top > 0 then
+  CorrectY := sbxImage.ClientHeight - Image.Height;
   Image.Height := Image.Height shl 1;
   Image.Width := Image.Width shl 1;
-  sbxImage.HorzScrollBar.Position := (sbxImage.HorzScrollBar.Position shl 1) + (sbxImage.ClientWidth shr 1);
-  sbxImage.VertScrollBar.Position := (sbxImage.VertScrollBar.Position shl 1) + (sbxImage.ClientHeight shr 1);
   FixPosition;
+  sbxImage.HorzScrollBar.Position := - CorrectX +
+    (sbxImage.HorzScrollBar.Position shl 1) + (sbxImage.ClientWidth shr 1);
+  sbxImage.VertScrollBar.Position := - CorrectY +
+    (sbxImage.VertScrollBar.Position shl 1) + (sbxImage.ClientHeight shr 1);
 end;
 
 procedure TfmCHXImgViewer.actZoomOutExecute(Sender: TObject);
 begin
-  DisableStretch;
-    sbxImage.HorzScrollBar.Position := (sbxImage.HorzScrollBar.Position shr 1) - (sbxImage.ClientWidth shr 2);
-  sbxImage.VertScrollBar.Position := (sbxImage.VertScrollBar.Position shr 1) - (sbxImage.ClientHeight shr 2);
+  actStretch.Checked := False;
+  sbxImage.HorzScrollBar.Position :=
+    (sbxImage.HorzScrollBar.Position shr 1) - (sbxImage.ClientWidth shr 2);
+  sbxImage.VertScrollBar.Position :=
+    (sbxImage.VertScrollBar.Position shr 1) - (sbxImage.ClientHeight shr 2);
   Image.Height := Image.Height shr 1;
   Image.Width := Image.Width shr 1;
   FixPosition;
@@ -205,7 +213,6 @@ begin
         sbxImage.VertScrollBar.Position + (DragBeginY - Y);
       sbxImage.HorzScrollBar.Position :=
         sbxImage.HorzScrollBar.Position + (DragBeginX - X);
-
     end;
   end;
 end;
@@ -215,8 +222,17 @@ begin
   UpdateStatusBar;
 end;
 
+procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject; User: boolean
+  );
+begin
+  if User then
+    ImageIndex := lbxFiles.ItemIndex;
+end;
+
 procedure TfmCHXImgViewer.sbxImageResize(Sender: TObject);
 begin
+  if actStretch.Checked then
+    StretchImage;
   FixPosition;
 end;
 
@@ -246,39 +262,21 @@ begin
     Exit;
   FImageIndex := AValue;
   cbxCurrImage.ItemIndex := ImageIndex - 1;
+  lbxFiles.ItemIndex := ImageIndex - 1;
   ChangeImage;
 end;
 
-procedure TfmCHXImgViewer.DisableStretch;
-var
-  Factor: real;
-begin
-  if Image.Align = alNone then
-    Exit;
-
-  // Factor of the stretched image
-  Factor := (sbxImage.ClientHeight - sbxImage.HorzScrollBar.Size) /
-    Image.Picture.Height;
-  if Factor > ((sbxImage.ClientWidth - sbxImage.VertScrollBar.Size)) /
-    Image.Picture.Width then
-    Factor := (sbxImage.ClientWidth - sbxImage.VertScrollBar.Size) /
-      Image.Picture.Width;
-
-  Image.Align := alNone;
-  actStretch.Checked := False;
-
-  Image.Height := round(image.Picture.Height * Factor);
-  Image.Width := round(image.Picture.Width * Factor);
-
-  FixPosition;
-end;
-
 procedure TfmCHXImgViewer.StretchImage;
+var
+  Factor: Extended;
 begin
-  Image.Height := sbxImage.ClientHeight;
-  Image.Width := sbxImage.ClientWidth;
-  Image.Align := alClient;
-  UpdateStatusBar;
+    // Factor of the stretched image
+  Factor := sbxImage.ClientHeight / Image.Picture.Height;
+  if Factor > sbxImage.ClientWidth / Image.Picture.Width then
+    Factor := sbxImage.ClientWidth / Image.Picture.Width;
+
+  Image.Height := trunc(image.Picture.Height * Factor);
+  Image.Width := trunc(image.Picture.Width * Factor);
 end;
 
 procedure TfmCHXImgViewer.FixPosition;

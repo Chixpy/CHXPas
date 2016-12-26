@@ -149,6 +149,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
     Width = 196
     Align = alLeft
     ItemHeight = 0
+    OnSelectionChange = lbxFilesSelectionChange
     TabOrder = 3
     Visible = False
   end
@@ -170,7 +171,6 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Height = 431
       Top = 0
       Width = 435
-      Align = alClient
       Center = True
       OnMouseDown = ImageMouseDown
       OnMouseUp = ImageMouseUp
