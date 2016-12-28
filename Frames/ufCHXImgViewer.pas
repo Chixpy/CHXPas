@@ -149,9 +149,9 @@ end;
 procedure TfmCHXImgViewer.actStretchExecute(Sender: TObject);
 begin
   if actStretch.Checked then
-     StretchImage;
+    StretchImage;
 
-    FixPosition;
+  FixPosition;
 end;
 
 procedure TfmCHXImgViewer.actZoomInExecute(Sender: TObject);
@@ -160,18 +160,20 @@ var
 begin
   actStretch.Checked := False;
   CorrectX := 0;
-   CorrectY := 0;
+  CorrectY := 0;
   if Image.Left > 0 then
     CorrectX := sbxImage.ClientWidth - Image.Width;
   if Image.Top > 0 then
-  CorrectY := sbxImage.ClientHeight - Image.Height;
+    CorrectY := sbxImage.ClientHeight - Image.Height;
   Image.Height := Image.Height shl 1;
   Image.Width := Image.Width shl 1;
   FixPosition;
-  sbxImage.HorzScrollBar.Position := - CorrectX +
-    (sbxImage.HorzScrollBar.Position shl 1) + (sbxImage.ClientWidth shr 1);
-  sbxImage.VertScrollBar.Position := - CorrectY +
-    (sbxImage.VertScrollBar.Position shl 1) + (sbxImage.ClientHeight shr 1);
+  sbxImage.HorzScrollBar.Position :=
+    -CorrectX + (sbxImage.HorzScrollBar.Position shl 1) +
+    (sbxImage.ClientWidth shr 1);
+  sbxImage.VertScrollBar.Position :=
+    -CorrectY + (sbxImage.VertScrollBar.Position shl 1) +
+    (sbxImage.ClientHeight shr 1);
 end;
 
 procedure TfmCHXImgViewer.actZoomOutExecute(Sender: TObject);
@@ -222,11 +224,11 @@ begin
   UpdateStatusBar;
 end;
 
-procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject; User: boolean
-  );
+procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject;
+  User: boolean);
 begin
   if User then
-    ImageIndex := lbxFiles.ItemIndex;
+    ImageIndex := lbxFiles.ItemIndex + 1;
 end;
 
 procedure TfmCHXImgViewer.sbxImageResize(Sender: TObject);
@@ -268,12 +270,19 @@ end;
 
 procedure TfmCHXImgViewer.StretchImage;
 var
-  Factor: Extended;
+  Factor: extended;
 begin
-    // Factor of the stretched image
-  Factor := sbxImage.ClientHeight / Image.Picture.Height;
-  if Factor > sbxImage.ClientWidth / Image.Picture.Width then
-    Factor := sbxImage.ClientWidth / Image.Picture.Width;
+  // Factor of the stretched image
+  if Image.Picture.Height = 0 then
+    Factor := 0
+  else
+    Factor := sbxImage.ClientHeight / Image.Picture.Height;
+
+  if Image.Picture.Height <> 0 then
+  begin
+    if Factor > sbxImage.ClientWidth / Image.Picture.Width then
+      Factor := sbxImage.ClientWidth / Image.Picture.Width;
+  end;
 
   Image.Height := trunc(image.Picture.Height * Factor);
   Image.Width := trunc(image.Picture.Width * Factor);

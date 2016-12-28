@@ -150,6 +150,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
     Align = alLeft
     ItemHeight = 0
     OnSelectionChange = lbxFilesSelectionChange
+    ScrollWidth = 1000
     TabOrder = 3
     Visible = False
   end
@@ -158,8 +159,8 @@ object fmCHXImgViewer: TfmCHXImgViewer
     Height = 435
     Top = 22
     Width = 439
-    HorzScrollBar.Page = 90
-    VertScrollBar.Page = 90
+    HorzScrollBar.Page = 435
+    VertScrollBar.Page = 431
     Align = alClient
     ClientHeight = 431
     ClientWidth = 435
