@@ -20,8 +20,8 @@ type
   private
     FGUIConfigIni: TFilename;
     FGUIIconsIni: TFilename;
-    procedure SetGUIConfigIni(AValue: TFilename);
-    procedure SetGUIIconsIni(AValue: TFilename);
+    procedure SetGUIConfigIni(AValue: TFilename); virtual;
+    procedure SetGUIIconsIni(AValue: TFilename); virtual;
 
   public
     property GUIConfigIni: TFilename read FGUIConfigIni write SetGUIConfigIni;
