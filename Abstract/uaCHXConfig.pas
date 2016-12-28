@@ -1,4 +1,4 @@
-unit uCHXvcConfig;
+unit uaCHXConfig;
 
 {$mode objfpc}{$H+}
 
@@ -10,9 +10,9 @@ uses
 
 type
 
-  { vcConfig }
+  { caCHXConfig }
 
-  vcConfig = class(TComponent)
+  caCHXConfig = class(TComponent)
   private
     FConfigFile: string;
     procedure SetConfigFile(AValue: string);
@@ -36,14 +36,14 @@ type
 
 implementation
 
-{ vcConfig }
+{ caCHXConfig }
 
-procedure vcConfig.SetConfigFile(AValue: string);
+procedure caCHXConfig.SetConfigFile(AValue: string);
 begin
   FConfigFile := SetAsFile(AValue);
 end;
 
-procedure vcConfig.LoadConfig(aFileName: string);
+procedure caCHXConfig.LoadConfig(aFileName: string);
 var
   aIniFile: TMemIniFile;
 
@@ -67,7 +67,7 @@ begin
   end;
 end;
 
-procedure vcConfig.SaveConfig(aFilename: string);
+procedure caCHXConfig.SaveConfig(aFilename: string);
 var
   aIniFile: TMemIniFile;
 begin
@@ -84,13 +84,13 @@ begin
   end;
 end;
 
-constructor vcConfig.Create(aOwner: TComponent);
+constructor caCHXConfig.Create(aOwner: TComponent);
 begin
   inherited Create(aOwner);
   ResetDefaultConfig;
 end;
 
-destructor vcConfig.Destroy;
+destructor caCHXConfig.Destroy;
 begin
   inherited Destroy;
 end;
