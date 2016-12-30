@@ -13,96 +13,95 @@ type
 
   caCHXStorable = class(TComponent)
   private
-    FDataFile: string;
-    procedure SetDataFile(AValue: string);
+    FDataFile: TFilename;
+    procedure SetDataFile(AValue: TFilename);
 
   public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
-
-    procedure LoadFromFile(FileName: string); virtual; abstract;
-    {< Loads data from file.
-
-         @param(FileName Path to the file.)
-    }
-    procedure SaveToFile(FileName: string; const ExportMode: boolean);
-      virtual; abstract;
-    {< Saves data to file.
-
-         @param(FileName Path to the file.)
-         @param(ExportMode if @true don't save user data.)
-    }
-  published
-    property DataFile: string read FDataFile write SetDataFile;
-    {< File for read/write data by default. }
-
-  end;
-
-  { caCHXStorableIni }
-
-  caCHXStorableIni = class(caCHXStorable)
-  public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
-
-    procedure LoadFromFile(FileName: string); override;
-    procedure LoadFromFileIni(IniFile: TCustomIniFile); virtual; abstract;
+    procedure LoadFromFileIni(Filename: TFilename); virtual;
     {< Loads data from file.
 
          @param(IniFile Inifile to read from.)
     }
+    procedure LoadFromIni(aIniFile: TCustomIniFile); virtual; abstract;
+    {< Loads data from file.
 
-    procedure SaveToFile(FileName: string; const ExportMode: boolean);
-      override;
-    procedure SaveToFileIni(IniFile: TCustomIniFile;
-      const ExportMode: boolean); virtual; abstract;
-     {< Saves data to file.
-
-         @param(IniFile Inifile to write to.)
-         @param(ExportMode if @true don't save user data.)
+         @param(IniFile Inifile to read from.)
     }
-  end;
+    procedure LoadFromFileTxt(Filename: TFilename); virtual;
+    {< Loads data from file.
 
-  { caCHXStorableTxt }
-
-  caCHXStorableTxt = class(caCHXStorable)
-  public
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
-
-    procedure LoadFromFile(FileName: string); override;
-    procedure LoadFromFileTxt(TxtFile: TStrings); virtual; abstract;
+         @param(IniFile Text to read from.)
+    }
+    procedure LoadFromStrLst(aTxtFile: TStrings); virtual; abstract;
     {< Loads data from file.
 
          @param(TxtFile Text file to read from.)
     }
 
-    procedure SaveToFile(FileName: string; const ExportMode: boolean);
-      override;
-    procedure SaveToFileTxt(TxtFile: TStrings; const ExportMode: boolean);
+    procedure SaveToFileIni(Filename: TFilename;
+      const ExportMode: boolean); virtual;
+      {< Saves data to file.
+
+          @param(IniFile Inifile to write to.)
+          @param(ExportMode if @true don't save user data.)
+     }
+    procedure SaveToIni(IniFile: TCustomIniFile; const ExportMode: boolean);
+      virtual; abstract;
+     {< Saves data to file.
+
+         @param(IniFile Inifile to write to.)
+         @param(ExportMode if @true don't save user data.)
+    }
+    procedure SaveToFileTxt(Filename: TFilename;
+      const ExportMode: boolean); virtual;
+     {< Saves data to file.
+
+         @param(TxtFile Text file to write to.)
+         @param(ExportMode if @true don't save user data.)
+    }
+    procedure SaveToStrLst(TxtFile: TStrings; const ExportMode: boolean);
       virtual; abstract;
      {< Saves data to file.
 
          @param(TxtFile Text file to write to.)
          @param(ExportMode if @true don't save user data.)
     }
+
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
+  published
+    property DataFile: TFilename read FDataFile write SetDataFile;
   end;
 
 implementation
 
-{ caCHXStorableTxt }
-
-constructor caCHXStorableTxt.Create(aOwner: TComponent);
+procedure caCHXStorable.SetDataFile(AValue: TFilename);
 begin
-  inherited Create(aOwner);
+  if FDataFile = AValue then
+    Exit;
+  FDataFile := AValue;
 end;
 
-destructor caCHXStorableTxt.Destroy;
+procedure caCHXStorable.LoadFromFileIni(Filename: TFilename);
+var
+  aIniFile: TMemIniFile;
 begin
-  inherited Destroy;
+  if FileName = '' then
+    FileName := DataFile;
+  if not FileExistsUTF8(FileName) then
+    Exit;
+
+  try
+    aIniFile := TMemIniFile.Create(UTF8ToSys(FileName));
+    aIniFile.CaseSensitive := False;
+
+    LoadFromIni(aIniFile);
+  finally
+    FreeAndNil(aIniFile);
+  end;
 end;
 
-procedure caCHXStorableTxt.LoadFromFile(FileName: string);
+procedure caCHXStorable.LoadFromFileTxt(Filename: TFilename);
 var
   aTxtFile: TStringList;
 begin
@@ -111,17 +110,39 @@ begin
   if not FileExistsUTF8(FileName) then
     Exit;
 
-  aTxtFile := TStringList.Create;
-  aTxtFile.LoadFromFile(UTF8ToSys(FileName));
-  aTxtFile.CaseSensitive := False;
   try
-    LoadFromFileTxt(aTxtFile);
+    aTxtFile := TStringList.Create;
+    aTxtFile.LoadFromFile(UTF8ToSys(FileName));
+    aTxtFile.CaseSensitive := False;
+
+    LoadFromStrLst(aTxtFile);
   finally
     FreeAndNil(aTxtFile);
   end;
 end;
 
-procedure caCHXStorableTxt.SaveToFile(FileName: string;
+procedure caCHXStorable.SaveToFileIni(Filename: TFilename;
+  const ExportMode: boolean);
+var
+  aIniFile: TMemIniFile;
+begin
+  if FileName = '' then
+    FileName := DataFile;
+  if FileName = '' then
+    exit;
+
+  try
+    aIniFile := TMemIniFile.Create(UTF8ToSys(FileName));
+    aIniFile.CaseSensitive := False;
+
+    SaveToIni(aIniFile, ExportMode);
+    aIniFile.UpdateFile;
+  finally
+    FreeAndNil(aIniFile);
+  end;
+end;
+
+procedure caCHXStorable.SaveToFileTxt(Filename: TFilename;
   const ExportMode: boolean);
 var
   aTxtFile: TStringList;
@@ -130,28 +151,20 @@ begin
     FileName := DataFile;
   if FileName = '' then
     Exit;
-  aTxtFile := TStringList.Create;
 
-  { TODO : caCHXStorableTxt.SaveToFile Export mode }
-  if ExportMode and FileExistsUTF8(FileName) then
-    aTxtFile.LoadFromFile(UTF8ToSys(FileName));
-
-  aTxtFile.CaseSensitive := False;
   try
-    SaveToFileTxt(aTxtFile, ExportMode);
+    aTxtFile := TStringList.Create;
+
+    if ExportMode and FileExistsUTF8(FileName) then
+      aTxtFile.LoadFromFile(UTF8ToSys(FileName));
+
+    aTxtFile.CaseSensitive := False;
+
+    SaveToStrLst(aTxtFile, ExportMode);
     aTxtFile.SaveToFile(UTF8ToSys(FileName));
   finally
     FreeAndNil(aTxtFile);
   end;
-end;
-
-{ caCHXStorable }
-
-procedure caCHXStorable.SetDataFile(AValue: string);
-begin
-  if FDataFile = AValue then
-    Exit;
-  FDataFile := AValue;
 end;
 
 constructor caCHXStorable.Create(aOwner: TComponent);
@@ -162,55 +175,6 @@ end;
 destructor caCHXStorable.Destroy;
 begin
   inherited Destroy;
-end;
-
-{ caCHXStorableIni }
-
-constructor caCHXStorableIni.Create(aOwner: TComponent);
-begin
-  inherited Create(aOwner);
-end;
-
-destructor caCHXStorableIni.Destroy;
-begin
-  inherited Destroy;
-end;
-
-procedure caCHXStorableIni.LoadFromFile(FileName: string);
-var
-  aIniFile: TMemIniFile;
-begin
-  if FileName = '' then
-    FileName := DataFile;
-  if not FileExistsUTF8(FileName) then
-    Exit;
-
-  aIniFile := TMemIniFile.Create(UTF8ToSys(FileName));
-  aIniFile.CaseSensitive := False;
-  try
-    LoadFromFileIni(aIniFile);
-  finally
-    FreeAndNil(aIniFile);
-  end;
-end;
-
-procedure caCHXStorableIni.SaveToFile(FileName: string;
-  const ExportMode: boolean);
-var
-  aIniFile: TMemIniFile;
-begin
-  if FileName = '' then
-    FileName := DataFile;
-  if FileName = '' then
-    exit;
-  aIniFile := TMemIniFile.Create(UTF8ToSys(FileName));
-  aIniFile.CaseSensitive := False;
-  try
-    SaveToFileIni(aIniFile, ExportMode);
-    aIniFile.UpdateFile;
-  finally
-    FreeAndNil(aIniFile);
-  end;
 end;
 
 end.

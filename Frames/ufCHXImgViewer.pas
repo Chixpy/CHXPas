@@ -6,8 +6,8 @@ interface
 
 uses
   Classes, SysUtils, LazFileUtils, Forms, Controls, Menus, ComCtrls,
-  StdCtrls, LazUTF8, ExtCtrls, ActnList,
-  uCHXStrUtils, uCHXImageUtils;
+  StdCtrls, LazUTF8, ExtCtrls, ActnList, dateutils, IniFiles,
+  uCHXStrUtils, uCHXImageUtils, uCHXFileUtils;
 
 type
 
@@ -67,19 +67,29 @@ type
     procedure ImageResize(Sender: TObject);
     procedure lbxFilesSelectionChange(Sender: TObject; User: boolean);
     procedure sbxImageResize(Sender: TObject);
+
   private
+    FStartTime: int64;
     FDragBeginX: longint;
     FDragBeginY: longint;
     FIconsIniFile: TFilename;
     FImageIndex: integer;
+    FSHA1: string;
+    FSHA1Folder: TFilename;
+    procedure SetStartTime(AValue: TTime);
     procedure SetDragBeginX(AValue: longint);
     procedure SetDragBeginY(AValue: longint);
     procedure SetIconsIniFile(AValue: TFilename);
     procedure SetImageIndex(AValue: integer);
+    procedure SetSHA1(AValue: string);
+    procedure SetSHA1Folder(AValue: TFilename);
 
   protected
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
     property DragBeginY: longint read FDragBeginY write SetDragBeginY;
+
+    property SHA1: string read FSHA1 write SetSHA1;
+    property StartTime: TTime read FStartTime write SetStartTime;
 
     procedure StretchImage;
     procedure FixPosition;
@@ -87,7 +97,11 @@ type
     procedure ChangeImage;
     procedure UpdateStatusBar;
 
+    procedure SaveStats;
+
   public
+    property SHA1Folder: TFilename read FSHA1Folder write SetSHA1Folder;
+
     property IconsIniFile: TFilename read FIconsIniFile write SetIconsIniFile;
     property ImageIndex: integer read FImageIndex write SetImageIndex;
 
@@ -251,6 +265,13 @@ begin
   FDragBeginX := AValue;
 end;
 
+procedure TfmCHXImgViewer.SetStartTime(AValue: TTime);
+begin
+  if FStartTime = AValue then
+    Exit;
+  FStartTime := AValue;
+end;
+
 procedure TfmCHXImgViewer.SetDragBeginY(AValue: longint);
 begin
   if FDragBeginY = AValue then
@@ -266,6 +287,18 @@ begin
   cbxCurrImage.ItemIndex := ImageIndex - 1;
   lbxFiles.ItemIndex := ImageIndex - 1;
   ChangeImage;
+end;
+
+procedure TfmCHXImgViewer.SetSHA1(AValue: string);
+begin
+  if FSHA1 = AValue then
+    Exit;
+  FSHA1 := AValue;
+end;
+
+procedure TfmCHXImgViewer.SetSHA1Folder(AValue: TFilename);
+begin
+  FSHA1Folder := SetAsFolder(AValue);
 end;
 
 procedure TfmCHXImgViewer.StretchImage;
@@ -316,6 +349,13 @@ procedure TfmCHXImgViewer.ChangeImage;
 var
   aFilename: string;
 begin
+  if (SHA1Folder <> '') then
+  begin
+    SaveStats;
+    SHA1 := '';
+    StartTime := 0;
+  end;
+
   if (ImageIndex < 1) or (lbxFiles.Items.Count = 0) then
   begin
     Image.Picture.Clear;
@@ -327,8 +367,12 @@ begin
 
   if FileExistsUTF8(aFilename) then
   begin
+    if (SHA1Folder <> '') then
+      SHA1 := SHA1FileStr(aFilename);
     Image.Picture.LoadFromFile(aFilename);
     StretchImage;
+    if (SHA1Folder <> '') then
+      StartTime := Now;
     UpdateStatusBar;
   end
   else
@@ -364,6 +408,32 @@ begin
   actNext.Enabled := cbxCurrImage.Enabled;
   actLast.Enabled := cbxCurrImage.Enabled;
   actShowFileList.Enabled := cbxCurrImage.Enabled;
+end;
+
+procedure TfmCHXImgViewer.SaveStats;
+var
+  TimePassed: Int64;
+  aFileName: String;
+  aIni: TMemIniFile;
+begin
+  if (SHA1Folder = '') or (StartTime = 0) or (SHA1 = '') then
+    Exit;
+
+  TimePassed := SecondsBetween(Now, StartTime);
+  aFileName:= SHA1Folder + SetAsFolder(copy(SHA1, 1, 2)) +
+      copy(SHA1, 3, 2) + '.ini';
+
+  ForceDirectories(ExtractFileDir(aFile)); // Actually a folder now
+
+  aIni := TMemIniFile.Create(aFileName);
+  try
+    TimePassed := TimePassed + aIni.ReadInt64(SHA1, 'Pic.TimeViewed',0);
+    aIni.WriteInteger(SHA1, 'Pic.TimeViewed', TimePassed);
+    { TODO : Other Stats? }
+    aIni.UpdateFile;
+  finally
+    FreeAndNil(aIni);
+  end;
 end;
 
 procedure TfmCHXImgViewer.AddImages(aImageList: TStrings; Index: integer);
