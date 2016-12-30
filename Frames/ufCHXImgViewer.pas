@@ -69,7 +69,7 @@ type
     procedure sbxImageResize(Sender: TObject);
 
   private
-    FStartTime: int64;
+    FStartTime: TTime;
     FDragBeginX: longint;
     FDragBeginY: longint;
     FIconsIniFile: TFilename;
@@ -412,22 +412,22 @@ end;
 
 procedure TfmCHXImgViewer.SaveStats;
 var
-  TimePassed: Int64;
-  aFileName: String;
+  TimePassed: int64;
+  aFileName: string;
   aIni: TMemIniFile;
 begin
   if (SHA1Folder = '') or (StartTime = 0) or (SHA1 = '') then
     Exit;
 
   TimePassed := SecondsBetween(Now, StartTime);
-  aFileName:= SHA1Folder + SetAsFolder(copy(SHA1, 1, 2)) +
-      copy(SHA1, 3, 2) + '.ini';
+  aFileName := SHA1Folder + SetAsFolder(copy(SHA1, 1, 2)) +
+    copy(SHA1, 3, 2) + '.ini';
 
-  ForceDirectories(ExtractFileDir(aFile)); // Actually a folder now
+  ForceDirectories(ExtractFileDir(aFileName)); // Actually a folder now
 
   aIni := TMemIniFile.Create(aFileName);
   try
-    TimePassed := TimePassed + aIni.ReadInt64(SHA1, 'Pic.TimeViewed',0);
+    TimePassed := TimePassed + aIni.ReadInt64(SHA1, 'Pic.TimeViewed', 0);
     aIni.WriteInteger(SHA1, 'Pic.TimeViewed', TimePassed);
     { TODO : Other Stats? }
     aIni.UpdateFile;
@@ -470,6 +470,8 @@ end;
 
 destructor TfmCHXImgViewer.Destroy;
 begin
+  if (SHA1Folder <> '') then
+    SaveStats;
   inherited Destroy;
 end;
 
