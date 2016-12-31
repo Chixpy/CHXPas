@@ -413,6 +413,7 @@ end;
 procedure TfmCHXImgViewer.SaveStats;
 var
   TimePassed: int64;
+  NTimes: int64;
   aFileName: string;
   aIni: TMemIniFile;
 begin
@@ -428,7 +429,9 @@ begin
   aIni := TMemIniFile.Create(aFileName);
   try
     TimePassed := TimePassed + aIni.ReadInt64(SHA1, 'Pic.TimeViewed', 0);
-    aIni.WriteInteger(SHA1, 'Pic.TimeViewed', TimePassed);
+    NTimes := 1 + aIni.ReadInt64(SHA1, 'Pic.NTimes', 0);
+    aIni.WriteInt64(SHA1, 'Pic.TimeViewed', TimePassed);
+    aIni.WriteInt64(SHA1, 'Pic.NTimes', NTimes);
     { TODO : Other Stats? }
     aIni.UpdateFile;
   finally
