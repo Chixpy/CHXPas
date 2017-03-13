@@ -9,21 +9,22 @@ uses
   uCHXStrUtils, u7zWrapper;
 
 type
-  TItFolderObj = function(aFolder: TFilename;
+  TItFolderObj = function(aFolder: string;
     FileInfo: TSearchRec): boolean of object;
-  TItFolderFun = function(aFolder: TFilename; FileInfo: TSearchRec): boolean;
+  TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
 
 { RemoveDir does the job...
 procedure RemoveEmptyFolders(aPath: string);
 }
 
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
-  aBaseFolder: TFilename; aExtList: TStrings; Recursive: boolean = True);
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean = True);
 {< Searches all files with selected extensions, searching in compressed archives too.
 
      @param(AOutFolderList StringList with the folder or compressed archive
        were files in AOutFileList are found. If nil it will be created,
-       so must be freed elsewhere.)
+       so must be freed elsewhere. Note: archive will have trailing path
+       delimiter.)
      @param(AOutFileList Files found (if they are in a compressed archive,
        they have the internal folder structure). If nil it will be created,
        so must be freed elsewhere.)
@@ -33,27 +34,27 @@ procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
        have internal folder structure file are found any way)
 }
 
-procedure SearchMediaFiles(FileList: TStrings; aFolder: TFilename;
-  aFileName: TFilename; Extensions: TStrings);
+procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
+  aFileName: string; Extensions: TStrings);
 
-function SearchFirstMediaFile(aFolder: TFilename; aFileName: TFilename;
-  Extensions: TStrings): TFilename;
+function SearchFirstMediaFile(aFolder: string; aFileName: string;
+  Extensions: TStrings): string;
 {< Same as SearchMediaFiles but returns only first matched file. }
 
 // Some hashing
-function CRC32FileInt(const aFileName: TFilename): cardinal;
+function CRC32FileInt(const aFileName: string): cardinal;
 {< Calculates CRC32 checksum of a file.
 }
-function CRC32FileStr(const aFileName: TFilename): string;
+function CRC32FileStr(const aFileName: string): string;
 {< Calculates CRC32 checksum of a file and return as string.
 }
-function SHA1FileStr(const aFileName: TFilename): string;
+function SHA1FileStr(const aFileName: string): string;
 {< Calculates SHA1 checksum of a file and return as string.
 }
 
-function IterateFolderObj(Folder: TFilename; aFunction: TItFolderObj;
+function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
   Recursive: boolean = True): boolean;
-function IterateFolderFun(Folder: TFilename; aFunction: TItFolderFun;
+function IterateFolderFun(Folder: string; aFunction: TItFolderFun;
   Recursive: boolean = True): boolean;
 {< Recorre el directorio especificado y ejecuta aFuncion(TSearchRec) con cada uno
   de los archivos encontrados
@@ -72,12 +73,12 @@ Notas:
     False no pasa al siguiente archivo.
 }
 
-function FilesInFolder(Folder: TFilename): integer;
+function FilesInFolder(Folder: string): integer;
 //< TODO 2: Is there a better way?
 
 implementation
 
-function CRC32FileInt(const aFileName: TFilename): cardinal;
+function CRC32FileInt(const aFileName: string): cardinal;
 var
   aFile: TFileStream;
   BufferCRC: array[0..32767] of char;
@@ -106,14 +107,14 @@ begin
   end;
 end;
 
-function CRC32FileStr(const aFileName: TFilename): string;
+function CRC32FileStr(const aFileName: string): string;
 begin
   Result := '';
   if FileExistsUTF8(aFileName) then
     Result := IntToHex(CRC32FileInt(aFileName), 8);
 end;
 
-function SHA1FileStr(const aFileName: TFilename): string;
+function SHA1FileStr(const aFileName: string): string;
 begin
   Result := '';
   if FileExistsUTF8(aFileName) then
@@ -121,7 +122,7 @@ begin
 end;
 
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
-  aBaseFolder: TFilename; aExtList: TStrings; Recursive: boolean);
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
 var
   FileMask: string;
   Archives, Compressed: TStringList;
@@ -131,6 +132,9 @@ begin
     AOutFolderList := TStringList.Create;
   if not assigned(AOutFileList) then
     AOutFileList := TStringList.Create;
+
+  AOutFolderList.BeginUpdate;
+  AOutFileList.BeginUpdate;
 
   FileMask := FileMaskFromStringList(aExtList);
 
@@ -148,10 +152,12 @@ begin
 
   // 2.- Search compressed archives
   Archives := TStringList.Create;
+  Archives.BeginUpdate;
   Compressed := TStringList.Create;
+  Compressed.BeginUpdate;
   try
     // Creating FileMask for compressed archives
-    Compressed.CommaText := w7zFileExts;
+    Compressed.CommaText := w7zGetFileExts;
     FileMask := FileMaskFromStringList(Compressed);
     Compressed.Clear;
 
@@ -168,21 +174,24 @@ begin
       begin
         if SupportedExt(Compressed[j], aExtList) then
         begin
-          AOutFolderList.Add(Archives[i]);
+          AOutFolderList.Add(SetAsFolder(Archives[i]));
           AOutFileList.Add(Compressed[j]);
         end;
         Inc(j);
       end;
       Inc(i);
     end;
+
   finally
+    AOutFolderList.EndUpdate;
+    AOutFileList.EndUpdate;
     FreeAndNil(Archives);
     FreeAndNil(Compressed);
   end;
 end;
 
-procedure SearchMediaFiles(FileList: TStrings; aFolder: TFilename;
-  aFileName: TFilename; Extensions: TStrings);
+procedure SearchMediaFiles(FileList: TStrings; aFolder: string;
+  aFileName: string; Extensions: TStrings);
 
   procedure SearchFileByExt(aFileList: TStrings; aBaseFileName: string;
     aExtList: TStrings);
@@ -319,8 +328,8 @@ begin
   }
 end;
 
-function SearchFirstMediaFile(aFolder: TFilename; aFileName: TFilename;
-  Extensions: TStrings): TFilename;
+function SearchFirstMediaFile(aFolder: string; aFileName: string;
+  Extensions: TStrings): string;
 
   function SearchFileByExt(aBaseFileName: string; aExtList: TStrings): string;
   var
@@ -364,7 +373,7 @@ begin
 
 end;
 
-function IterateFolderObj(Folder: TFilename; aFunction: TItFolderObj;
+function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
   Recursive: boolean): boolean;
 var
   Info: TSearchRec;
@@ -397,7 +406,7 @@ begin
       end;
 end;
 
-function IterateFolderFun(Folder: TFilename; aFunction: TItFolderFun;
+function IterateFolderFun(Folder: string; aFunction: TItFolderFun;
   Recursive: boolean): boolean;
 var
   Info: TSearchRec;
@@ -433,7 +442,7 @@ begin
       end;
 end;
 
-function FilesInFolder(Folder: TFilename): integer;
+function FilesInFolder(Folder: string): integer;
 var
   Info: TSearchRec;
 begin

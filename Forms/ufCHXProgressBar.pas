@@ -32,10 +32,12 @@ type
     procedure FormCreate(Sender: TObject);
 
   private
+    FCancelable: boolean;
     { private declarations }
     FContinue: boolean;
     FNextTime: TDateTime;
     FUpdateInterval: TDateTime;
+    procedure SetCancelable(AValue: boolean);
     procedure SetContinue(AValue: boolean);
     procedure SetNextTime(AValue: TDateTime);
     procedure SetUpdateInterval(AValue: TDateTime);
@@ -46,7 +48,9 @@ type
 
   public
     { public declarations }
-    property UpdateInterval: TDateTime read FUpdateInterval write SetUpdateInterval;
+    property UpdateInterval: TDateTime read FUpdateInterval
+      write SetUpdateInterval;
+    property Cancelable: boolean read FCancelable write SetCancelable;
 
     function UpdateProgressBar(const Value, MaxValue: int64): boolean;
     function UpdTextAndBar(const aAction, Info1, Info2: string;
@@ -76,16 +80,28 @@ begin
   FContinue := AValue;
 end;
 
+procedure TfrmCHXProgressBar.SetCancelable(AValue: boolean);
+begin
+  if FCancelable = AValue then
+    Exit;
+  FCancelable := AValue;
+
+  bCancel.Enabled := Cancelable;
+  bCancel.Visible := Cancelable;
+end;
+
 procedure TfrmCHXProgressBar.SetNextTime(AValue: TDateTime);
 begin
-  if FNextTime=AValue then Exit;
-  FNextTime:=AValue;
+  if FNextTime = AValue then
+    Exit;
+  FNextTime := AValue;
 end;
 
 procedure TfrmCHXProgressBar.SetUpdateInterval(AValue: TDateTime);
 begin
-  if FUpdateInterval=AValue then Exit;
-  FUpdateInterval:=AValue;
+  if FUpdateInterval = AValue then
+    Exit;
+  FUpdateInterval := AValue;
 end;
 
 procedure TfrmCHXProgressBar.bCancelClick(Sender: TObject);
@@ -101,13 +117,12 @@ begin
   if not Self.Visible then
     Start;
 
-    // Uhm...
+  // Uhm...
   if (Value >= MaxValue) or (MaxValue <= 0) then
     Self.Finnish;
 
-  if Now < NextTime then Exit;
-
-  NextTime := Now + UpdateInterval;
+  if Now < NextTime then
+    Exit;
 
   // Catching Cancel button
   Application.ProcessMessages;
@@ -115,14 +130,19 @@ begin
 
   ProgressBar.Max := MaxValue;
   ProgressBar.Position := Value;
+
+  NextTime := Now + UpdateInterval;
 end;
 
 function TfrmCHXProgressBar.UpdTextAndBar(const aAction, Info1, Info2: string;
   const Value, MaxValue: int64): boolean;
 begin
-  lAction.Caption := aAction;
-  lInfo1.Caption := Info1;
-  lInfo2.Caption := Info2;
+  if Now >= NextTime then
+  begin
+    lAction.Caption := aAction;
+    lInfo1.Caption := Info1;
+    lInfo2.Caption := Info2;
+  end;
   Result := UpdateProgressBar(Value, MaxValue);
 end;
 
@@ -130,7 +150,7 @@ procedure TfrmCHXProgressBar.Start;
 begin
   Continue := True;
   Visible := True;
-  NextTime:= Now;
+  NextTime := Now;
 end;
 
 procedure TfrmCHXProgressBar.Finnish;
@@ -142,7 +162,8 @@ end;
 constructor TfrmCHXProgressBar.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-  UpdateInterval := EncodeTime(0,0,0,250);
+  UpdateInterval := EncodeTime(0, 0, 0, 300);
+  Cancelable := False;
 end;
 
 initialization

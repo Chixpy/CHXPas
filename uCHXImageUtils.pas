@@ -34,7 +34,7 @@ procedure ReadActionsIcons(const aFileName, Section: string;
 {< Reads icons for the diferent actions a ImageList and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
-    are searched from BaseDir.
+    are searched from aFileName folder.
 
   If ini file don't have the necesary key=value pair, then it will be created.
 
@@ -45,12 +45,12 @@ procedure ReadActionsIcons(const aFileName, Section: string;
   @param(ActionList An action list which actions will be assigned an image.)
 }
 
-procedure ReadMenuIcons(const aFileName, Section: string; ImageList: TImageList;
-  Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string;
+  ImageList: TImageList; Menu: TMenu);
 {< Reads icons for menu items with no action assigned and assigns them.
 
-  It reads a .ini file to search which images must be loaded, relative paths
-    are searched from BaseDir (or relative to ini file).
+It reads a .ini file to search which images must be loaded, relative paths
+  are searched from aFileName folder.
 
   If ini file don't have the necesary key=value pair, then it will be created.
 
@@ -121,8 +121,8 @@ begin
   end;
 end;
 
-procedure ReadMenuIcons(const aFileName, Section: string; ImageList: TImageList;
-  Menu: TMenu);
+procedure ReadMenuIcons(const aFileName, Section: string;
+  ImageList: TImageList; Menu: TMenu);
 
   procedure ReadIcon(IniFile: TMemIniFile; ImageList: TImageList;
     Menu: TMenuItem; Section: string; BaseDir: string);

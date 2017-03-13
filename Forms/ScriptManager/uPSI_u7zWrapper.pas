@@ -44,10 +44,6 @@ procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 begin
   // Nop.
   // CL.AddConstantN('kw7zCacheFileExt', 'String').SetString('.txt');
-
-  // Added as a constant...
-  CL.AddConstantN('w7zFileExts', 'string').SetString(w7zFileExts);
-
   CL.AddClassN(CL.FindClass('TOBJECT'), 'w7zException');
   CL.AddDelphiFunction(
     'Procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings; const OnlyPaths: boolean; const UseCache: boolean; const Password: string)');

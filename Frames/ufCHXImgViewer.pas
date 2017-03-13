@@ -72,17 +72,17 @@ type
     FStartTime: TTime;
     FDragBeginX: longint;
     FDragBeginY: longint;
-    FIconsIniFile: TFilename;
+    FIconsIniFile: string;
     FImageIndex: integer;
     FSHA1: string;
-    FSHA1Folder: TFilename;
+    FSHA1Folder: string;
     procedure SetStartTime(AValue: TTime);
     procedure SetDragBeginX(AValue: longint);
     procedure SetDragBeginY(AValue: longint);
-    procedure SetIconsIniFile(AValue: TFilename);
+    procedure SetIconsIniFile(AValue: string);
     procedure SetImageIndex(AValue: integer);
     procedure SetSHA1(AValue: string);
-    procedure SetSHA1Folder(AValue: TFilename);
+    procedure SetSHA1Folder(AValue: string);
 
   protected
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
@@ -100,13 +100,13 @@ type
     procedure SaveStats;
 
   public
-    property SHA1Folder: TFilename read FSHA1Folder write SetSHA1Folder;
+    property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
 
-    property IconsIniFile: TFilename read FIconsIniFile write SetIconsIniFile;
+    property IconsIniFile: string read FIconsIniFile write SetIconsIniFile;
     property ImageIndex: integer read FImageIndex write SetImageIndex;
 
     procedure AddImages(aImageList: TStrings; Index: integer = 0);
-    procedure AddImage(aImageFile: TFilename; aObject: TObject = nil);
+    procedure AddImage(aImageFile: string; aObject: TObject = nil);
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -252,7 +252,7 @@ begin
   FixPosition;
 end;
 
-procedure TfmCHXImgViewer.SetIconsIniFile(AValue: TFilename);
+procedure TfmCHXImgViewer.SetIconsIniFile(AValue: string);
 begin
   FIconsIniFile := SetAsFile(AValue);
   ReadActionsIcons(FIconsIniFile, Self.Name, ilActions, ActionList);
@@ -296,7 +296,7 @@ begin
   FSHA1 := AValue;
 end;
 
-procedure TfmCHXImgViewer.SetSHA1Folder(AValue: TFilename);
+procedure TfmCHXImgViewer.SetSHA1Folder(AValue: string);
 begin
   FSHA1Folder := SetAsFolder(AValue);
 end;
@@ -458,7 +458,7 @@ begin
   ImageIndex := Index;
 end;
 
-procedure TfmCHXImgViewer.AddImage(aImageFile: TFilename; aObject: TObject);
+procedure TfmCHXImgViewer.AddImage(aImageFile: string; aObject: TObject);
 begin
   lbxFiles.Items.AddObject(aImageFile, aObject);
   cbxCurrImage.Items.Add(IntToStr(lbxFiles.Count));

@@ -13,41 +13,43 @@ type
   { cCHXImageList }
   cCHXFPGImageList = specialize TFPGObjectList<TPicture>;
 
-  cCHXImageList = class (cCHXFPGImageList)
+  cCHXImageList = class(cCHXFPGImageList)
   private
     FFileList: TStringList;
   protected
     property FileList: TStringList read FFileList;
 
   public
-    function AddImageFile(aFile: String): Integer;
-    function AddEmptyImage: Integer;
+    function AddImageFile(aFile: string): integer;
 
-    constructor Create(aFreeObjects: Boolean = True);
+    constructor Create(aFreeObjects: boolean = True);
     destructor Destroy; override;
   end;
 
   { cCHXImageMap }
+  cCHXFPGImageMap = specialize TFPGMapObject<string, TPicture>;
 
-  cCHXImageMap= class (specialize TFPGMapObject<string, TPicture>)
-   public
-    function AddImageFile(aKey, aFile: String): Boolean;
+  cCHXImageMap = class(cCHXFPGImageMap)
+  public
+    function AddImageFile(aKey, aFile: string): boolean;
 
-    constructor Create(AFreeObjects: Boolean);
+    constructor Create(AFreeObjects: boolean);
     constructor Create;
   end;
+
 implementation
 
 { cCHXImageMap }
 
-function cCHXImageMap.AddImageFile(aKey, aFile: String): Boolean;
+function cCHXImageMap.AddImageFile(aKey, aFile: string): boolean;
 var
   Img: TPicture;
 begin
   Result := True;
-    Img := TPicture.Create;
+  Img := TPicture.Create;
   try
-    Img.LoadFromFile(aFile);
+     if FileExistsUTF8(aFile) then
+       Img.LoadFromFile(aFile);
   except
     // WOOPS, it can't be loaded.
     FreeAndNil(Img);
@@ -56,7 +58,7 @@ begin
   Self.AddOrSetData(aKey, Img);
 end;
 
-constructor cCHXImageMap.Create(AFreeObjects: Boolean);
+constructor cCHXImageMap.Create(AFreeObjects: boolean);
 begin
   inherited Create(AFreeObjects);
 
@@ -71,39 +73,35 @@ end;
 
 { cCHXImageList }
 
-function cCHXImageList.AddImageFile(aFile: String): Integer;
+function cCHXImageList.AddImageFile(aFile: string): integer;
 var
   Img: TPicture;
 begin
-  Result := -1;
+  Result := FileList.IndexOf(aFile);
 
-  { TODO : Check if file is already loaded and return its index }
-  Img := TPicture.Create;
-  try
-    Img.LoadFromFile(aFile);
-  except
-    // WOOPS, it can't be loaded.
-    FreeAndNil(Img);
-    Result := AddEmptyImage;
-    Exit;
+  if Result = -1 then
+  begin
+    Img := TPicture.Create;
+    try
+      if FileExistsUTF8(aFile) then
+        Img.LoadFromFile(aFile);
+    except
+      // Add it empty
+      ;
+    end;
+    FileList.Add(aFile);
+    Result := Self.Add(Img);
   end;
-  Result := Self.Add(Img);
 end;
 
-function cCHXImageList.AddEmptyImage: Integer;
-var
-  aImage: TPicture;
-begin
-  aImage := TPicture.Create;
-  Result := Self.Add(aImage);
-end;
-
-constructor cCHXImageList.Create(aFreeObjects: Boolean);
+constructor cCHXImageList.Create(aFreeObjects: boolean);
 begin
   inherited Create(aFreeObjects);
 
   FFileList := TStringList.Create;
   FileList.CaseSensitive := False;
+  FileList.Sorted := False;
+  FileList.Duplicates := dupError;
 end;
 
 destructor cCHXImageList.Destroy;
@@ -113,4 +111,3 @@ begin
 end;
 
 end.
-

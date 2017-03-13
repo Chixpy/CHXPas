@@ -18,14 +18,14 @@ type
     ilCHXActIcons: TImageList;
     IniPropStorage1: TIniPropStorage;
   private
-    FGUIConfigIni: TFilename;
-    FGUIIconsIni: TFilename;
-    procedure SetGUIConfigIni(AValue: TFilename); virtual;
-    procedure SetGUIIconsIni(AValue: TFilename); virtual;
+    FGUIConfigIni: string;
+    FGUIIconsIni: string;
+    procedure SetGUIConfigIni(AValue: string); virtual;
+    procedure SetGUIIconsIni(AValue: string); virtual;
 
   public
-    property GUIConfigIni: TFilename read FGUIConfigIni write SetGUIConfigIni;
-    property GUIIconsIni: TFilename read FGUIIconsIni write SetGUIIconsIni;
+    property GUIConfigIni: string read FGUIConfigIni write SetGUIConfigIni;
+    property GUIIconsIni: string read FGUIIconsIni write SetGUIIconsIni;
 
   end;
 
@@ -38,7 +38,7 @@ implementation
 
 { TfrmCHXForm }
 
-procedure TfrmCHXForm.SetGUIConfigIni(AValue: TFilename);
+procedure TfrmCHXForm.SetGUIConfigIni(AValue: string);
 begin
   FGUIConfigIni := SetAsFile(AValue);
 
@@ -46,7 +46,7 @@ begin
   IniPropStorage1.Restore;
 end;
 
-procedure TfrmCHXForm.SetGUIIconsIni(AValue: TFilename);
+procedure TfrmCHXForm.SetGUIIconsIni(AValue: string);
 begin
   FGUIIconsIni := SetAsFile(AValue);
   ReadActionsIcons(GUIIconsIni, Self.Name, ilCHXActIcons, alCHXActions);
