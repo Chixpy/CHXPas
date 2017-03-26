@@ -41,7 +41,7 @@ uses
   uCHXStrUtils;
 
 resourcestring
-  w7zFileNotFound = '"%0:s" file not found';
+  w7zFileNotFound = '"%0:s" file not found. ' + LineEnding + 'Current Dir: %1:s';
   //< Translatable string: '"%0:s" file not found'
   w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
 
@@ -214,7 +214,7 @@ end;
 
 procedure w7zSetPathTo7zexe(aPath: string);
 begin
-  w7zPathTo7zexe := SetAsFile(aPath);
+  w7zPathTo7zexe := CleanAndExpandFilename(SetAsFile(aPath));
 end;
 
 function w7zGetPathTo7zGexe: string;
@@ -224,7 +224,7 @@ end;
 
 procedure w7zSetPathTo7zGexe(aPath: string);
 begin
-  w7zPathTo7zGexe := SetAsFile(aPath);
+  w7zPathTo7zGexe := CleanAndExpandFilename(SetAsFile(aPath));
 end;
 
 function w7zGetCacheDir: string;
@@ -236,10 +236,10 @@ procedure w7zSetCacheDir(aPath: string);
 begin
   if aPath = '' then
     aPath := SetAsFolder(GetTempDir(False)) + 'w7zCache';
-  aPath := SetAsFolder(aPath);
+  aPath := CleanAndExpandDirectory(SetAsFolder(aPath));
 
-  // TODO: Better segurity check...
-  if Length(w7zCacheDir) > 15 then
+  // TODO: Better security check...
+  if Length(w7zCacheDir) > 25 then
     DeleteDirectory(w7zCacheDir, False);
   ForceDirectoriesUTF8(aPath);
   w7zCacheDir := aPath;
@@ -644,13 +644,13 @@ begin
   if ShowProgress then
   begin
     if not FileExistsUTF8(w7zGetPathTo7zGexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zGexe]);
+      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zGexe, GetCurrentDirUTF8]);
     aExeString := w7zGetPathTo7zGexe;
   end
   else
   begin
     if not FileExistsUTF8(w7zGetPathTo7zexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zexe]);
+      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
 
     if ShowProgress then
       aOptions := aOptions + [poNewConsole]

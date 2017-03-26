@@ -86,7 +86,8 @@ function AddToStringList(aList: TStrings; aString: string): integer;
 
 function FileMaskFromStringList(aList: TStrings): string;
 {< Creates a file mask from a TStrings with an extension by line}
-
+function FileMaskFromCommaText(aText: string): string;
+{< Creates a file mask from a string with extension separated by a comma }
 // MISC
 // ----
 
@@ -431,7 +432,24 @@ begin
     Exit;
 
   Result := aList.CommaText;
-  Result := UTF8TextReplace(Result, '"', '');
+  Result :=       FileMaskFromCommaText(Result);
+end;
+
+function FileMaskFromCommaText(aText: string): string;
+begin
+  Result := '';
+  if aText = '' then
+    Exit;
+
+  Result := UTF8TextReplace(aText, '"', '');
+  if Result = '' then
+    Exit;
+
+  // Dots...
+  if Result[1] = '.' then
+    Result := Copy(Result,2, Length(Result));
+  Result := UTF8TextReplace(Result, ',.', ',');
+
   Result := '*.' + UTF8TextReplace(Result, ',', ';*.');
 end;
 
