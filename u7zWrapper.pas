@@ -41,7 +41,8 @@ uses
   uCHXStrUtils;
 
 resourcestring
-  w7zFileNotFound = '"%0:s" file not found. ' + LineEnding + 'Current Dir: %1:s';
+  w7zFileNotFound = '"%0:s" file not found. ' + LineEnding +
+    'Current Dir: %1:s';
   //< Translatable string: '"%0:s" file not found'
   w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
 
@@ -109,8 +110,7 @@ procedure w7zSetGlobalCache(aPath: string);
 }
 
 procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean = False; const UseCache: boolean = True;
-  const Password: string = '');
+  const OnlyPaths: boolean; const UseCache: boolean; const Password: string);
 {< List files and properties in a 7z (or other format) archive.
 
   Executes "7z.exe l -slt aFilename" but don't use wildcards.
@@ -154,6 +154,11 @@ function w7zCompressFile(const a7zArchive: string; aFileList: TStrings;
   @param(CompType Type of the archive.)
   @return(Exit code)
 }
+
+function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
+  const Password: string): cardinal;
+function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+  const Password: string): string;
 
 implementation
 
@@ -256,8 +261,7 @@ begin
 end;
 
 procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean = False; const UseCache: boolean = True;
-  const Password: string = '');
+  const OnlyPaths: boolean; const UseCache: boolean; const Password: string);
 
   procedure ReturnOnlyPaths(aFileList: TStrings);
   var
@@ -382,7 +386,7 @@ procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
     aFile: string;
     sl, slPath, slSizes, slPSizes, slDates, slCRC: TStringList;
     aIni: TMemIniFile;
-    i: Integer;
+    i: integer;
   begin
     aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 2)) +
       Copy(FileSHA1, 3, 2) + '.ini';
@@ -484,7 +488,8 @@ begin
         LoadGlobalCache(FileSHA1, PackedFiles, OnlyPaths);
       end;
     end;
-            if PackedFiles.Count > 0 then Exit;
+    if PackedFiles.Count > 0 then
+      Exit;
 
   end;
 
@@ -644,13 +649,15 @@ begin
   if ShowProgress then
   begin
     if not FileExistsUTF8(w7zGetPathTo7zGexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zGexe, GetCurrentDirUTF8]);
+      raise EInOutError.CreateFmt(w7zFileNotFound,
+        [w7zGetPathTo7zGexe, GetCurrentDirUTF8]);
     aExeString := w7zGetPathTo7zGexe;
   end
   else
   begin
     if not FileExistsUTF8(w7zGetPathTo7zexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound, [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
+      raise EInOutError.CreateFmt(w7zFileNotFound,
+        [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
 
     if ShowProgress then
       aOptions := aOptions + [poNewConsole]
@@ -746,6 +753,50 @@ begin
   finally
     FreeAndNil(aProcess);
   end;
+end;
+
+function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
+  const Password: string): cardinal;
+var
+  aFileList, TmpStrList: TStringList;
+  Found: boolean;
+  i: integer;
+begin
+  Result := 0;
+
+  aFileList := TStringList.Create;
+  TmpStrList := TStringList.Create;
+  try
+    aFileList.BeginUpdate;
+    w7zListFiles(a7zArchive, aFileList, False, True, Password);
+    aFileList.EndUpdate;
+
+    i := 0;
+    Found := False;
+    while (not Found) and (i < aFileList.Count) do
+    begin
+      TmpStrList.Clear;
+      TmpStrList.CommaText := aFileList[i];
+
+      if (TmpStrList.Count >= 5) and
+        (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
+      begin
+        Result := StrToCardinalDef(TmpStrList[4], 0);
+        Found := True;
+      end;
+      Inc(i);
+    end;
+
+  finally
+    TmpStrList.Free;
+    aFileList.Free;
+  end;
+end;
+
+function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+  const Password: string): string;
+begin
+  Result := IntToHex(w7zCRC32InnerFile(a7zArchive, aInnerFile, Password), 8);
 end;
 
 initialization
