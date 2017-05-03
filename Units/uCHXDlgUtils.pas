@@ -20,7 +20,7 @@ begin
   if FilenameIsAbsolute(aDirectoryEdit.Directory) then
   begin
     aDirectoryEdit.Directory :=
-      CleanAndExpandFilename(aDirectoryEdit.Directory);
+      ExcludeTrailingPathDelimiter(CleanAndExpandFilename(SysPath(aDirectoryEdit.Directory)));
   end
   else
   begin
@@ -32,8 +32,8 @@ begin
         SysPath(SetAsFolder(GetCurrentDirUTF8)) + BaseDir);
 
     aDirectoryEdit.RootDir :=
-      CleanAndExpandFilename(SysPath(SetAsFolder(BaseDir)) +
-      aDirectoryEdit.Directory);
+      ExcludeTrailingPathDelimiter(CleanAndExpandFilename(SysPath(SetAsFolder(BaseDir)) +
+      aDirectoryEdit.Directory));
   end;
 end;
 
@@ -42,13 +42,10 @@ begin
   if FilenameIsAbsolute(aFileEdit.FileName) then
   begin
     aFileEdit.InitialDir :=
-      ExtractFileDir(CleanAndExpandFilename(aFileEdit.FileName));
-    aFileEdit.FileName :=
-      ExtractFileName(CleanAndExpandFilename(aFileEdit.FileName));
+      ExtractFilePath(CleanAndExpandFilename(SysPath(aFileEdit.FileName)));
   end
   else
   begin
-
     if BaseDir = '' then
       BaseDir := GetCurrentDirUTF8;
 
@@ -57,10 +54,7 @@ begin
         SysPath(SetAsFolder(GetCurrentDirUTF8)) + BaseDir);
 
     aFileEdit.InitialDir :=
-      ExtractFileDir(CleanAndExpandFilename(SysPath(SetAsFolder(BaseDir)) +
-      aFileEdit.FileName));
-    aFileEdit.FileName :=
-      ExtractFileName(CleanAndExpandFilename(SysPath(SetAsFolder(BaseDir)) +
+      ExtractFilePath(CleanAndExpandFilename(SysPath(SetAsFolder(BaseDir)) +
       aFileEdit.FileName));
   end;
 end;
