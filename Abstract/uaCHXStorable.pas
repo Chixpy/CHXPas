@@ -40,7 +40,7 @@ type
 
          @param(aFilename Filename of the inifile to read from.)
     }
-    procedure LoadFromIni(aIniFile: TCustomIniFile); virtual; abstract;
+    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Loads data from file.
 
          @param(aIniFile Inifile to read from.)
@@ -52,7 +52,7 @@ type
           @param(IniFile Inifile to write to.)
           @param(ExportMode if @true don't save user data.)
     }
-    procedure SaveToIni(aIniFile: TCustomIniFile; const ExportMode: boolean);
+    procedure SaveToIni(aIniFile: TMemIniFile; const ExportMode: boolean);
       virtual; abstract;
     {< Saves data to file.
 
