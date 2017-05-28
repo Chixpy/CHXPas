@@ -125,19 +125,19 @@ end;
 procedure TfrmCHXProgressBar.bCancelClick(Sender: TObject);
 begin
   Continue := False;
-  Self.Visible := False;
+  Visible := False;
 end;
 
 function TfrmCHXProgressBar.UpdateProgressBar(
   const Value, MaxValue: int64): boolean;
 begin
   // Showing Form
-  if not Self.Visible then
+  if not Visible then
     Start;
 
   // Uhm...
   if (Value >= MaxValue) or (MaxValue <= 0) then
-    Self.Finnish;
+    Finnish;
 
   if Now < NextTime then
     Exit;
@@ -173,8 +173,8 @@ end;
 
 procedure TfrmCHXProgressBar.Finnish;
 begin
-  Self.Continue := True;
-  Self.Visible := False;
+  Continue := True;
+  Visible := False;
 end;
 
 constructor TfrmCHXProgressBar.Create(TheOwner: TComponent);

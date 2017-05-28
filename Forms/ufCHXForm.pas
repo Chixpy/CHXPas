@@ -66,7 +66,7 @@ end;
 procedure TfrmCHXForm.SetGUIIconsIni(AValue: string);
 begin
   FGUIIconsIni := SetAsFile(AValue);
-  ReadActionsIcons(GUIIconsIni, Self.Name, ilCHXActIcons, alCHXActions);
+  ReadActionsIcons(GUIIconsIni, Name, ilCHXActIcons, alCHXActions);
 end;
 
 end.

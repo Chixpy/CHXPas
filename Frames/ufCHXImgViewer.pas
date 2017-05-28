@@ -272,7 +272,7 @@ end;
 procedure TfmCHXImgViewer.SetIconsIniFile(AValue: string);
 begin
   FIconsIniFile := SetAsFile(AValue);
-  ReadActionsIcons(FIconsIniFile, Self.Name, ilActions, ActionList);
+  ReadActionsIcons(FIconsIniFile, Name, ilActions, ActionList);
 end;
 
 procedure TfmCHXImgViewer.SetDragBeginX(AValue: longint);
@@ -438,8 +438,8 @@ begin
     Exit;
 
   TimePassed := SecondsBetween(Now, StartTime);
-  aFileName := SHA1Folder + SetAsFolder(copy(SHA1, 1, 2)) +
-    copy(SHA1, 3, 2) + '.ini';
+  aFileName := SHA1Folder + SetAsFolder(copy(SHA1, 1, 1)) +
+    copy(SHA1, 1, 3) + '.ini';
 
   ForceDirectories(ExtractFileDir(aFileName)); // Actually a folder now
 

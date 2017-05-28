@@ -72,7 +72,7 @@ begin
     FreeAndNil(Img);
     Result := False; // Not added.
   end;
-  Self.AddOrSetData(aKey, Img);
+  AddOrSetData(aKey, Img);
 end;
 
 constructor cCHXImageMap.Create(AFreeObjects: boolean);
@@ -107,7 +107,7 @@ begin
       ;
     end;
     FileList.Add(aFile);
-    Result := Self.Add(Img);
+    Result := Add(Img);
   end;
 end;
 

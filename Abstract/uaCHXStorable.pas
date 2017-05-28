@@ -25,14 +25,13 @@ uses
   Classes, SysUtils, IniFiles, LazUTF8, LazFileUtils;
 
 type
-  { caCHXStorableTxt }
-
   { caCHXStorableIni }
 
   caCHXStorableIni = class(TComponent)
   private
     FIniFileName: string;
     procedure SetIniFileName(AValue: string);
+
   protected
   public
     procedure LoadFromFileIni(aFilename: string); virtual;

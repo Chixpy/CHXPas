@@ -51,7 +51,7 @@ begin
   if aFilename = '' then
     aFilename := ConfigFile;
   if aFilename = '' then
-    raise EInOutError.Create(Format(rsENotFilename, [self.ClassName + '.LoadConfig']));
+    raise EInOutError.Create(Format(rsENotFilename, [ClassName + '.LoadConfig']));
   ;
   { TODO : Raise exception? Warning? create file always? Exit?}
   //if not FileExistsUTF8(aFilename) then
@@ -74,7 +74,7 @@ begin
   if aFilename = '' then
     aFilename := ConfigFile;
   if aFilename = '' then
-    raise EInOutError.Create(Format(rsENotFilename, [self.ClassName + '.SaveConfig']));
+    raise EInOutError.Create(Format(rsENotFilename, [ClassName + '.SaveConfig']));
   ConfigFile := aFilename;
   aIniFile := TMemIniFile.Create(UTF8ToSys(ConfigFile));
   try

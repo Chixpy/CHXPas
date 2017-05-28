@@ -211,7 +211,7 @@ begin
     Exit;
   FIconsIni := AValue;
 
-  ReadActionsIcons(IconsIni, Self.Name, ilActions, ActionList);
+  ReadActionsIcons(IconsIni, Name, ilActions, ActionList);
 end;
 
 procedure TfrmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);

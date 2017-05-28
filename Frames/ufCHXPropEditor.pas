@@ -99,7 +99,7 @@ procedure TfmCHXPropEditor.SetGUIIconsIni(AValue: string);
 begin
   FGUIIconsIni := SetAsFile(AValue);
 
-  ReadActionsIcons(GUIIconsIni, Self.Name, ilPropEditor, alPropEditor);
+  ReadActionsIcons(GUIIconsIni, Name, ilPropEditor, alPropEditor);
 end;
 
 procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);

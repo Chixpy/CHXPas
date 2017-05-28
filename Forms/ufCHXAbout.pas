@@ -57,7 +57,7 @@ implementation
 
 procedure TfrmCHXAbout.FormCreate(Sender: TObject);
 begin
-  Self.Caption := Application.Title + ': ' + Self.Caption;
+  Caption := Application.Title + ': ' + Caption;
 
   lTitle.Caption := Application.Title;
 

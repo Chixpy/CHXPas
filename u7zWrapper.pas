@@ -104,7 +104,7 @@ procedure w7zSetGlobalCache(aPath: string);
 {< ¡EXPERIMENTAL!
 
   Similar to w7zCacheDir, but different folder structure:
-    'w7zGlobalCache/SHA[1-2]/SHA[3-4].ini'
+    'w7zGlobalCache/SHA[1]/SHA[1-3].ini'
 
   NOT DELETED AT EXIT. FOLDER MUST EXISTS.
 }
@@ -315,8 +315,8 @@ procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
     aIni: TMemIniFile;
     i: integer;
   begin
-    aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 2)) +
-      Copy(FileSHA1, 3, 2) + '.ini';
+    aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
+      Copy(FileSHA1, 1, 3) + '.ini';
     if FileExistsUTF8(aFile) then
     begin
       aIni := TMemIniFile.Create(aFile);
@@ -388,8 +388,8 @@ procedure w7zListFiles(const aFilename: string; PackedFiles: TStrings;
     aIni: TMemIniFile;
     i: integer;
   begin
-    aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 2)) +
-      Copy(FileSHA1, 3, 2) + '.ini';
+    aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
+      Copy(FileSHA1, 1, 3) + '.ini';
 
     aIni := TMemIniFile.Create(aFile);
     sl := TStringList.Create;
