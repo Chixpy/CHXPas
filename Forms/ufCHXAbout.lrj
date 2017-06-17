@@ -1,0 +1,9 @@
+{"version":1,"strings":[
+{"hash":229255092,"name":"tfrmchxabout.caption","sourcebytes":[102,114,109,67,72,88,65,98,111,117,116],"value":"frmCHXAbout"},
+{"hash":119212837,"name":"tfrmchxabout.ltitle.caption","sourcebytes":[108,84,105,116,108,101],"value":"lTitle"},
+{"hash":214538574,"name":"tfrmchxabout.lversion.caption","sourcebytes":[108,86,101,114,115,105,111,110],"value":"lVersion"},
+{"hash":132304622,"name":"tfrmchxabout.gbxcompilation.caption","sourcebytes":[103,98,120,67,111,109,112,105,108,97,116,105,111,110],"value":"gbxCompilation"},
+{"hash":153275454,"name":"tfrmchxabout.lcompilation.caption","sourcebytes":[108,67,111,109,112,105,108,97,116,105,111,110],"value":"lCompilation"},
+{"hash":51380724,"name":"tfrmchxabout.gbximageext.caption","sourcebytes":[103,98,120,73,109,97,103,101,69,120,116],"value":"gbxImageExt"},
+{"hash":58584564,"name":"tfrmchxabout.limageext.caption","sourcebytes":[108,73,109,97,103,101,69,120,116],"value":"lImageExt"}
+]}

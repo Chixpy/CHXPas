@@ -39,6 +39,7 @@ type
     lImageExt: TLabel;
     lTitle: TLabel;
     lVersion: TLabel;
+    mAditional: TMemo;
     procedure FormCreate(Sender: TObject);
   private
     { private declarations }

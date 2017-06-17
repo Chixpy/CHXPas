@@ -10,7 +10,7 @@ object frmCHXAbout: TfrmCHXAbout
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '1.5'
+  LCLVersion = '6.0'
   object lTitle: TLabel
     Left = 0
     Height = 25
@@ -80,5 +80,13 @@ object frmCHXAbout: TfrmCHXAbout
       ParentColor = False
       WordWrap = True
     end
+  end
+  object mAditional: TMemo
+    Left = 0
+    Height = 130
+    Top = 110
+    Width = 320
+    Align = alClient
+    TabOrder = 2
   end
 end

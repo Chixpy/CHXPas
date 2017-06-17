@@ -55,6 +55,7 @@ function CleanFileName(const AFileName: string;
     @param(PathAware Keep paths)
 }
 function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
+function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
 
 function SetAsFile(const aFileName: string): string;
 {< Paths are converted to Linux one as Windows AND
@@ -261,15 +262,23 @@ begin
     Result := IncludeTrailingPathDelimiter(Result);
 
   // I like UNIX PathSep :-) (and it's better for cross-configuring)
-  Result := UnixPath(Result);
+  Result := SetAsFile(Result);
 end;
 
 function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
 begin
   // CreateRelativePath doesn't like Unix Style under Windows... :-(
-  Result := CreateRelativePath(SysPath(aFileName), SysPath(BaseDir), False);
+  Result := CreateRelativeSearchPath(SysPath(aFileName), SysPath(BaseDir));
 
-  Result := UnixPath(Result);
+  Result := SetAsFile(Result);
+end;
+
+function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
+begin
+  // CreateRelativePath doesn't like Unix Style under Windows... :-(
+  Result := CreateAbsoluteSearchPath(SysPath(aFileName), SysPath(BaseDir));
+
+  Result := SetAsFile(Result);
 end;
 
 function SetAsFile(const aFileName: string): string;
