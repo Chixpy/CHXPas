@@ -7,7 +7,7 @@ object frmSMAskFile: TfrmSMAskFile
   ClientHeight = 65
   ClientWidth = 400
   Position = poMainFormCenter
-  LCLVersion = '5.7'
+  LCLVersion = '6.0'
   object pFilename: TPanel
     Left = 0
     Height = 23
