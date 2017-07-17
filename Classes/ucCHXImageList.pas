@@ -39,6 +39,8 @@ type
   public
     function AddImageFile(aFile: string): integer;
 
+    procedure Clear;
+
     constructor Create(aFreeObjects: boolean = True);
     destructor Destroy; override;
   end;
@@ -109,6 +111,12 @@ begin
     FileList.Add(aFile);
     Result := Add(Img);
   end;
+end;
+
+procedure cCHXImageList.Clear;
+begin
+  inherited Clear;
+  FileList.Clear;
 end;
 
 constructor cCHXImageList.Create(aFreeObjects: boolean);

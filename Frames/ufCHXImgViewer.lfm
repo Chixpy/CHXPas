@@ -1,14 +1,11 @@
-object fmCHXImgViewer: TfmCHXImgViewer
-  Left = 0
+inherited fmCHXImgViewer: TfmCHXImgViewer
   Height = 480
-  Top = 0
   Width = 640
   ClientHeight = 480
   ClientWidth = 640
-  TabOrder = 0
-  DesignLeft = 398
-  DesignTop = 196
-  object sbInfo: TStatusBar
+  DesignLeft = 286
+  DesignTop = 156
+  object sbInfo: TStatusBar[0]
     Left = 0
     Height = 23
     Top = 457
@@ -27,7 +24,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
       end>
     SimplePanel = False
   end
-  object tbImage: TToolBar
+  object tbImage: TToolBar[1]
     Left = 0
     Height = 22
     Top = 0
@@ -135,14 +132,14 @@ object fmCHXImgViewer: TfmCHXImgViewer
       TabOrder = 0
     end
   end
-  object Splitter: TSplitter
+  object Splitter: TSplitter[2]
     Left = 196
     Height = 435
     Top = 22
     Width = 5
     Visible = False
   end
-  object lbxFiles: TListBox
+  object lbxFiles: TListBox[3]
     Left = 0
     Height = 435
     Top = 22
@@ -154,7 +151,7 @@ object fmCHXImgViewer: TfmCHXImgViewer
     TabOrder = 3
     Visible = False
   end
-  object sbxImage: TScrollBox
+  object sbxImage: TScrollBox[4]
     Left = 201
     Height = 435
     Top = 22
@@ -181,10 +178,10 @@ object fmCHXImgViewer: TfmCHXImgViewer
       Stretch = True
     end
   end
-  object pmAction: TPopupMenu
+  object pmAction: TPopupMenu[5]
     Images = ilActions
-    left = 136
-    top = 408
+    Left = 164
+    Top = 212
     object mOriginalSize: TMenuItem
       Action = actOriginalSize
     end
@@ -200,10 +197,10 @@ object fmCHXImgViewer: TfmCHXImgViewer
       ShortCut = 16499
     end
   end
-  object ActionList: TActionList
+  object ActionList: TActionList[6]
     Images = ilActions
-    left = 68
-    top = 404
+    Left = 96
+    Top = 212
     object actZoomIn: TAction
       Category = 'Image'
       Caption = 'Zoom In'
@@ -271,8 +268,8 @@ object fmCHXImgViewer: TfmCHXImgViewer
       ShortCut = 76
     end
   end
-  object ilActions: TImageList
-    left = 20
-    top = 404
+  object ilActions: TImageList[7]
+    Left = 48
+    Top = 212
   end
 end

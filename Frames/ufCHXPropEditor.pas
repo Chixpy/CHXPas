@@ -22,17 +22,18 @@ unit ufCHXPropEditor;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, ExtCtrls, Buttons, ActnList,
-  LazFileUtils,
-  uCHXStrUtils, uCHXImageUtils;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
+  Buttons, ActnList,
+  uCHXStrUtils, uCHXImageUtils,
+  ufCHXFrame;
 
 type
 
   { TfmCHXPropEditor }
 
-  TfmCHXPropEditor = class(TFrame)
-    actSaveData: TAction;
+  TfmCHXPropEditor = class(TfmCHXFrame)
     actCancelData: TAction;
+    actSaveData: TAction;
     alPropEditor: TActionList;
     bCancel: TBitBtn;
     bSave: TBitBtn;
@@ -43,14 +44,12 @@ type
 
   private
     FButtonClose: boolean;
-    FGUIIconsIni: string;
     FSaveButtons: boolean;
     procedure SetButtonClose(AValue: boolean);
     procedure SetSaveButtons(AValue: boolean);
 
   protected
-    procedure SetGUIIconsIni(AValue: string); virtual;
-    procedure ClearData; virtual; abstract;
+    procedure SetGUIIconsIni(AValue: string); override;
 
   public
     { public declarations }
@@ -58,13 +57,6 @@ type
     //< Show save and cancel buttons?
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
-
-    property GUIIconsIni: string read FGUIIconsIni write SetGUIIconsIni;
-
-    procedure SaveData; virtual; abstract;
-    {< Save current data. }
-    procedure LoadData; virtual; abstract;
-    {< Load data. }
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -86,22 +78,6 @@ begin
   LoadData;
 end;
 
-procedure TfmCHXPropEditor.SetSaveButtons(AValue: boolean);
-begin
-  if FSaveButtons = AValue then
-    Exit;
-  FSaveButtons := AValue;
-  pButtons.Visible := SaveButtons;
-  pButtons.Enabled := SaveButtons;
-end;
-
-procedure TfmCHXPropEditor.SetGUIIconsIni(AValue: string);
-begin
-  FGUIIconsIni := SetAsFile(AValue);
-
-  ReadActionsIcons(GUIIconsIni, Name, ilPropEditor, alPropEditor);
-end;
-
 procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);
 begin
   FButtonClose := AValue;
@@ -118,12 +94,29 @@ begin
   end;
 end;
 
+procedure TfmCHXPropEditor.SetSaveButtons(AValue: boolean);
+begin
+  if FSaveButtons = AValue then
+    Exit;
+  FSaveButtons := AValue;
+  pButtons.Visible := SaveButtons;
+  pButtons.Enabled := SaveButtons;
+end;
+
+procedure TfmCHXPropEditor.SetGUIIconsIni(AValue: string);
+begin
+  inherited SetGUIIconsIni(AValue);
+
+  ReadActionsIcons(GUIIconsIni, Name, ilPropEditor, alPropEditor);
+end;
+
 constructor TfmCHXPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
   SaveButtons := True; // Show buttons by default;
-  ButtonClose := False; // Don't auto close;
+  // If parent/Owner is Tform then autoclose by default;
+  ButtonClose := TheOwner is TForm;
 
   Enabled := False; // Created disabled, enabled it when ready for use
 end;
@@ -134,3 +127,4 @@ begin
 end;
 
 end.
+

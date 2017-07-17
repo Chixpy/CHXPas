@@ -1,16 +1,7 @@
-object fmCHXPropEditor: TfmCHXPropEditor
-  Left = 0
-  Height = 240
-  Top = 0
-  Width = 320
-  Align = alTop
-  AutoSize = True
-  ClientHeight = 240
-  ClientWidth = 320
-  TabOrder = 0
-  DesignLeft = 468
-  DesignTop = 276
-  object pButtons: TPanel
+inherited fmCHXPropEditor: TfmCHXPropEditor
+  DesignLeft = 732
+  DesignTop = 268
+  object pButtons: TPanel[0]
     Left = 0
     Height = 27
     Top = 213
@@ -117,10 +108,10 @@ object fmCHXPropEditor: TfmCHXPropEditor
       TabOrder = 1
     end
   end
-  object alPropEditor: TActionList
+  object alPropEditor: TActionList[1]
     Images = ilPropEditor
-    left = 224
-    top = 8
+    Left = 24
+    Top = 8
     object actSaveData: TAction
       Category = 'PropEditor'
       Caption = 'Save'
@@ -132,8 +123,8 @@ object fmCHXPropEditor: TfmCHXPropEditor
       OnExecute = actCancelDataExecute
     end
   end
-  object ilPropEditor: TImageList
-    left = 280
-    top = 8
+  object ilPropEditor: TImageList[2]
+    Left = 96
+    Top = 8
   end
 end

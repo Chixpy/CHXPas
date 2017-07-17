@@ -6,20 +6,20 @@ object frmCHXForm: TfrmCHXForm
   Caption = 'frmCHXForm'
   Position = poMainFormCenter
   SessionProperties = 'Height;Width;WindowState'
-  LCLVersion = '5.9'
+  LCLVersion = '6.0'
   object alCHXActions: TActionList
     Images = ilCHXActIcons
-    left = 560
-    top = 416
+    Left = 560
+    Top = 416
   end
   object ilCHXActIcons: TImageList
-    left = 408
-    top = 416
+    Left = 408
+    Top = 416
   end
   object IniPropStorage1: TIniPropStorage
     StoredValues = <>
     IniSection = 'Forms'
-    left = 488
-    top = 416
+    Left = 488
+    Top = 416
   end
 end

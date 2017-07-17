@@ -757,12 +757,18 @@ end;
 
 function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
   const Password: string): cardinal;
+begin
+    Result := StrToCardinalDef('$' + w7zCRC32InnerFileStr(a7zArchive, aInnerFile, Password), 0);
+end;
+
+function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+  const Password: string): string;
 var
   aFileList, TmpStrList: TStringList;
   Found: boolean;
   i: integer;
 begin
-  Result := 0;
+  Result := '00000000';
 
   aFileList := TStringList.Create;
   TmpStrList := TStringList.Create;
@@ -781,7 +787,7 @@ begin
       if (TmpStrList.Count >= 5) and
         (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
       begin
-        Result := StrToCardinalDef(TmpStrList[4], 0);
+        Result := TmpStrList[4];
         Found := True;
       end;
       Inc(i);
@@ -791,12 +797,6 @@ begin
     TmpStrList.Free;
     aFileList.Free;
   end;
-end;
-
-function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
-  const Password: string): string;
-begin
-  Result := IntToHex(w7zCRC32InnerFile(a7zArchive, aInnerFile, Password), 8);
 end;
 
 initialization

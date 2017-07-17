@@ -22,15 +22,15 @@ unit ufCHXImgViewer;
 interface
 
 uses
-  Classes, SysUtils, LazFileUtils, Forms, Controls, Menus, ComCtrls,
-  StdCtrls, LazUTF8, ExtCtrls, ActnList, dateutils, IniFiles,
-  uCHXStrUtils, uCHXImageUtils, uCHXFileUtils;
+  Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls, Graphics, Dialogs,
+  ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList, ufCHXFrame, uCHXStrUtils,
+  uCHXImageUtils, uCHXFileUtils, IniFiles, dateutils;
 
 type
 
   { TfmCHXImgViewer }
 
-  TfmCHXImgViewer = class(TFrame)
+  TfmCHXImgViewer = class(TfmCHXFrame)
     actFirst: TAction;
     ActionList: TActionList;
     actLast: TAction;
@@ -78,28 +78,27 @@ type
     procedure actZoomOutExecute(Sender: TObject);
     procedure cbxCurrImageSelect(Sender: TObject);
     procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+      Shift: TShiftState; X, Y: Integer);
     procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+      Shift: TShiftState; X, Y: Integer);
     procedure ImageResize(Sender: TObject);
     procedure lbxFilesSelectionChange(Sender: TObject; User: boolean);
     procedure sbxImageResize(Sender: TObject);
-
   private
-    FStartTime: TTime;
     FDragBeginX: longint;
     FDragBeginY: longint;
     FIconsIniFile: string;
     FImageIndex: integer;
     FSHA1: string;
     FSHA1Folder: string;
-    procedure SetStartTime(AValue: TTime);
+    FStartTime: TTime;
     procedure SetDragBeginX(AValue: longint);
     procedure SetDragBeginY(AValue: longint);
     procedure SetIconsIniFile(AValue: string);
     procedure SetImageIndex(AValue: integer);
     procedure SetSHA1(AValue: string);
     procedure SetSHA1Folder(AValue: string);
+    procedure SetStartTime(AValue: TTime);
 
   protected
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
@@ -117,6 +116,9 @@ type
     procedure SaveStats;
 
   public
+    procedure ClearData; override;
+    procedure LoadData; override;
+    procedure SaveData; override;
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
 
     property IconsIniFile: string read FIconsIniFile write SetIconsIniFile;
@@ -147,7 +149,7 @@ end;
 
 procedure TfmCHXImgViewer.actNextExecute(Sender: TObject);
 begin
-  if ImageIndex < lbxFiles.Items.Count then
+    if ImageIndex < lbxFiles.Items.Count then
     ImageIndex := ImageIndex + 1
   else
     ImageIndex := 1;
@@ -165,7 +167,7 @@ end;
 
 procedure TfmCHXImgViewer.actPreviousExecute(Sender: TObject);
 begin
-  if ImageIndex > 1 then
+    if ImageIndex > 1 then
     ImageIndex := ImageIndex - 1
   else
     ImageIndex := lbxFiles.Items.Count;
@@ -173,13 +175,13 @@ end;
 
 procedure TfmCHXImgViewer.actShowFileListExecute(Sender: TObject);
 begin
-  Splitter.Visible := actShowFileList.Checked;
+    Splitter.Visible := actShowFileList.Checked;
   lbxFiles.Visible := actShowFileList.Checked;
 end;
 
 procedure TfmCHXImgViewer.actStretchExecute(Sender: TObject);
 begin
-  if actStretch.Checked then
+    if actStretch.Checked then
     StretchImage;
 
   FixPosition;
@@ -209,7 +211,7 @@ end;
 
 procedure TfmCHXImgViewer.actZoomOutExecute(Sender: TObject);
 begin
-  actStretch.Checked := False;
+    actStretch.Checked := False;
   sbxImage.HorzScrollBar.Position :=
     (sbxImage.HorzScrollBar.Position shr 1) - (sbxImage.ClientWidth shr 2);
   sbxImage.VertScrollBar.Position :=
@@ -221,13 +223,13 @@ end;
 
 procedure TfmCHXImgViewer.cbxCurrImageSelect(Sender: TObject);
 begin
-  ImageIndex := cbxCurrImage.ItemIndex + 1;
+    ImageIndex := cbxCurrImage.ItemIndex + 1;
 end;
 
-procedure TfmCHXImgViewer.ImageMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+procedure TfmCHXImgViewer.ImageMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
-  case Button of
+    case Button of
     mbLeft:
     begin
       DragBeginX := X;
@@ -236,10 +238,10 @@ begin
   end;
 end;
 
-procedure TfmCHXImgViewer.ImageMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+procedure TfmCHXImgViewer.ImageMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
-  case Button of
+    case Button of
     mbLeft:
     begin
       sbxImage.VertScrollBar.Position :=
@@ -252,19 +254,19 @@ end;
 
 procedure TfmCHXImgViewer.ImageResize(Sender: TObject);
 begin
-  UpdateStatusBar;
+   UpdateStatusBar;
 end;
 
-procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject;
-  User: boolean);
+procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject; User: boolean
+  );
 begin
-  if User then
+    if User then
     ImageIndex := lbxFiles.ItemIndex + 1;
 end;
 
 procedure TfmCHXImgViewer.sbxImageResize(Sender: TObject);
 begin
-  if actStretch.Checked then
+    if actStretch.Checked then
     StretchImage;
   FixPosition;
 end;
@@ -277,22 +279,13 @@ end;
 
 procedure TfmCHXImgViewer.SetDragBeginX(AValue: longint);
 begin
-  if FDragBeginX = AValue then
-    Exit;
+  if FDragBeginX = AValue then Exit;
   FDragBeginX := AValue;
-end;
-
-procedure TfmCHXImgViewer.SetStartTime(AValue: TTime);
-begin
-  if FStartTime = AValue then
-    Exit;
-  FStartTime := AValue;
 end;
 
 procedure TfmCHXImgViewer.SetDragBeginY(AValue: longint);
 begin
-  if FDragBeginY = AValue then
-    Exit;
+  if FDragBeginY = AValue then Exit;
   FDragBeginY := AValue;
 end;
 
@@ -308,14 +301,19 @@ end;
 
 procedure TfmCHXImgViewer.SetSHA1(AValue: string);
 begin
-  if FSHA1 = AValue then
-    Exit;
+  if FSHA1 = AValue then Exit;
   FSHA1 := AValue;
 end;
 
 procedure TfmCHXImgViewer.SetSHA1Folder(AValue: string);
 begin
   FSHA1Folder := SetAsFolder(AValue);
+end;
+
+procedure TfmCHXImgViewer.SetStartTime(AValue: TTime);
+begin
+  if FStartTime = AValue then Exit;
+  FStartTime := AValue;
 end;
 
 procedure TfmCHXImgViewer.StretchImage;
@@ -340,7 +338,7 @@ end;
 
 procedure TfmCHXImgViewer.FixPosition;
 begin
-  // Horizontal position
+   // Horizontal position
   if Image.Width > sbxImage.ClientWidth then
   begin
     Image.Left := 0;
@@ -360,7 +358,6 @@ begin
     Image.Top := (sbxImage.ClientHeight - Image.Height) shr 1; // div 2
   end;
 end;
-
 
 procedure TfmCHXImgViewer.ChangeImage;
 var
@@ -402,7 +399,7 @@ end;
 
 procedure TfmCHXImgViewer.UpdateStatusBar;
 begin
-  if ImageIndex > 0 then
+   if ImageIndex > 0 then
   begin
     sbInfo.Panels[0].Text :=
       IntToStr(Image.Picture.Width) + 'x' + IntToStr(Image.Picture.Height);
@@ -456,6 +453,21 @@ begin
   end;
 end;
 
+procedure TfmCHXImgViewer.ClearData;
+begin
+
+end;
+
+procedure TfmCHXImgViewer.LoadData;
+begin
+
+end;
+
+procedure TfmCHXImgViewer.SaveData;
+begin
+
+end;
+
 procedure TfmCHXImgViewer.AddImages(aImageList: TStrings; Index: integer);
 var
   i: integer;
@@ -477,7 +489,7 @@ end;
 
 procedure TfmCHXImgViewer.AddImage(aImageFile: string; aObject: TObject);
 begin
-  lbxFiles.Items.AddObject(aImageFile, aObject);
+   lbxFiles.Items.AddObject(aImageFile, aObject);
   cbxCurrImage.Items.Add(IntToStr(lbxFiles.Count));
   ImageIndex := lbxFiles.Count;
 end;
@@ -496,3 +508,4 @@ begin
 end;
 
 end.
+

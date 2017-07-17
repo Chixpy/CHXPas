@@ -77,8 +77,6 @@ type
     { private declarations }
 
   protected
-    procedure ClearData; override;
-
     procedure ExportList; virtual; abstract;
     procedure ImportList; virtual; abstract;
 
@@ -90,6 +88,7 @@ type
     procedure SetCheckedAll(aBool: Boolean); virtual; abstract;
 
   public
+    procedure ClearData; override;
     procedure SaveData; override; abstract;
     {< Save current data. }
     procedure LoadData; override; abstract;

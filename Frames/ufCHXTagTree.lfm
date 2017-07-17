@@ -1,15 +1,7 @@
-object fmCHXTagTree: TfmCHXTagTree
-  Left = 0
-  Height = 240
-  Top = 0
-  Width = 320
-  Align = alClient
-  ClientHeight = 240
-  ClientWidth = 320
-  TabOrder = 0
-  DesignLeft = 232
-  DesignTop = 50
-  object VST: TVirtualStringTree
+inherited fmCHXTagTree: TfmCHXTagTree
+  DesignLeft = 620
+  DesignTop = 239
+  object VST: TVirtualStringTree[0]
     Left = 0
     Height = 240
     Top = 0

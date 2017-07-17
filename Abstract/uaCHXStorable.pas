@@ -128,6 +128,7 @@ end;
 procedure caCHXStorableIni.LoadFromFileIni(aFilename: string);
 var
   aIniFile: TMemIniFile;
+  IniFileOps: TIniFileOptions;
 begin
   if aFilename = '' then
     aFilename := IniFileName;
@@ -136,7 +137,9 @@ begin
 
   try
     aIniFile := TMemIniFile.Create(UTF8ToSys(aFilename));
-    aIniFile.CaseSensitive := False;
+    IniFileOps :=  aIniFile.Options;
+    Exclude(IniFileOps, ifoCaseSensitive);
+    aIniFile.Options := IniFileOps;
 
     LoadFromIni(aIniFile);
   finally
@@ -148,6 +151,7 @@ procedure caCHXStorableIni.SaveToFileIni(aFilename: string;
   const ExportMode: boolean);
 var
   aIniFile: TMemIniFile;
+  IniFileOps: TIniFileOptions;
 begin
   if aFilename = '' then
     aFilename := IniFileName;
@@ -156,7 +160,9 @@ begin
 
   try
     aIniFile := TMemIniFile.Create(UTF8ToSys(aFilename));
-    aIniFile.CaseSensitive := False;
+       IniFileOps :=  aIniFile.Options;
+    Exclude(IniFileOps, ifoCaseSensitive);
+    aIniFile.Options := IniFileOps;
 
     SaveToIni(aIniFile, ExportMode);
     aIniFile.UpdateFile;
