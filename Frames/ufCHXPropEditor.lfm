@@ -8,7 +8,6 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     Width = 320
     Align = alBottom
     AutoSize = True
-    Caption = '-'
     ChildSizing.EnlargeHorizontal = crsHomogenousSpaceResize
     ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
     ChildSizing.Layout = cclLeftToRightThenTopToBottom

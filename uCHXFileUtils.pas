@@ -13,18 +13,22 @@ type
     FileInfo: TSearchRec): boolean of object;
   TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
 
-{ RemoveDir does the job...
-procedure RemoveEmptyFolders(aPath: string);
-}
 
+// Searching...
+function SearchFirstFileInFolderByExtCT(aFolder: string;
+  Extensions: string): string;
+function SearchFirstFileInFolderByExtSL(aFolder: string;
+  Extensions: TStrings): string;
+{< Searches first file found with a matched extension from a list in a folder.
+}
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
   aBaseFolder: string; aExtList: TStrings; Recursive: boolean = True);
 {< Searches all files with selected extensions, searching in compressed archives too.
 
      @param(AOutFolderList StringList with the folder or compressed archive
        were files in AOutFileList are found. If nil it will be created,
-       so must be freed elsewhere. Note: archive will have trailing path
-       delimiter.)
+       so must be freed elsewhere. Note: compressed archives will have trailing
+       path delimiter.)
      @param(AOutFileList Files found (if they are in a compressed archive,
        they have the internal folder structure). If nil it will be created,
        so must be freed elsewhere.)
@@ -114,6 +118,60 @@ begin
     Result := SHA1Print(SHA1File(aFileName, 32768));
 end;
 
+function SearchFirstFileInFolderByExtCT(aFolder: string;
+  Extensions: string): string;
+var
+  aTempSL: TStringList;
+begin
+  aTempSL := TStringList.Create;
+  try
+    aTempSL.CommaText := Extensions;
+    Result := SearchFirstFileInFolderByExtSL(aFolder, aTempSL);
+  finally
+    aTempSL.Free;
+  end;
+end;
+
+function SearchFirstFileInFolderByExtSL(aFolder: string;
+  Extensions: TStrings): string;
+var
+  Info: TSearchRec;
+begin
+  Result := '';
+  aFolder := SetAsFolder(aFolder);
+
+  // We want to exit at first match found, so we use old method.
+
+  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
+    Exit;
+
+  if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
+    try
+      repeat
+        if SupportedExtSL(Info.Name, Extensions) then
+          Result := aFolder + Info.Name;
+      until (Result <> '') or (FindNextUTF8(Info) <> 0);
+    finally
+      FindCloseUTF8(Info);
+    end;
+
+  if Result <> '' then
+    Exit;
+
+  if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
+    try
+      repeat
+        if (Info.Name <> '.') and (Info.Name <> '') and
+          (Info.Name <> '..') and
+          ((Info.Attr and faDirectory) <> 0) then
+          Result := SearchFirstFileInFolderByExtSL(aFolder +
+            Info.Name, Extensions);
+      until (Result <> '') or (FindNextUTF8(Info) <> 0);
+    finally
+      FindCloseUTF8(Info);
+    end;
+end;
+
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
   aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
 var
@@ -138,8 +196,8 @@ begin
   i := 0;
   while i < AOutFileList.Count do
   begin
-    AOutFolderList.Add(ExtractFilePath(AOutFileList[i]));
-    AOutFileList[i] := ExtractFileName(AOutFileList[i]);
+    AOutFolderList.Add(SetAsFolder(ExtractFilePath(AOutFileList[i])));
+    AOutFileList[i] := SetAsFile(ExtractFileName(AOutFileList[i]));
     Inc(i);
   end;
 
@@ -165,10 +223,10 @@ begin
       j := 0;
       while j < Compressed.Count do
       begin
-        if SupportedExt(Compressed[j], aExtList) then
+        if SupportedExtSL(Compressed[j], aExtList) then
         begin
           AOutFolderList.Add(SetAsFolder(Archives[i]));
-          AOutFileList.Add(Compressed[j]);
+          AOutFileList.Add(SetAsFile(Compressed[j]));
         end;
         Inc(j);
       end;

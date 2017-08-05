@@ -6,7 +6,6 @@ unit uCHXStrUtils;
 interface
 
 uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
-  Math,
   uCHXConst, uCHXRscStr;
 
 
@@ -62,7 +61,8 @@ function SetAsFile(const aFileName: string): string;
   MS-DOS (+2.0) can recognise them without problem.
 }
 
-function SupportedExt(aFilename: string; aExt: TStrings): boolean;
+function SupportedExtCT(aFilename: string; aExtCT: string): boolean;
+function SupportedExtSL(aFilename: string; aExt: TStrings): boolean;
 {< Search if a file is in a list of supported extensions.
 
   aExt has a list of extensions (with or without dot).
@@ -139,7 +139,10 @@ begin
   if Pos2 < 1 then
     Pos2 := MaxInt;
 
-  Result := UTF8Trim(UTF8Copy(aString, 1, min(Pos1, Pos2) - 1));
+  if Pos1 < Pos2 then
+    Result := UTF8Trim(UTF8Copy(aString, 1, Pos1 - 1))
+  else
+    Result := UTF8Trim(UTF8Copy(aString, 1, Pos2 - 1))
 end;
 
 function CopyFromBrackets(const aString: string): string;
@@ -155,7 +158,10 @@ begin
   if Pos2 < 1 then
     Pos2 := MaxInt;
 
-  Result := UTF8Trim(UTF8Copy(aString, min(Pos1, Pos2), MaxInt));
+    if Pos1 < Pos2 then
+    Result := UTF8Trim(UTF8Copy(aString, Pos1, MaxInt))
+  else
+    Result := UTF8Trim(UTF8Copy(aString, Pos2, MaxInt))
 end;
 
 function TextSimilarity(const aString1, aString2: string): byte;
@@ -286,13 +292,26 @@ begin
   Result := UnixPath(aFileName);
 end;
 
-function SupportedExt(aFilename: string; aExt: TStrings): boolean;
+function SupportedExtCT(aFilename: string; aExtCT: string): boolean;
+var
+  aTempSL: TStringList;
+begin
+  aTempSL:=TStringList.create;
+  try
+    aTempSL.CommaText :=    aExtCT;
+    Result := SupportedExtSL(aFilename,aTempSL);
+  finally
+    aTempSL.Free ;
+  end;
+end;
+
+function SupportedExtSL(aFilename: string; aExt: TStrings): boolean;
 var
   i: integer;
   TempExt: string;
 begin
   Result := False;
-  if not assigned(aExt) then
+  if (not assigned(aExt)) or (aExt.Count = 0) then
     Exit;
   if aFilename = '' then
     Exit;
@@ -441,7 +460,7 @@ begin
     Exit;
 
   Result := aList.CommaText;
-  Result :=       FileMaskFromCommaText(Result);
+  Result := FileMaskFromCommaText(Result);
 end;
 
 function FileMaskFromCommaText(aText: string): string;

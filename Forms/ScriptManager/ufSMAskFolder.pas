@@ -36,6 +36,7 @@ uses
 type
 
   { TfrmSMAskFolder }
+  // TODO: Make as frame TCHXFrame
 
   TfrmSMAskFolder = class(TForm)
     bAccept: TBitBtn;

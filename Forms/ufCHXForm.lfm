@@ -6,6 +6,7 @@ object frmCHXForm: TfrmCHXForm
   Caption = 'frmCHXForm'
   Position = poMainFormCenter
   SessionProperties = 'Height;Width;WindowState'
+  ShowHint = True
   LCLVersion = '6.0'
   object alCHXActions: TActionList
     Images = ilCHXActIcons
@@ -16,7 +17,7 @@ object frmCHXForm: TfrmCHXForm
     Left = 408
     Top = 416
   end
-  object IniPropStorage1: TIniPropStorage
+  object IniPropStorage: TIniPropStorage
     StoredValues = <>
     IniSection = 'Forms'
     Left = 488

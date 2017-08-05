@@ -1,0 +1,15 @@
+inherited fmCHXTxtListPreview: TfmCHXTxtListPreview
+  object mText: TMemo[1]
+    Left = 0
+    Height = 214
+    Top = 0
+    Width = 320
+    Align = alClient
+    ScrollBars = ssAutoVertical
+    TabOrder = 1
+  end
+  inherited ilPreviewList: TImageList[2]
+  end
+  inherited alPreviewList: TActionList[3]
+  end
+end

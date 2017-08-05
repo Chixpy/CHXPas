@@ -24,7 +24,8 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
   IniPropStorage,
-  uCHXImageUtils, uCHXStrUtils;
+  uCHXImageUtils, uCHXStrUtils,
+  ufCHXFrame;
 
 type
 
@@ -33,7 +34,7 @@ type
   TfrmCHXForm = class(TForm)
     alCHXActions: TActionList;
     ilCHXActIcons: TImageList;
-    IniPropStorage1: TIniPropStorage;
+    IniPropStorage: TIniPropStorage;
   private
     FGUIConfigIni: string;
     FGUIIconsIni: string;
@@ -56,18 +57,88 @@ implementation
 { TfrmCHXForm }
 
 procedure TfrmCHXForm.SetGUIConfigIni(AValue: string);
-begin
-  FGUIConfigIni := SetAsFile(AValue);
 
-  IniPropStorage1.IniFileName := GUIConfigIni;
-  IniPropStorage1.Restore;
+  procedure SetGUIConfigChildren(const aComponent: TComponent);
+  var
+    i: integer;
+  begin
+    if aComponent is TfmCHXFrame then
+    begin
+      TfmCHXFrame(aComponent).GUIConfigIni := GUIConfigIni;
+      // TfmCHXFrame itself updates its children
+    end
+    else
+    begin
+      i := 0;
+      while i < aComponent.ComponentCount do
+      begin
+        // Searching in aComponent childrens
+        SetGUIConfigChildren(aComponent.Components[i]);
+        Inc(i);
+      end;
+    end;
+  end;
+
+var
+  i: integer;
+begin
+  AValue := SetAsFile(AValue);
+  if FGUIConfigIni = AValue then
+    Exit;
+  FGUIConfigIni := AValue;
+
+  // Updating all TfmCHXFrame components
+  i := 0;
+  while i < ComponentCount do
+  begin
+    SetGUIConfigChildren(Components[i]);
+    Inc(i);
+  end;
+
+  IniPropStorage.IniFileName := GUIConfigIni;
+  IniPropStorage.Restore;
 end;
 
 procedure TfrmCHXForm.SetGUIIconsIni(AValue: string);
+
+  procedure SetGUIIconsChildren(const aComponent: TComponent);
+  var
+    i: integer;
+  begin
+    if aComponent is TfmCHXFrame then
+    begin
+      TfmCHXFrame(aComponent).GUIIconsIni := GUIIconsIni;
+      // TfmCHXFrame itself updates its children
+    end
+    else
+    begin
+      i := 0;
+      while i < aComponent.ComponentCount do
+      begin
+        // Searching in aComponent childrens
+        SetGUIIconsChildren(aComponent.Components[i]);
+        Inc(i);
+      end;
+    end;
+  end;
+
+var
+  i: integer;
 begin
+  AValue := SetAsFile(AValue);
+  if FGUIIconsIni = AValue then
+    Exit;
   FGUIIconsIni := SetAsFile(AValue);
+
+  // Updating all TfmCHXFrame components
+  i := 0;
+  while i < ComponentCount do
+  begin
+    SetGUIIconsChildren(Components[i]);
+    Inc(i);
+  end;
+
   ReadActionsIcons(GUIIconsIni, Name, ilCHXActIcons, alCHXActions);
 end;
 
 end.
-

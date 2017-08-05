@@ -87,12 +87,14 @@ type
     procedure OnListClickCheck(aObject: TObject; aBool: Boolean);  virtual; abstract;
     procedure SetCheckedAll(aBool: Boolean); virtual; abstract;
 
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override; abstract;
+    {< Load list data. }
+
+
   public
-    procedure ClearData; override;
-    procedure SaveData; override; abstract;
-    {< Save current data. }
-    procedure LoadData; override; abstract;
-    {< Load data. }
+    procedure SaveFrameData; override; abstract;
+    {< Save current list data. }
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -129,7 +131,7 @@ begin
       clbPropItems.Checked[clbPropItems.ItemIndex]);
 end;
 
-procedure TfmCHXChkLstPropEditor.ClearData;
+procedure TfmCHXChkLstPropEditor.ClearFrameData;
 begin
   clbPropItems.Clear;
 end;

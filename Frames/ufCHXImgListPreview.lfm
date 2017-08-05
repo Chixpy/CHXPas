@@ -1,0 +1,17 @@
+inherited fmCHXImgListPreview: TfmCHXImgListPreview
+  object iImage: TImage[1]
+    Left = 0
+    Height = 214
+    Top = 0
+    Width = 320
+    Align = alClient
+    Center = True
+    OnDblClick = iImageDblClick
+    Proportional = True
+    Stretch = True
+  end
+  inherited ilPreviewList: TImageList[2]
+  end
+  inherited alPreviewList: TActionList[3]
+  end
+end

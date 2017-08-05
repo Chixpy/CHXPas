@@ -40,6 +40,7 @@ type
   TFuncCheckChange = procedure(aList: TStrings) of object;
 
   { TfmCHXTagTree }
+  // TODO: Use LoadFrameData and ClearFrameData
 
   TfmCHXTagTree = class(TfmCHXFrame)
     VST: TVirtualStringTree;
@@ -65,15 +66,15 @@ type
   protected
     procedure SearchTagFiles(aFolder: string; aRootNode: PVirtualNode);
 
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
+
   public
     property Folder: string read FFolder write SetFolder;
     property TagsFileMask: string read FTagsFileMask write SetTagsFileMask;
     property OnCheckChange: TFuncCheckChange read FOnCheckChange write SetOnCheckChange;
     property CheckedList: TStringList read FCheckedList write SetCheckedList;
 
-    procedure ClearData; override;
-    procedure LoadData; override;
-    procedure SaveData; override;
 
     procedure UpdateTree;
 
@@ -237,17 +238,12 @@ begin
   end;
 end;
 
-procedure TfmCHXTagTree.ClearData;
+procedure TfmCHXTagTree.ClearFrameData;
 begin
 
 end;
 
-procedure TfmCHXTagTree.LoadData;
-begin
-
-end;
-
-procedure TfmCHXTagTree.SaveData;
+procedure TfmCHXTagTree.LoadFrameData;
 begin
 
 end;

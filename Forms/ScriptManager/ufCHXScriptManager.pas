@@ -48,6 +48,8 @@ resourcestring
 type
   { TfrmCHXScriptManager }
 
+  // TODO: Make as frame TCHXFrame
+
   TfrmCHXScriptManager = class(TForm)
     actCompile: TAction;
     actExecute: TAction;

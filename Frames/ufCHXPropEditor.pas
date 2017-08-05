@@ -24,7 +24,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   Buttons, ActnList,
-  uCHXStrUtils, uCHXImageUtils,
+  uCHXImageUtils,
   ufCHXFrame;
 
 type
@@ -50,13 +50,18 @@ type
 
   protected
     procedure SetGUIIconsIni(AValue: string); override;
+    procedure SetGUIConfigIni(AValue: string); override;
 
   public
     { public declarations }
+
     property SaveButtons: boolean read FSaveButtons write SetSaveButtons;
     //< Show save and cancel buttons?
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
+
+    procedure SaveFrameData; virtual; abstract;
+    // Saves changed data in the frame
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -70,12 +75,12 @@ implementation
 
 procedure TfmCHXPropEditor.actSaveDataExecute(Sender: TObject);
 begin
-  SaveData;
+  SaveFrameData;
 end;
 
 procedure TfmCHXPropEditor.actCancelDataExecute(Sender: TObject);
 begin
-  LoadData;
+  LoadFrameData;
 end;
 
 procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);
@@ -110,6 +115,11 @@ begin
   ReadActionsIcons(GUIIconsIni, Name, ilPropEditor, alPropEditor);
 end;
 
+procedure TfmCHXPropEditor.SetGUIConfigIni(AValue: string);
+begin
+  inherited SetGUIConfigIni(AValue);
+end;
+
 constructor TfmCHXPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
@@ -117,8 +127,6 @@ begin
   SaveButtons := True; // Show buttons by default;
   // If parent/Owner is Tform then autoclose by default;
   ButtonClose := TheOwner is TForm;
-
-  Enabled := False; // Created disabled, enabled it when ready for use
 end;
 
 destructor TfmCHXPropEditor.Destroy;

@@ -31,6 +31,7 @@ uses
 type
 
   { TfrmCHXAbout }
+  // TODO: Make as frame TCHXFrame
 
   TfrmCHXAbout = class(TForm)
     gbxCompilation: TGroupBox;
