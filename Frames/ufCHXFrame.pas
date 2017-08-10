@@ -25,7 +25,6 @@ type
     //< Clear components.
     procedure LoadFrameData; virtual; abstract;
     //< Update components.
-  //  procedure SaveFrameData; virtual; abstract;
 
   public
     property GUIIconsIni: string read FGUIIconsIni write SetGUIIconsIni;
