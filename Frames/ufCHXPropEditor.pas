@@ -23,7 +23,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Buttons, ActnList,
+  Buttons, ActnList, StdCtrls,
   uCHXImageUtils,
   ufCHXFrame;
 
@@ -37,10 +37,12 @@ type
     alPropEditor: TActionList;
     bCancel: TBitBtn;
     bSave: TBitBtn;
+    chkCloseOnSave: TCheckBox;
     ilPropEditor: TImageList;
     pButtons: TPanel;
     procedure actCancelDataExecute(Sender: TObject);
     procedure actSaveDataExecute(Sender: TObject);
+    procedure chkCloseOnSaveChange(Sender: TObject);
 
   private
     FButtonClose: boolean;
@@ -78,6 +80,12 @@ begin
   SaveFrameData;
 end;
 
+procedure TfmCHXPropEditor.chkCloseOnSaveChange(Sender: TObject);
+begin
+  if chkCloseOnSave.Checked <> ButtonClose then
+    ButtonClose := chkCloseOnSave.Checked;
+end;
+
 procedure TfmCHXPropEditor.actCancelDataExecute(Sender: TObject);
 begin
   LoadFrameData;
@@ -87,9 +95,9 @@ procedure TfmCHXPropEditor.SetButtonClose(AValue: boolean);
 begin
   FButtonClose := AValue;
 
-  if FButtonClose then
+  if ButtonClose then
   begin
-    bSave.ModalResult := mrOK;
+    bSave.ModalResult := mrOk;
     bCancel.ModalResult := mrCancel;
   end
   else
@@ -97,6 +105,9 @@ begin
     bSave.ModalResult := mrNone;
     bCancel.ModalResult := mrNone;
   end;
+
+  if chkCloseOnSave.Checked <> ButtonClose then
+    chkCloseOnSave.Checked := ButtonClose;
 end;
 
 procedure TfmCHXPropEditor.SetSaveButtons(AValue: boolean);
@@ -125,8 +136,18 @@ begin
   inherited Create(TheOwner);
 
   SaveButtons := True; // Show buttons by default;
+
   // If parent/Owner is Tform then autoclose by default;
-  ButtonClose := TheOwner is TForm;
+  if TheOwner is TForm then
+  begin
+    ButtonClose := True;
+    chkCloseOnSave.Visible := True;
+  end
+  else
+  begin
+    ButtonClose := False;
+    chkCloseOnSave.Visible := False;
+  end;
 end;
 
 destructor TfmCHXPropEditor.Destroy;

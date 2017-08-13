@@ -8,6 +8,11 @@ uses
   Classes, SysUtils, crc, sha1, FileUtil, LazFileUtils, LazUTF8,
   uCHXStrUtils, u7zWrapper;
 
+const
+  kCHXSHA1Empty: TSHA1Digest =
+  (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+
 type
   TItFolderObj = function(aFolder: string;
     FileInfo: TSearchRec): boolean of object;
@@ -39,6 +44,7 @@ procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
 }
 
 // Some hashing
+// ------------
 function CRC32FileInt(const aFileName: string): cardinal;
 {< Calculates CRC32 checksum of a file.
 }
@@ -48,7 +54,11 @@ function CRC32FileStr(const aFileName: string): string;
 function SHA1FileStr(const aFileName: string): string;
 {< Calculates SHA1 checksum of a file and return as string.
 }
+function StringToSHA1Digest(aSHA1String: string):TSHA1Digest;
 
+
+// Iterating Folders
+// -----------------
 function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
   Recursive: boolean = True): boolean;
 function IterateFolderFun(Folder: string; aFunction: TItFolderFun;
@@ -81,7 +91,7 @@ var
   BufferCRC: array[0..32767] of char;
   BufferSize: cardinal;
 begin
-  BufferCRC[0] := #32; // Fix inicialization warning
+  BufferCRC[0] := #0; // Fix inicialization warning
   BufferSize := SizeOf(BufferCRC);
   Result := crc32(0, nil, 0);
 
@@ -116,6 +126,22 @@ begin
   Result := '';
   if FileExistsUTF8(aFileName) then
     Result := SHA1Print(SHA1File(aFileName, 32768));
+end;
+
+function StringToSHA1Digest(aSHA1String: string): TSHA1Digest;
+var
+  i: integer;
+begin
+  Result := kCHXSHA1Empty;
+
+  if Length(aSHA1String) <> 40 then Exit;
+
+  i := 0;
+  while i <= 19 do
+  begin
+    Result[i] := (StrToInt('$' + aSHA1String[(i shl 1) + 1]) shl 4) or StrToInt('$' + aSHA1String[(i shl 1) + 2]);
+    inc(i);
+  end;
 end;
 
 function SearchFirstFileInFolderByExtCT(aFolder: string;

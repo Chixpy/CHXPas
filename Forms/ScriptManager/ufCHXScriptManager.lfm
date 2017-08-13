@@ -8,7 +8,7 @@ object frmCHXScriptManager: TfrmCHXScriptManager
   ClientWidth = 719
   OnDestroy = FormDestroy
   Position = poMainFormCenter
-  LCLVersion = '5.7'
+  LCLVersion = '6.0'
   object pInfo: TPanel
     Left = 0
     Height = 58
@@ -92,9 +92,11 @@ object frmCHXScriptManager: TfrmCHXScriptManager
           Height = 23
           Top = 1
           Width = 168
+          DialogOptions = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
           ShowHidden = False
           ButtonWidth = 23
           NumGlyphs = 1
+          Flat = True
           Align = alTop
           MaxLength = 0
           TabOrder = 1
@@ -805,13 +807,13 @@ object frmCHXScriptManager: TfrmCHXScriptManager
     end
   end
   object ilActions: TImageList
-    left = 8
-    top = 408
+    Left = 8
+    Top = 408
   end
   object ActionList: TActionList
     Images = ilActions
-    left = 48
-    top = 408
+    Left = 48
+    Top = 408
     object actEditCut: TEditCut
       Category = 'Edit'
       Caption = 'Cor&tar'
@@ -882,14 +884,14 @@ object frmCHXScriptManager: TfrmCHXScriptManager
     Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = True
-    left = 552
-    top = 120
+    Left = 552
+    Top = 120
   end
   object SynMacroRecorder: TSynMacroRecorder
     RecordShortCut = 24658
     PlaybackShortCut = 24656
     Editor = SynEdit
-    left = 552
-    top = 64
+    Left = 552
+    Top = 64
   end
 end

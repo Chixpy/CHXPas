@@ -42,9 +42,8 @@ type
     bAccept: TBitBtn;
     bCancel: TBitBtn;
     eFileName: TFileNameEdit;
-    lTitle: TLabel;
+    gbxSelectFilename: TGroupBox;
     pButtons: TPanel;
-    pFilename: TPanel;
   private
     { private declarations }
   public

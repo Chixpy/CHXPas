@@ -38,6 +38,10 @@ type
       amenudo que los gráficos... Hora de inicio...
   }
 
+   TCHXProgressCallBack = function(const Title, Info1, Info2: string;
+    const Value, MaxValue: int64): boolean of object;
+{< Callback funtion to show progress }
+
   { TfrmCHXProgressBar }
 
   TfrmCHXProgressBar = class(TForm)

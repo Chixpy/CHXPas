@@ -10,13 +10,22 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     AutoSize = True
     ChildSizing.EnlargeHorizontal = crsHomogenousSpaceResize
     ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
-    ChildSizing.Layout = cclLeftToRightThenTopToBottom
-    ChildSizing.ControlsPerLine = 2
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 1
     ClientHeight = 27
     ClientWidth = 320
     TabOrder = 0
+    object chkCloseOnSave: TCheckBox
+      Left = 30
+      Height = 26
+      Top = 0
+      Width = 49
+      Caption = 'Close'
+      OnChange = chkCloseOnSaveChange
+      TabOrder = 2
+    end
     object bSave: TBitBtn
-      Left = 56
+      Left = 109
       Height = 26
       Top = 0
       Width = 70
@@ -61,7 +70,7 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
       TabOrder = 0
     end
     object bCancel: TBitBtn
-      Left = 182
+      Left = 209
       Height = 26
       Top = 0
       Width = 82

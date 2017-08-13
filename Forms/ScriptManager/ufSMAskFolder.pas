@@ -42,9 +42,8 @@ type
     bAccept: TBitBtn;
     bCancel: TBitBtn;
     eDirectory: TDirectoryEdit;
-    lTitle: TLabel;
+    gbxSelectFolder: TGroupBox;
     pButtons: TPanel;
-    pFolderName: TPanel;
   private
     { private declarations }
   public
