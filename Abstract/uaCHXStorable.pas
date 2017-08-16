@@ -39,7 +39,7 @@ type
 
          @param(aFilename Filename of the inifile to read from.)
     }
-    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
+    procedure LoadFromIni(aIniFile: TIniFile); virtual; abstract;
     {< Loads data from file.
 
          @param(aIniFile Inifile to read from.)
@@ -67,6 +67,8 @@ type
 
   end;
 
+  { caCHXStorableTxt }
+
   caCHXStorableTxt = class(caCHXStorableIni)
   private
 
@@ -80,6 +82,7 @@ type
 
   public
     property TXTString: string read GetTxtString write SetTxtString;
+    function TXTExportString: string;
 
     procedure LoadFromFileTxt(aFilename: string); virtual;
     {< Loads data from file.
@@ -204,6 +207,19 @@ begin
 
     LoadFromStrLst(aStringList);
   finally
+    FreeAndNil(aStringList);
+  end;
+end;
+
+function caCHXStorableTxt.TXTExportString: string;
+var
+  aStringList: TStringList;
+begin
+  aStringList := TStringList.Create;
+  try
+    SaveToStrLst(aStringList, True);
+  finally
+    Result := aStringList.CommaText;
     FreeAndNil(aStringList);
   end;
 end;

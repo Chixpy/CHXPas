@@ -27,17 +27,17 @@ function SearchFirstFileInFolderByExtSL(aFolder: string;
 {< Searches first file found with a matched extension from a list in a folder.
 }
 procedure Search7ZFilesByExt(AOutFolderList, AOutFileList: TStrings;
-  aBaseFolder: string; aExtList: TStrings; Recursive: boolean = True);
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
 {< Searches all files with selected extensions, searching in compressed archives too.
 
      @param(AOutFolderList StringList with the folder or compressed archive
        were files in AOutFileList are found. If nil it will be created,
-       so must be freed elsewhere. Note: compressed archives will have trailing
+       so must be freed elsewhere. Note: Compressed archives will have trailing
        path delimiter.)
      @param(AOutFileList Files found (if they are in a compressed archive,
        they have the internal folder structure). If nil it will be created,
        so must be freed elsewhere.)
-     @param(aBaseFolder Folder were search.)
+     @param(aBaseFolder Folder where search.)
      @param(aExtList Extensions StringList, one extension by line.)
      @param(Recursive Search in (actual) subfolders too? If compressed archives
        have internal folder structure file are found any way)
