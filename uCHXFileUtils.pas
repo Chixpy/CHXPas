@@ -129,19 +129,8 @@ begin
 end;
 
 function StringToSHA1Digest(aSHA1String: string): TSHA1Digest;
-var
-  i: integer;
 begin
-  Result := kCHXSHA1Empty;
-
-  if Length(aSHA1String) <> 40 then Exit;
-
-  i := 0;
-  while i <= 19 do
-  begin
-    Result[i] := (StrToInt('$' + aSHA1String[(i shl 1) + 1]) shl 4) or StrToInt('$' + aSHA1String[(i shl 1) + 2]);
-    inc(i);
-  end;
+  HexToBin(PChar(aSHA1String), @Result, 20);
 end;
 
 function SearchFirstFileInFolderByExtCT(aFolder: string;
