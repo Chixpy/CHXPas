@@ -16,7 +16,7 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     ClientWidth = 320
     TabOrder = 0
     object chkCloseOnSave: TCheckBox
-      Left = 30
+      Left = 32
       Height = 26
       Top = 0
       Width = 49
@@ -25,11 +25,11 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
       TabOrder = 2
     end
     object bSave: TBitBtn
-      Left = 109
+      Left = 113
       Height = 26
       Top = 0
-      Width = 70
-      Action = actSaveData
+      Width = 62
+      Action = actFrameOK
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
         2000000000000004000064000000640000000000000000000000FFFFFF00FFFF
@@ -70,11 +70,11 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
       TabOrder = 0
     end
     object bCancel: TBitBtn
-      Left = 209
+      Left = 207
       Height = 26
       Top = 0
       Width = 82
-      Action = actCancelData
+      Action = actFrameCancel
       Cancel = True
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -120,15 +120,15 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     Images = ilPropEditor
     Left = 24
     Top = 8
-    object actSaveData: TAction
+    object actFrameOK: TAction
       Category = 'PropEditor'
-      Caption = 'Save'
-      OnExecute = actSaveDataExecute
+      Caption = 'OK'
+      OnExecute = actFrameOKExecute
     end
-    object actCancelData: TAction
+    object actFrameCancel: TAction
       Category = 'PropEditor'
       Caption = 'Cancel'
-      OnExecute = actCancelDataExecute
+      OnExecute = actFrameCancelExecute
     end
   end
   object ilPropEditor: TImageList[2]

@@ -32,16 +32,16 @@ type
   { TfmCHXPropEditor }
 
   TfmCHXPropEditor = class(TfmCHXFrame)
-    actCancelData: TAction;
-    actSaveData: TAction;
+    actFrameCancel: TAction;
+    actFrameOK: TAction;
     alPropEditor: TActionList;
     bCancel: TBitBtn;
     bSave: TBitBtn;
     chkCloseOnSave: TCheckBox;
     ilPropEditor: TImageList;
     pButtons: TPanel;
-    procedure actCancelDataExecute(Sender: TObject);
-    procedure actSaveDataExecute(Sender: TObject);
+    procedure actFrameCancelExecute(Sender: TObject);
+    procedure actFrameOKExecute(Sender: TObject);
     procedure chkCloseOnSaveChange(Sender: TObject);
 
   private
@@ -75,7 +75,7 @@ implementation
 
 { TfmCHXPropEditor }
 
-procedure TfmCHXPropEditor.actSaveDataExecute(Sender: TObject);
+procedure TfmCHXPropEditor.actFrameOKExecute(Sender: TObject);
 begin
   SaveFrameData;
 end;
@@ -86,7 +86,7 @@ begin
     ButtonClose := chkCloseOnSave.Checked;
 end;
 
-procedure TfmCHXPropEditor.actCancelDataExecute(Sender: TObject);
+procedure TfmCHXPropEditor.actFrameCancelExecute(Sender: TObject);
 begin
   LoadFrameData;
 end;

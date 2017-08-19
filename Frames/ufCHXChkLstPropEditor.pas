@@ -166,7 +166,7 @@ constructor TfmCHXChkLstPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
-  actSaveData.Caption := rsLECLPESaveList; // Make clear that is item list save
+  actFrameOK.Caption := rsLECLPESaveList; // Make clear that is item list save
 end;
 
 destructor TfmCHXChkLstPropEditor.Destroy;
