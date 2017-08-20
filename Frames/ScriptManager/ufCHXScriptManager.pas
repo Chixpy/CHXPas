@@ -7,14 +7,15 @@ interface
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, SynEdit, SynHighlighterPas,
   SynMacroRecorder, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ShellCtrls, EditBtn, Buttons, ActnList, StdActns, ufCHXFrame,
+  ComCtrls, ShellCtrls, EditBtn, Buttons, ActnList, StdActns,
+  ufCHXFrame,
   uCHXStrUtils, uCHXImageUtils, IniFiles, ucCHXScriptEngine;
 
 const
   kFileExtensionScript = 'pas';
   kFileMaskScript = '*.' + kFileExtensionScript;
   kFileMaskAllFiles = '*.*';
-  kFSMDataSection = 'SCRIPTDATA';
+  kFSMDataSection = 'Info';
 
 resourcestring
   rsFSMScriptFileSaved = 'File saved: %s';
@@ -36,6 +37,7 @@ type
     actEditUndo: TEditUndo;
     actExecute: TAction;
     actFileSaveAs: TFileSaveAs;
+    actOutputClear: TAction;
     ActionList: TActionList;
     actSearchFind: TSearchFind;
     actSearchReplace: TSearchReplace;
@@ -57,6 +59,7 @@ type
     bSeparator4: TToolButton;
     bSeparator5: TToolButton;
     DirectoryEdit1: TDirectoryEdit;
+    FontEdit1: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lGame: TLabel;
@@ -80,10 +83,17 @@ type
     SynFreePascalSyn: TSynFreePascalSyn;
     SynMacroRecorder: TSynMacroRecorder;
     tbEditor: TToolBar;
+    tbOutput: TToolBar;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
     procedure actCompileExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
+    procedure actOutputClearExecute(Sender: TObject);
+    procedure FontEdit1Accept(Sender: TObject);
+    procedure FontEdit1BeforeExecute(Sender: TObject);
     procedure slvSelectItem(Sender: TObject; Item: TListItem;
       Selected: boolean);
 
@@ -155,6 +165,9 @@ begin
     [actFileSaveAs.Dialog.FileName]));
   CurrentFile := actFileSaveAs.Dialog.FileName;
   UpdateSLV;
+
+  SynEdit.Modified := False;
+
   if SynEdit.CanFocus then
     SynEdit.SetFocus;
 end;
@@ -168,6 +181,21 @@ begin
     rsFileMaskScriptDescription + '|' + kFileMaskScript + '|' +
     rsFileMaskAllFilesDescription + '|' + kFileMaskAllFiles;
   actFileSaveAs.Dialog.DefaultExt := kFileExtensionScript;
+end;
+
+procedure TfmCHXScriptManager.actOutputClearExecute(Sender: TObject);
+begin
+  mOutPut.Clear;
+end;
+
+procedure TfmCHXScriptManager.FontEdit1Accept(Sender: TObject);
+begin
+  mOutPut.Font.Assign(FontEdit1.Dialog.Font);
+end;
+
+procedure TfmCHXScriptManager.FontEdit1BeforeExecute(Sender: TObject);
+begin
+ FontEdit1.Dialog.Font.Assign(mOutPut.Font);
 end;
 
 procedure TfmCHXScriptManager.SetCurrentFile(AValue: string);
@@ -189,7 +217,7 @@ var
   i: SizeInt;
   aIni: TIniFile;
 begin
-  if SynEdit.Modified then
+  if (SynEdit.Modified) and (aFile <> '') then
     if MessageDlg(Format(rsFSMSaveChanges, [CurrentFile]),
       mtConfirmation, [mbYes, mbNo], 0) = mrYes then
       SynEdit.Lines.SaveToFile(CurrentFile);
@@ -199,6 +227,7 @@ begin
   if not FileExistsUTF8(CurrentFile) then
   begin
     SynEdit.Lines.Clear;
+    SynEdit.Modified := False;
     Exit;
   end;
 
@@ -277,6 +306,8 @@ end;
 constructor TfmCHXScriptManager.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+
+  PageControl.ActivePage := pagScriptList;
 end;
 
 destructor TfmCHXScriptManager.Destroy;

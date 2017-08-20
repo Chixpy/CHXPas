@@ -5,7 +5,7 @@ unit ufCHXFrame;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls,
+  Classes, SysUtils, FileUtil, Forms, Controls, IniPropStorage,
   uCHXStrUtils;
 
 type

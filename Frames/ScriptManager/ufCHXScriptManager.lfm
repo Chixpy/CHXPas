@@ -40,9 +40,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 289
     Top = 0
     Width = 642
-    ActivePage = pagScriptList
+    ActivePage = pagSourceCode
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 2
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -107,13 +107,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagSourceCode: TTabSheet
       Caption = 'Source Code'
-      ClientHeight = 204
-      ClientWidth = 548
+      ClientHeight = 261
+      ClientWidth = 634
       object tbEditor: TToolBar
         Left = 0
         Height = 26
         Top = 0
-        Width = 548
+        Width = 634
         Caption = 'tbEditor'
         EdgeInner = esNone
         EdgeOuter = esNone
@@ -217,9 +217,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       inline SynEdit: TSynEdit
         Left = 0
-        Height = 178
+        Height = 235
         Top = 26
-        Width = 548
+        Width = 634
         Align = alClient
         BlockTabIndent = 2
         Font.Height = -13
@@ -658,7 +658,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         MouseActions = <>
         MouseTextActions = <>
         MouseSelActions = <>
-        Options = [eoAutoIndent, eoBracketHighlight, eoGroupUndo, eoScrollByOneLess, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces]
+        Options = [eoAutoIndent, eoBracketHighlight, eoEnhanceHomeKey, eoGroupUndo, eoScrollByOneLess, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces]
         VisibleSpecialChars = [vscSpace, vscTabAtLast]
         ScrollBars = ssAutoBoth
         SelectedColor.BackPriority = 50
@@ -718,18 +718,51 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagOutput: TTabSheet
       Caption = 'Output'
-      ClientHeight = 204
-      ClientWidth = 548
+      ClientHeight = 261
+      ClientWidth = 634
       object mOutPut: TMemo
         Left = 0
-        Height = 204
-        Top = 0
-        Width = 548
+        Height = 235
+        Top = 26
+        Width = 634
         Align = alClient
+        Font.CharSet = ANSI_CHARSET
+        Font.Height = -13
+        Font.Name = 'Courier New'
+        Font.Pitch = fpFixed
+        Font.Quality = fqDraft
+        ParentFont = False
         ReadOnly = True
         ScrollBars = ssAutoBoth
         TabOrder = 0
         TabStop = False
+      end
+      object tbOutput: TToolBar
+        Left = 0
+        Height = 26
+        Top = 0
+        Width = 634
+        Caption = 'tbOutput'
+        Images = ilActions
+        TabOrder = 1
+        object ToolButton1: TToolButton
+          Left = 1
+          Top = 2
+          Action = actOutputClear
+        end
+        object ToolButton2: TToolButton
+          Left = 24
+          Height = 22
+          Top = 2
+          Width = 8
+          Caption = 'ToolButton2'
+          Style = tbsSeparator
+        end
+        object ToolButton3: TToolButton
+          Left = 32
+          Top = 2
+          Action = FontEdit1
+        end
       end
     end
   end
@@ -803,13 +836,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object ilActions: TImageList[4]
-    Left = 36
-    Top = 212
+    Left = 32
+    Top = 168
   end
   object ActionList: TActionList[5]
     Images = ilActions
-    Left = 76
-    Top = 212
+    Left = 32
+    Top = 232
     object actEditCut: TEditCut
       Category = 'Edit'
       Caption = 'Cor&tar'
@@ -875,19 +908,32 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       BeforeExecute = actFileSaveAsBeforeExecute
       OnAccept = actFileSaveAsAccept
     end
+    object actOutputClear: TAction
+      Category = 'Output'
+      Caption = 'actOutputClear'
+      OnExecute = actOutputClearExecute
+    end
+    object FontEdit1: TFontEdit
+      Category = 'Output'
+      Caption = 'Seleccionar &Fuente...'
+      Dialog.MinFontSize = 0
+      Dialog.MaxFontSize = 0
+      Hint = 'Selector de fuente'
+      BeforeExecute = FontEdit1BeforeExecute
+      OnAccept = FontEdit1Accept
+    end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[6]
-    Enabled = False
     CompilerMode = pcmObjFPC
-    NestedComments = True
-    Left = 292
-    Top = 148
+    NestedComments = False
+    Left = 32
+    Top = 112
   end
   object SynMacroRecorder: TSynMacroRecorder[7]
     RecordShortCut = 24658
     PlaybackShortCut = 24656
     Editor = SynEdit
-    Left = 292
-    Top = 92
+    Left = 32
+    Top = 64
   end
 end

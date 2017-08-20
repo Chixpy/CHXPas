@@ -126,6 +126,9 @@ type
     function AskFile(const aTitle, aExt, DefFile: string): string;
     function AskFolder(const aTitle, DefFolder: string): string;
 
+    // HACK: We can't create Stringlist!!!
+    function CreateStringList: TStringList;
+
   public
     property ScriptFile: string read getScriptFile write setScriptFile;
     property CommonUnitFolder: string
@@ -247,7 +250,7 @@ begin
   end;
 end;
 
-procedure cCHXScriptEngine.SetScriptText(AValue: TStrings);
+procedure cCHXScriptEngine.setScriptText(AValue: TStrings);
 begin
   PasScript.Script := AValue;
 end;
@@ -326,6 +329,11 @@ begin
     'function AskFile(const aTitle, aExt, DefFile: String): String;');
   Sender.AddMethod(Self, @cCHXScriptEngine.AskFolder,
     'function AskFolder(const aTitle, DefFolder: String): String;');
+
+
+  // HACK: We can't create Stringlist!!!
+  Sender.AddMethod(Self, @cCHXScriptEngine.CreateStringList,
+    'function CreateStringList: TStringList;');
 
 end;
 
@@ -449,10 +457,10 @@ function cCHXScriptEngine.AskFile(
   const aTitle, aExt, DefFile: string): string;
 begin
   Result := '';
-  {
+
   Application.CreateForm(TfrmSMAskFile, frmSMAskFile);
   try
-    frmSMAskFile.lTitle.Caption := aTitle;
+    frmSMAskFile.Caption := aTitle;
     frmSMAskFile.eFileName.DialogTitle := aTitle;
     frmSMAskFile.eFileName.Filter := aExt;
     frmSMAskFile.eFileName.FileName := DefFile;
@@ -461,16 +469,15 @@ begin
   finally
     FreeAndNil(frmSMAskFile);
   end;
-  }
 end;
 
 function cCHXScriptEngine.AskFolder(const aTitle, DefFolder: string): string;
 begin
   Result := '';
-  {
+
   Application.CreateForm(TfrmSMAskFolder, frmSMAskFolder);
   try
-    frmSMAskFolder.lTitle.Caption := aTitle;
+    frmSMAskFolder.Caption := aTitle;
     frmSMAskFolder.eDirectory.DialogTitle := aTitle;
     frmSMAskFolder.eDirectory.Directory := DefFolder;
     if frmSMAskFolder.ShowModal = mrOk then
@@ -478,7 +485,12 @@ begin
   finally
     FreeAndNil(frmSMAskFolder);
   end;
-  }
+
+end;
+
+function cCHXScriptEngine.CreateStringList: TStringList;
+begin
+  Result := TStringList.Create;
 end;
 
 function cCHXScriptEngine.RunScript: boolean;
