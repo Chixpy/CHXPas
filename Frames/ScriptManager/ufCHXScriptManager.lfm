@@ -1,58 +1,36 @@
 inherited fmCHXScriptManager: TfmCHXScriptManager
   Height = 415
-  Width = 642
+  Width = 644
   ClientHeight = 415
-  ClientWidth = 642
+  ClientWidth = 644
   DesignLeft = 337
   DesignTop = 175
-  object pInfo: TPanel[0]
-    Left = 0
-    Height = 58
-    Top = 289
-    Width = 642
-    Align = alBottom
-    BevelOuter = bvNone
-    ClientHeight = 58
-    ClientWidth = 642
-    TabOrder = 0
-    object mInfo: TMemo
-      Left = 0
-      Height = 58
-      Top = 0
-      Width = 642
-      Align = alClient
-      ReadOnly = True
-      ScrollBars = ssAutoBoth
-      TabOrder = 0
-      TabStop = False
-    end
-  end
-  object sbInfo: TStatusBar[1]
+  object sbInfo: TStatusBar[0]
     Left = 0
     Height = 23
-    Top = 347
-    Width = 642
+    Top = 392
+    Width = 644
     AutoHint = True
     Panels = <>
   end
-  object PageControl: TPageControl[2]
+  object PageControl: TPageControl[1]
     Left = 0
-    Height = 289
+    Height = 347
     Top = 0
-    Width = 642
-    ActivePage = pagSourceCode
+    Width = 644
+    ActivePage = pagScriptList
     Align = alClient
-    TabIndex = 1
-    TabOrder = 2
+    TabIndex = 0
+    TabOrder = 1
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
-      ClientHeight = 261
-      ClientWidth = 634
+      ClientHeight = 319
+      ClientWidth = 636
       object slvGeneral: TShellListView
         Left = 175
-        Height = 261
+        Height = 224
         Top = 0
-        Width = 459
+        Width = 461
         Align = alClient
         Color = clDefault
         RowSelect = True
@@ -63,18 +41,18 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         ObjectTypes = [otNonFolders]
         ShellTreeView = ShellTreeView1
       end
-      object Panel1: TPanel
+      object pFolders: TPanel
         Left = 0
-        Height = 261
+        Height = 224
         Top = 0
         Width = 170
         Align = alLeft
-        ClientHeight = 261
+        ClientHeight = 224
         ClientWidth = 170
         TabOrder = 1
         object ShellTreeView1: TShellTreeView
           Left = 1
-          Height = 236
+          Height = 199
           Top = 24
           Width = 168
           Align = alClient
@@ -100,9 +78,27 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object Splitter1: TSplitter
         Left = 170
-        Height = 261
+        Height = 224
         Top = 0
         Width = 5
+      end
+      object Splitter2: TSplitter
+        Cursor = crVSplit
+        Left = 0
+        Height = 5
+        Top = 224
+        Width = 636
+        Align = alBottom
+        ResizeAnchor = akBottom
+      end
+      object mScriptInfo: TMemo
+        Left = 0
+        Height = 90
+        Top = 229
+        Width = 636
+        Align = alBottom
+        ScrollBars = ssAutoBoth
+        TabOrder = 4
       end
     end
     object pagSourceCode: TTabSheet
@@ -192,12 +188,12 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Style = tbsSeparator
         end
         object bSaveFileAs: TToolButton
-          Left = 225
+          Left = 248
           Top = 0
           Action = actFileSaveAs
         end
         object bSeparator5: TToolButton
-          Left = 248
+          Left = 271
           Height = 22
           Top = 0
           Width = 10
@@ -205,14 +201,19 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Style = tbsSeparator
         end
         object bCompile: TToolButton
-          Left = 258
+          Left = 281
           Top = 0
           Action = actCompile
         end
         object bExecute: TToolButton
-          Left = 281
+          Left = 304
           Top = 0
           Action = actExecute
+        end
+        object bSave: TToolButton
+          Left = 225
+          Top = 0
+          Action = actFileSave
         end
       end
       inline SynEdit: TSynEdit
@@ -766,19 +767,19 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
     end
   end
-  object pRight: TPanel[3]
+  object pRight: TPanel[2]
     Left = 0
     Height = 45
-    Top = 370
-    Width = 642
+    Top = 347
+    Width = 644
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
     ClientHeight = 45
-    ClientWidth = 642
-    TabOrder = 3
+    ClientWidth = 644
+    TabOrder = 2
     object gbxScript: TGroupBox
-      Left = 572
+      Left = 574
       Height = 45
       Top = 0
       Width = 70
@@ -799,47 +800,23 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         TabOrder = 0
       end
     end
-    object pCurrentData: TPanel
+    object mInfo: TMemo
       Left = 0
       Height = 45
       Top = 0
-      Width = 572
+      Width = 574
       Align = alClient
-      AutoSize = True
-      ClientHeight = 45
-      ClientWidth = 572
+      ReadOnly = True
+      ScrollBars = ssAutoBoth
       TabOrder = 1
-      object lSystem: TLabel
-        Left = 1
-        Height = 1
-        Top = 1
-        Width = 570
-        Align = alTop
-        ParentColor = False
-      end
-      object lGroup: TLabel
-        Left = 1
-        Height = 1
-        Top = 2
-        Width = 570
-        Align = alTop
-        ParentColor = False
-      end
-      object lGame: TLabel
-        Left = 1
-        Height = 1
-        Top = 3
-        Width = 570
-        Align = alTop
-        ParentColor = False
-      end
+      TabStop = False
     end
   end
-  object ilActions: TImageList[4]
+  object ilActions: TImageList[3]
     Left = 32
     Top = 168
   end
-  object ActionList: TActionList[5]
+  object ActionList: TActionList[4]
     Images = ilActions
     Left = 32
     Top = 232
@@ -922,14 +899,20 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       BeforeExecute = FontEdit1BeforeExecute
       OnAccept = FontEdit1Accept
     end
+    object actFileSave: TAction
+      Category = 'File'
+      Caption = 'Save File'
+      OnExecute = actFileSaveExecute
+    end
   end
-  object SynFreePascalSyn: TSynFreePascalSyn[6]
+  object SynFreePascalSyn: TSynFreePascalSyn[5]
+    Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
     Left = 32
     Top = 112
   end
-  object SynMacroRecorder: TSynMacroRecorder[7]
+  object SynMacroRecorder: TSynMacroRecorder[6]
     RecordShortCut = 24658
     PlaybackShortCut = 24656
     Editor = SynEdit

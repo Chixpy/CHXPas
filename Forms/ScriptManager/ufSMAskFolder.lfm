@@ -65,6 +65,7 @@ object frmSMAskFolder: TfrmSMAskFolder
       Align = alTop
       MaxLength = 0
       TabOrder = 0
+      OnButtonClick = eDirectoryButtonClick
     end
   end
 end

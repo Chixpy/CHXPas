@@ -89,8 +89,8 @@ type
     property OwnsScriptInfo: boolean read FOwnsScriptInfo
       write SetOwnsScriptInfo;
     {< Script info must be freed? }
-    property OwnsScriptError: boolean
-      read FOwnsScriptError write SetOwnsScriptError;
+    property OwnsScriptError: boolean read FOwnsScriptError
+      write SetOwnsScriptError;
     {< Script error must be freed? }
 
     procedure PasScriptOnCompImport(Sender: TObject;
@@ -108,26 +108,45 @@ type
 
     // Added functions
     // ---------------
-    // This functions are those which don't work with a simple
-    //   "Sender.AddFunction" (because it's overloaded or it' has default
-    //   parameters) or they can help for some common tasks.
+    // TODO: Make them external?.
 
     // Input / Output
-    procedure WriteLn(const Str: string);
-    function ReadLn(const aQuestion, DefAnswer: string): string;
+    procedure CHXWriteLn(const Str: string);
+    function CHXReadLn(const aQuestion, DefAnswer: string): string;
 
     // Strings
-    function RPos(const Substr, Source: string): integer;
+    function CHXRPos(const Substr, Source: string): integer;
 
-    function UTF8LowerCase(const AInStr: string): string;
-    function UTF8UpperCase(const AInStr: string): string;
+    function CHXLowerCase(const AInStr: string): string;
+    function CHXUpperCase(const AInStr: string): string;
+
+    function CHXCompareText(const S1, S2: string): integer;
+    function CHXCompareStr(const S1, S2: string): integer;
+
+    function CHXUTF8ToSys(const S: string): string;
+    function CHXSysToUTF8(const S: string): string;
+
+    function CHXBoolToStr(const aBool:Boolean):string;
+
+    // Path and filename strings
+    function CHXCleanFileName(const AFileName: string): string;
+    function CHXExcludeTrailingPathDelimiter(const aString: string): string;
+    function CHXExtractFilePath(const aFileName: string): string;
+    function CHXExtractFileName(const aFileName: string): string;
+    function CHXExtractFileNameOnly(const AFilename: string): string;
+    function CHXExtractFileExt(const AFilename: string): string;
+    function CHXChangeFileExt(const aFileName, aExtension: string): string;
+
+    // Files and Folders UTF8
+    function CHXFileExistsUTF8(const aFileName: string): boolean;
+    function CHXDirectoryExistsUTF8(const aFileName: string): boolean;
 
     // Dialog forms
-    function AskFile(const aTitle, aExt, DefFile: string): string;
-    function AskFolder(const aTitle, DefFolder: string): string;
+    function CHXAskFile(const aTitle, aExt, DefFile: string): string;
+    function CHXAskFolder(const aTitle, DefFolder: string): string;
 
     // HACK: We can't create Stringlist!!!
-    function CreateStringList: TStringList;
+    function CHXCreateStringList: TStringList;
 
   public
     property ScriptFile: string read getScriptFile write setScriptFile;
@@ -273,66 +292,65 @@ begin
   SIRegister_DB(x);
 
   // CHX
-  SIRegister_u7zWrapper(x)
+  SIRegister_u7zWrapper(x);
 end;
 
 procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
 begin
   // Input and Output
-  Sender.AddMethod(Self, @cCHXScriptEngine.WriteLn,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXWriteLn,
     'procedure WriteLn(const s: String)');
-  Sender.AddMethod(Self, @cCHXScriptEngine.ReadLn,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXReadLn,
     'function ReadLn(const aQuestion, DefAnswer: String): String;');
 
-  // String handling UTF8 from LazUTF8 unit
-  Sender.AddFunction(@UTF8CompareText,
-    'function UTF8CompareText(const S1, S2: String): Integer;');
-  Sender.AddFunction(@UTF8CompareStr,
-    'function UTF8CompareStr(const S1, S2: String): Integer;');
-  Sender.AddFunction(@UTF8ToSys,
-    'function UTF8ToSys(const S: String): String;');
-  Sender.AddFunction(@SysToUTF8,
-    'function SysToUTF8(const S: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.UTF8LowerCase,
-    'function UTF8LowerCase(const AInStr: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.UTF8UpperCase,
-    'function UTF8UpperCase(const AInStr: String): String;');
-
-  // Misc string functions
-  Sender.AddMethod(Self, @cCHXScriptEngine.RPos,
+  // String handling
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXRPos,
     'function RPos(const Substr: String; const Source: String) : Integer;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareText,
+    'function CompareText(const S1, S2: String): Integer;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareStr,
+    'function CompareStr(const S1, S2: String): Integer;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXLowerCase,
+    'function LowerCase(const AInStr: String): String;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXUpperCase,
+    'function UpperCase(const AInStr: String): String;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXUTF8ToSys,
+    'function UTF8ToSys(const S: String): String;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXSysToUTF8,
+    'function SysToUTF8(const S: String): String;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXBoolToStr,
+    'function BoolToStr(const aBool: Boolean): String;');
 
   // Path and filename strings
-  Sender.AddFunction(@CleanFileName,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCleanFileName,
     'function CleanFileName(const AFileName: String): String;');
-  Sender.AddFunction(@ExcludeTrailingPathDelimiter,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExcludeTrailingPathDelimiter,
     'function ExcludeTrailingPathDelimiter(const aString: String): String;');
-  Sender.AddFunction(@ExtractFilePath,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFilePath,
     'function ExtractFilePath(const aFileName: String): String;');
-  Sender.AddFunction(@ExtractFileName,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileName,
     'function ExtractFileName(const aFileName: String): String;');
-  Sender.AddFunction(@ExtractFileNameOnly,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileNameOnly,
     'function ExtractFileNameOnly(const AFilename: String): String;');
-  Sender.AddFunction(@ExtractFileExt,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileExt,
     'function ExtractFileExt(const AFilename: String): String;');
-  Sender.AddFunction(@ChangeFileExt,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXChangeFileExt,
     'function ChangeFileExt(const aFileName, aExtension: String): String;');
 
   // Files and Folders UTF8
-  Sender.AddFunction(@FileExistsUTF8,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXFileExistsUTF8,
     'function FileExistsUTF8(const aFileName: String): Boolean;');
-  Sender.AddFunction(@DirectoryExistsUTF8,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXDirectoryExistsUTF8,
     'function DirectoryExistsUTF8(const aFileName: String): Boolean;');
 
   // Dialogs
-  Sender.AddMethod(Self, @cCHXScriptEngine.AskFile,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFile,
     'function AskFile(const aTitle, aExt, DefFile: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.AskFolder,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFolder,
     'function AskFolder(const aTitle, DefFolder: String): String;');
 
-
   // HACK: We can't create Stringlist!!!
-  Sender.AddMethod(Self, @cCHXScriptEngine.CreateStringList,
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCreateStringList,
     'function CreateStringList: TStringList;');
 
 end;
@@ -406,6 +424,146 @@ begin
   Result := True;
 end;
 
+procedure cCHXScriptEngine.CHXWriteLn(const Str: string);
+begin
+  ScriptOutput.Add(Str);
+end;
+
+function cCHXScriptEngine.CHXReadLn(
+  const aQuestion, DefAnswer: string): string;
+begin
+  Result := InputBox(Application.Title, aQuestion, DefAnswer);
+end;
+
+function cCHXScriptEngine.CHXRPos(const Substr, Source: string): integer;
+begin
+ Result := RPos(Substr, Source);
+end;
+
+function cCHXScriptEngine.CHXLowerCase(const AInStr: string): string;
+begin
+  Result := UTF8LowerCase(AInStr, '');
+end;
+
+function cCHXScriptEngine.CHXUpperCase(const AInStr: string): string;
+begin
+  Result := UTF8UpperCase(AInStr, '');
+end;
+
+function cCHXScriptEngine.CHXCompareText(const S1, S2: string): integer;
+begin
+  Result := UTF8CompareText(S1, S2);
+end;
+
+function cCHXScriptEngine.CHXCompareStr(const S1, S2: string): integer;
+begin
+  Result := UTF8CompareStr(S1, S2);
+end;
+
+function cCHXScriptEngine.CHXUTF8ToSys(const S: string): string;
+begin
+  Result := UTF8ToSys(S);
+end;
+
+function cCHXScriptEngine.CHXSysToUTF8(const S: string): string;
+begin
+  Result := SysToUTF8(S);
+end;
+
+function cCHXScriptEngine.CHXBoolToStr(const aBool: Boolean): string;
+begin
+  Result := BoolToStr(aBool, True);
+end;
+
+function cCHXScriptEngine.CHXCleanFileName(const AFileName: string): string;
+begin
+  Result := CleanFileName(AFileName);
+end;
+
+function cCHXScriptEngine.CHXExcludeTrailingPathDelimiter(
+  const aString: string): string;
+begin
+   Result := ExcludeTrailingPathDelimiter(aString);
+end;
+
+function cCHXScriptEngine.CHXExtractFilePath(const aFileName: string): string;
+begin
+  Result := ExtractFilePath(aFileName);
+end;
+
+function cCHXScriptEngine.CHXExtractFileName(const aFileName: string): string;
+begin
+  Result := ExtractFileName(aFileName);
+end;
+
+function cCHXScriptEngine.CHXExtractFileNameOnly(
+  const AFilename: string): string;
+begin
+  Result := ExtractFileNameOnly(aFileName);
+end;
+
+function cCHXScriptEngine.CHXExtractFileExt(const AFilename: string): string;
+begin
+  Result := ExtractFileExt(aFileName);
+end;
+
+function cCHXScriptEngine.CHXChangeFileExt(
+  const aFileName, aExtension: string): string;
+begin
+   Result := ChangeFileExt(aFileName, aExtension);
+end;
+
+function cCHXScriptEngine.CHXFileExistsUTF8(const aFileName: string): boolean;
+begin
+   Result := FileExistsUTF8(SysPath(aFileName));
+end;
+
+function cCHXScriptEngine.CHXDirectoryExistsUTF8(const aFileName: string
+  ): boolean;
+begin
+   Result:=DirectoryExistsUTF8(SysPath(aFileName));
+end;
+
+function cCHXScriptEngine.CHXAskFile(
+  const aTitle, aExt, DefFile: string): string;
+begin
+    Result := '';
+
+  Application.CreateForm(TfrmSMAskFile, frmSMAskFile);
+  try
+    frmSMAskFile.Caption := aTitle;
+    frmSMAskFile.eFileName.DialogTitle := aTitle;
+    frmSMAskFile.eFileName.Filter := aExt;
+    frmSMAskFile.eFileName.FileName := DefFile;
+    if frmSMAskFile.ShowModal = mrOk then
+      Result := frmSMAskFile.eFileName.FileName;
+  finally
+    FreeAndNil(frmSMAskFile);
+  end;
+end;
+
+function cCHXScriptEngine.CHXAskFolder(
+  const aTitle, DefFolder: string): string;
+begin
+  Result := '';
+
+  Application.CreateForm(TfrmSMAskFolder, frmSMAskFolder);
+  try
+    frmSMAskFolder.Caption := aTitle;
+    frmSMAskFolder.eDirectory.DialogTitle := aTitle;
+    frmSMAskFolder.eDirectory.Directory := SysPath(DefFolder);
+    if frmSMAskFolder.ShowModal = mrOk then
+      Result := IncludeTrailingPathDelimiter(frmSMAskFolder.eDirectory.Directory);
+  finally
+    FreeAndNil(frmSMAskFolder);
+  end;
+end;
+
+function cCHXScriptEngine.CHXCreateStringList: TStringList;
+begin
+   Result := TStringList.Create;
+end;
+
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
   se: TPSExec; x: TPSRuntimeClassImporter);
 begin
@@ -426,71 +584,6 @@ begin
   // CHX
   RIRegister_u7zWrapper_Routines(se);
   RIRegister_u7zWrapper(x);
-end;
-
-procedure cCHXScriptEngine.WriteLn(const Str: string);
-begin
-  ScriptOutput.Add(Str);
-end;
-
-function cCHXScriptEngine.ReadLn(const aQuestion, DefAnswer: string): string;
-begin
-  Result := InputBox(Application.Title, aQuestion, DefAnswer);
-end;
-
-function cCHXScriptEngine.RPos(const Substr, Source: string): integer;
-begin
-  Result := StrUtils.RPos(Substr, Source);
-end;
-
-function cCHXScriptEngine.UTF8LowerCase(const AInStr: string): string;
-begin
-  Result := LazUTF8.UTF8LowerCase(AInStr, '');
-end;
-
-function cCHXScriptEngine.UTF8UpperCase(const AInStr: string): string;
-begin
-  Result := LazUTF8.UTF8UpperCase(AInStr, '');
-end;
-
-function cCHXScriptEngine.AskFile(
-  const aTitle, aExt, DefFile: string): string;
-begin
-  Result := '';
-
-  Application.CreateForm(TfrmSMAskFile, frmSMAskFile);
-  try
-    frmSMAskFile.Caption := aTitle;
-    frmSMAskFile.eFileName.DialogTitle := aTitle;
-    frmSMAskFile.eFileName.Filter := aExt;
-    frmSMAskFile.eFileName.FileName := DefFile;
-    if frmSMAskFile.ShowModal = mrOk then
-      Result := frmSMAskFile.eFileName.FileName;
-  finally
-    FreeAndNil(frmSMAskFile);
-  end;
-end;
-
-function cCHXScriptEngine.AskFolder(const aTitle, DefFolder: string): string;
-begin
-  Result := '';
-
-  Application.CreateForm(TfrmSMAskFolder, frmSMAskFolder);
-  try
-    frmSMAskFolder.Caption := aTitle;
-    frmSMAskFolder.eDirectory.DialogTitle := aTitle;
-    frmSMAskFolder.eDirectory.Directory := DefFolder;
-    if frmSMAskFolder.ShowModal = mrOk then
-      Result := SetAsFolder(frmSMAskFolder.eDirectory.Directory);
-  finally
-    FreeAndNil(frmSMAskFolder);
-  end;
-
-end;
-
-function cCHXScriptEngine.CreateStringList: TStringList;
-begin
-  Result := TStringList.Create;
 end;
 
 function cCHXScriptEngine.RunScript: boolean;

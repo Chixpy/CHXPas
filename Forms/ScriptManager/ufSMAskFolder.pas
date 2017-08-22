@@ -31,7 +31,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LResources, Forms, Controls, Graphics, Dialogs,
-  StdCtrls, ExtCtrls, EditBtn, Buttons;
+  StdCtrls, ExtCtrls, EditBtn, Buttons,
+  uCHXDlgUtils;
 
 type
 
@@ -44,6 +45,7 @@ type
     eDirectory: TDirectoryEdit;
     gbxSelectFolder: TGroupBox;
     pButtons: TPanel;
+    procedure eDirectoryButtonClick(Sender: TObject);
   private
     { private declarations }
   public
@@ -54,6 +56,13 @@ var
   frmSMAskFolder: TfrmSMAskFolder;
 
 implementation
+
+{ TfrmSMAskFolder }
+
+procedure TfrmSMAskFolder.eDirectoryButtonClick(Sender: TObject);
+begin
+  SetDirEditInitialDir(eDirectory,'');
+end;
 
 initialization
   {$I ufSMAskFolder.lrs}

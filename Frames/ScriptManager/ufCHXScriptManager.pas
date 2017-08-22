@@ -7,21 +7,22 @@ interface
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, SynEdit, SynHighlighterPas,
   SynMacroRecorder, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ShellCtrls, EditBtn, Buttons, ActnList, StdActns,
+  ComCtrls, ShellCtrls, EditBtn, Buttons, ActnList, StdActns, IniFiles,
+  uCHXStrUtils, uCHXDlgUtils,
   ufCHXFrame,
-  uCHXStrUtils, uCHXImageUtils, IniFiles, ucCHXScriptEngine;
+  uCHXImageUtils, ucCHXScriptEngine;
 
 const
-  kFileExtensionScript = 'pas';
-  kFileMaskScript = '*.' + kFileExtensionScript;
-  kFileMaskAllFiles = '*.*';
-  kFSMDataSection = 'Info';
+  kFSMScriptFileExt = '.pas';
+  kFSMScriptFileMask = '*' + kFSMScriptFileExt;
+  kFSMInfoSection = 'Info';
 
 resourcestring
-  rsFSMScriptFileSaved = 'File saved: %s';
-  rsFileMaskScriptDescription = 'Pascal script file';
-  rsFileMaskAllFilesDescription = 'All files';
-  rsFSMSaveChanges = '%s has changed. Save';
+  rsFSMFileSaved = 'File saved: %s';
+  rsFSMScriptFileMaskDesc = 'Pascal script file';
+  rsFSMAllFilesMaskDesc = 'All files';
+  rsFSMAskSaveChanges = 'The sourcefile has changed.' +
+    sLineBreak + 'Save?' + sLineBreak + '%s';
 
 type
 
@@ -37,6 +38,7 @@ type
     actEditUndo: TEditUndo;
     actExecute: TAction;
     actFileSaveAs: TFileSaveAs;
+    actFileSave: TAction;
     actOutputClear: TAction;
     ActionList: TActionList;
     actSearchFind: TSearchFind;
@@ -62,23 +64,20 @@ type
     FontEdit1: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
-    lGame: TLabel;
-    lGroup: TLabel;
-    lSystem: TLabel;
     mInfo: TMemo;
     mOutPut: TMemo;
+    mScriptInfo: TMemo;
     PageControl: TPageControl;
     pagScriptList: TTabSheet;
     pagOutput: TTabSheet;
     pagSourceCode: TTabSheet;
-    Panel1: TPanel;
-    pCurrentData: TPanel;
-    pInfo: TPanel;
+    pFolders: TPanel;
     pRight: TPanel;
     sbInfo: TStatusBar;
     ShellTreeView1: TShellTreeView;
     slvGeneral: TShellListView;
     Splitter1: TSplitter;
+    Splitter2: TSplitter;
     SynEdit: TSynEdit;
     SynFreePascalSyn: TSynFreePascalSyn;
     SynMacroRecorder: TSynMacroRecorder;
@@ -87,10 +86,12 @@ type
     ToolButton1: TToolButton;
     ToolButton2: TToolButton;
     ToolButton3: TToolButton;
+    bSave: TToolButton;
     procedure actCompileExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
+    procedure actFileSaveExecute(Sender: TObject);
     procedure actOutputClearExecute(Sender: TObject);
     procedure FontEdit1Accept(Sender: TObject);
     procedure FontEdit1BeforeExecute(Sender: TObject);
@@ -105,11 +106,14 @@ type
 
 
   protected
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
     property ScriptEngine: cCHXScriptEngine
       read FScriptEngine write SetScriptEngine;
 
     procedure LoadScriptFile(const aFile: string);
+    procedure CheckChanged;
 
     function Compile: boolean;
     function Execute: boolean;
@@ -159,14 +163,11 @@ end;
 
 procedure TfmCHXScriptManager.actFileSaveAsAccept(Sender: TObject);
 begin
-  SynEdit.Lines.SaveToFile(actFileSaveAs.Dialog.FileName);
-
-  mInfo.Lines.Add(Format(rsFSMScriptFileSaved,
-    [actFileSaveAs.Dialog.FileName]));
   CurrentFile := actFileSaveAs.Dialog.FileName;
-  UpdateSLV;
+  SynEdit.Lines.SaveToFile(CurrentFile);
 
-  SynEdit.Modified := False;
+  mInfo.Lines.Add(Format(rsFSMFileSaved, [CurrentFile]));
+  UpdateSLV;
 
   if SynEdit.CanFocus then
     SynEdit.SetFocus;
@@ -174,13 +175,23 @@ end;
 
 procedure TfmCHXScriptManager.actFileSaveAsBeforeExecute(Sender: TObject);
 begin
-  actFileSaveAs.Dialog.InitialDir := ExtractFileDir(CurrentFile);
-  actFileSaveAs.Dialog.FileName := ExtractFileName(CurrentFile);
+  actFileSaveAs.Dialog.FileName := CurrentFile;
+  SetDlgInitialDir(actFileSaveAs.Dialog, ShellTreeView1.Path);
 
   actFileSaveAs.Dialog.Filter :=
-    rsFileMaskScriptDescription + '|' + kFileMaskScript + '|' +
-    rsFileMaskAllFilesDescription + '|' + kFileMaskAllFiles;
-  actFileSaveAs.Dialog.DefaultExt := kFileExtensionScript;
+    rsFSMScriptFileMaskDesc + '|' + kFSMScriptFileMask + '|' +
+    rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
+  actFileSaveAs.Dialog.DefaultExt := kFSMScriptFileExt;
+end;
+
+procedure TfmCHXScriptManager.actFileSaveExecute(Sender: TObject);
+begin
+  if not FileExistsUTF8(CurrentFile) then
+    Exit;
+  SynEdit.Lines.SaveToFile(CurrentFile);
+
+  mInfo.Lines.Add(Format(rsFSMFileSaved, [CurrentFile]));
+
 end;
 
 procedure TfmCHXScriptManager.actOutputClearExecute(Sender: TObject);
@@ -195,7 +206,7 @@ end;
 
 procedure TfmCHXScriptManager.FontEdit1BeforeExecute(Sender: TObject);
 begin
- FontEdit1.Dialog.Font.Assign(mOutPut.Font);
+  FontEdit1.Dialog.Font.Assign(mOutPut.Font);
 end;
 
 procedure TfmCHXScriptManager.SetCurrentFile(AValue: string);
@@ -212,23 +223,40 @@ begin
   FScriptEngine := AValue;
 end;
 
+procedure TfmCHXScriptManager.ClearFrameData;
+begin
+
+end;
+
+procedure TfmCHXScriptManager.LoadFrameData;
+begin
+
+end;
+
 procedure TfmCHXScriptManager.LoadScriptFile(const aFile: string);
 var
   i: SizeInt;
   aIni: TIniFile;
 begin
-  if (SynEdit.Modified) and (aFile <> '') then
-    if MessageDlg(Format(rsFSMSaveChanges, [CurrentFile]),
-      mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-      SynEdit.Lines.SaveToFile(CurrentFile);
+  CheckChanged;
+
+  mScriptInfo.Clear;
+  mInfo.Clear;
 
   CurrentFile := aFile;
 
   if not FileExistsUTF8(CurrentFile) then
   begin
     SynEdit.Lines.Clear;
-    SynEdit.Modified := False;
     Exit;
+  end;
+
+  // TODO 2: Temporal script info until section is parsed properly.
+  aIni := TIniFile.Create(CurrentFile, True);
+  try
+    aIni.ReadSectionRaw(kFSMInfoSection, mScriptInfo.Lines);
+  finally
+    aIni.Free;
   end;
 
   SynEdit.Lines.LoadFromFile(CurrentFile);
@@ -240,15 +268,14 @@ begin
     SynEdit.Lines[0] := Copy(SynEdit.Lines[0], Length(UTF8FileHeader) +
       1, MaxInt);
 
-  mInfo.Clear;
+end;
 
-  // TODO 2: Temporal script info until section is parsed properly.
-  aIni := TIniFile.Create(CurrentFile, True);
-  try
-    aIni.ReadSectionRaw(kFSMDataSection, mInfo.Lines);
-  finally
-    aIni.Free;
-  end;
+procedure TfmCHXScriptManager.CheckChanged;
+begin
+  if SynEdit.Modified and FileExistsUTF8(CurrentFile) then
+    if MessageDlg(Format(rsFSMAskSaveChanges, [CurrentFile]),
+      mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+      SynEdit.Lines.SaveToFile(CurrentFile);
 end;
 
 function TfmCHXScriptManager.Compile: boolean;
@@ -312,6 +339,7 @@ end;
 
 destructor TfmCHXScriptManager.Destroy;
 begin
+  CheckChanged;
   FScriptEngine.Free;
   inherited Destroy;
 end;
