@@ -1,28 +1,34 @@
 object frmSMAskFolder: TfrmSMAskFolder
   Left = 398
-  Height = 65
+  Height = 93
   Top = 270
   Width = 400
   Caption = 'Select folder'
-  ClientHeight = 65
+  ClientHeight = 93
   ClientWidth = 400
   LCLVersion = '6.0'
   object pButtons: TPanel
     Left = 0
-    Height = 22
-    Top = 43
+    Height = 26
+    Top = 67
     Width = 400
-    Align = alClient
+    Align = alBottom
+    AutoSize = True
     BevelOuter = bvNone
-    ClientHeight = 22
+    ChildSizing.EnlargeHorizontal = crsHomogenousSpaceResize
+    ChildSizing.EnlargeVertical = crsHomogenousSpaceResize
+    ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+    ChildSizing.ShrinkVertical = crsHomogenousChildResize
+    ChildSizing.Layout = cclTopToBottomThenLeftToRight
+    ChildSizing.ControlsPerLine = 1
+    ClientHeight = 26
     ClientWidth = 400
     TabOrder = 0
     object bAccept: TBitBtn
-      Left = 325
-      Height = 22
+      Left = 74
+      Height = 26
       Top = 0
-      Width = 75
-      Align = alRight
+      Width = 87
       Default = True
       DefaultCaption = True
       Kind = bkOK
@@ -30,11 +36,10 @@ object frmSMAskFolder: TfrmSMAskFolder
       TabOrder = 0
     end
     object bCancel: TBitBtn
-      Left = 0
-      Height = 22
+      Left = 235
+      Height = 26
       Top = 0
-      Width = 75
-      Align = alLeft
+      Width = 92
       Cancel = True
       DefaultCaption = True
       Kind = bkCancel
@@ -44,12 +49,12 @@ object frmSMAskFolder: TfrmSMAskFolder
   end
   object gbxSelectFolder: TGroupBox
     Left = 0
-    Height = 43
+    Height = 67
     Top = 0
     Width = 400
-    Align = alTop
+    Align = alClient
     Caption = 'Select a folder'
-    ClientHeight = 23
+    ClientHeight = 47
     ClientWidth = 396
     TabOrder = 1
     object eDirectory: TDirectoryEdit

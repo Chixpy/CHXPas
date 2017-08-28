@@ -5,17 +5,7 @@ unit uPSI_u7zWrapper;
 interface
 
 uses
-  SysUtils, Classes, uPSComponent, uPSRuntime, uPSCompiler;
-
-type
-
-  TPSImport_u7zWrapper = class(TPSPlugin)
-  protected
-    procedure CompileImport1(CompExec: TPSScript); override;
-    procedure ExecImport1(CompExec: TPSScript;
-      const ri: TPSRuntimeClassImporter); override;
-  end;
-
+  SysUtils, Classes, u7zWrapper, uPSRuntime, uPSCompiler;
 
 { compile-time registration functions }
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
@@ -24,19 +14,9 @@ procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 procedure RIRegister_u7zWrapper_Routines(S: TPSExec);
 procedure RIRegister_u7zWrapper(CL: TPSRuntimeClassImporter);
 
-procedure Register;
 
 implementation
 
-
-uses
-  FileUtil, LazFileUtils, Process, LazUTF8, sha1,
-  uCHXStrUtils, u7zWrapper;
-
-procedure Register;
-begin
-  RegisterComponents('Pascal Script', [TPSImport_u7zWrapper]);
-end;
 
 (* === compile-time registration functions === *)
 (*----------------------------------------------------------------------------*)
@@ -67,25 +47,6 @@ procedure RIRegister_u7zWrapper(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(w7zException) do ;
 end;
-
-
-
-{ TPSImport_u7zWrapper }
-(*----------------------------------------------------------------------------*)
-procedure TPSImport_u7zWrapper.CompileImport1(CompExec: TPSScript);
-begin
-  SIRegister_u7zWrapper(CompExec.comp);
-end;
-
-(*----------------------------------------------------------------------------*)
-procedure TPSImport_u7zWrapper.ExecImport1(CompExec: TPSScript;
-  const ri: TPSRuntimeClassImporter);
-begin
-  RIRegister_u7zWrapper(ri);
-  RIRegister_u7zWrapper_Routines(CompExec.Exec); // comment it if no routines
-end;
-
-(*----------------------------------------------------------------------------*)
 
 
 end.

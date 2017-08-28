@@ -53,6 +53,7 @@ begin
   if aFilename = '' then
     raise EInOutError.Create(Format(rsENotFilename, [ClassName + '.LoadConfig']));
   ;
+
   { TODO : Raise exception? Warning? create file always? Exit?}
   //if not FileExistsUTF8(aFilename) then
 

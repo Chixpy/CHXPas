@@ -45,8 +45,7 @@ resourcestring
     'Current Dir: %1:s';
   //< Translatable string: '"%0:s" file not found'
   w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
-
-//< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
+  //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
 
 const
   // Experimental Global Cache
