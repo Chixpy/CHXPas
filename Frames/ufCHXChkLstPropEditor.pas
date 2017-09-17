@@ -58,7 +58,6 @@ type
     splPropChkList: TSplitter;
     tbPropChkList: TToolBar;
     tbAddItem: TToolButton;
-    tbSaveList: TToolButton;
     tbDeleteItem: TToolButton;
     ToolButton3: TToolButton;
     tbImportList: TToolButton;

@@ -9,11 +9,14 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Top = 525
     Width = 802
     ClientWidth = 802
+    inherited chkCloseOnSave: TCheckBox
+      Left = 153
+    end
     inherited bSave: TBitBtn
-      Left = 217
+      Left = 355
     end
     inherited bCancel: TBitBtn
-      Left = 504
+      Left = 570
     end
   end
   object pPropChkList: TPanel[1]
@@ -38,13 +41,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Top = 2
         Action = actAddItem
       end
-      object tbSaveList: TToolButton
-        Left = 24
-        Top = 2
-        Action = actSaveData
-      end
       object ToolButton3: TToolButton
-        Left = 47
+        Left = 24
         Height = 22
         Top = 2
         Width = 8
@@ -52,17 +50,17 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Style = tbsSeparator
       end
       object tbImportList: TToolButton
-        Left = 55
+        Left = 32
         Top = 2
         Action = actImportList
       end
       object tbExportList: TToolButton
-        Left = 78
+        Left = 55
         Top = 2
         Action = actExportList
       end
       object ToolButton6: TToolButton
-        Left = 101
+        Left = 78
         Height = 22
         Top = 2
         Width = 8
@@ -70,7 +68,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Style = tbsSeparator
       end
       object tbDeleteItem: TToolButton
-        Left = 109
+        Left = 86
         Top = 2
         Action = actDeleteItem
       end
@@ -102,8 +100,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Width = 5
   end
   inherited alPropEditor: TActionList[3]
-    left = 32
-    top = 184
+    Left = 32
+    Top = 184
     object actAddItem: TAction[2]
       Category = 'ChkLstProp'
       Caption = 'Add item'
@@ -139,8 +137,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
   end
   object pmPropChkList: TPopupMenu[5]
     Images = ilPropEditor
-    left = 32
-    top = 432
+    Left = 32
+    Top = 432
     object miCheckAll: TMenuItem
       Action = actCheckAll
     end
@@ -154,7 +152,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Action = actAddItem
     end
     object miSaveList: TMenuItem
-      Action = actSaveData
     end
     object MenuItem4: TMenuItem
       Caption = '-'
