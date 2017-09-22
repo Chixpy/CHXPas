@@ -15,20 +15,20 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   end
   object PageControl: TPageControl[1]
     Left = 0
-    Height = 347
+    Height = 312
     Top = 0
     Width = 644
-    ActivePage = pagScriptList
+    ActivePage = pagSourceCode
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 1
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
-      ClientHeight = 319
+      ClientHeight = 284
       ClientWidth = 636
       object slvGeneral: TShellListView
         Left = 175
-        Height = 224
+        Height = 189
         Top = 0
         Width = 461
         Align = alClient
@@ -43,16 +43,16 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object pFolders: TPanel
         Left = 0
-        Height = 224
+        Height = 189
         Top = 0
         Width = 170
         Align = alLeft
-        ClientHeight = 224
+        ClientHeight = 189
         ClientWidth = 170
         TabOrder = 1
         object ShellTreeView1: TShellTreeView
           Left = 1
-          Height = 199
+          Height = 164
           Top = 24
           Width = 168
           Align = alClient
@@ -78,7 +78,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object Splitter1: TSplitter
         Left = 170
-        Height = 224
+        Height = 189
         Top = 0
         Width = 5
       end
@@ -86,7 +86,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Cursor = crVSplit
         Left = 0
         Height = 5
-        Top = 224
+        Top = 189
         Width = 636
         Align = alBottom
         ResizeAnchor = akBottom
@@ -94,7 +94,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       object mScriptInfo: TMemo
         Left = 0
         Height = 90
-        Top = 229
+        Top = 194
         Width = 636
         Align = alBottom
         ScrollBars = ssAutoBoth
@@ -103,13 +103,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagSourceCode: TTabSheet
       Caption = 'Source Code'
-      ClientHeight = 261
-      ClientWidth = 634
+      ClientHeight = 284
+      ClientWidth = 636
       object tbEditor: TToolBar
         Left = 0
         Height = 26
         Top = 0
-        Width = 634
+        Width = 636
         Caption = 'tbEditor'
         EdgeInner = esNone
         EdgeOuter = esNone
@@ -218,9 +218,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       inline SynEdit: TSynEdit
         Left = 0
-        Height = 235
+        Height = 258
         Top = 26
-        Width = 634
+        Width = 636
         Align = alClient
         BlockTabIndent = 2
         Font.Height = -13
@@ -659,7 +659,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         MouseActions = <>
         MouseTextActions = <>
         MouseSelActions = <>
-        Options = [eoAutoIndent, eoBracketHighlight, eoEnhanceHomeKey, eoGroupUndo, eoScrollByOneLess, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces]
+        Options = [eoAutoIndent, eoBracketHighlight, eoEnhanceHomeKey, eoGroupUndo, eoScrollByOneLess, eoScrollPastEol, eoSmartTabs, eoTabsToSpaces, eoTrimTrailingSpaces, eoDragDropEditing]
+        MouseOptions = [emDragDropEditing]
         VisibleSpecialChars = [vscSpace, vscTabAtLast]
         ScrollBars = ssAutoBoth
         SelectedColor.BackPriority = 50
@@ -680,6 +681,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         MouseLinkColor.Foreground = clBlue
         LineHighlightColor.Background = clNone
         LineHighlightColor.Foreground = clNone
+        OnSpecialLineColors = SynEditSpecialLineColors
         inline SynLeftGutterPartList1: TSynGutterPartList
           object SynGutterMarks1: TSynGutterMarks
             Width = 24
@@ -769,30 +771,30 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   end
   object pRight: TPanel[2]
     Left = 0
-    Height = 45
-    Top = 347
+    Height = 80
+    Top = 312
     Width = 644
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
-    ClientHeight = 45
+    ClientHeight = 80
     ClientWidth = 644
     TabOrder = 2
     object gbxScript: TGroupBox
       Left = 574
-      Height = 45
+      Height = 80
       Top = 0
       Width = 70
       Align = alRight
       AutoSize = True
       Caption = 'Script'
-      ClientHeight = 25
+      ClientHeight = 60
       ClientWidth = 66
       TabOrder = 0
       object bExecute2: TBitBtn
         Left = 0
         Height = 25
-        Top = 0
+        Top = 35
         Width = 66
         Action = actExecute
         Align = alBottom
@@ -800,14 +802,14 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         TabOrder = 0
       end
     end
-    object mInfo: TMemo
+    object lbxInfo: TListBox
       Left = 0
-      Height = 45
+      Height = 80
       Top = 0
       Width = 574
       Align = alClient
-      ReadOnly = True
-      ScrollBars = ssAutoBoth
+      ItemHeight = 0
+      OnDblClick = lbxInfoDblClick
       TabOrder = 1
       TabStop = False
     end
@@ -906,7 +908,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[5]
-    Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
     Left = 32

@@ -64,7 +64,7 @@ type
     FontEdit1: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
-    mInfo: TMemo;
+    lbxInfo: TListBox;
     mOutPut: TMemo;
     mScriptInfo: TMemo;
     PageControl: TPageControl;
@@ -95,8 +95,11 @@ type
     procedure actOutputClearExecute(Sender: TObject);
     procedure FontEdit1Accept(Sender: TObject);
     procedure FontEdit1BeforeExecute(Sender: TObject);
+    procedure lbxInfoDblClick(Sender: TObject);
     procedure slvSelectItem(Sender: TObject; Item: TListItem;
       Selected: boolean);
+    procedure SynEditSpecialLineColors(Sender: TObject;
+      Line: integer; var Special: boolean; var FG, BG: TColor);
 
   private
     FCurrentFile: string;
@@ -123,7 +126,7 @@ type
     procedure SetGUIIconsIni(AValue: string); override;
 
   public
-    procedure SetBaseFolder(const aFolder: string);
+    procedure SetBaseFolder(const aFolder: string); virtual;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -151,6 +154,32 @@ begin
     LoadScriptFile('');
 end;
 
+procedure TfmCHXScriptManager.SynEditSpecialLineColors(Sender: TObject;
+  Line: integer; var Special: boolean; var FG, BG: TColor);
+begin
+{  if ce.HasBreakPoint(ce.MainFileName, Line) then
+  begin
+    Special := True;
+    if Line = FActiveLine then
+    begin
+      BG := clWhite;
+      FG := clRed;
+    end else
+    begin
+      FG := clWhite;
+      BG := clRed;
+    end;
+  end else
+  if Line = FActiveLine then
+  begin
+    Special := True;
+    FG := clWhite;
+    bg := clBlue;
+  end
+  else }
+  Special := False;
+end;
+
 procedure TfmCHXScriptManager.actCompileExecute(Sender: TObject);
 begin
   Compile;
@@ -165,8 +194,9 @@ procedure TfmCHXScriptManager.actFileSaveAsAccept(Sender: TObject);
 begin
   CurrentFile := actFileSaveAs.Dialog.FileName;
   SynEdit.Lines.SaveToFile(CurrentFile);
+  SynEdit.Modified := False;
 
-  mInfo.Lines.Add(Format(rsFSMFileSaved, [CurrentFile]));
+  lbxInfo.Items.Add(Format(rsFSMFileSaved, [CurrentFile]));
   UpdateSLV;
 
   if SynEdit.CanFocus then
@@ -186,12 +216,14 @@ end;
 
 procedure TfmCHXScriptManager.actFileSaveExecute(Sender: TObject);
 begin
-  if not FileExistsUTF8(CurrentFile) then
-    Exit;
-  SynEdit.Lines.SaveToFile(CurrentFile);
-
-  mInfo.Lines.Add(Format(rsFSMFileSaved, [CurrentFile]));
-
+  if FileExistsUTF8(CurrentFile) then
+  begin
+    SynEdit.Lines.SaveToFile(CurrentFile);
+    SynEdit.Modified := False;
+    lbxInfo.Items.Add(Format(rsFSMFileSaved, [CurrentFile]));
+  end
+  else
+    actFileSaveAs.Execute;
 end;
 
 procedure TfmCHXScriptManager.actOutputClearExecute(Sender: TObject);
@@ -207,6 +239,32 @@ end;
 procedure TfmCHXScriptManager.FontEdit1BeforeExecute(Sender: TObject);
 begin
   FontEdit1.Dialog.Font.Assign(mOutPut.Font);
+end;
+
+procedure TfmCHXScriptManager.lbxInfoDblClick(Sender: TObject);
+var
+  aPosXY: TPoint;
+  aStr: string;
+  Row: string;
+  Col: string;
+  p1, p2, p3: integer;
+begin
+  aStr := lbxInfo.Items[lbxInfo.ItemIndex];
+  p1 := Pos('(', aStr);
+  p2 := Pos(':', aStr);
+  p3 := Pos(')', aStr);
+
+  if not ((p1 > 0) and (p2 > p1) and (p3 > p2)) then
+    Exit;
+
+  Row := Copy(aStr, p1 + 1, p2 - p1 - 1);
+  Col := Copy(aStr, p2 + 1, p3 - p2 - 1);
+  aPosXY.X := StrToInt(Trim(Col));
+  aPosXY.Y := StrToInt(Trim(Row));
+
+  SynEdit.CaretXY := aPosXY;
+  if SynEdit.CanFocus then
+    SynEdit.SetFocus;
 end;
 
 procedure TfmCHXScriptManager.SetCurrentFile(AValue: string);
@@ -241,7 +299,7 @@ begin
   CheckChanged;
 
   mScriptInfo.Clear;
-  mInfo.Clear;
+  lbxInfo.Clear;
 
   CurrentFile := aFile;
 
@@ -267,15 +325,15 @@ begin
   if i = 1 then
     SynEdit.Lines[0] := Copy(SynEdit.Lines[0], Length(UTF8FileHeader) +
       1, MaxInt);
-
+  SynEdit.Modified := False;
 end;
 
 procedure TfmCHXScriptManager.CheckChanged;
 begin
-  if SynEdit.Modified and FileExistsUTF8(CurrentFile) then
+  if SynEdit.Modified then
     if MessageDlg(Format(rsFSMAskSaveChanges, [CurrentFile]),
       mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-      SynEdit.Lines.SaveToFile(CurrentFile);
+      actFileSave.Execute;
 end;
 
 function TfmCHXScriptManager.Compile: boolean;
@@ -287,6 +345,7 @@ begin
   if not assigned(ScriptEngine) then
     FScriptEngine := cCHXScriptEngine.Create;
 
+  ScriptEngine.ScriptFile := CurrentFile;
   ScriptEngine.ScriptText := SynEdit.Lines;
 
   // TODO 4: Put this in a better place near ScriptEngine creation.
@@ -294,8 +353,8 @@ begin
   //   ScriptEngine.ScriptOutput, ScriptEngine.ScriptInfo and
   //   ScriptEngine.ScriptError change to nil... When and Where?
   ScriptEngine.ScriptOutput := mOutPut.Lines;
-  ScriptEngine.ScriptInfo := mInfo.Lines;
-  ScriptEngine.ScriptError := mInfo.Lines;
+  ScriptEngine.ScriptInfo := lbxInfo.Items;
+  ScriptEngine.ScriptError := lbxInfo.Items;
 
   Result := ScriptEngine.CompileScript;
 end;
@@ -328,6 +387,7 @@ procedure TfmCHXScriptManager.SetBaseFolder(const aFolder: string);
 begin
   DirectoryEdit1.Directory := aFolder;
   ShellTreeView1.Root := aFolder;
+  ScriptEngine.CommonUnitFolder := SetAsFolder(aFolder);
 end;
 
 constructor TfmCHXScriptManager.Create(TheOwner: TComponent);

@@ -39,8 +39,8 @@ uses
   // CHX
   uCHXStrUtils, u7zWrapper,
   // Imported units
-  uPSI_u7zWrapper,
-  // TODO 2: Generalize input and output as events,
+  uPSI_u7zWrapper, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
+  // TODO 2: Generalize input and output as events/callbacks,
   //   and move these units to fScriptManager.
   ufSMAskFile, ufSMAskFolder;
 
@@ -108,7 +108,7 @@ type
 
     // Added functions
     // ---------------
-    // TODO: Make them external?.
+    // TODO: Make them external.
 
     // Input / Output
     procedure CHXWriteLn(const Str: string);
@@ -126,7 +126,7 @@ type
     function CHXUTF8ToSys(const S: string): string;
     function CHXSysToUTF8(const S: string): string;
 
-    function CHXBoolToStr(const aBool:Boolean):string;
+    function CHXBoolToStr(const aBool: boolean): string;
 
     // Path and filename strings
     function CHXCleanFileName(const AFileName: string): string;
@@ -293,6 +293,8 @@ begin
 
   // CHX
   SIRegister_u7zWrapper(x);
+  SIRegister_uCHXStrUtils(x);
+  SIRegister_uCHXFileUtils(x);
 end;
 
 procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
@@ -366,11 +368,19 @@ var
   FullFileName: string;
   f: TFileStream;
 begin
+  raise ENotImplemented.Create('PasScriptOnFindUnknownFile not implemented');
+
+  //ShowMessage('PasScriptOnFindUnknownFile:' + sLineBreak +
+  //  'OriginFileName: ' + OriginFileName + sLineBreak +
+  //  'FileName: ' + FileName + sLineBreak + 'Output: ' + Output + sLineBreak
+  //  );
+
   Result := False;
-  FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) + FileName;
+  FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) +
+    FileName + '.pas';
   if not FileExistsUTF8(FullFileName) then
   begin
-    FullFileName := SetAsFolder(CommonUnitFolder) + FileName;
+    FullFileName := SetAsFolder(CommonUnitFolder) + FileName + '.pas';
     if not FileExistsUTF8(FullFileName) then
       Exit;
   end;
@@ -395,17 +405,18 @@ var
   FullFileName: string;
   F: TFileStream;
 begin
-  ShowMessage('PSScriptNeedFile:' + sLineBreak + 'OriginFileName: ' +
-    OriginFileName + sLineBreak + 'FileName: ' + FileName +
-    sLineBreak + 'Output: ' + Output + sLineBreak
-    );
-
+  FileName := AnsiDequotedStr(FileName, '''');
+  FileName := AnsiDequotedStr(FileName, '"');
+  //ShowMessage('PSScriptNeedFile:' + sLineBreak + 'OriginFileName: ' +
+  //  OriginFileName + sLineBreak + 'FileName: ' + FileName +
+  //  sLineBreak + 'Output: ' + Output + sLineBreak
+  //  );
 
   Result := False;
-  FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) + FileName;
+  FullFileName := CleanAndExpandFilename(SetAsFolder(ExtractFilePath(OriginFileName)) + FileName);
   if not FileExistsUTF8(FullFileName) then
   begin
-    FullFileName := SetAsFolder(CommonUnitFolder) + FileName;
+    FullFileName := CleanAndExpandFilename(SetAsFolder(CommonUnitFolder) + FileName);
     if not FileExistsUTF8(FullFileName) then
       Exit;
   end;
@@ -437,7 +448,7 @@ end;
 
 function cCHXScriptEngine.CHXRPos(const Substr, Source: string): integer;
 begin
- Result := RPos(Substr, Source);
+  Result := RPos(Substr, Source);
 end;
 
 function cCHXScriptEngine.CHXLowerCase(const AInStr: string): string;
@@ -470,7 +481,7 @@ begin
   Result := SysToUTF8(S);
 end;
 
-function cCHXScriptEngine.CHXBoolToStr(const aBool: Boolean): string;
+function cCHXScriptEngine.CHXBoolToStr(const aBool: boolean): string;
 begin
   Result := BoolToStr(aBool, True);
 end;
@@ -483,7 +494,7 @@ end;
 function cCHXScriptEngine.CHXExcludeTrailingPathDelimiter(
   const aString: string): string;
 begin
-   Result := ExcludeTrailingPathDelimiter(aString);
+  Result := ExcludeTrailingPathDelimiter(aString);
 end;
 
 function cCHXScriptEngine.CHXExtractFilePath(const aFileName: string): string;
@@ -510,24 +521,24 @@ end;
 function cCHXScriptEngine.CHXChangeFileExt(
   const aFileName, aExtension: string): string;
 begin
-   Result := ChangeFileExt(aFileName, aExtension);
+  Result := ChangeFileExt(aFileName, aExtension);
 end;
 
 function cCHXScriptEngine.CHXFileExistsUTF8(const aFileName: string): boolean;
 begin
-   Result := FileExistsUTF8(SysPath(aFileName));
+  Result := FileExistsUTF8(SysPath(aFileName));
 end;
 
-function cCHXScriptEngine.CHXDirectoryExistsUTF8(const aFileName: string
-  ): boolean;
+function cCHXScriptEngine.CHXDirectoryExistsUTF8(
+  const aFileName: string): boolean;
 begin
-   Result:=DirectoryExistsUTF8(SysPath(aFileName));
+  Result := DirectoryExistsUTF8(SysPath(aFileName));
 end;
 
 function cCHXScriptEngine.CHXAskFile(
   const aTitle, aExt, DefFile: string): string;
 begin
-    Result := '';
+  Result := '';
 
   Application.CreateForm(TfrmSMAskFile, frmSMAskFile);
   try
@@ -553,7 +564,8 @@ begin
     frmSMAskFolder.eDirectory.DialogTitle := aTitle;
     frmSMAskFolder.eDirectory.Directory := SysPath(DefFolder);
     if frmSMAskFolder.ShowModal = mrOk then
-      Result := IncludeTrailingPathDelimiter(frmSMAskFolder.eDirectory.Directory);
+      Result := IncludeTrailingPathDelimiter(
+        frmSMAskFolder.eDirectory.Directory);
   finally
     FreeAndNil(frmSMAskFolder);
   end;
@@ -561,7 +573,7 @@ end;
 
 function cCHXScriptEngine.CHXCreateStringList: TStringList;
 begin
-   Result := TStringList.Create;
+  Result := TStringList.Create;
 end;
 
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
@@ -583,7 +595,8 @@ begin
 
   // CHX
   RIRegister_u7zWrapper_Routines(se);
-  RIRegister_u7zWrapper(x);
+  RIRegister_uCHXStrUtils_Routines(se);
+  RIRegister_uCHXFileUtils_Routines(se);
 end;
 
 function cCHXScriptEngine.RunScript: boolean;
@@ -595,10 +608,13 @@ begin
   Result := PasScript.Execute;
   if not Result then
   begin
-    ScriptError.BeginUpdate;
     ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEError]));
     ScriptError.Add(PasScript.ExecErrorToString);
-    ScriptError.EndUpdate;
+    ScriptError.Add(Format('[Runtime error] %s(%d:%d)',
+      [ScriptFile, PasScript.ExecErrorRow, PasScript.ExecErrorCol]));
+    ScriptError.Add(Format('bytecode(%d:%d): %s',
+      [PasScript.ExecErrorProcNo, PasScript.ExecErrorByteCodePosition,
+      PasScript.ExecErrorToString]));
     Exit;
   end;
 
@@ -610,21 +626,24 @@ var
   i: integer;
 begin
   ScriptError.Clear;
-
+  ScriptError.BeginUpdate;
   Result := PaSScript.Compile;
+
+  for i := 0 to PaSScript.CompilerMessageCount - 1 do
+    ScriptError.add(PaSScript.CompilerMessages[i].MessageToString);
 
   if not Result then
   begin
-    ScriptError.BeginUpdate;
     ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEError]));
+
     for i := 0 to PaSScript.CompilerMessageCount - 1 do
-    begin
       ScriptError.Add(PasScript.CompilerErrorToStr(i));
-    end;
     ScriptError.EndUpdate;
     Exit;
   end;
+
   ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEOK]));
+  ScriptError.EndUpdate;
 end;
 
 constructor cCHXScriptEngine.Create;
@@ -637,6 +656,7 @@ begin
   ScriptError := nil;
 
   FPasScript := TPSScript.Create(nil);
+  PasScript.UsePreProcessor := True;
   PasScript.OnCompImport := @PasScriptOnCompImport;
   PasScript.OnCompile := @PasScriptOnCompile;
   PasScript.OnExecImport := @PasScriptOnExecImport;

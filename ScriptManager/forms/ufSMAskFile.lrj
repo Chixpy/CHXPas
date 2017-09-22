@@ -1,6 +1,6 @@
 {"version":1,"strings":[
 {"hash":267679253,"name":"tfrmsmaskfile.caption","sourcebytes":[83,101,108,101,99,116,32,97,32,102,105,108,101],"value":"Select a file"},
-{"hash":139052562,"name":"tfrmsmaskfile.bcancel.caption","sourcebytes":[67,97,110,99,101,108,97,114],"value":"Cancelar"},
 {"hash":127695554,"name":"tfrmsmaskfile.baccept.caption","sourcebytes":[65,99,101,112,116,97,114],"value":"Aceptar"},
+{"hash":139052562,"name":"tfrmsmaskfile.bcancel.caption","sourcebytes":[67,97,110,99,101,108,97,114],"value":"Cancelar"},
 {"hash":267679253,"name":"tfrmsmaskfile.gbxselectfilename.caption","sourcebytes":[83,101,108,101,99,116,32,97,32,102,105,108,101],"value":"Select a file"}
 ]}

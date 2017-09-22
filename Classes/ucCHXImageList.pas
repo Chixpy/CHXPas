@@ -83,6 +83,7 @@ begin
 
   // FIX: Sometimes Key is not found !!!???
   Sorted := True;
+
 end;
 
 constructor cCHXImageMap.Create;

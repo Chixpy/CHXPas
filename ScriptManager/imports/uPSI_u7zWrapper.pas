@@ -3,13 +3,13 @@ unit uPSI_u7zWrapper;
 interface
 
 uses
-  SysUtils, Classes, u7zWrapper, uPSComponent, uPSRuntime, uPSCompiler;
+  SysUtils, Classes, uPSComponent, uPSRuntime, uPSCompiler,
+  u7zWrapper;
 
 { compile-time registration functions }
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 
 { run-time registration functions }
-procedure RIRegister_u7zWrapper(CL: TPSRuntimeClassImporter);
 procedure RIRegister_u7zWrapper_Routines(S: TPSExec);
 
 implementation
@@ -18,16 +18,18 @@ implementation
 (*----------------------------------------------------------------------------*)
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 begin
-  CL.AddConstantN('w7zExeError', 'String').SetString(w7zExeError);
-  CL.AddConstantN('kw7zGCIniPrefix', 'String').SetString(kw7zGCIniPrefix);
-  CL.AddConstantN('kw7zGCIniFiles', 'String').SetString(kw7zGCIniFiles);
-  CL.AddConstantN('kw7zGCIniSizes', 'String').SetString(kw7zGCIniSizes);
-  CL.AddConstantN('kw7zGCIniPSizes', 'String').SetString(kw7zGCIniPSizes);
-  CL.AddConstantN('kw7zGCIniDates', 'String').SetString(kw7zGCIniDates);
-  CL.AddConstantN('kw7zGCIniCRCs', 'String').SetString(kw7zGCIniCRCs);
-  CL.AddConstantN('kw7zCacheFileExt', 'String').SetString(kw7zCacheFileExt);
-  CL.AddConstantN('kw7zFileExts', 'String').SetString(kw7zFileExts);
+  CL.AddConstantN('rsw7zExeError', 'String').SetString(w7zExeError);
+  CL.AddConstantN('krsw7zGCIniPrefix', 'String').SetString(kw7zGCIniPrefix);
+  CL.AddConstantN('krsw7zGCIniFiles', 'String').SetString(kw7zGCIniFiles);
+  CL.AddConstantN('krsw7zGCIniSizes', 'String').SetString(kw7zGCIniSizes);
+  CL.AddConstantN('krsw7zGCIniPSizes', 'String').SetString(kw7zGCIniPSizes);
+  CL.AddConstantN('krsw7zGCIniDates', 'String').SetString(kw7zGCIniDates);
+  CL.AddConstantN('krsw7zGCIniCRCs', 'String').SetString(kw7zGCIniCRCs);
+  CL.AddConstantN('krsw7zCacheFileExt', 'String').SetString(kw7zCacheFileExt);
+  CL.AddConstantN('krsw7zFileExts', 'String').SetString(kw7zFileExts);
+
   CL.AddClassN(CL.FindClass('TOBJECT'), 'w7zException');
+
   CL.AddDelphiFunction('Function w7zGetFileExts : string');
   CL.AddDelphiFunction('Procedure w7zSetFileExts( aExtList : string)');
   CL.AddDelphiFunction('Function w7zGetPathTo7zexe : string');
@@ -72,13 +74,6 @@ begin
   S.RegisterDelphiFunction(@w7zCRC32InnerFile, 'w7zCRC32InnerFile', cdRegister);
   S.RegisterDelphiFunction(@w7zCRC32InnerFileStr, 'w7zCRC32InnerFileStr',
     cdRegister);
-end;
-
-(*----------------------------------------------------------------------------*)
-procedure RIRegister_u7zWrapper(CL: TPSRuntimeClassImporter);
-begin
-  with CL.Add(w7zException) do
-  ;
 end;
 
 end.
