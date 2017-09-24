@@ -38,7 +38,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, Process, LazUTF8, sha1,
   IniFiles,
-  uCHXStrUtils;
+  uCHXStrUtils, uCHXFileUtils;
 
 resourcestring
   w7zFileNotFound = '"%0:s" file not found. ' + LineEnding +
@@ -57,6 +57,7 @@ const
   kw7zGCIniPSizes = kw7zGCIniPrefix + 'PSizes';
   kw7zGCIniDates = kw7zGCIniPrefix + 'Dates';
   kw7zGCIniCRCs = kw7zGCIniPrefix + 'CRCs';
+  kw7zGCIniSHA1s = kw7zGCIniPrefix + 'SHA1s';
 
   kw7zCacheFileExt = '.txt';
   kw7zFileExts = '001,7z,arj,bpl,bz2,bzip2,cab,cba,cb7,cbr,cbz,chi,chm,chq,chw,'
@@ -116,7 +117,7 @@ function w7zFileExists(a7zArchive: string; const aInnerFile: string;
   const Password: string): integer;
 
 procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean; const UseCache: boolean; const Password: string);
+  const OnlyPaths: boolean; const Password: string);
 {< List files and properties in a 7z (or other format) archive.
 
   Executes "7z.exe l -slt aFilename" but don't use wildcards.
@@ -134,6 +135,23 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
   @param(Password Is there archives that need a password to list files?
     Just in case.)
   @return(Exit code)
+}
+
+procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
+{< Searches all files with selected extensions, searching in compressed archives too.
+
+     @param(AOutFolderList StringList with the folder or compressed archive
+       were files in AOutFileList are found. If nil it will be created,
+       so must be freed elsewhere. Note: Compressed archives will have trailing
+       path delimiter.)
+     @param(AOutFileList Files found (if they are in a compressed archive,
+       they have the internal folder structure). If nil it will be created,
+       so must be freed elsewhere.)
+     @param(aBaseFolder Folder where search.)
+     @param(aExtList Extensions StringList, one extension by line.)
+     @param(Recursive Search in (actual) subfolders too? If compressed archives
+       have internal folder structure file are found any way)
 }
 
 function w7zExtractFile(a7zArchive: string; const aFileMask: string;
@@ -209,6 +227,72 @@ var
     NOT DELETED AT EXIT. FOLDER MUST EXISTS.
   }
 
+procedure SaveGlobalCache(FileSHA1: string; PackedFiles: TStrings);
+var
+  aFile: string;
+  sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1: TStringList;
+  aIni: TMemIniFile;
+  i: integer;
+begin
+  if (w7zGetGlobalCache = '') or (not DirectoryExistsUTF8(w7zGetGlobalCache)) then
+    Exit;
+
+  aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
+    Copy(FileSHA1, 1, 3) + '.ini';
+
+  aIni := TMemIniFile.Create(aFile);
+  sl := TStringList.Create;
+  slPath := TStringList.Create;
+  slSizes := TStringList.Create;
+  slPSizes := TStringList.Create;
+  slDates := TStringList.Create;
+  slCRC := TStringList.Create;
+  slSHA1 := TStringList.Create;
+  sl.BeginUpdate;
+  slPath.BeginUpdate;
+  slSizes.BeginUpdate;
+  slPSizes.BeginUpdate;
+  slDates.BeginUpdate;
+  slCRC.BeginUpdate;
+  slSHA1.BeginUpdate;
+  try
+    i := 0;
+    while i < PackedFiles.Count do
+    begin
+      sl.CommaText := PackedFiles[i];
+      while sl.Count < 6 do
+        sl.Add('');
+      slPath.add(sl[0]);
+      slSizes.add(sl[1]);
+      slPSizes.add(sl[2]);
+      slDates.add(sl[3]);
+      slCRC.add(sl[4]);
+      slSHA1.add(sl[5]);
+      Inc(i);
+    end;
+
+    aIni.WriteString(FileSHA1, kw7zGCIniFiles, slPath.CommaText);
+    aIni.WriteString(FileSHA1, kw7zGCIniSizes, slSizes.CommaText);
+    aIni.WriteString(FileSHA1, kw7zGCIniPSizes, slPSizes.CommaText);
+    aIni.WriteString(FileSHA1, kw7zGCIniDates, slDates.CommaText);
+    aIni.WriteString(FileSHA1, kw7zGCIniCRCs, slCRC.CommaText);
+    aIni.WriteString(FileSHA1, kw7zGCIniSHA1s, slSHA1.CommaText);
+
+    aIni.UpdateFile;
+
+  finally
+    sl.Free;
+    slPath.Free;
+    slSizes.Free;
+    slPSizes.Free;
+    slDates.Free;
+    slCRC.Free;
+    slSHA1.Free;
+    aIni.Free;
+  end;
+end;
+
+
 function w7zGetFileExts: string;
 begin
   Result := w7zFileExts;
@@ -276,8 +360,6 @@ var
   aFileList: TStringList;
   i: integer;
 begin
-  Result := -2; // aInnerFile not found;
-
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
   if not FileExistsUTF8(a7zArchive) then
@@ -289,44 +371,32 @@ begin
   aFileList := TStringList.Create;
   try
     aFileList.BeginUpdate;
-    w7zListFiles(a7zArchive, aFileList, True, True, Password);
+    w7zListFiles(a7zArchive, aFileList, False, Password);
     aFileList.EndUpdate;
 
     i := 0;
+    Result := 1;
     while (Result <> 0) and (i < aFileList.Count) do
     begin
-      if CompareFilenames(aFileList[i], aInnerFile) = 0 then
-        Result := 0;
-
+      Result := CompareFilenames(aFileList[i], aInnerFile);
       Inc(i);
     end;
+
+    if (Result <> 0) then
+      Result := -2; // Inner file not found
   finally
     aFileList.Free;
   end;
 end;
 
 procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean; const UseCache: boolean; const Password: string);
+  const OnlyPaths: boolean; const Password: string);
 
   procedure ReturnOnlyPaths(aFileList: TStrings);
   var
-    //slLine: TStringList;
+    slLine: TStringList;
     i, aPos: integer;
   begin
-    // Simpler and faster way?
-    i := 0;
-    while i < aFileList.Count do
-    begin
-      aPos := UTF8Pos(',', aFileList[i]);
-      if aPos <> 0 then
-      begin
-        aFileList[i] := AnsiDequotedStr(UTF8Copy(aFileList[i], 1, aPos - 1),
-          aFileList.QuoteChar);
-      end;
-      Inc(i);
-    end;
-
-    {
     // Removing additional data
     // slLine is out of the iteration to avoid creating-deleting every time.
     slLine := TStringList.Create;
@@ -337,7 +407,7 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
         slLine.CommaText := aFileList[i];
         if slLine.Count > 0 then
         begin
-          PackedFiles[i] := slLine[0];
+          aFileList[i] := slLine[0];
           Inc(i);
         end
         else
@@ -349,14 +419,13 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
     finally
       FreeAndNil(slLine);
     end;
-    }
   end;
 
-  procedure LoadGlobalCache(FileSHA1: string; PackedFiles: TStrings;
+  procedure LoadFromGlobalCache(FileSHA1: string; PackedFiles: TStrings;
     OnlyPaths: boolean);
   var
     aFile: string;
-    sl, slPath, slSizes, slPSizes, slDates, slCRC: TStringList;
+    sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1: TStringList;
     aIni: TMemIniFile;
     i: integer;
   begin
@@ -380,6 +449,7 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
           slPSizes := TStringList.Create;
           slDates := TStringList.Create;
           slCRC := TStringList.Create;
+          slSHA1 := TStringList.Create;
           try
             slPath.CommaText := aIni.ReadString(FileSHA1, kw7zGCIniFiles, '');
             slSizes.CommaText := aIni.ReadString(FileSHA1, kw7zGCIniSizes, '');
@@ -387,6 +457,7 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
               aIni.ReadString(FileSHA1, kw7zGCIniPSizes, '');
             slDates.CommaText := aIni.ReadString(FileSHA1, kw7zGCIniDates, '');
             slCRC.CommaText := aIni.ReadString(FileSHA1, kw7zGCIniCRCs, '');
+            slSHA1.CommaText := aIni.ReadString(FileSHA1, kw7zGCIniSHA1s, '');
 
             while slSizes.Count < slPath.Count do
               slSizes.Add('');
@@ -396,6 +467,8 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
               slDates.Add('');
             while slCRC.Count < slPath.Count do
               slCRC.Add('');
+            while slSHA1.Count < slPath.Count do
+              slSHA1.Add('');
 
             i := 0;
             while i < slPath.Count do
@@ -406,85 +479,25 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
               sl.Add(slPSizes[i]);
               sl.Add(slDates[i]);
               sl.Add(slCRC[i]);
+              sl.Add(slSHA1[i]);
               PackedFiles.Add(sl.CommaText);
               Inc(i);
             end;
 
           finally
             sl.EndUpdate;
-            FreeAndNil(sl);
-            FreeAndNil(slPath);
-            FreeAndNil(slSizes);
-            FreeAndNil(slPSizes);
-            FreeAndNil(slDates);
-            FreeAndNil(slCRC);
+            sl.Free;
+            slPath.Free;
+            slSizes.Free;
+            slPSizes.Free;
+            slDates.Free;
+            slCRC.Free;
+            slSHA1.Free;
           end;
         end;
       finally
-        FreeAndNil(aIni);
+        aIni.Free;
       end;
-    end;
-  end;
-
-  procedure SaveGlobalCache(FileSHA1: string; PackedFiles: TStrings);
-  var
-    aFile: string;
-    sl, slPath, slSizes, slPSizes, slDates, slCRC: TStringList;
-    aIni: TMemIniFile;
-    i: integer;
-  begin
-    aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
-      Copy(FileSHA1, 1, 3) + '.ini';
-
-    aIni := TMemIniFile.Create(aFile);
-    sl := TStringList.Create;
-    sl.BeginUpdate;
-    slPath := TStringList.Create;
-    slPath.BeginUpdate;
-    slSizes := TStringList.Create;
-    slSizes.BeginUpdate;
-    slPSizes := TStringList.Create;
-    slPSizes.BeginUpdate;
-    slDates := TStringList.Create;
-    slDates.BeginUpdate;
-    slCRC := TStringList.Create;
-    slCRC.BeginUpdate;
-    try
-      i := 0;
-      while i < PackedFiles.Count do
-      begin
-        sl.CommaText := PackedFiles[i];
-        slPath.add(sl[0]);
-        slSizes.add(sl[1]);
-        slPSizes.add(sl[2]);
-        slDates.add(sl[3]);
-        slCRC.add(sl[4]);
-
-        Inc(i);
-      end;
-
-      aIni.WriteString(FileSHA1, kw7zGCIniFiles, slPath.CommaText);
-      aIni.WriteString(FileSHA1, kw7zGCIniSizes, slSizes.CommaText);
-      aIni.WriteString(FileSHA1, kw7zGCIniPSizes, slPSizes.CommaText);
-      aIni.WriteString(FileSHA1, kw7zGCIniDates, slDates.CommaText);
-      aIni.WriteString(FileSHA1, kw7zGCIniCRCs, slCRC.CommaText);
-
-      aIni.UpdateFile;
-
-    finally
-      sl.EndUpdate;
-      FreeAndNil(sl);
-      slPath.EndUpdate;
-      FreeAndNil(slPath);
-      slSizes.EndUpdate;
-      FreeAndNil(slSizes);
-      slPSizes.EndUpdate;
-      FreeAndNil(slPSizes);
-      slDates.EndUpdate;
-      FreeAndNil(slDates);
-      slCRC.EndUpdate;
-      FreeAndNil(slCRC);
-      FreeAndNil(aIni);
     end;
   end;
 
@@ -495,7 +508,7 @@ var
   msOutput: TMemoryStream;
   aProcess: TProcess;
   aParam, aValue: string;
-  aPath, Size, PSize, aDate, aCRC: string;
+  aPath, Size, PSize, aDate, aCRC, aSHA1: string;
 
 begin
   // Clearing PackedFiles file list
@@ -504,12 +517,12 @@ begin
   else
     PackedFiles := TStringList.Create;
 
-  // Checking needed files
+  // Checking needed file: 7z.exe
   if not FileExistsUTF8(w7zGetPathTo7zexe) then
     raise EInOutError.CreateFmt(w7zFileNotFound,
       [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
 
-  // Sometime are stored as directories
+  // Sometimes are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
   if not FileExistsUTF8(a7zArchive) then
@@ -521,28 +534,28 @@ begin
 
   // Searching for cache file
   // ------------------------
-  if UseCache then
-  begin
-    aValue := w7zGetCacheDir + FileSHA1 + kw7zCacheFileExt;
-    if FileExistsUTF8(aValue) then
-    begin
-      PackedFiles.LoadFromFile(UTF8ToSys(aValue));
-      if OnlyPaths then
-        ReturnOnlyPaths(PackedFiles);
-    end
-    else
-    begin
-      if (w7zGetGlobalCache <> '') and DirectoryExistsUTF8(
-        w7zGetGlobalCache) then
-      begin
-        LoadGlobalCache(FileSHA1, PackedFiles, OnlyPaths);
-      end;
-    end;
-    if PackedFiles.Count > 0 then
-      Exit;
+  aValue := w7zGetCacheDir + FileSHA1 + kw7zCacheFileExt;
 
+  if FileExistsUTF8(aValue) then
+  begin
+    PackedFiles.LoadFromFile(UTF8ToSys(aValue));
+    if OnlyPaths then
+      ReturnOnlyPaths(PackedFiles);
+  end
+  else
+  begin
+    // Trying global cache
+    if (w7zGetGlobalCache <> '') and DirectoryExistsUTF8(
+      w7zGetGlobalCache) then
+    begin
+      LoadFromGlobalCache(FileSHA1, PackedFiles, OnlyPaths);
+    end;
   end;
 
+  if PackedFiles.Count > 0 then
+    Exit;
+
+  // If not cached data found...
   // Executing '7z.exe l -slt -scsUTF-8 -sccUTF-8 <archive>'
   // -------------------------------------------------------
   aProcess := TProcess.Create(nil);
@@ -569,12 +582,8 @@ begin
         msOutput.SetSize(aPos + i);
         Inc(aPos, aProcess.Output.Read((msOutput.Memory + aPos)^, i));
       end;
-          { Meh, don't sleep
-          else
-            Sleep(100); // Waiting for more output
-          }
     end;
-    msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w7zOutput' +
+    msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
       kw7zCacheFileExt));
   finally
     i := aProcess.ExitStatus;
@@ -592,8 +601,8 @@ begin
   slOutput := TStringList.Create;
   slLine := TStringList.Create;
   try
-    slOutput.LoadFromFile(UTF8ToSys(w7zGetCacheDir + 'w7zOutput' +
-      kw7zCacheFileExt));
+    slOutput.LoadFromFile(UTF8ToSys(w7zGetCacheDir + 'w' +
+      FileSHA1 + kw7zCacheFileExt));
 
     // Skipping until '----------'
     i := 0;
@@ -606,6 +615,7 @@ begin
     PSize := '';
     aDate := '';
     aCRC := '';
+    aSHA1 := '';
     while (i < slOutput.Count) do
     begin
       aPos := UTF8Pos('=', slOutput[i]);
@@ -628,6 +638,7 @@ begin
             slLine.Add(PSize);
             slLine.Add(aDate);
             slLine.Add(aCRC);
+            slLine.Add(aSHA1);
             PackedFiles.Add(slLine.CommaText);
           end;
 
@@ -636,6 +647,7 @@ begin
           PSize := '';
           aDate := '';
           aCRC := '';
+          aSHA1 := '';
         end
         else if UTF8CompareText(aParam, 'size') = 0 then
           Size := aValue
@@ -644,7 +656,9 @@ begin
         else if UTF8CompareText(aParam, 'modified') = 0 then
           aDate := aValue
         else if UTF8CompareText(aParam, 'crc') = 0 then
-          aCRC := aValue;
+          aCRC := aValue
+        else if UTF8CompareText(aParam, 'sha1') = 0 then // Dummy...
+          aSHA1 := aValue;
       end;
       Inc(i);
     end;
@@ -658,6 +672,7 @@ begin
       slLine.Add(PSize);
       slLine.Add(aDate);
       slLine.Add(aCRC);
+      slLine.Add(aSHA1);
       PackedFiles.Add(slLine.CommaText);
 
       // Only save if there is at least one file in the compressed archive
@@ -665,9 +680,7 @@ begin
         kw7zCacheFileExt));
 
       // Global Cache stuff
-      if (w7zGetGlobalCache <> '') and DirectoryExistsUTF8(
-        w7zGetGlobalCache) then
-        SaveGlobalCache(FileSHA1, PackedFiles);
+      SaveGlobalCache(FileSHA1, PackedFiles);
     end;
 
   finally
@@ -678,6 +691,76 @@ begin
   if OnlyPaths then
     ReturnOnlyPaths(PackedFiles);
 end;
+
+procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
+  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
+var
+  FileMask: string;
+  Archives, Compressed: TStringList;
+  i, j: integer;
+begin
+  if not assigned(AOutFolderList) then
+    AOutFolderList := TStringList.Create;
+  if not assigned(AOutFileList) then
+    AOutFileList := TStringList.Create;
+
+  AOutFolderList.BeginUpdate;
+  AOutFileList.BeginUpdate;
+
+  FileMask := FileMaskFromStringList(aExtList);
+
+  // 1.- Straight search
+  FindAllFiles(AOutFileList, aBaseFolder, FileMask, Recursive);
+
+  // 1.1.- Splitting Folders and Filenames
+  i := 0;
+  while i < AOutFileList.Count do
+  begin
+    AOutFolderList.Add(SetAsFolder(ExtractFilePath(AOutFileList[i])));
+    AOutFileList[i] := SetAsFile(ExtractFileName(AOutFileList[i]));
+    Inc(i);
+  end;
+
+  // 2.- Search compressed archives
+  Archives := TStringList.Create;
+  Archives.BeginUpdate;
+  Compressed := TStringList.Create;
+  Compressed.BeginUpdate;
+  try
+    // Creating FileMask for compressed archives
+    Compressed.CommaText := w7zGetFileExts;
+    FileMask := FileMaskFromStringList(Compressed);
+    Compressed.Clear;
+
+    FindAllFiles(Archives, aBaseFolder, FileMask, Recursive);
+
+    // 2.1.- For every archive search files with this extension
+    i := 0;
+    while i < Archives.Count do
+    begin
+      Compressed.Clear;
+      w7zListFiles(Archives[i], Compressed, True, '');
+      j := 0;
+      while j < Compressed.Count do
+      begin
+        if SupportedExtSL(Compressed[j], aExtList) then
+        begin
+          AOutFolderList.Add(SetAsFolder(Archives[i]));
+          AOutFileList.Add(SetAsFile(Compressed[j]));
+        end;
+        Inc(j);
+      end;
+      Inc(i);
+    end;
+
+  finally
+    AOutFolderList.EndUpdate;
+    AOutFileList.EndUpdate;
+    FreeAndNil(Archives);
+    FreeAndNil(Compressed);
+  end;
+end;
+
 
 function w7zExtractFile(a7zArchive: string; const aFileMask: string;
   aFolder: string; const ShowProgress: boolean;
@@ -829,6 +912,7 @@ function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
 var
   aFileList, TmpStrList: TStringList;
   Found: boolean;
+  FileSHA1: string;
   i: integer;
 begin
   Result := '';
@@ -840,7 +924,7 @@ begin
   TmpStrList := TStringList.Create;
   try
     aFileList.BeginUpdate;
-    w7zListFiles(a7zArchive, aFileList, False, True, Password);
+    w7zListFiles(a7zArchive, aFileList, False, Password);
     aFileList.EndUpdate;
 
     i := 0;
@@ -850,20 +934,51 @@ begin
       TmpStrList.Clear;
       TmpStrList.CommaText := aFileList[i];
 
-      if (TmpStrList.Count >= 5) and
+      if (TmpStrList.Count > 4) and
         (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
       begin
-        Result := TmpStrList[4];
+        Result := TmpStrList[4]; // CRC32
         Found := True;
       end;
       Inc(i);
     end;
 
     // Ops, we don't have CRC32
-    // TODO: Extract, CRC32, Delete... Update global cache
     if Found and (Result = '') then
-      raise ENotImplemented.Create('Not Implemented: w7zCRC32InnerFileStr');
+    begin
+      Dec(i); //Actual position of found file
 
+      // Extracting/CRC32/Deleting
+      w7zExtractFile(a7zArchive, aInnerFile, w7zGetCacheDir, False, '');
+      if FileExistsUTF8(w7zGetCacheDir + aInnerFile) then
+      begin
+        Result := CRC32FileStr(w7zGetCacheDir + aInnerFile);
+        DeleteFileUTF8(w7zGetCacheDir + aInnerFile);
+      end;
+
+      // Saving to caches
+      if Result <> '' then
+      begin
+        FileSHA1 := SHA1FileStr(a7zArchive);
+
+        TmpStrList.Clear;
+        TmpStrList.CommaText := aFileList[i];
+
+        while TmpStrList.Count < 6 do
+          TmpStrList.Add('');
+        TmpStrList[4] := Result; // CRC32
+
+        aFileList[i] := TmpStrList.CommaText;
+
+        // Temp Cache, if exists
+        if FileExistsUTF8(w7zGetCacheDir + FileSHA1 + kw7zCacheFileExt) then
+          aFileList.SaveToFile(UTF8ToSys(w7zGetCacheDir +
+            FileSHA1 + kw7zCacheFileExt));
+
+        // Global Cache
+        SaveGlobalCache(FileSHA1, aFileList);
+      end;
+    end;
   finally
     TmpStrList.Free;
     aFileList.Free;
@@ -873,25 +988,86 @@ end;
 function w7zSHA32InnerFile(a7zArchive: string; const aInnerFile: string;
   const Password: string): TSHA1Digest;
 begin
-  // Sometime are stored as directories
-  a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
-
-  raise ENotImplemented.Create('Not Implemented: w7zSHA32InnerFile');
-  // TODO: Extract, CRC32, Delete... and ¿Update global cache?
-
+  Result := StringToSHA1Digest(w7zSHA32InnerFileStr(
+    a7zArchive, aInnerFile, Password));
 end;
 
 function w7zSHA32InnerFileStr(a7zArchive: string; const aInnerFile: string;
   const Password: string): string;
+var
+  aFileList, TmpStrList: TStringList;
+  Found: boolean;
+  FileSHA1: string;
+  i: integer;
 begin
   Result := '';
+
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
-  if not (w7zFileExists(a7zArchive, aInnerFile, Password) = 0) then
-    Exit;
+  aFileList := TStringList.Create;
+  TmpStrList := TStringList.Create;
+  try
+    aFileList.BeginUpdate;
+    w7zListFiles(a7zArchive, aFileList, False, Password);
+    aFileList.EndUpdate;
 
-  Result := SHA1Print(w7zSHA32InnerFile(a7zArchive, aInnerFile, Password));
+    i := 0;
+    Found := False;
+    while (not Found) and (i < aFileList.Count) do
+    begin
+      TmpStrList.Clear;
+      TmpStrList.CommaText := aFileList[i];
+
+      if (TmpStrList.Count > 5) and
+        (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
+      begin
+        Result := TmpStrList[5]; // SHA1
+        Found := True;
+      end;
+      Inc(i);
+    end;
+
+    // Ops, we don't have SHA1
+    if Found and (Result = '') then
+    begin
+      Dec(i); //Actual position of found file
+
+      // Extracting/SHA1/Deleting
+      w7zExtractFile(a7zArchive, aInnerFile, w7zGetCacheDir, False, '');
+      if FileExistsUTF8(w7zGetCacheDir + aInnerFile) then
+      begin
+        Result := SHA1FileStr(w7zGetCacheDir + aInnerFile);
+        DeleteFileUTF8(w7zGetCacheDir + aInnerFile);
+      end;
+
+      // Saving to caches
+      if Result <> '' then
+      begin
+        FileSHA1 := SHA1FileStr(a7zArchive);
+
+        TmpStrList.Clear;
+        TmpStrList.CommaText := aFileList[i];
+
+        while TmpStrList.Count < 6 do
+          TmpStrList.Add('');
+        TmpStrList[5] := Result; // SHA1
+
+        aFileList[i] := TmpStrList.CommaText;
+
+        // Temp Cache, if exists
+        if FileExistsUTF8(w7zGetCacheDir + FileSHA1 + kw7zCacheFileExt) then
+          aFileList.SaveToFile(UTF8ToSys(w7zGetCacheDir +
+            FileSHA1 + kw7zCacheFileExt));
+
+        // Global Cache
+        SaveGlobalCache(FileSHA1, aFileList);
+      end;
+    end;
+  finally
+    TmpStrList.Free;
+    aFileList.Free;
+  end;
 end;
 
 initialization

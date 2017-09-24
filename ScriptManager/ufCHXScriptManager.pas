@@ -5,12 +5,14 @@ unit ufCHXScriptManager;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LazFileUtils, SynEdit, SynHighlighterPas,
-  SynMacroRecorder, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
-  ComCtrls, ShellCtrls, EditBtn, Buttons, ActnList, StdActns, IniFiles,
-  uCHXStrUtils, uCHXDlgUtils,
+  Classes, SysUtils, FileUtil, LazFileUtils, SynEdit,
+  SynHighlighterPas, SynMacroRecorder, Forms, Controls, Graphics,
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, ShellCtrls, EditBtn,
+  Buttons, ActnList, StdActns, IniFiles, SynEditTypes,
+  uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
+  ucCHXScriptEngine,
   ufCHXFrame,
-  uCHXImageUtils, ucCHXScriptEngine;
+  ufSMAskMultiFile;
 
 const
   kFSMScriptFileExt = '.pas';
@@ -34,7 +36,6 @@ type
     actEditCut: TEditCut;
     actEditDelete: TEditDelete;
     actEditPaste: TEditPaste;
-    actEditSelectAll: TEditSelectAll;
     actEditUndo: TEditUndo;
     actExecute: TAction;
     actFileSaveAs: TFileSaveAs;
@@ -48,7 +49,6 @@ type
     bEditCut: TToolButton;
     bEditDelete: TToolButton;
     bEditPaste: TToolButton;
-    bEditSelectAll: TToolButton;
     bEditUndo: TToolButton;
     bExecute: TToolButton;
     bExecute2: TBitBtn;
@@ -61,12 +61,14 @@ type
     bSeparator4: TToolButton;
     bSeparator5: TToolButton;
     DirectoryEdit1: TDirectoryEdit;
-    FontEdit1: TFontEdit;
+    actOutputSaveAs: TFileSaveAs;
+    actOutputFontEdit: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lbxInfo: TListBox;
     mOutPut: TMemo;
     mScriptInfo: TMemo;
+    OpenDialog1: TOpenDialog;
     PageControl: TPageControl;
     pagScriptList: TTabSheet;
     pagOutput: TTabSheet;
@@ -74,6 +76,8 @@ type
     pFolders: TPanel;
     pRight: TPanel;
     sbInfo: TStatusBar;
+    sbSourceEditor: TStatusBar;
+    SelectDirectoryDialog1: TSelectDirectoryDialog;
     ShellTreeView1: TShellTreeView;
     slvGeneral: TShellListView;
     Splitter1: TSplitter;
@@ -83,9 +87,10 @@ type
     SynMacroRecorder: TSynMacroRecorder;
     tbEditor: TToolBar;
     tbOutput: TToolBar;
-    ToolButton1: TToolButton;
+    tbOutputClear: TToolButton;
+    tbSaveOutput: TToolButton;
     ToolButton2: TToolButton;
-    ToolButton3: TToolButton;
+    tbFontEdit: TToolButton;
     bSave: TToolButton;
     procedure actCompileExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
@@ -93,13 +98,16 @@ type
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
     procedure actOutputClearExecute(Sender: TObject);
-    procedure FontEdit1Accept(Sender: TObject);
-    procedure FontEdit1BeforeExecute(Sender: TObject);
+    procedure actOutputFontEditAccept(Sender: TObject);
+    procedure actOutputFontEditBeforeExecute(Sender: TObject);
+    procedure actOutputSaveAsAccept(Sender: TObject);
+    procedure actOutputSaveAsBeforeExecute(Sender: TObject);
     procedure lbxInfoDblClick(Sender: TObject);
     procedure slvSelectItem(Sender: TObject; Item: TListItem;
       Selected: boolean);
     procedure SynEditSpecialLineColors(Sender: TObject;
       Line: integer; var Special: boolean; var FG, BG: TColor);
+    procedure SynEditStatusChange(Sender: TObject; Changes: TSynStatusChanges);
 
   private
     FCurrentFile: string;
@@ -112,8 +120,11 @@ type
     procedure ClearFrameData; override;
     procedure LoadFrameData; override;
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
+
     property ScriptEngine: cCHXScriptEngine
       read FScriptEngine write SetScriptEngine;
+
+    procedure CreateCustomEngine; virtual;
 
     procedure LoadScriptFile(const aFile: string);
     procedure CheckChanged;
@@ -125,8 +136,15 @@ type
 
     procedure SetGUIIconsIni(AValue: string); override;
 
+    procedure DoWriteLn(const aStr: string); virtual;
+    function DoReadLn(const aQuestion, DefAnswer: string): string; virtual;
+    function DoAskFile(const aCaption, aExtFilter, DefFile: string): string; virtual;
+    procedure DoAskMultiFile(aFileList: TStrings; const aCaption, aExtFilter, DefFolder: string); virtual;
+    function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
+
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
+
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -180,6 +198,13 @@ begin
   Special := False;
 end;
 
+procedure TfmCHXScriptManager.SynEditStatusChange(Sender: TObject;
+  Changes: TSynStatusChanges);
+begin
+  sbSourceEditor.Panels[0].Text :=
+    IntToStr(SynEdit.CaretY) + ':' + IntToStr(SynEdit.CaretX);
+end;
+
 procedure TfmCHXScriptManager.actCompileExecute(Sender: TObject);
 begin
   Compile;
@@ -231,36 +256,57 @@ begin
   mOutPut.Clear;
 end;
 
-procedure TfmCHXScriptManager.FontEdit1Accept(Sender: TObject);
+procedure TfmCHXScriptManager.actOutputFontEditAccept(Sender: TObject);
 begin
-  mOutPut.Font.Assign(FontEdit1.Dialog.Font);
+  mOutPut.Font.Assign(actOutputFontEdit.Dialog.Font);
 end;
 
-procedure TfmCHXScriptManager.FontEdit1BeforeExecute(Sender: TObject);
+procedure TfmCHXScriptManager.actOutputFontEditBeforeExecute(Sender: TObject);
 begin
-  FontEdit1.Dialog.Font.Assign(mOutPut.Font);
+  actOutputFontEdit.Dialog.Font.Assign(mOutPut.Font);
+end;
+
+procedure TfmCHXScriptManager.actOutputSaveAsAccept(Sender: TObject);
+begin
+  mOutPut.Lines.SaveToFile(actOutputSaveAs.Dialog.FileName);
+  lbxInfo.Items.Add(Format(rsFSMFileSaved, [actOutputSaveAs.Dialog.FileName]));
+end;
+
+procedure TfmCHXScriptManager.actOutputSaveAsBeforeExecute(Sender: TObject);
+begin
+  actOutputSaveAs.Dialog.FileName := ChangeFileExt(CurrentFile, '.txt');
+  SetDlgInitialDir(actOutputSaveAs.Dialog, ShellTreeView1.Path);
+
+  actOutputSaveAs.Dialog.Filter := 'Text file|*.txt|' + rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
+  actOutputSaveAs.Dialog.DefaultExt := '.txt';
 end;
 
 procedure TfmCHXScriptManager.lbxInfoDblClick(Sender: TObject);
 var
   aPosXY: TPoint;
   aStr: string;
-  Row: string;
-  Col: string;
-  p1, p2, p3: integer;
+  aPos, Col, Row: integer;
 begin
   aStr := lbxInfo.Items[lbxInfo.ItemIndex];
-  p1 := Pos('(', aStr);
-  p2 := Pos(':', aStr);
-  p3 := Pos(')', aStr);
 
-  if not ((p1 > 0) and (p2 > p1) and (p3 > p2)) then
+  aPos := Pos('(', aStr);
+  if aPos = 0 then
+    Exit;
+  aStr := Copy(aStr, aPos + 1, MaxInt);
+  aPos := Pos(':', aStr);
+  if aPos = 0 then
+    Exit;
+  Row := StrToIntDef(Copy(aStr, 1, aPos - 1), 0);
+  if Row = 0 then
+    Exit;
+  aStr := Copy(aStr, aPos + 1, MaxInt);
+  aPos := Pos(')', aStr);
+  Col := StrToIntDef(Copy(aStr, 1, aPos - 1), 0);
+  if Col = 0 then
     Exit;
 
-  Row := Copy(aStr, p1 + 1, p2 - p1 - 1);
-  Col := Copy(aStr, p2 + 1, p3 - p2 - 1);
-  aPosXY.X := StrToInt(Trim(Col));
-  aPosXY.Y := StrToInt(Trim(Row));
+  aPosXY.X := Col;
+  aPosXY.Y := Row;
 
   SynEdit.CaretXY := aPosXY;
   if SynEdit.CanFocus then
@@ -289,6 +335,28 @@ end;
 procedure TfmCHXScriptManager.LoadFrameData;
 begin
 
+end;
+
+procedure TfmCHXScriptManager.CreateCustomEngine;
+begin
+  // An inherited form can override with it's own ScripEngine.
+  if not assigned(ScriptEngine) then
+    FScriptEngine := cCHXScriptEngine.Create;
+
+  if not assigned(ScriptEngine.ScriptError) then
+    ScriptEngine.ScriptError := lbxInfo.Items;
+
+  // Asks
+  if not assigned(ScriptEngine.OnWriteLn) then
+    ScriptEngine.OnWriteLn := @DoWriteLn;
+  if not assigned(ScriptEngine.OnReadLn) then
+    ScriptEngine.OnReadLn := @DoReadLn;
+  if not assigned(ScriptEngine.OnAskFile) then
+    ScriptEngine.OnAskFile := @DoAskFile;
+  if not assigned(ScriptEngine.OnAskMultiFile) then
+    ScriptEngine.OnAskMultiFile := @DoAskMultiFile;
+  if not assigned(ScriptEngine.OnAskFolder) then
+    ScriptEngine.OnAskFolder := @DoAskFolder;
 end;
 
 procedure TfmCHXScriptManager.LoadScriptFile(const aFile: string);
@@ -338,23 +406,8 @@ end;
 
 function TfmCHXScriptManager.Compile: boolean;
 begin
-  // Why not in FormCreate? jajajaja
-  // Simple reason, if ScripEngine is not assigned already we will create
-  //   a default one. This way, a children form can create a custom engine in
-  //   it's FormCreate overriding the default one.
-  if not assigned(ScriptEngine) then
-    FScriptEngine := cCHXScriptEngine.Create;
-
   ScriptEngine.ScriptFile := CurrentFile;
   ScriptEngine.ScriptText := SynEdit.Lines;
-
-  // TODO 4: Put this in a better place near ScriptEngine creation.
-  //   But search why a SIGEVN error is raised...
-  //   ScriptEngine.ScriptOutput, ScriptEngine.ScriptInfo and
-  //   ScriptEngine.ScriptError change to nil... When and Where?
-  ScriptEngine.ScriptOutput := mOutPut.Lines;
-  ScriptEngine.ScriptInfo := lbxInfo.Items;
-  ScriptEngine.ScriptError := lbxInfo.Items;
 
   Result := ScriptEngine.CompileScript;
 end;
@@ -383,6 +436,28 @@ begin
   ReadActionsIcons(GUIIconsIni, Name, ilActions, ActionList);
 end;
 
+procedure TfmCHXScriptManager.DoWriteLn(const aStr: string);
+begin
+  mOutPut.Lines.Add(aStr);
+end;
+
+function TfmCHXScriptManager.DoReadLn(const aQuestion, DefAnswer: string): string;
+begin
+  Result := InputBox(Application.Title, aQuestion, DefAnswer);
+end;
+
+function TfmCHXScriptManager.DoAskFile(const aCaption, aExtFilter,
+  DefFile: string): string;
+begin
+  Result := '';
+  OpenDialog1.Title := aCaption;
+  OpenDialog1.FileName := DefFile;
+  SetDlgInitialDir(OpenDialog1, DefFile);
+  OpenDialog1.Filter := aExtFilter;
+  if OpenDialog1.Execute then
+    Result := OpenDialog1.FileName;
+end;
+
 procedure TfmCHXScriptManager.SetBaseFolder(const aFolder: string);
 begin
   DirectoryEdit1.Directory := aFolder;
@@ -390,11 +465,30 @@ begin
   ScriptEngine.CommonUnitFolder := SetAsFolder(aFolder);
 end;
 
+procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;
+  const aCaption, aExtFilter, DefFolder: string);
+begin
+  TfmSMAskMultiFile.SimpleForm(aFileList, aCaption, aExtFilter,
+    DefFolder, GUIIconsIni, GUIConfigIni);
+end;
+
+function TfmCHXScriptManager.DoAskFolder(const aCaption, DefFolder: string
+  ): string;
+begin
+  Result := '';
+  SelectDirectoryDialog1.Title := aCaption;
+  SetDlgInitialDir(SelectDirectoryDialog1, DefFolder);
+  if SelectDirectoryDialog1.Execute then
+    Result := IncludeTrailingPathDelimiter(SelectDirectoryDialog1.FileName);
+end;
+
 constructor TfmCHXScriptManager.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
   PageControl.ActivePage := pagScriptList;
+
+  CreateCustomEngine;
 end;
 
 destructor TfmCHXScriptManager.Destroy;

@@ -1,0 +1,129 @@
+inherited fmSMAskMultiFile: TfmSMAskMultiFile
+  Width = 600
+  ClientWidth = 600
+  DesignLeft = 340
+  DesignTop = 271
+  inherited pButtons: TPanel
+    Width = 600
+    ClientWidth = 600
+    inherited chkCloseOnSave: TCheckBox
+      Left = 102
+    end
+    inherited bSave: TBitBtn
+      Left = 253
+      Default = True
+    end
+    inherited bCancel: TBitBtn
+      Left = 417
+    end
+  end
+  object gbxSelectFiles: TGroupBox[1]
+    Left = 0
+    Height = 213
+    Top = 0
+    Width = 600
+    Align = alClient
+    AutoSize = True
+    Caption = 'Select file(s)'
+    ClientHeight = 193
+    ClientWidth = 596
+    TabOrder = 1
+    object lbxFiles: TListBox
+      Left = 0
+      Height = 193
+      Top = 0
+      Width = 572
+      Align = alClient
+      ItemHeight = 0
+      MultiSelect = True
+      TabOrder = 0
+    end
+    object ToolBar1: TToolBar
+      Left = 572
+      Height = 193
+      Top = 0
+      Width = 24
+      Align = alRight
+      AutoSize = True
+      Caption = 'ToolBar1'
+      Images = ilPropEditor
+      TabOrder = 1
+      object tbRemoveFiles: TToolButton
+        Left = 1
+        Top = 100
+        Action = actRemoveFiles
+      end
+      object tbAddFiles: TToolButton
+        Left = 1
+        Top = 2
+        Action = actAddFiles
+      end
+      object ToolButton1: TToolButton
+        Left = 1
+        Height = 5
+        Top = 24
+        Width = 23
+        Caption = 'ToolButton1'
+        Style = tbsDivider
+      end
+      object tbMoveFileUp: TToolButton
+        Left = 1
+        Top = 29
+        Action = actMoveFileUp
+      end
+      object ToolButton3: TToolButton
+        Left = 1
+        Height = 5
+        Top = 95
+        Width = 23
+        Caption = 'ToolButton3'
+        Style = tbsDivider
+      end
+      object tbSortFileList: TToolButton
+        Left = 1
+        Top = 51
+        Action = actSortFileList
+      end
+      object tbMoveFileDown: TToolButton
+        Left = 1
+        Top = 73
+        Action = actMoveFileDown
+      end
+    end
+  end
+  inherited alPropEditor: TActionList[2]
+    object actRemoveFiles: TAction[2]
+      Category = 'FileList'
+      Caption = 'Remove files'
+      OnExecute = actRemoveFilesExecute
+    end
+    object actAddFiles: TAction[3]
+      Category = 'FileList'
+      Caption = 'Add files'
+      OnExecute = actAddFilesExecute
+    end
+    object actMoveFileUp: TAction[4]
+      Category = 'FileList'
+      Caption = 'Move file up'
+      OnExecute = actMoveFileUpExecute
+    end
+    object actMoveFileDown: TAction[5]
+      Category = 'FileList'
+      Caption = 'Move file down'
+      OnExecute = actMoveFileDownExecute
+    end
+    object actSortFileList: TAction[6]
+      Category = 'FileList'
+      AutoCheck = True
+      Caption = 'Sort file list'
+      OnExecute = actSortFileListExecute
+    end
+  end
+  inherited ilPropEditor: TImageList[3]
+  end
+  object OpenDialog1: TOpenDialog[4]
+    Options = [ofNoChangeDir, ofAllowMultiSelect, ofEnableSizing, ofViewDetail]
+    Left = 219
+    Top = 102
+  end
+end

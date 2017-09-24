@@ -28,7 +28,7 @@ begin
   CL.AddDelphiFunction(
     'Function SearchFirstFileInFolderByExtSL( aFolder : string; Extensions : TStrings) : string');
   CL.AddDelphiFunction(
-    'Procedure Search7ZFilesByExt( AOutFolderList, AOutFileList : TStrings; aBaseFolder : string; aExtList : TStrings; Recursive : boolean)');
+    'Procedure w7zFilesByExt( AOutFolderList, AOutFileList : TStrings; aBaseFolder : string; aExtList : TStrings; Recursive : boolean)');
   CL.AddDelphiFunction(
     'Function CRC32FileInt( const aFileName : string) : cardinal');
   CL.AddDelphiFunction(
@@ -51,7 +51,7 @@ begin
     'SearchFirstFileInFolderByExtCT', cdRegister);
   S.RegisterDelphiFunction(@SearchFirstFileInFolderByExtSL,
     'SearchFirstFileInFolderByExtSL', cdRegister);
-  S.RegisterDelphiFunction(@Search7ZFilesByExt, 'Search7ZFilesByExt',
+  S.RegisterDelphiFunction(@w7zFilesByExt, 'w7zFilesByExt',
     cdRegister);
   S.RegisterDelphiFunction(@CRC32FileInt, 'CRC32FileInt', cdRegister);
   S.RegisterDelphiFunction(@CRC32FileStr, 'CRC32FileStr', cdRegister);

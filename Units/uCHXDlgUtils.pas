@@ -28,7 +28,7 @@ begin
   else
   begin
     if BaseDir = '' then
-      BaseDir := GetCurrentDirUTF8;
+      BaseDir := SysPath(SetAsFolder(GetCurrentDirUTF8));
 
     if not FilenameIsAbsolute(BaseDir) then
       BaseDir := CleanAndExpandFilename(
