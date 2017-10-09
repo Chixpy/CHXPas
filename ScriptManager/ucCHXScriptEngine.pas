@@ -50,10 +50,14 @@ resourcestring
 
 type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
-  TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of object;
-  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string): string of object;
-  TCHXSEAskMultiFileCB = procedure(aFileList: TStrings; const aCaption, aExtFilter, DefFolder: string) of object;
-  TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of object;
+  TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
+    object;
+  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
+    string of object;
+  TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
+    const aCaption, aExtFilter, DefFolder: string) of object;
+  TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
+    object;
 
   { cCHXScriptEngine }
 
@@ -66,7 +70,6 @@ type
     FOnAskMultiFile: TCHXSEAskMultiFileCB;
     FOnReadLn: TCHXSEReadLnCB;
     FOnWriteLn: TCHXSEWriteLnCB;
-    FOwnsScriptError: boolean;
     FPasScript: TPSScript;
     FScriptError: TStrings;
     function getScriptFile: string;
@@ -77,7 +80,6 @@ type
     procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
     procedure SetOnReadLn(AValue: TCHXSEReadLnCB);
     procedure SetOnWriteLn(AValue: TCHXSEWriteLnCB);
-    procedure SetOwnsScriptError(AValue: boolean);
     procedure SetPasScript(AValue: TPSScript);
     procedure SetScriptError(AValue: TStrings);
     procedure setScriptFile(AValue: string);
@@ -86,10 +88,6 @@ type
   protected
     property PasScript: TPSScript read FPasScript write SetPasScript;
     {< PSScript object.}
-
-    property OwnsScriptError: boolean read FOwnsScriptError
-      write SetOwnsScriptError;
-    {< Script error must be freed? }
 
     procedure PasScriptOnCompImport(Sender: TObject;
       x: TPSPascalCompiler); virtual;
@@ -138,7 +136,8 @@ type
     procedure CHXWriteLn(const aStr: string);
     function CHXReadLn(const aQuestion, DefAnswer: string): string;
     function CHXAskFile(const aCaption, aExtFilter, DefFile: string): string;
-    procedure CHXAskMultiFile(aFileList: TStrings; const aCaption, aExtFilter, DefFolder: string);
+    procedure CHXAskMultiFile(aFileList: TStrings;
+      const aCaption, aExtFilter, DefFolder: string);
     function CHXAskFolder(const aCaption, DefFolder: string): string;
 
     // HACK: We can't create Stringlist!!!
@@ -157,8 +156,10 @@ type
     property OnWriteLn: TCHXSEWriteLnCB read FOnWriteLn write SetOnWriteLn;
     property OnReadLn: TCHXSEReadLnCB read FOnReadLn write SetOnReadLn;
     property OnAskFile: TCHXSEAskFileCB read FOnAskFile write SetOnAskFile;
-    property OnAskMultiFile: TCHXSEAskMultiFileCB read FOnAskMultiFile write SetOnAskMultiFile;
-    property OnAskFolder: TCHXSEAskFolderCB read FOnAskFolder write SetOnAskFolder;
+    property OnAskMultiFile: TCHXSEAskMultiFileCB
+      read FOnAskMultiFile write SetOnAskMultiFile;
+    property OnAskFolder: TCHXSEAskFolderCB
+      read FOnAskFolder write SetOnAskFolder;
 
     function RunScript: boolean;
     function CompileScript: boolean;
@@ -210,7 +211,8 @@ end;
 
 procedure cCHXScriptEngine.SetOnReadLn(AValue: TCHXSEReadLnCB);
 begin
-  if FOnReadLn = AValue then Exit;
+  if FOnReadLn = AValue then
+    Exit;
   FOnReadLn := AValue;
 end;
 
@@ -219,13 +221,6 @@ begin
   if FOnWriteLn = AValue then
     Exit;
   FOnWriteLn := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOwnsScriptError(AValue: boolean);
-begin
-  if FOwnsScriptError = AValue then
-    Exit;
-  FOwnsScriptError := AValue;
 end;
 
 procedure cCHXScriptEngine.SetPasScript(AValue: TPSScript);
@@ -237,19 +232,9 @@ end;
 
 procedure cCHXScriptEngine.SetScriptError(AValue: TStrings);
 begin
-  if OwnsScriptError then
-    FreeAndNil(FScriptError);
-
-  if AValue = nil then
-  begin
-    FScriptError := TStringList.Create;
-    OwnsScriptError := True;
-  end
-  else
-  begin
-    FScriptError := AValue;
-    OwnsScriptError := False;
-  end;
+  if FScriptError = AValue then
+    Exit;
+  FScriptError := AValue;
 end;
 
 procedure cCHXScriptEngine.setScriptFile(AValue: string);
@@ -359,10 +344,12 @@ var
 begin
   raise ENotImplemented.Create('PasScriptOnFindUnknownFile not implemented');
 
-  //ShowMessage('PasScriptOnFindUnknownFile:' + sLineBreak +
-  //  'OriginFileName: ' + OriginFileName + sLineBreak +
-  //  'FileName: ' + FileName + sLineBreak + 'Output: ' + Output + sLineBreak
-  //  );
+  if Assigned(ScriptError) then
+  begin
+    ScriptError.Add('PasScriptOnFindUnknownFile - OriginFileName: ' +
+      OriginFileName);
+    ScriptError.Add('PasScriptOnFindUnknownFile - FileName: ' + FileName);
+  end;
 
   Result := False;
   FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) +
@@ -396,10 +383,12 @@ var
 begin
   FileName := AnsiDequotedStr(FileName, '''');
   FileName := AnsiDequotedStr(FileName, '"');
-  //ShowMessage('PSScriptNeedFile:' + sLineBreak + 'OriginFileName: ' +
-  //  OriginFileName + sLineBreak + 'FileName: ' + FileName +
-  //  sLineBreak + 'Output: ' + Output + sLineBreak
-  //  );
+
+  if Assigned(ScriptError) then
+  begin
+    ScriptError.Add('PSScriptNeedFile - OriginFileName: ' + OriginFileName);
+    ScriptError.Add('PSScriptNeedFile - FileName: ' + FileName);
+  end;
 
   Result := False;
   FullFileName := CleanAndExpandFilename(
@@ -434,7 +423,8 @@ begin
     raise ENotImplemented.Create('OnWriteLn not assigned.');
 end;
 
-function cCHXScriptEngine.CHXReadLn(const aQuestion, DefAnswer: string): string;
+function cCHXScriptEngine.CHXReadLn(
+  const aQuestion, DefAnswer: string): string;
 begin
   Result := '';
   if Assigned(OnReadLn) then
@@ -527,8 +517,8 @@ begin
   Result := DirectoryExistsUTF8(SysPath(aFileName));
 end;
 
-function cCHXScriptEngine.CHXAskFile(const aCaption, aExtFilter, DefFile: string
-  ): string;
+function cCHXScriptEngine.CHXAskFile(
+  const aCaption, aExtFilter, DefFile: string): string;
 begin
   Result := '';
   if Assigned(OnAskFile) then
@@ -537,8 +527,8 @@ begin
     raise ENotImplemented.Create('OnAskFile not assigned.');
 end;
 
-procedure cCHXScriptEngine.CHXAskMultiFile(aFileList: TStrings; const aCaption,
-  aExtFilter, DefFolder: string);
+procedure cCHXScriptEngine.CHXAskMultiFile(aFileList: TStrings;
+  const aCaption, aExtFilter, DefFolder: string);
 begin
   if Assigned(OnAskMultiFile) then
     OnAskMultiFile(aFileList, aCaption, aExtFilter, DefFolder)
@@ -546,7 +536,8 @@ begin
     raise ENotImplemented.Create('OnAskMultiFile not assigned.');
 end;
 
-function cCHXScriptEngine.CHXAskFolder(const aCaption, DefFolder: string): string;
+function cCHXScriptEngine.CHXAskFolder(
+  const aCaption, DefFolder: string): string;
 begin
   Result := '';
 
@@ -591,52 +582,62 @@ begin
     Exit;
 
   Result := PasScript.Execute;
-  if not Result then
+
+  if Result then
   begin
-    ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEError]));
-    ScriptError.Add(PasScript.ExecErrorToString);
-    ScriptError.Add(Format('[Runtime error] %s(%d:%d)',
-      [ScriptFile, PasScript.ExecErrorRow, PasScript.ExecErrorCol]));
-    ScriptError.Add(Format('bytecode(%d:%d): %s',
-      [PasScript.ExecErrorProcNo, PasScript.ExecErrorByteCodePosition,
-      PasScript.ExecErrorToString]));
+    if Assigned(ScriptError) then
+      ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEOK]));
     Exit;
   end;
 
-  ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEOK]));
+  if not Assigned(ScriptError) then
+    Exit;
+
+  ScriptError.BeginUpdate;
+  ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEError]));
+  ScriptError.Add(PasScript.ExecErrorToString);
+  ScriptError.Add(Format('[Runtime error] %s(%d:%d)',
+    [ScriptFile, PasScript.ExecErrorRow, PasScript.ExecErrorCol]));
+  ScriptError.Add(Format('bytecode(%d:%d): %s',
+    [PasScript.ExecErrorProcNo, PasScript.ExecErrorByteCodePosition,
+    PasScript.ExecErrorToString]));
+  ScriptError.EndUpdate;
 end;
 
 function cCHXScriptEngine.CompileScript: boolean;
 var
   i: integer;
 begin
-  ScriptError.Clear;
-  ScriptError.BeginUpdate;
+  if Assigned(ScriptError) then
+    ScriptError.Clear;
+
   Result := PaSScript.Compile;
+
+  if Result then
+  begin
+    if Assigned(ScriptError) then
+      ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEOK]));
+    Exit;
+  end;
+
+  if not Assigned(ScriptError) then
+    Exit;
+
+  ScriptError.BeginUpdate;
 
   for i := 0 to PaSScript.CompilerMessageCount - 1 do
     ScriptError.add(PaSScript.CompilerMessages[i].MessageToString);
 
-  if not Result then
-  begin
-    ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEError]));
+  ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEError]));
 
-    for i := 0 to PaSScript.CompilerMessageCount - 1 do
-      ScriptError.Add(PasScript.CompilerErrorToStr(i));
-    ScriptError.EndUpdate;
-    Exit;
-  end;
-
-  ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEOK]));
+  for i := 0 to PaSScript.CompilerMessageCount - 1 do
+    ScriptError.Add(PasScript.CompilerErrorToStr(i));
   ScriptError.EndUpdate;
 end;
 
 constructor cCHXScriptEngine.Create;
 begin
   inherited Create;
-
-  // This assigments autocreates the owned TStringList
-  ScriptError := nil;
 
   FPasScript := TPSScript.Create(nil);
   PasScript.UsePreProcessor := True;
@@ -650,8 +651,6 @@ end;
 
 destructor cCHXScriptEngine.Destroy;
 begin
-  if OwnsScriptError then
-    ScriptError.Free;
   PasScript.Free;
   inherited Destroy;
 end;

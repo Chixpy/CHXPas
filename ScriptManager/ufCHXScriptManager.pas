@@ -343,8 +343,10 @@ begin
   if not assigned(ScriptEngine) then
     FScriptEngine := cCHXScriptEngine.Create;
 
-  if not assigned(ScriptEngine.ScriptError) then
-    ScriptEngine.ScriptError := lbxInfo.Items;
+
+  // TODO: READ TfmCHXScriptManager.Compile
+  // if not assigned(ScriptEngine.ScriptError) then
+  //   ScriptEngine.ScriptError := lbxInfo.Items;
 
   // Asks
   if not assigned(ScriptEngine.OnWriteLn) then
@@ -408,6 +410,12 @@ function TfmCHXScriptManager.Compile: boolean;
 begin
   ScriptEngine.ScriptFile := CurrentFile;
   ScriptEngine.ScriptText := SynEdit.Lines;
+
+  // TODO: IF ASSIGNED IN CreateCustomEngine THIS IS LOST!!!!????
+  //   OR WORSE ASSIGNED TO A TFONT !!!!
+
+  if not Assigned(ScriptEngine.ScriptError) then
+    ScriptEngine.ScriptError := lbxInfo.Items;
 
   Result := ScriptEngine.CompileScript;
 end;
