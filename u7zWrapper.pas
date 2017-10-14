@@ -65,7 +65,9 @@ const
     'hxw,img,iso,jar,lha,lit,lzh,lzma,lzma86,mbr,msi,msp,nsis,ntfs,ppt,' +
     'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,txz,' +
     'vhd,wim,xar,xls,xpi,xz,z,zip';
-
+  //< Initial suported file extensions, use w7zGetFileExts to get current
+  //  ones. A program can drop or add supported extensions. After all it's
+  //  only a reference list.
 type
   w7zException = class(Exception);
 

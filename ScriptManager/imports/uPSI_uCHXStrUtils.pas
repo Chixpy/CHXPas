@@ -27,73 +27,67 @@ implementation
 (*----------------------------------------------------------------------------*)
 procedure SIRegister_uCHXStrUtils(CL: TPSPascalCompiler);
 begin
-  CL.AddDelphiFunction(
-    'Function UTF8TextReplace( const S, OldPattern, NewPattern : string; ALanguage : string) : string');
-  CL.AddDelphiFunction(
-    'Function RemoveFromBrackets( const aString : string) : string');
-  CL.AddDelphiFunction(
-    'Function CopyFromBrackets( const aString : string) : string');
-  CL.AddDelphiFunction(
-    'Function TextSimilarity( const aString1, aString2 : string) : byte');
-  CL.AddDelphiFunction('Function SetAsFolder( const aValue : string) : string');
-  CL.AddDelphiFunction('Function SysPath( const aPath : string) : string');
-  CL.AddDelphiFunction('Function WinPath( const aPath : string) : string');
-  CL.AddDelphiFunction('Function UnixPath( const aPath : string) : string');
-  CL.AddDelphiFunction(
-    'Function CleanFileName( const AFileName : string; const DoTrim : boolean; const PathAware : boolean) : string');
-  CL.AddDelphiFunction(
-    'Function SetAsRelativeFile( const aFileName : string; BaseDir : string) : string');
-  CL.AddDelphiFunction(
-    'Function SetAsAbsoluteFile( const aFileName : string; BaseDir : string) : string');
-  CL.AddDelphiFunction('Function SetAsFile( const aFileName : string) : string');
-  CL.AddDelphiFunction(
-    'Function SupportedExtCT( aFilename : string; aExtCT : string) : boolean');
-  CL.AddDelphiFunction(
-    'Function SupportedExtSL( aFilename : string; aExt : TStrings) : boolean');
-  CL.AddDelphiFunction(
-    'Procedure CleanStringList( aStringList : TStrings; CommentChar : string)');
-  CL.AddDelphiFunction(
-    'Function AddToStringList( aList : TStrings; aString : string) : integer');
-  CL.AddDelphiFunction(
-    'Function FileMaskFromStringList( aList : TStrings) : string');
-  CL.AddDelphiFunction('Function FileMaskFromCommaText( aText : string) : string');
-  CL.AddDelphiFunction('Procedure StandardFormatSettings');
-  CL.AddDelphiFunction(
-    'Function StrCount( aString, ToSearch : string; CaseSensitve : boolean) : cardinal');
-  CL.AddDelphiFunction(
-    'Function StrToCardinal( const aString : string) : cardinal');
-  CL.AddDelphiFunction(
-    'Function StrToCardinalDef( const aString : string; const Default : cardinal) : cardinal');
-  CL.AddDelphiFunction('Function SecondsToFmtStr( aValue : int64) : string');
+  // Resource Strings
+
+  // Constants
+
+  // Types
+
+  // Methods
+  CL.AddDelphiFunction('function UTF8TextReplace(const S, OldPattern, NewPattern: string; ALanguage: string): string');
+  CL.AddDelphiFunction('function RemoveFromBrackets(const aString: string): string');
+  CL.AddDelphiFunction('function CopyFromBrackets(const aString: string): string');
+  CL.AddDelphiFunction('function TextSimilarity(const aString1, aString2: string): byte');
+
+  CL.AddDelphiFunction('function SetAsFolder(const aValue: string): string');
+  CL.AddDelphiFunction('function SysPath(const aPath: string): string');
+  CL.AddDelphiFunction('function WinPath(const aPath: string): string');
+  CL.AddDelphiFunction('function UnixPath(const aPath: string): string');
+
+  CL.AddDelphiFunction('function CleanFileName(const AFileName: string; const DoTrim: boolean; const PathAware: boolean): string');
+  CL.AddDelphiFunction('function SetAsRelativeFile(const aFileName: string; BaseDir: string): string');
+  CL.AddDelphiFunction('function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string');
+  CL.AddDelphiFunction('function SetAsFile(const aFileName: string): string');
+  CL.AddDelphiFunction('function SupportedExtCT(aFilename: string; aExtCT: string): boolean');
+  CL.AddDelphiFunction('function SupportedExtSL(aFilename: string; aExt: TStrings): boolean');
+
+  CL.AddDelphiFunction('procedure CleanStringList(aStringList: TStrings; CommentChar: string)');
+  CL.AddDelphiFunction('function AddToStringList(aList: TStrings; aString: string): integer');
+  CL.AddDelphiFunction('function FileMaskFromStringList(aList: TStrings): string');
+  CL.AddDelphiFunction('function FileMaskFromCommaText(aText: string): string');
+
+  CL.AddDelphiFunction('procedure StandardFormatSettings');
+  CL.AddDelphiFunction('function StrCount(aString, ToSearch: string; CaseSensitve: boolean): cardinal');
+  CL.AddDelphiFunction('function StrToCardinal(const aString: string): cardinal');
+  CL.AddDelphiFunction('function StrToCardinalDef(const aString: string; const Default: cardinal): cardinal');
+  CL.AddDelphiFunction('function SecondsToFmtStr(aValue: int64): string');
 end;
 
-(* === run-time registration functions === *)
-(*----------------------------------------------------------------------------*)
 procedure RIRegister_uCHXStrUtils_Routines(S: TPSExec);
 begin
   S.RegisterDelphiFunction(@UTF8TextReplace, 'UTF8TextReplace', cdRegister);
-  S.RegisterDelphiFunction(@RemoveFromBrackets, 'RemoveFromBrackets',
-    cdRegister);
+  S.RegisterDelphiFunction(@RemoveFromBrackets, 'RemoveFromBrackets', cdRegister);
   S.RegisterDelphiFunction(@CopyFromBrackets, 'CopyFromBrackets', cdRegister);
   S.RegisterDelphiFunction(@TextSimilarity, 'TextSimilarity', cdRegister);
+
   S.RegisterDelphiFunction(@SetAsFolder, 'SetAsFolder', cdRegister);
   S.RegisterDelphiFunction(@SysPath, 'SysPath', cdRegister);
   S.RegisterDelphiFunction(@WinPath, 'WinPath', cdRegister);
   S.RegisterDelphiFunction(@UnixPath, 'UnixPath', cdRegister);
+
   S.RegisterDelphiFunction(@CleanFileName, 'CleanFileName', cdRegister);
   S.RegisterDelphiFunction(@SetAsRelativeFile, 'SetAsRelativeFile', cdRegister);
   S.RegisterDelphiFunction(@SetAsAbsoluteFile, 'SetAsAbsoluteFile', cdRegister);
   S.RegisterDelphiFunction(@SetAsFile, 'SetAsFile', cdRegister);
   S.RegisterDelphiFunction(@SupportedExtCT, 'SupportedExtCT', cdRegister);
   S.RegisterDelphiFunction(@SupportedExtSL, 'SupportedExtSL', cdRegister);
+
   S.RegisterDelphiFunction(@CleanStringList, 'CleanStringList', cdRegister);
   S.RegisterDelphiFunction(@AddToStringList, 'AddToStringList', cdRegister);
-  S.RegisterDelphiFunction(@FileMaskFromStringList,
-    'FileMaskFromStringList', cdRegister);
-  S.RegisterDelphiFunction(@FileMaskFromCommaText,
-    'FileMaskFromCommaText', cdRegister);
-  S.RegisterDelphiFunction(@StandardFormatSettings,
-    'StandardFormatSettings', cdRegister);
+  S.RegisterDelphiFunction(@FileMaskFromStringList, 'FileMaskFromStringList', cdRegister);
+  S.RegisterDelphiFunction(@FileMaskFromCommaText, 'FileMaskFromCommaText', cdRegister);
+
+  S.RegisterDelphiFunction(@StandardFormatSettings, 'StandardFormatSettings', cdRegister);
   S.RegisterDelphiFunction(@StrCount, 'StrCount', cdRegister);
   S.RegisterDelphiFunction(@StrToCardinal, 'StrToCardinal', cdRegister);
   S.RegisterDelphiFunction(@StrToCardinalDef, 'StrToCardinalDef', cdRegister);

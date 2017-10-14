@@ -14,8 +14,7 @@ const
 
 
 type
-  TItFolderObj = function(aFolder: string;
-    FileInfo: TSearchRec): boolean of object;
+  TItFolderObj = function(aFolder: string; FileInfo: TSearchRec): boolean of object;
   TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
 
 
@@ -43,9 +42,9 @@ function StringToSHA1Digest(aSHA1String: string):TSHA1Digest;
 
 // Iterating Folders
 // -----------------
-function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
+function IterateFolderObj(aFolder: string; aFunction: TItFolderObj;
   Recursive: boolean = True): boolean;
-function IterateFolderFun(Folder: string; aFunction: TItFolderFun;
+function IterateFolderFun(aFolder: string; aFunction: TItFolderFun;
   Recursive: boolean = True): boolean;
 {< Recorre el directorio especificado y ejecuta aFuncion(TSearchRec) con cada uno
   de los archivos encontrados
@@ -64,7 +63,7 @@ Notas:
     False no pasa al siguiente archivo.
 }
 
-function FilesInFolder(Folder: string): integer;
+function FilesInFolder(aFolder, aFileMAsk: string): integer;
 //< TODO 2: Is there a better way?
 
 implementation
@@ -174,84 +173,86 @@ begin
     end;
 end;
 
-function IterateFolderObj(Folder: string; aFunction: TItFolderObj;
+function IterateFolderObj(aFolder: string; aFunction: TItFolderObj;
   Recursive: boolean): boolean;
 var
   Info: TSearchRec;
 begin
   Result := True;
-  Folder := SetAsFolder(Folder);
-  if (Folder = '') or (not DirectoryExistsUTF8(Folder)) then
+  aFolder := SetAsFolder(aFolder);
+  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
     Exit;
 
-  if FindFirstUTF8(Folder + AllFilesMask, faAnyFile, Info) = 0 then
+  if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
     try
       repeat
-        Result := aFunction(Folder, Info);
+        Result := aFunction(aFolder, Info);
       until (FindNextUTF8(Info) <> 0) or not Result;
     finally
       FindCloseUTF8(Info);
     end;
 
   if Recursive and Result then
-    if FindFirstUTF8(Folder + AllFilesMask, faDirectory, Info) = 0 then
+    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
       try
         repeat
           if (Info.Name <> '.') and (Info.Name <> '') and
             (Info.Name <> '..') and
             ((Info.Attr and faDirectory) <> 0) then
-            Result := IterateFolderObj(Folder + Info.Name, aFunction, True);
+            Result := IterateFolderObj(aFolder + Info.Name, aFunction, True);
         until (FindNextUTF8(Info) <> 0) or not Result;
       finally
         FindCloseUTF8(Info);
       end;
 end;
 
-function IterateFolderFun(Folder: string; aFunction: TItFolderFun;
+function IterateFolderFun(aFolder: string; aFunction: TItFolderFun;
   Recursive: boolean): boolean;
 var
   Info: TSearchRec;
 begin
   Result := True;
-  Folder := SetAsFolder(Folder);
+  aFolder := SetAsFolder(aFolder);
 
 
   // '' ? if we want run in current directory?
-  if (Folder = '') or (not DirectoryExistsUTF8(Folder)) then
+  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
     Exit;
 
-  if FindFirstUTF8(Folder + AllFilesMask, faAnyFile, Info) = 0 then
+  if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
     try
       repeat
-        Result := aFunction(Folder, Info);
+        Result := aFunction(aFolder, Info);
       until (FindNextUTF8(Info) <> 0) or not Result;
     finally
       FindCloseUTF8(Info);
     end;
 
   if Recursive and Result then
-    if FindFirstUTF8(Folder + AllFilesMask, faDirectory, Info) = 0 then
+    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
       try
         repeat
           if (Info.Name <> '.') and (Info.Name <> '') and
             (Info.Name <> '..') and
             ((Info.Attr and faDirectory) <> 0) then
-            Result := IterateFolderFun(Folder + Info.Name, aFunction, True);
+            Result := IterateFolderFun(aFolder + Info.Name, aFunction, True);
         until (FindNextUTF8(Info) <> 0) or not Result;
       finally
         FindCloseUTF8(Info);
       end;
 end;
 
-function FilesInFolder(Folder: string): integer;
+function FilesInFolder(aFolder, aFileMask: string): integer;
 var
   Info: TSearchRec;
 begin
   // Podría usar IterateFolderObj pero no es plan de complicar la cosa
   Result := 0;
-  Folder := SetAsFolder(Folder);
+  aFolder := SetAsFolder(aFolder);
+  if aFileMask = '' then
+    aFileMask := AllFilesMask;
 
-  if FindFirstUTF8(Folder + '*', 0, Info) = 0 then
+  if FindFirstUTF8(aFolder + aFileMask, 0, Info) = 0 then
     try
       repeat
         Inc(Result);

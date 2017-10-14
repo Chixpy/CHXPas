@@ -247,29 +247,6 @@ begin
   PasScript.Script := AValue;
 end;
 
-procedure cCHXScriptEngine.PasScriptOnCompImport(Sender: TObject;
-  x: TPSPascalCompiler);
-begin
-  SIRegister_StrUtils(x);
-  RegisterDateTimeLibrary_C(x);
-  RegisterDll_Compiletime(x);
-  SIRegister_Std(x);
-  SIRegister_Classes(x, True);
-  SIRegister_Graphics(x, True);
-  SIRegister_Controls(x);
-  SIRegister_StdCtrls(x);
-  SIRegister_ExtCtrls(x);
-  SIRegister_Forms(x);
-  SIRegister_Buttons(x);
-  SIRegister_Menus(x);
-  SIRegister_DB(x);
-
-  // CHX
-  SIRegister_u7zWrapper(x);
-  SIRegister_uCHXStrUtils(x);
-  SIRegister_uCHXFileUtils(x);
-end;
-
 procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
 begin
   // Input and Output
@@ -550,6 +527,29 @@ end;
 function cCHXScriptEngine.CHXCreateStringList: TStringList;
 begin
   Result := TStringList.Create;
+end;
+
+procedure cCHXScriptEngine.PasScriptOnCompImport(Sender: TObject;
+  x: TPSPascalCompiler);
+begin
+  SIRegister_StrUtils(x);
+  RegisterDateTimeLibrary_C(x);
+  RegisterDll_Compiletime(x);
+  SIRegister_Std(x);
+  SIRegister_Classes(x, True);
+  SIRegister_Graphics(x, True);
+  SIRegister_Controls(x);
+  SIRegister_StdCtrls(x);
+  SIRegister_ExtCtrls(x);
+  SIRegister_Forms(x);
+  SIRegister_Buttons(x);
+  SIRegister_Menus(x);
+  SIRegister_DB(x);
+
+  // CHX
+  SIRegister_u7zWrapper(x);
+  SIRegister_uCHXStrUtils(x);
+  SIRegister_uCHXFileUtils(x);
 end;
 
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
