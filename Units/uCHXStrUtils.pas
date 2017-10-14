@@ -281,12 +281,21 @@ begin
 end;
 
 function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
+var
+  IsFolder: Boolean;
 begin
+  IsFolder := False;
+  if Length(aFileName) > 0 then
+    IsFolder := aFileName[Length(aFileName)] in AllowDirectorySeparators;
+
   // CreateAbsoluteSearchPath doesn't like Unix Style under Windows... :-(
   Result := CreateAbsoluteSearchPath(SysPath(aFileName), SysPath(BaseDir));
   Result := TrimAndExpandFilename(Result);
 
-  Result := SetAsFile(Result);
+  if IsFolder then
+    Result := SetAsFolder(Result)
+  else
+    Result := SetAsFile(Result);
 end;
 
 function SetAsFile(const aFileName: string): string;
