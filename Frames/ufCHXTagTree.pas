@@ -22,10 +22,12 @@ unit ufCHXTagTree;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, VirtualTrees, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, VirtualTrees, Forms, Controls,
+  Graphics, Dialogs,
   LazFileUtils, LazUTF8,
   uCHXStrUtils, ufCHXFrame;
-  const
+
+const
   krsCHXTagTreeFileMask = '*.ini';
 
 type
@@ -47,11 +49,12 @@ type
     procedure VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VSTGetNodeDataSize(Sender: TBaseVirtualTree;
-      var NodeDataSize: Integer);
+      var NodeDataSize: integer);
     procedure VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
-      Column: TColumnIndex; TextType: TVSTTextType; var CellText: String);
-    procedure VSTInitNode(Sender: TBaseVirtualTree; ParentNode,
-      Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+      Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+    procedure VSTInitNode(Sender: TBaseVirtualTree;
+      ParentNode, Node: PVirtualNode;
+      var InitialStates: TVirtualNodeInitStates);
 
   private
     FCheckedList: TStringList;
@@ -66,13 +69,14 @@ type
   protected
     procedure SearchTagFiles(aFolder: string; aRootNode: PVirtualNode);
 
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
+    procedure DoClearFrameData;
+    procedure DoLoadFrameData;
 
   public
     property Folder: string read FFolder write SetFolder;
     property TagsFileMask: string read FTagsFileMask write SetTagsFileMask;
-    property OnCheckChange: TFuncCheckChange read FOnCheckChange write SetOnCheckChange;
+    property OnCheckChange: TFuncCheckChange
+      read FOnCheckChange write SetOnCheckChange;
     property CheckedList: TStringList read FCheckedList write SetCheckedList;
 
 
@@ -88,8 +92,8 @@ implementation
 
 { TfmCHXTagTree }
 
-procedure TfmCHXTagTree.VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode
-  );
+procedure TfmCHXTagTree.VSTFreeNode(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
 var
   Data: PCHXTagTreeData;
 begin
@@ -104,14 +108,14 @@ begin
 end;
 
 procedure TfmCHXTagTree.VSTGetNodeDataSize(Sender: TBaseVirtualTree;
-  var NodeDataSize: Integer);
+  var NodeDataSize: integer);
 begin
-   NodeDataSize := SizeOf(TCHXTagTreeData);
+  NodeDataSize := SizeOf(TCHXTagTreeData);
 end;
 
 procedure TfmCHXTagTree.VSTGetText(Sender: TBaseVirtualTree;
   Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
-  var CellText: String);
+  var CellText: string);
 var
   Data: PCHXTagTreeData;
 begin
@@ -124,8 +128,8 @@ begin
   end;
 end;
 
-procedure TfmCHXTagTree.VSTInitNode(Sender: TBaseVirtualTree; ParentNode,
-  Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
+procedure TfmCHXTagTree.VSTInitNode(Sender: TBaseVirtualTree;
+  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
 var
   pData: PCHXTagTreeData;
 begin
@@ -145,8 +149,8 @@ begin
   end;
 end;
 
-procedure TfmCHXTagTree.VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode
-  );
+procedure TfmCHXTagTree.VSTChecked(Sender: TBaseVirtualTree;
+  Node: PVirtualNode);
 var
   Data: PCHXTagTreeData;
   i: integer;
@@ -169,7 +173,8 @@ end;
 
 procedure TfmCHXTagTree.SetCheckedList(AValue: TStringList);
 begin
-  if FCheckedList = AValue then Exit;
+  if FCheckedList = AValue then
+    Exit;
   FCheckedList := AValue;
 end;
 
@@ -181,18 +186,20 @@ end;
 
 procedure TfmCHXTagTree.SetOnCheckChange(AValue: TFuncCheckChange);
 begin
-  if FOnCheckChange = AValue then Exit;
+  if FOnCheckChange = AValue then
+    Exit;
   FOnCheckChange := AValue;
 end;
 
 procedure TfmCHXTagTree.SetTagsFileMask(AValue: string);
 begin
-  if FTagsFileMask = AValue then Exit;
+  if FTagsFileMask = AValue then
+    Exit;
   FTagsFileMask := AValue;
 end;
 
-procedure TfmCHXTagTree.SearchTagFiles(aFolder: string; aRootNode: PVirtualNode
-  );
+procedure TfmCHXTagTree.SearchTagFiles(aFolder: string;
+  aRootNode: PVirtualNode);
 var
   aList: TStringList;
   CurrNode: PVirtualNode;
@@ -238,19 +245,19 @@ begin
   end;
 end;
 
-procedure TfmCHXTagTree.ClearFrameData;
+procedure TfmCHXTagTree.DoClearFrameData;
 begin
 
 end;
 
-procedure TfmCHXTagTree.LoadFrameData;
+procedure TfmCHXTagTree.DoLoadFrameData;
 begin
 
 end;
 
 procedure TfmCHXTagTree.UpdateTree;
 begin
-   VST.Clear;
+  VST.Clear;
   if not DirectoryExistsUTF8(Folder) then
     exit;
   VST.BeginUpdate;
@@ -261,6 +268,10 @@ end;
 constructor TfmCHXTagTree.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+
+  OnClearFrameData := @DoClearFrameData;
+  OnLoadFrameData := @DoLoadFrameData;
+  // OnSaveFrameData := @DoSaveFrameData;
 
   TagsFileMask := krsCHXTagTreeFileMask;
   VST.NodeDataSize := SizeOf(TCHXTagTreeData);
@@ -274,4 +285,3 @@ begin
 end;
 
 end.
-

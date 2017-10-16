@@ -23,7 +23,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Buttons, ActnList, StdCtrls,
+  Buttons, ActnList, StdCtrls, IniFiles,
   uCHXImageUtils,
   ufCHXFrame;
 
@@ -46,13 +46,17 @@ type
 
   private
     FButtonClose: boolean;
+    FOnSaveFrameData: TCHXFrameDataUpdate;
     FSaveButtons: boolean;
     procedure SetButtonClose(AValue: boolean);
+    procedure SetOnSaveFrameData(AValue: TCHXFrameDataUpdate);
     procedure SetSaveButtons(AValue: boolean);
 
   protected
-    procedure SetGUIIconsIni(AValue: string); override;
-    procedure SetGUIConfigIni(AValue: string); override;
+    property OnSaveFrameData: TCHXFrameDataUpdate
+      read FOnSaveFrameData write SetOnSaveFrameData;
+
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string); virtual;
 
   public
     { public declarations }
@@ -62,7 +66,7 @@ type
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
 
-    procedure SaveFrameData; virtual; abstract;
+    procedure SaveFrameData;
     // Saves changed data in the frame
 
     constructor Create(TheOwner: TComponent); override;
@@ -110,6 +114,13 @@ begin
     chkCloseOnSave.Checked := ButtonClose;
 end;
 
+procedure TfmCHXPropEditor.SetOnSaveFrameData(AValue: TCHXFrameDataUpdate);
+begin
+  if FOnSaveFrameData = AValue then
+    Exit;
+  FOnSaveFrameData := AValue;
+end;
+
 procedure TfmCHXPropEditor.SetSaveButtons(AValue: boolean);
 begin
   if FSaveButtons = AValue then
@@ -119,16 +130,16 @@ begin
   pButtons.Enabled := SaveButtons;
 end;
 
-procedure TfmCHXPropEditor.SetGUIIconsIni(AValue: string);
+procedure TfmCHXPropEditor.DoLoadGUIIcons(aIniFile: TIniFile;
+  aBaseFolder: string);
 begin
-  inherited SetGUIIconsIni(AValue);
-
-  ReadActionsIcons(GUIIconsIni, Name, ilPropEditor, alPropEditor);
+  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPropEditor, alPropEditor);
 end;
 
-procedure TfmCHXPropEditor.SetGUIConfigIni(AValue: string);
+procedure TfmCHXPropEditor.SaveFrameData;
 begin
-  inherited SetGUIConfigIni(AValue);
+  if Assigned(OnSaveFrameData) then
+    SaveFrameData;
 end;
 
 constructor TfmCHXPropEditor.Create(TheOwner: TComponent);
@@ -148,6 +159,8 @@ begin
     ButtonClose := False;
     chkCloseOnSave.Visible := False;
   end;
+
+  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXPropEditor.Destroy;
@@ -156,4 +169,3 @@ begin
 end;
 
 end.
-

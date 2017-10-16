@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, ActnList,
+  StdCtrls, ExtCtrls, ActnList, IniFiles,
   uCHXImageUtils,
   ufCHXFrame;
 
@@ -40,16 +40,19 @@ type
     procedure SetItemCount(AValue: integer);
 
   protected
-    procedure SetGUIIconsIni(AValue: string); override;
     procedure OnCurrItemChange; virtual; abstract;
 
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
+    procedure DoClearFrameData;
+    procedure DoLoadFrameData;
+
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string); virtual;
 
   public
     property ItemCount: integer read FItemCount write SetItemCount;
     property CurrItem: integer read FCurrItem write SetCurrItem;
 
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -67,10 +70,24 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmCHXListPreview.SetGUIIconsIni(AValue: string);
+procedure TfmCHXListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
+  aBaseFolder: string);
 begin
-  inherited SetGUIIconsIni(AValue);
-  ReadActionsIcons(GUIIconsIni, Name, ilPreviewList, alPreviewList);
+  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList, alPreviewList);
+end;
+
+constructor TfmCHXListPreview.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+
+    OnClearFrameData := @DoClearFrameData;
+  OnLoadFrameData := @DoLoadFrameData;
+  OnLoadGUIIcons := @DoLoadGUIIcons;
+end;
+
+destructor TfmCHXListPreview.Destroy;
+begin
+  inherited Destroy;
 end;
 
 procedure TfmCHXListPreview.actNextItemExecute(Sender: TObject);
@@ -129,14 +146,14 @@ begin
   OnCurrItemChange;
 end;
 
-procedure TfmCHXListPreview.ClearFrameData;
+procedure TfmCHXListPreview.DoClearFrameData;
 begin
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
   cbxCurrItem.Clear;
   CurrItem := 0;
 end;
 
-procedure TfmCHXListPreview.LoadFrameData;
+procedure TfmCHXListPreview.DoLoadFrameData;
 var
   i: integer;
 begin

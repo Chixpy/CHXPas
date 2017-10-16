@@ -45,19 +45,18 @@ type
     procedure SetFolderList(AValue: TStrings);
 
   protected
-    procedure SetGUIIconsIni(AValue: string); override;
-    procedure SetGUIConfigIni(AValue: string); override;
 
     procedure UpdateFolderData;
 
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
+    procedure DoClearFrameData;
+    procedure DoLoadFrameData;
+    procedure DoSaveFrameData;
 
   public
     property FolderList: TStrings read FFolderList write SetFolderList;
     property CaptionList: TStrings read FCaptionList write SetCaptionList;
-
-    procedure SaveFrameData; override;
+       constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -174,16 +173,6 @@ begin
   lbxImageCaptions.Items.EndUpdate;
 end;
 
-procedure TfmCHXMultiFolderEditor.SetGUIIconsIni(AValue: string);
-begin
-  inherited SetGUIIconsIni(AValue);
-end;
-
-procedure TfmCHXMultiFolderEditor.SetGUIConfigIni(AValue: string);
-begin
-  inherited SetGUIConfigIni(AValue);
-end;
-
 procedure TfmCHXMultiFolderEditor.UpdateFolderData;
 begin
   if lbxImageFolders.ItemIndex <> -1 then
@@ -197,7 +186,21 @@ begin
     eImageCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.ClearFrameData;
+constructor TfmCHXMultiFolderEditor.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+
+  OnClearFrameData := @DoClearFrameData;
+  OnLoadFrameData := @DoLoadFrameData;
+  OnSaveFrameData := @DoSaveFrameData;
+end;
+
+destructor TfmCHXMultiFolderEditor.Destroy;
+begin
+  inherited Destroy;
+end;
+
+procedure TfmCHXMultiFolderEditor.DoClearFrameData;
 begin
   lbxImageFolders.Clear;
   lbxImageCaptions.Clear;
@@ -205,7 +208,7 @@ begin
   eImageCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.LoadFrameData;
+procedure TfmCHXMultiFolderEditor.DoLoadFrameData;
 begin
   Enabled := (Assigned(FolderList)) and (Assigned(CaptionList));
 
@@ -221,7 +224,7 @@ begin
   eImageCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.SaveFrameData;
+procedure TfmCHXMultiFolderEditor.DoSaveFrameData;
 begin
   if not Enabled then
     Exit;

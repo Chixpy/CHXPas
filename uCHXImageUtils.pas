@@ -29,8 +29,24 @@ uses
   // Custom
   uCHXStrUtils;
 
-procedure ReadActionsIcons(const aFileName, Section: string;
-  ImageList: TImageList; ActionList: TCustomActionList);
+procedure ReadActionsIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+  const aSection: string; aImageList: TImageList;
+  aActionList: TCustomActionList);
+{< Reads icons for the diferent actions a ImageList and assigns them.
+
+  It reads from inifile to search which images must be loaded, relative paths
+    are searched from aBaseFolder.
+
+  If ini file don't have the necesary key=value pair, then it will be created.
+
+  @param(aFileName Filename of a ini file where the icons filenames are
+    stored.)
+  @param(Section Section where info will be searched.)
+  @param(ImageList An image list where images are stored)
+  @param(ActionList An action list which actions will be assigned an image.)
+}
+procedure ReadActionsIconsFile(const aFileName, aSection: string;
+  aImageList: TImageList; aActionList: TCustomActionList);
 {< Reads icons for the diferent actions a ImageList and assigns them.
 
   It reads a .ini file to search which images must be loaded, relative paths
@@ -40,7 +56,7 @@ procedure ReadActionsIcons(const aFileName, Section: string;
 
   @param(aFileName Filename of a ini file where the icons filenames are
     stored.)
-  @param(Section Section where nfo will be searched.)
+  @param(Section Section where info will be searched.)
   @param(ImageList An image list where images are stored)
   @param(ActionList An action list which actions will be assigned an image.)
 }
@@ -81,43 +97,59 @@ function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 
 implementation
 
-procedure ReadActionsIcons(const aFileName, Section: string;
-  ImageList: TImageList; ActionList: TCustomActionList);
+procedure ReadActionsIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+  const aSection: string; aImageList: TImageList;
+  aActionList: TCustomActionList);
+var
+  Cont: integer;
+  IconFile: String;
+begin
+  if aSection = '' then
+    Exit;
+  if not Assigned(aImageList) then
+    Exit;
+  if not Assigned(aActionList) then
+    Exit;
+
+  // To be sure that aImageList is assigned to aActionList
+  aActionList.Images := aImageList;
+  aBaseFolder := SetAsFolder(aBaseFolder);
+
+  Cont := 0;
+  while Cont < aActionList.ActionCount do
+  begin
+    IconFile := aIniFile.ReadString(aSection,
+      aActionList.Actions[Cont].Name, '');
+
+    if IconFile = '' then
+    begin
+      IconFile := aActionList.Actions[Cont].Name + '.png';
+      aIniFile.WriteString(aSection, aActionList.Actions[Cont].Name, IconFile);
+      aIniFile.UpdateFile;
+    end;
+
+    TCustomAction(aActionList.Actions[Cont]).ImageIndex :=
+      AddToImageList(aImageList, aBaseFolder + IconFile);
+    Inc(Cont);
+  end;
+end;
+
+procedure ReadActionsIconsFile(const aFileName, aSection: string;
+  aImageList: TImageList; aActionList: TCustomActionList);
 var
   IniFile: TMemIniFile;
-  Cont: integer;
-  IconFile: string;
   BaseDir: string;
 begin
-  if aFileName = '' then
-    Exit;
-  if Section = '' then
-    Exit;
-  if not Assigned(ImageList) then
+  if not FileExistsUTF8(aFileName) then
     Exit;
 
   BaseDir := ExtractFilePath(aFileName);
-  ActionList.Images := ImageList;
 
   IniFile := TMemIniFile.Create(UTF8ToSys(aFileName));
   try
-    Cont := 0;
-    while Cont < ActionList.ActionCount do
-    begin
-      IconFile := IniFile.ReadString(Section,
-        ActionList.Actions[Cont].Name, '');
-      if IconFile = '' then
-      begin
-        IconFile := ActionList.Actions[Cont].Name + '.png';
-        IniFile.WriteString(Section, ActionList.Actions[Cont].Name, IconFile);
-        IniFile.UpdateFile;
-      end;
-      TCustomAction(ActionList.Actions[Cont]).ImageIndex :=
-        AddToImageList(ImageList, SetAsFolder(BaseDir) + IconFile);
-      Inc(Cont);
-    end;
+    ReadActionsIconsIni(IniFile, BaseDir, aSection, aImageList, aActionList);
   finally
-    FreeAndNil(IniFile);
+    IniFile.Free;
   end;
 end;
 
@@ -263,6 +295,9 @@ var
   Adjustment: integer;
 begin
   Result := OrigRect;
+
+  if not Assigned(aImage) then
+    Exit;
 
   if aImage.Width > aImage.Height then
   begin

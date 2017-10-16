@@ -23,11 +23,10 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls,
-  Graphics, Dialogs,
-  ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList,
+  Graphics, Dialogs, ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList,
   IniFiles, dateutils,
   uCHXStrUtils, uCHXFileUtils, uCHXImageUtils,
-  ufCHXForm, ufCHXFrame;
+  ufrCHXForm, ufCHXFrame;
 
 type
 
@@ -119,11 +118,7 @@ type
 
     procedure SaveStats;
 
-    procedure SetGUIIconsIni(AValue: string); override;
-    procedure SetGUIConfigIni(AValue: string); override;
-
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string);
 
   public
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
@@ -135,10 +130,11 @@ type
     procedure AddImage(aImageFile: string; aObject: TObject = nil);
 
     // Creates a form with image viewer.
-    class function SimpleFormIL(aImageList: TStrings; aSHA1Folder: string;
-      aCurrItem: integer; aGUIIconsIni: string; aGUIConfigIni: string): Integer;
-    class function SimpleFormI(aImage: string; aSHA1Folder: string;  aGUIIconsIni: string;
-      aGUIConfigIni: string): Integer;
+    class function SimpleFormIL(aImageList: TStrings;
+      aSHA1Folder: string; aCurrItem: integer; aGUIIconsIni: string;
+      aGUIConfigIni: string): integer;
+    class function SimpleFormI(aImage: string; aSHA1Folder: string;
+      aGUIIconsIni: string; aGUIConfigIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -331,6 +327,12 @@ begin
   FStartTime := AValue;
 end;
 
+procedure TfmCHXImgViewer.DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string
+  );
+begin
+  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilActions, ActionList);
+end;
+
 procedure TfmCHXImgViewer.StretchImage;
 var
   Factor: extended;
@@ -469,27 +471,6 @@ begin
   end;
 end;
 
-procedure TfmCHXImgViewer.SetGUIIconsIni(AValue: string);
-begin
-  inherited SetGUIIconsIni(AValue);
-  ReadActionsIcons(GUIIconsIni, Name, ilActions, ActionList);
-end;
-
-procedure TfmCHXImgViewer.SetGUIConfigIni(AValue: string);
-begin
-  inherited SetGUIConfigIni(AValue);
-end;
-
-procedure TfmCHXImgViewer.ClearFrameData;
-begin
-
-end;
-
-procedure TfmCHXImgViewer.LoadFrameData;
-begin
-
-end;
-
 procedure TfmCHXImgViewer.AddImages(aImageList: TStrings; Index: integer);
 var
   i: integer;
@@ -518,7 +499,7 @@ end;
 
 class function TfmCHXImgViewer.SimpleFormIL(aImageList: TStrings;
   aSHA1Folder: string; aCurrItem: integer; aGUIIconsIni: string;
-  aGUIConfigIni: string): Integer;
+  aGUIConfigIni: string): integer;
 var
   aForm: TfrmCHXForm;
   fmCHXImageViewer: TfmCHXImgViewer;
@@ -536,8 +517,8 @@ begin
     fmCHXImageViewer.SHA1Folder := aSHA1Folder;
     fmCHXImageViewer.AddImages(aImageList, aCurrItem);
 
-    aForm.GUIConfigIni := aGUIConfigIni;
-    aForm.GUIIconsIni := aGUIIconsIni;
+    aForm.LoadGUIConfig(aGUIConfigIni);
+    aForm.LoadGUIIcons(aGUIIconsIni);
     fmCHXImageViewer.Parent := aForm;
 
     Result := aForm.ShowModal;
@@ -547,8 +528,8 @@ begin
   end;
 end;
 
-class function TfmCHXImgViewer.SimpleFormI(aImage: string; aSHA1Folder: string;
-  aGUIIconsIni: string; aGUIConfigIni: string): Integer;
+class function TfmCHXImgViewer.SimpleFormI(aImage: string;
+  aSHA1Folder: string; aGUIIconsIni: string; aGUIConfigIni: string): integer;
 var
   aImageList: TStringList;
 begin
@@ -559,7 +540,8 @@ begin
   aImageList := TStringList.Create;
   try
     aImageList.Add(aImage);
-    Result := SimpleFormIL(aImageList, aSHA1Folder, 1, aGUIIconsIni, aGUIConfigIni);
+    Result := SimpleFormIL(aImageList, aSHA1Folder, 1, aGUIIconsIni,
+      aGUIConfigIni);
   finally
     aImageList.Free;
   end;

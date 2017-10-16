@@ -111,18 +111,23 @@ type
 
   private
     FCurrentFile: string;
+    FGUIConfigIni: string;
+    FGUIIconsIni: string;
     FScriptEngine: cCHXScriptEngine;
     procedure SetCurrentFile(AValue: string);
+    procedure SetGUIConfigIni(AValue: string);
+    procedure SetGUIIconsIni(AValue: string);
     procedure SetScriptEngine(AValue: cCHXScriptEngine);
 
 
   protected
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
 
     property ScriptEngine: cCHXScriptEngine
       read FScriptEngine write SetScriptEngine;
+
+    property GUIIconsIni: string read FGUIIconsIni write SetGUIIconsIni;
+    property GUIConfigIni: string read FGUIConfigIni write SetGUIConfigIni;
 
     procedure CreateCustomEngine; virtual;
 
@@ -134,13 +139,16 @@ type
 
     procedure UpdateSLV;
 
-    procedure SetGUIIconsIni(AValue: string); override;
-
     procedure DoWriteLn(const aStr: string); virtual;
     function DoReadLn(const aQuestion, DefAnswer: string): string; virtual;
     function DoAskFile(const aCaption, aExtFilter, DefFile: string): string; virtual;
     procedure DoAskMultiFile(aFileList: TStrings; const aCaption, aExtFilter, DefFolder: string); virtual;
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
+
+    procedure DoClearFrameData;
+    procedure DoLoadFrameData;
+    procedure DoLoadGUIConfig(aIniFile: TIniFile);
+    procedure DoLoadGUIIcons(aIconsIni: TIniFile; aBaseFolder: string);
 
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
@@ -320,6 +328,16 @@ begin
   FCurrentFile := AValue;
 end;
 
+procedure TfmCHXScriptManager.SetGUIConfigIni(AValue: string);
+begin
+  FGUIConfigIni := SetAsFile(AValue);
+end;
+
+procedure TfmCHXScriptManager.SetGUIIconsIni(AValue: string);
+begin
+  FGUIIconsIni := SetAsFile(AValue);
+end;
+
 procedure TfmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);
 begin
   if FScriptEngine = AValue then
@@ -327,14 +345,26 @@ begin
   FScriptEngine := AValue;
 end;
 
-procedure TfmCHXScriptManager.ClearFrameData;
+procedure TfmCHXScriptManager.DoClearFrameData;
 begin
 
 end;
 
-procedure TfmCHXScriptManager.LoadFrameData;
+procedure TfmCHXScriptManager.DoLoadFrameData;
 begin
 
+end;
+
+procedure TfmCHXScriptManager.DoLoadGUIConfig(aIniFile: TIniFile);
+begin
+  GUIConfigIni := aIniFile.FileName;
+end;
+
+procedure TfmCHXScriptManager.DoLoadGUIIcons(aIconsIni: TIniFile;
+  aBaseFolder: string);
+begin
+  GUIIconsIni:= aIconsIni.FileName;
+  ReadActionsIconsIni(aIconsIni, aBaseFolder, Name, ilActions, ActionList);
 end;
 
 procedure TfmCHXScriptManager.CreateCustomEngine;
@@ -437,13 +467,6 @@ begin
   slvGeneral.Update;
 end;
 
-procedure TfmCHXScriptManager.SetGUIIconsIni(AValue: string);
-begin
-  inherited SetGUIIconsIni(AValue);
-
-  ReadActionsIcons(GUIIconsIni, Name, ilActions, ActionList);
-end;
-
 procedure TfmCHXScriptManager.DoWriteLn(const aStr: string);
 begin
   mOutPut.Lines.Add(aStr);
@@ -497,6 +520,10 @@ begin
   PageControl.ActivePage := pagScriptList;
 
   CreateCustomEngine;
+
+  OnClearFrameData := @DoClearFrameData;
+  OnLoadFrameData := @DoLoadFrameData;
+  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXScriptManager.Destroy;

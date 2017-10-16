@@ -86,14 +86,9 @@ type
     procedure OnListClickCheck(aObject: TObject; aBool: Boolean);  virtual; abstract;
     procedure SetCheckedAll(aBool: Boolean); virtual; abstract;
 
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override; abstract;
-    {< Load list data. }
-
+    procedure DoClearFrameData; virtual;
 
   public
-    procedure SaveFrameData; override; abstract;
-    {< Save current list data. }
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -130,7 +125,7 @@ begin
       clbPropItems.Checked[clbPropItems.ItemIndex]);
 end;
 
-procedure TfmCHXChkLstPropEditor.ClearFrameData;
+procedure TfmCHXChkLstPropEditor.DoClearFrameData;
 begin
   clbPropItems.Clear;
 end;
@@ -164,6 +159,8 @@ end;
 constructor TfmCHXChkLstPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+
+  OnClearFrameData := @DoClearFrameData;
 
   actFrameOK.Caption := rsLECLPESaveList; // Make clear that is item list save
 end;

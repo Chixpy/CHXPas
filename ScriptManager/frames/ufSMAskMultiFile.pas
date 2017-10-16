@@ -8,7 +8,7 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
   StdCtrls, Buttons, ActnList, EditBtn, ComCtrls,
   uCHXDlgUtils,
-  ufCHXPropEditor, ufCHXForm;
+  ufCHXPropEditor, ufrCHXForm;
 
 type
 
@@ -41,12 +41,12 @@ type
     procedure SetOutFileList(AValue: TStrings);
 
   protected
-    procedure ClearFrameData; override;
-    procedure LoadFrameData; override;
+    procedure DoClearFrameData;
+    procedure DoLoadFrameData;
+    procedure DoSaveFrameData;
 
   public
     property OutFileList: TStrings read FOutFileList write SetOutFileList;
-    procedure SaveFrameData; override;
 
     // Creates a form with AddSoft frame.
     class function SimpleForm(aFileList: TStrings; const aTitle: string;
@@ -117,12 +117,12 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmSMAskMultiFile.ClearFrameData;
+procedure TfmSMAskMultiFile.DoClearFrameData;
 begin
   lbxFiles.Clear;
 end;
 
-procedure TfmSMAskMultiFile.LoadFrameData;
+procedure TfmSMAskMultiFile.DoLoadFrameData;
 begin
   Enabled := Assigned(OutFileList);
   if not Enabled then
@@ -134,7 +134,7 @@ begin
   lbxFiles.Items.Assign(OutFileList);
 end;
 
-procedure TfmSMAskMultiFile.SaveFrameData;
+procedure TfmSMAskMultiFile.DoSaveFrameData;
 begin
   if assigned(OutFileList) then
     OutFileList.Assign(lbxFiles.Items);
@@ -164,8 +164,8 @@ begin
     SetDlgInitialDir(aFrame.OpenDialog1, DefFolder);
     aFrame.OutFileList := aFileList;
 
-    aForm.GUIConfigIni := aGUIConfigIni;
-    aForm.GUIIconsIni := aGUIIconsIni;
+    aForm.LoadGUIConfig(aGUIConfigIni);
+    aForm.LoadGUIIcons(aGUIIconsIni);
     aFrame.Parent := aForm;
 
     Result := aForm.ShowModal;
@@ -177,6 +177,10 @@ end;
 constructor TfmSMAskMultiFile.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
+
+  OnClearFrameData := @DoClearFrameData;
+  OnLoadFrameData := @DoLoadFrameData;
+  OnSaveFrameData := @DoSaveFrameData;
 end;
 
 destructor TfmSMAskMultiFile.Destroy;
