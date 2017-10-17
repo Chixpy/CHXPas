@@ -139,7 +139,7 @@ end;
 procedure TfmCHXPropEditor.SaveFrameData;
 begin
   if Assigned(OnSaveFrameData) then
-    SaveFrameData;
+    OnSaveFrameData;
 end;
 
 constructor TfmCHXPropEditor.Create(TheOwner: TComponent);
