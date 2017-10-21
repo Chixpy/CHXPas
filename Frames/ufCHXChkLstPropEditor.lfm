@@ -151,8 +151,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     object miAddItem: TMenuItem
       Action = actAddItem
     end
-    object miSaveList: TMenuItem
-    end
     object MenuItem4: TMenuItem
       Caption = '-'
     end

@@ -132,7 +132,7 @@ end;
 
 procedure TfmCHXChkLstPropEditor.actCheckAllExecute(Sender: TObject);
 begin
-   clbPropItems.CheckAll(cbChecked);
+  clbPropItems.CheckAll(cbChecked);
   SetCheckedAll(True);
 end;
 
