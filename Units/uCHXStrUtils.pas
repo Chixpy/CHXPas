@@ -45,8 +45,8 @@ function UnixPath(const aPath: string): string;
 
 // FILENAME UTILS
 // ---------------
-function CleanFileName(const AFileName: string;
-  const DoTrim: boolean = True; const PathAware: boolean = False): string;
+function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
+  const PathAware: boolean = False): string;
 {< Changes some invalid characters in filenames.
 
   @param(DoTrim Trim spaces at beggining and end, preventing filenames beggining
@@ -143,7 +143,7 @@ begin
   if Pos1 < Pos2 then
     Result := UTF8Trim(UTF8Copy(aString, 1, Pos1 - 1))
   else
-    Result := UTF8Trim(UTF8Copy(aString, 1, Pos2 - 1))
+    Result := UTF8Trim(UTF8Copy(aString, 1, Pos2 - 1));
 end;
 
 function CopyFromBrackets(const aString: string): string;
@@ -162,7 +162,7 @@ begin
   if Pos1 < Pos2 then
     Result := UTF8Trim(UTF8Copy(aString, Pos1, MaxInt))
   else
-    Result := UTF8Trim(UTF8Copy(aString, Pos2, MaxInt))
+    Result := UTF8Trim(UTF8Copy(aString, Pos2, MaxInt));
 end;
 
 function TextSimilarity(const aString1, aString2: string): byte;
@@ -256,16 +256,12 @@ end;
 // --------------------
 function SetAsFolder(const aValue: string): string;
 begin
-  Result := SysPath(aValue);
+  Result := aValue;
 
-{ TODO: Emuteca specific
-  // For Emuteca, always relative...
-  if FilenameIsAbsolute(Result) then
-    Result := CreateRelativePath(Result, SysPath(GetCurrentDirUTF8), False);
-}
+  Result := ExcludeTrailingPathDelimiter(Result);
 
   { Always with TrailingPathDelimiter, but only if it's not empty or root }
-  if ExcludeTrailingPathDelimiter(Result) <> '' then
+  if Result <> '' then
     Result := IncludeTrailingPathDelimiter(Result);
 
   // I like UNIX PathSep :-) (and it's better for cross-configuring)
@@ -282,7 +278,7 @@ end;
 
 function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
 var
-  IsFolder: Boolean;
+  IsFolder: boolean;
 begin
   IsFolder := False;
   if Length(aFileName) > 0 then
@@ -307,12 +303,12 @@ function SupportedExtCT(aFilename: string; aExtCT: string): boolean;
 var
   aTempSL: TStringList;
 begin
-  aTempSL:=TStringList.create;
+  aTempSL := TStringList.Create;
   try
-    aTempSL.CommaText :=    aExtCT;
-    Result := SupportedExtSL(aFilename,aTempSL);
+    aTempSL.CommaText := aExtCT;
+    Result := SupportedExtSL(aFilename, aTempSL);
   finally
-    aTempSL.Free ;
+    aTempSL.Free;
   end;
 end;
 
@@ -384,8 +380,8 @@ end;
 
 // FILE NAME UTILS
 // ---------------
-function CleanFileName(const AFileName: string;
-  const DoTrim: boolean = True; const PathAware: boolean = False): string;
+function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
+  const PathAware: boolean = False): string;
 begin
 
   // Windows (and Linux) invalid characters
@@ -486,7 +482,7 @@ begin
 
   // Dots...
   if Result[1] = '.' then
-    Result := Copy(Result,2, Length(Result));
+    Result := Copy(Result, 2, Length(Result));
   Result := UTF8TextReplace(Result, ',.', ',');
 
   Result := '*.' + UTF8TextReplace(Result, ',', ';*.');

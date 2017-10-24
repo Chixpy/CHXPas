@@ -551,6 +551,7 @@ constructor TfmCHXImgViewer.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
   ImageIndex := -1;
+  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXImgViewer.Destroy;

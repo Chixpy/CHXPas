@@ -397,7 +397,7 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
   procedure ReturnOnlyPaths(aFileList: TStrings);
   var
     slLine: TStringList;
-    i, aPos: integer;
+    i: integer;
   begin
     // Removing additional data
     // slLine is out of the iteration to avoid creating-deleting every time.

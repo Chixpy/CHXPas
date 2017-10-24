@@ -22,8 +22,7 @@ unit ufCHXFrame;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, inifiles,
-  uCHXStrUtils;
+  Classes, SysUtils, FileUtil, Forms, Controls, inifiles;
 
 type
   TCHXUseGUIConfigIni = procedure(aIniFile: TIniFile) of object;
