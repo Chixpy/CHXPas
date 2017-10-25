@@ -35,7 +35,7 @@ uses
   uPSR_graphics, uPSR_menus,
   uPSC_std, uPSC_controls, uPSC_stdctrls, uPSC_forms, uPSC_buttons,
   uPSC_classes, uPSC_dateutils, uPSC_dll, uPSC_DB, uPSC_extctrls,
-  uPSC_graphics, uPSC_menus, uPSC_strutils,
+  uPSC_graphics, uPSC_menus, // uPSC_strutils,
   // CHX
   uCHXStrUtils, u7zWrapper, uCHXDlgUtils,
   // Imported units
@@ -532,7 +532,7 @@ end;
 procedure cCHXScriptEngine.PasScriptOnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
-  SIRegister_StrUtils(x);
+  //SIRegister_StrUtils(x);
   RegisterDateTimeLibrary_C(x);
   RegisterDll_Compiletime(x);
   SIRegister_Std(x);
@@ -555,7 +555,7 @@ end;
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
   se: TPSExec; x: TPSRuntimeClassImporter);
 begin
-  RIRegister_StrUtils_Routines(se);
+  //RIRegister_StrUtils_Routines(se);
   RegisterDateTimeLibrary_R(se);
   RegisterDLLRuntime(se);
   RIRegister_Std(x);
