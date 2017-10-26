@@ -44,7 +44,8 @@ resourcestring
   w7zFileNotFound = '"%0:s" file not found. ' + LineEnding +
     'Current Dir: %1:s';
   //< Translatable string: '"%0:s" file not found'
-  w7zExeError = '7z.exe/7zG.exe returned %0:d exit code';
+  w7zExeError = '7z.exe/7zG.exe returned %1:d exit code.' + LineEnding +
+    'Archive: %0:s';
   //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
   w7zNoCRC32 = 'Error extracting CRC32:' + LineEnding + '%0:s ';
 //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
@@ -595,7 +596,7 @@ begin
 
   // TODO 3: Handle Warnings too...
   if (i <> 0) and (i <> 1) then // 1 = Warning
-    raise w7zException.CreateFmt(w7zExeError, [i]);
+    raise w7zException.CreateFmt(w7zExeError, [a7zArchive, i]);
 
   // Reading files and creating cache file
   // -------------------------------------

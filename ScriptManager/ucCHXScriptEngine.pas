@@ -32,14 +32,13 @@ uses
   // Pascal script common units import
   uPSR_std, uPSR_controls, uPSR_stdctrls, uPSR_forms, uPSR_buttons,
   uPSR_classes, uPSR_dateutils, uPSR_dll, uPSR_DB, uPSR_extctrls,
-  uPSR_graphics, uPSR_menus,
-  uPSC_std, uPSC_controls, uPSC_stdctrls, uPSC_forms, uPSC_buttons,
-  uPSC_classes, uPSC_dateutils, uPSC_dll, uPSC_DB, uPSC_extctrls,
-  uPSC_graphics, uPSC_menus, // uPSC_strutils,
+  uPSR_graphics, uPSR_menus, uPSC_std, uPSC_controls, uPSC_stdctrls,
+  uPSC_forms, uPSC_buttons, uPSC_classes, uPSC_dateutils, uPSC_dll,
+  uPSC_DB, uPSC_extctrls, uPSC_graphics, uPSC_menus,
   // CHX
-  uCHXStrUtils, u7zWrapper, uCHXDlgUtils,
+  uCHXStrUtils, u7zWrapper,
   // Imported units
-  uPSI_u7zWrapper, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils;
+  uPSI_u7zWrapper, uPSI_StrUtils, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils;
 
 resourcestring
   rsSEECompilationMsg = 'Compiling: %s.';
@@ -108,6 +107,7 @@ type
 
     // Strings
     function CHXRPos(const Substr, Source: string): integer;
+    function CHXPosEx(const SubStr, Source: string; Offset: integer): integer;
 
     function CHXLowerCase(const AInStr: string): string;
     function CHXUpperCase(const AInStr: string): string;
@@ -258,6 +258,9 @@ begin
   // String handling
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXRPos,
     'function RPos(const Substr: String; const Source: String) : Integer;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXPosEx,
+    'function PosEx(const SubStr, Source: string; Offset: integer): integer;');
+
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareText,
     'function CompareText(const S1, S2: String): Integer;');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareStr,
@@ -415,6 +418,12 @@ begin
   Result := RPos(Substr, Source);
 end;
 
+function cCHXScriptEngine.CHXPosEx(const SubStr, Source: string; Offset: integer
+  ): integer;
+begin
+  Result := PosEx(Substr, Source, Offset);
+end;
+
 function cCHXScriptEngine.CHXLowerCase(const AInStr: string): string;
 begin
   Result := UTF8LowerCase(AInStr, '');
@@ -546,6 +555,9 @@ begin
   SIRegister_Menus(x);
   SIRegister_DB(x);
 
+  // Common
+  SIRegister_StrUtils(x);
+
   // CHX
   SIRegister_u7zWrapper(x);
   SIRegister_uCHXStrUtils(x);
@@ -568,6 +580,9 @@ begin
   RIRegister_Buttons(x);
   RIRegister_Menus(x);
   RIRegister_DB(x);
+
+  // Common
+  RIRegister_StrUtils_Routines(se);
 
   // CHX
   RIRegister_u7zWrapper_Routines(se);
