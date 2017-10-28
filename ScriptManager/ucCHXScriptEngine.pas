@@ -251,7 +251,7 @@ procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
 begin
   // Input and Output
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXWriteLn,
-    'procedure WriteLn(const s: String)');
+    'procedure WriteLn(const s: String);');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXReadLn,
     'function ReadLn(const aQuestion, DefAnswer: String): String;');
 
