@@ -11,7 +11,7 @@ object frmCHXProgressBar: TfrmCHXProgressBar
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '6.0'
+  LCLVersion = '1.8.0.5'
   Visible = True
   object lAction: TLabel
     Left = 4

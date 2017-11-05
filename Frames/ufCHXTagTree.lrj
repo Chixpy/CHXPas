@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":5966629,"name":"tfmchxtagtree.vst.header.columns[0].text","sourcebytes":[84,105,116,108,101],"value":"Title"},
+{"hash":81144514,"name":"tfmchxtagtree.vst.header.columns[1].text","sourcebytes":[70,111,108,100,101,114],"value":"Folder"},
+{"hash":315429,"name":"tfmchxtagtree.vst.header.columns[2].text","sourcebytes":[70,105,108,101],"value":"File"}
+]}

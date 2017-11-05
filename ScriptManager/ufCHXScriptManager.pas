@@ -65,6 +65,7 @@ type
     actOutputFontEdit: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
+    lCurrentFile: TLabel;
     lbxInfo: TListBox;
     mOutPut: TMemo;
     mScriptInfo: TMemo;
@@ -74,7 +75,7 @@ type
     pagOutput: TTabSheet;
     pagSourceCode: TTabSheet;
     pFolders: TPanel;
-    pRight: TPanel;
+    pBottom: TPanel;
     sbInfo: TStatusBar;
     sbSourceEditor: TStatusBar;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
@@ -405,9 +406,12 @@ begin
 
   if not FileExistsUTF8(CurrentFile) then
   begin
+    lCurrentFile.Caption := ' '; // An space to keeo size
     SynEdit.Lines.Clear;
     Exit;
   end;
+
+  lCurrentFile.Caption := aFile;
 
   // TODO 2: Temporal script info until section is parsed properly.
   aIni := TIniFile.Create(CurrentFile, True);

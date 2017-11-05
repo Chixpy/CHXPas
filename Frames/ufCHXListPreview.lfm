@@ -26,7 +26,6 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Left = 85
       Height = 22
       Top = 2
-      Width = 5
       Caption = 'ToolButton1'
       Style = tbsDivider
     end
@@ -44,7 +43,6 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Left = 136
       Height = 22
       Top = 2
-      Width = 8
       Caption = 'ToolButton6'
       Style = tbsSeparator
     end
@@ -61,13 +59,13 @@ inherited fmCHXListPreview: TfmCHXListPreview
     end
   end
   object ilPreviewList: TImageList[1]
-    Left = 260
-    Top = 188
+    left = 260
+    top = 188
   end
   object alPreviewList: TActionList[2]
     Images = ilPreviewList
-    Left = 260
-    Top = 212
+    left = 260
+    top = 212
     object actPreviousItem: TAction
       Category = 'List'
       Caption = 'Previous item'

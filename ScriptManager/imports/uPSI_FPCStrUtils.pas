@@ -19,6 +19,52 @@ procedure SIRegister_FPCStrUtils(CL: TPSPascalCompiler);
 procedure RIRegister_FPCStrUtils_Routines(S: TPSExec);
 
 implementation
+// Helper functions
+function CHXLeftStr(const AText: string; const ACount: SizeInt): string;
+begin
+  Result := LeftStr(AText, ACount);
+end;
+
+function CHXRightStr(const AText: string; const ACount: SizeInt): string;
+begin
+  Result := RightStr(AText, ACount);
+end;
+
+function CHXMidStr(const AText: string; const AStart, ACount: SizeInt): string;
+begin
+  Result := MidStr(AText, AStart, ACount);
+end;
+
+function CHXRightBStr(const AText: string; const AByteCount: SizeInt): string;
+begin
+  Result := RightBStr(AText, AByteCount);
+end;
+
+function CHXMidBStr(const AText: string; const AByteStart, AByteCount: SizeInt): string;
+begin
+  Result := MidBStr(AText, AByteStart, AByteCount);
+end;
+
+function CHXAnsiLeftStr(const AText: string; const ACount: SizeInt): string;
+begin
+  Result := AnsiLeftStr(AText, ACount);
+end;
+
+function CHXAnsiRightStr(const AText: string; const ACount: SizeInt): string;
+begin
+  Result := AnsiRightStr(AText, ACount);
+end;
+
+function CHXAnsiMidStr(const AText: string; const AStart, ACount: SizeInt): string;
+begin
+  Result := AnsiMidStr(AText, AStart, ACount);
+end;
+
+function CHXLeftBStr(const AText: string; const AByteCount: SizeInt): string;
+begin
+  Result := LeftBStr(AText, AByteCount);
+end;
+
 function CHXRPos(const Substr: string; const Source: string): SizeInt;
 begin
   Result := RPos(Substr, Source);
@@ -79,35 +125,35 @@ begin
     'function IfThen(AValue: Boolean; const ATrue: string; const AFalse: string): string;');
   CL.AddDelphiFunction(
     'function NaturalCompareText (const S1, S2 : string): Integer;');
-  //CL.AddDelphiFunction(
-  //  'function NaturalCompareText(const Str1, Str2: string; const ADecSeparator, AThousandSeparator: Char): Integer;');
+  //-CL.AddDelphiFunction(
+  //-  'function NaturalCompareText(const Str1, Str2: string; const ADecSeparator, AThousandSeparator: Char): Integer;');
 
   // VB emulations.
 
-  //CL.AddDelphiFunction(
-  //  'function LeftStr(const AText: AnsiString; const ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function RightStr(const AText: AnsiString; const ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function MidStr(const AText: AnsiString; const AStart, ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function RightBStr(const AText: AnsiString; const AByteCount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function MidBStr(const AText: AnsiString; const AByteStart, AByteCount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function AnsiLeftStr(const AText: AnsiString; const ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function AnsiRightStr(const AText: AnsiString; const ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function AnsiMidStr(const AText: AnsiString; const AStart, ACount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function LeftBStr(const AText: AnsiString; const AByteCount: SizeInt): AnsiString;');
-  //CL.AddDelphiFunction(
-  //  'function LeftStr(const AText: WideString; const ACount: SizeInt): WideString;');
-  //CL.AddDelphiFunction(
-  //  'function RightStr(const AText: WideString; const ACount: SizeInt): WideString;');
-  //CL.AddDelphiFunction(
-  //  'function MidStr(const AText: WideString; const AStart, ACount: SizeInt): WideString;');
+  CL.AddDelphiFunction(
+    'function LeftStr(const AText: string; const ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function RightStr(const AText: string; const ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function MidStr(const AText: string; const AStart, ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function RightBStr(const AText: string; const AByteCount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function MidBStr(const AText: string; const AByteStart, AByteCount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function AnsiLeftStr(const AText: string; const ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function AnsiRightStr(const AText: string; const ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function AnsiMidStr(const AText: string; const AStart, ACount: SizeInt): string;');
+  CL.AddDelphiFunction(
+    'function LeftBStr(const AText: string; const AByteCount: SizeInt): string;');
+  //-CL.AddDelphiFunction(
+  //-  'function LeftStr(const AText: WideString; const ACount: SizeInt): WideString;');
+  //-CL.AddDelphiFunction(
+  //-  'function RightStr(const AText: WideString; const ACount: SizeInt): WideString;');
+  //-CL.AddDelphiFunction(
+  //-  'function MidStr(const AText: WideString; const AStart, ACount: SizeInt): WideString;');
 
   // Extended search and replace
 
@@ -383,15 +429,15 @@ begin
 
   // VB emulations.
 
-  S.RegisterDelphiFunction(@LeftStr, 'LeftStr', cdRegister);
-  S.RegisterDelphiFunction(@RightStr, 'RightStr', cdRegister);
-  S.RegisterDelphiFunction(@MidStr, 'MidStr', cdRegister);
-  S.RegisterDelphiFunction(@RightBStr, 'RightBStr', cdRegister);
-  S.RegisterDelphiFunction(@MidBStr, 'MidBStr', cdRegister);
-  S.RegisterDelphiFunction(@AnsiLeftStr, 'AnsiLeftStr', cdRegister);
-  S.RegisterDelphiFunction(@AnsiRightStr, 'AnsiRightStr', cdRegister);
-  S.RegisterDelphiFunction(@AnsiMidStr, 'AnsiMidStr', cdRegister);
-  S.RegisterDelphiFunction(@LeftBStr, 'LeftBStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXLeftStr, 'LeftStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXRightStr, 'RightStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXMidStr, 'MidStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXRightBStr, 'RightBStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXMidBStr, 'MidBStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXAnsiLeftStr, 'AnsiLeftStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXAnsiRightStr, 'AnsiRightStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXAnsiMidStr, 'AnsiMidStr', cdRegister);
+  S.RegisterDelphiFunction(@CHXLeftBStr, 'LeftBStr', cdRegister);
 
   // Extended search and replace
 

@@ -9,14 +9,18 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Top = 525
     Width = 802
     ClientWidth = 802
+    TabOrder = 2
     inherited chkCloseOnSave: TCheckBox
       Left = 153
+      TabOrder = 0
     end
     inherited bSave: TBitBtn
       Left = 355
+      TabOrder = 1
     end
     inherited bCancel: TBitBtn
       Left = 570
+      TabOrder = 2
     end
   end
   object pPropChkList: TPanel[1]
@@ -27,7 +31,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Align = alLeft
     ClientHeight = 525
     ClientWidth = 200
-    TabOrder = 1
+    TabOrder = 0
     object tbPropChkList: TToolBar
       Left = 1
       Height = 26
@@ -45,7 +49,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Left = 24
         Height = 22
         Top = 2
-        Width = 8
         Caption = 'ToolButton3'
         Style = tbsSeparator
       end
@@ -63,7 +66,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Left = 78
         Height = 22
         Top = 2
-        Width = 8
         Caption = 'ToolButton6'
         Style = tbsSeparator
       end
@@ -100,8 +102,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Width = 5
   end
   inherited alPropEditor: TActionList[3]
-    Left = 32
-    Top = 184
+    left = 32
+    top = 184
     object actAddItem: TAction[2]
       Category = 'ChkLstProp'
       Caption = 'Add item'
@@ -137,8 +139,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
   end
   object pmPropChkList: TPopupMenu[5]
     Images = ilPropEditor
-    Left = 32
-    Top = 432
+    left = 32
+    top = 432
     object miCheckAll: TMenuItem
       Action = actCheckAll
     end

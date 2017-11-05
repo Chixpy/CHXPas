@@ -1,6 +1,18 @@
 inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   DesignLeft = 461
   DesignTop = 243
+  inherited pButtons: TPanel
+    TabOrder = 3
+    inherited chkCloseOnSave: TCheckBox
+      TabOrder = 0
+    end
+    inherited bSave: TBitBtn
+      TabOrder = 1
+    end
+    inherited bCancel: TBitBtn
+      TabOrder = 2
+    end
+  end
   object pEditFolder: TPanel[1]
     Left = 0
     Height = 31
@@ -21,7 +33,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     ChildSizing.ControlsPerLine = 2
     ClientHeight = 31
     ClientWidth = 320
-    TabOrder = 1
+    TabOrder = 0
     object eImageFolder: TDirectoryEdit
       Left = 4
       Height = 23
@@ -34,7 +46,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
       NumGlyphs = 1
       Flat = True
       MaxLength = 0
-      TabOrder = 1
+      TabOrder = 0
       OnButtonClick = eImageFolderButtonClick
     end
     object eImageCaption: TEdit
@@ -42,7 +54,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
       Height = 23
       Top = 4
       Width = 142
-      TabOrder = 0
+      TabOrder = 1
     end
   end
   object pImageFolderLists: TPanel[2]
@@ -92,7 +104,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     AutoSize = True
     Caption = 'tbImageFolderButtons'
     Images = ilPropEditor
-    TabOrder = 3
+    TabOrder = 1
     object bAddFolder: TToolButton
       Left = 1
       Top = 2
