@@ -18,9 +18,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 312
     Top = 0
     Width = 644
-    ActivePage = pagSourceCode
+    ActivePage = pagScriptList
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 1
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -33,6 +33,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Width = 461
         Align = alClient
         Color = clDefault
+        HideSelection = False
         RowSelect = True
         ScrollBars = ssAutoBoth
         SortType = stBoth
@@ -116,22 +117,22 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Images = ilActions
         TabOrder = 0
         object bEditCopy: TToolButton
-          Left = 34
+          Left = 32
           Top = 0
           Action = actEditCopy
         end
         object bEditCut: TToolButton
-          Left = 57
+          Left = 55
           Top = 0
           Action = actEditCut
         end
         object bEditDelete: TToolButton
-          Left = 113
+          Left = 109
           Top = 0
           Action = actEditDelete
         end
         object bEditPaste: TToolButton
-          Left = 80
+          Left = 78
           Top = 0
           Action = actEditPaste
         end
@@ -139,15 +140,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 24
           Height = 22
           Top = 0
-          Width = 10
           Caption = '-'
           Style = tbsSeparator
         end
         object bSeparator2: TToolButton
-          Left = 103
+          Left = 101
           Height = 22
           Top = 0
-          Width = 10
           Caption = '-'
           Style = tbsSeparator
         end
@@ -157,56 +156,53 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Action = actEditUndo
         end
         object bSeparator3: TToolButton
-          Left = 136
+          Left = 132
           Height = 22
           Top = 0
-          Width = 10
           Caption = '-'
           Style = tbsSeparator
         end
         object bSearchFind: TToolButton
-          Left = 146
+          Left = 140
           Top = 0
           Action = actSearchFind
         end
         object bSearchReplace: TToolButton
-          Left = 169
+          Left = 163
           Top = 0
           Action = actSearchReplace
         end
         object bSeparator4: TToolButton
-          Left = 192
+          Left = 186
           Height = 22
           Top = 0
-          Width = 10
           Caption = 'bSeparator4'
           Style = tbsSeparator
         end
         object bSaveFileAs: TToolButton
-          Left = 225
+          Left = 217
           Top = 0
           Action = actFileSaveAs
         end
         object bSeparator5: TToolButton
-          Left = 248
+          Left = 240
           Height = 22
           Top = 0
-          Width = 10
           Caption = 'bSeparator5'
           Style = tbsSeparator
         end
         object bCompile: TToolButton
-          Left = 258
+          Left = 248
           Top = 0
           Action = actCompile
         end
         object bExecute: TToolButton
-          Left = 281
+          Left = 271
           Top = 0
           Action = actExecute
         end
         object bSave: TToolButton
-          Left = 202
+          Left = 194
           Top = 0
           Action = actFileSave
         end
@@ -766,9 +762,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object ToolButton2: TToolButton
           Left = 47
-          Height = 22
+          Height = 8
           Top = 2
-          Width = 8
           Caption = 'ToolButton2'
           Style = tbsSeparator
         end
@@ -831,13 +826,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object ilActions: TImageList[3]
-    Left = 32
-    Top = 168
+    left = 32
+    top = 168
   end
   object ActionList: TActionList[4]
     Images = ilActions
-    Left = 32
-    Top = 232
+    left = 32
+    top = 232
     object actEditCut: TEditCut
       Category = 'Edit'
       Caption = 'Cor&tar'
@@ -928,24 +923,24 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
-    Left = 32
-    Top = 112
+    left = 32
+    top = 112
   end
   object SynMacroRecorder: TSynMacroRecorder[6]
     RecordShortCut = 24658
     PlaybackShortCut = 24656
     Editor = SynEdit
-    Left = 32
-    Top = 64
+    left = 32
+    top = 64
   end
   object OpenDialog1: TOpenDialog[7]
     Options = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
-    Left = 536
-    Top = 72
+    left = 536
+    top = 72
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog[8]
     Options = [ofNoChangeDir, ofPathMustExist, ofEnableSizing, ofViewDetail]
-    Left = 540
-    Top = 175
+    left = 540
+    top = 175
   end
 end

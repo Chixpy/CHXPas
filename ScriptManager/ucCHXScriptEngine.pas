@@ -1,4 +1,6 @@
-{ Copyright (C) 2006-2017 Chixpy
+{ Script Engine.
+
+  Copyright (C) 2006-2018 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -25,20 +27,22 @@ interface
 
 uses
   // Common units
-  Classes, SysUtils, Controls, StrUtils, LazUTF8, Dialogs,
+  Classes, SysUtils, Controls, LazUTF8, Dialogs,
   Forms, LazFileUtils,
   // Pascal Script main units
   uPSComponent, uPSRuntime, uPSCompiler, uPSUtils,
   // Pascal script common units import
   uPSR_std, uPSR_controls, uPSR_stdctrls, uPSR_forms, uPSR_buttons,
   uPSR_classes, uPSR_dateutils, uPSR_dll, uPSR_DB, uPSR_extctrls,
-  uPSR_graphics, uPSR_menus, uPSC_std, uPSC_controls, uPSC_stdctrls,
+  uPSR_graphics, uPSR_menus, uPSR_comobj,
+  uPSC_std, uPSC_controls, uPSC_stdctrls,
   uPSC_forms, uPSC_buttons, uPSC_classes, uPSC_dateutils, uPSC_dll,
-  uPSC_DB, uPSC_extctrls, uPSC_graphics, uPSC_menus,
+  uPSC_DB, uPSC_extctrls, uPSC_graphics, uPSC_menus, uPSC_comobj,
   // CHX
   uCHXStrUtils, u7zWrapper,
   // Imported units
-  uPSI_u7zWrapper, uPSI_StrUtils, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils;
+  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
+  uPSI_u7zWrapper;
 
 resourcestring
   rsSEECompilationMsg = 'Compiling: %s.';
@@ -106,9 +110,6 @@ type
     // TODO: Make them external.
 
     // Strings
-    function CHXRPos(const Substr, Source: string): integer;
-    function CHXPosEx(const SubStr, Source: string; Offset: integer): integer;
-
     function CHXLowerCase(const AInStr: string): string;
     function CHXUpperCase(const AInStr: string): string;
 
@@ -256,11 +257,6 @@ begin
     'function ReadLn(const aQuestion, DefAnswer: String): String;');
 
   // String handling
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXRPos,
-    'function RPos(const Substr: String; const Source: String) : Integer;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXPosEx,
-    'function PosEx(const SubStr, Source: string; Offset: integer): integer;');
-
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareText,
     'function CompareText(const S1, S2: String): Integer;');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareStr,
@@ -413,17 +409,6 @@ begin
     raise ENotImplemented.Create('OnReadLn not assigned.');
 end;
 
-function cCHXScriptEngine.CHXRPos(const Substr, Source: string): integer;
-begin
-  Result := RPos(Substr, Source);
-end;
-
-function cCHXScriptEngine.CHXPosEx(const SubStr, Source: string; Offset: integer
-  ): integer;
-begin
-  Result := PosEx(Substr, Source, Offset);
-end;
-
 function cCHXScriptEngine.CHXLowerCase(const AInStr: string): string;
 begin
   Result := UTF8LowerCase(AInStr, '');
@@ -541,7 +526,6 @@ end;
 procedure cCHXScriptEngine.PasScriptOnCompImport(Sender: TObject;
   x: TPSPascalCompiler);
 begin
-  //SIRegister_StrUtils(x);
   RegisterDateTimeLibrary_C(x);
   RegisterDll_Compiletime(x);
   SIRegister_Std(x);
@@ -554,9 +538,12 @@ begin
   SIRegister_Buttons(x);
   SIRegister_Menus(x);
   SIRegister_DB(x);
+  SIRegister_ComObj(x);
 
-  // Common
-  SIRegister_StrUtils(x);
+  SIRegister_CHXBasic(x);
+
+  // FPC
+  SIRegister_FPCStrUtils(x);
 
   // CHX
   SIRegister_u7zWrapper(x);
@@ -567,7 +554,6 @@ end;
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
   se: TPSExec; x: TPSRuntimeClassImporter);
 begin
-  //RIRegister_StrUtils_Routines(se);
   RegisterDateTimeLibrary_R(se);
   RegisterDLLRuntime(se);
   RIRegister_Std(x);
@@ -580,9 +566,12 @@ begin
   RIRegister_Buttons(x);
   RIRegister_Menus(x);
   RIRegister_DB(x);
+  RIRegister_ComObj(se);
 
-  // Common
-  RIRegister_StrUtils_Routines(se);
+  RIRegister_CHXBasic_Routines(se);
+
+  // FPC
+  RIRegister_FPCStrUtils_Routines(se);
 
   // CHX
   RIRegister_u7zWrapper_Routines(se);
