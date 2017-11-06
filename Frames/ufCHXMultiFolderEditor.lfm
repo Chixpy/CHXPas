@@ -3,15 +3,6 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   DesignTop = 243
   inherited pButtons: TPanel
     TabOrder = 3
-    inherited chkCloseOnSave: TCheckBox
-      TabOrder = 0
-    end
-    inherited bSave: TBitBtn
-      TabOrder = 1
-    end
-    inherited bCancel: TBitBtn
-      TabOrder = 2
-    end
   end
   object pEditFolder: TPanel[1]
     Left = 0
