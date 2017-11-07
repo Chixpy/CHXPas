@@ -41,14 +41,18 @@ uses
   uCHXStrUtils, uCHXFileUtils;
 
 resourcestring
-  w7zFileNotFound = '"%0:s" file not found. ' + LineEnding +
-    'Current Dir: %1:s';
+  rsw7zErrorLine = '%0:s - %1:s: %2:s';
+  //< Translatable string, line in file error: ''%0:s - %1:s: %2:s'
+  rsw7zFileNotFound = '"%0:s" file not found.';
   //< Translatable string: '"%0:s" file not found'
-  w7zExeError = '7z.exe/7zG.exe returned %1:d exit code.' + LineEnding +
-    'Archive: %0:s';
-  //< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
-  w7zNoCRC32 = 'Error extracting CRC32:' + LineEnding + '%0:s ';
-//< Translatable string: '7z.exe/7zG.exe returned %0:d exit code'
+  rsw7zExeError = '7z.exe/7zG.exe error %1:d exit code.' +
+    LineEnding + 'File: "%0:s"';
+  //< Translatable string: '7z.exe/7zG.exe error %1:d exit code.'
+  rsw7zExeWarning = '7z.exe/7zG.exe warning %1:d exit code.' +
+    LineEnding + 'File: "%0:s"';
+  //< Translatable string: '7z.exe/7zG.exe warning %1:d exit code.'
+  rsw7zNoCRC32 = 'Error extracting CRC32: "%0:s"';
+//< Translatable string: 'Error extracting CRC32: %0:s'
 
 const
   // Experimental Global Cache
@@ -66,11 +70,13 @@ const
     'hxw,img,iso,jar,lha,lit,lzh,lzma,lzma86,mbr,msi,msp,nsis,ntfs,ppt,' +
     'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,txz,' +
     'vhd,wim,xar,xls,xpi,xz,z,zip';
-  //< Initial suported file extensions, use w7zGetFileExts to get current
-  //  ones. A program can drop or add supported extensions. After all it's
-  //  only a reference list.
-type
-  w7zException = class(Exception);
+//< Initial suported file extensions, use w7zGetFileExts to get current
+//  ones. A program can drop or add supported extensions. After all it's
+//  only a reference list.
+
+function w7zGetErrorList: TStringList;
+function w7zGetLastError: string;
+procedure w7zSetErrorListFile(aFile: string = '');
 
 function w7zGetFileExts: string;
 procedure w7zSetFileExts(aExtList: string = '');
@@ -84,6 +90,8 @@ procedure w7zSetFileExts(aExtList: string = '');
    Warning: It's not used for test if the files passed as params are
      compressed files. It's only a reference list.
 }
+
+function w7zPathsOK: boolean;
 
 function w7zGetPathTo7zexe: string;
 procedure w7zSetPathTo7zexe(aPath: string);
@@ -116,7 +124,7 @@ procedure w7zSetGlobalCache(aPath: string);
   NOT DELETED AT EXIT. FOLDER MUST EXISTS.
 }
 
-function w7zFileExists(a7zArchive: string; const aInnerFile: string;
+function w7zFileExists(a7zArchive: string; aInnerFile: string;
   const Password: string): integer;
 
 procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
@@ -184,16 +192,19 @@ function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
 
 function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
   const Password: string): cardinal;
-function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+function w7zCRC32InnerFileStr(a7zArchive: string; aInnerFile: string;
   const Password: string): string;
 function w7zSHA32InnerFile(a7zArchive: string; const aInnerFile: string;
   const Password: string): TSHA1Digest;
-function w7zSHA32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+function w7zSHA32InnerFileStr(a7zArchive: string; aInnerFile: string;
   const Password: string): string;
 
 implementation
 
 var
+  w7zPathTo7zexeOK: boolean;
+  w7zPathTo7zGexeOK: boolean;
+
   w7zFileExts: string;
   {< String with suported file extensions by 7z.
 
@@ -229,6 +240,23 @@ var
 
     NOT DELETED AT EXIT. FOLDER MUST EXISTS.
   }
+  w7zErrorListFile: string;
+  w7zErrorList: TStringList;
+
+  {< Keeps a list of errors produced.
+  }
+procedure w7zErrorAdd(const aFunction, aError: string);
+begin
+  w7zErrorList.Add(Format(rsw7zErrorLine, [DateTimeToStr(Now),
+    aFunction, aError]));
+end;
+
+procedure w7zErrorOK;
+begin
+  if (w7zErrorList.Count > 0) and
+    (w7zErrorList[w7zErrorList.Count - 1] <> '') then
+    w7zErrorList.Add('');
+end;
 
 procedure SaveGlobalCache(FileSHA1: string; PackedFiles: TStrings);
 var
@@ -237,8 +265,9 @@ var
   aIni: TMemIniFile;
   i: integer;
 begin
-  if (w7zGetGlobalCache = '') or (not DirectoryExistsUTF8(w7zGetGlobalCache)) then
-    Exit;
+  if (w7zGetGlobalCache = '') or
+    (not DirectoryExistsUTF8(w7zGetGlobalCache)) then
+    Exit; // No global cache
 
   aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
     Copy(FileSHA1, 1, 3) + '.ini';
@@ -295,6 +324,28 @@ begin
   end;
 end;
 
+function w7zGetErrorList: TStringList;
+begin
+  Result := w7zErrorList;
+end;
+
+function w7zGetLastError: string;
+begin
+  if w7zErrorList.Count > 0 then
+    Result := w7zErrorList[w7zErrorList.Count - 1]
+  else
+    Result := '';
+end;
+
+procedure w7zSetErrorListFile(aFile: string);
+begin
+  w7zErrorListFile := aFile;
+end;
+
+function w7zPathsOK: boolean;
+begin
+  Result := w7zPathTo7zexeOK and w7zPathTo7zGexeOK;
+end;
 
 function w7zGetFileExts: string;
 begin
@@ -317,6 +368,13 @@ end;
 procedure w7zSetPathTo7zexe(aPath: string);
 begin
   w7zPathTo7zexe := CleanAndExpandFilename(SetAsFile(aPath));
+  w7zPathTo7zexeOK := FileExistsUTF8(w7zPathTo7zexe);
+
+  if not w7zPathTo7zexeOK then
+    w7zErrorAdd('w7zSetPathTo7zexe', Format(rsw7zFileNotFound,
+      [w7zPathTo7zexe]))
+  else
+    w7zErrorOK;
 end;
 
 function w7zGetPathTo7zGexe: string;
@@ -327,6 +385,13 @@ end;
 procedure w7zSetPathTo7zGexe(aPath: string);
 begin
   w7zPathTo7zGexe := CleanAndExpandFilename(SetAsFile(aPath));
+  w7zPathTo7zGexeOK := FileExistsUTF8(w7zPathTo7zGexe);
+
+  if not w7zPathTo7zGexeOK then
+    w7zErrorAdd('w7zSetPathTo7zGexe', Format(rsw7zFileNotFound,
+      [w7zPathTo7zGexe]))
+  else
+    w7zErrorOK;
 end;
 
 function w7zGetCacheDir: string;
@@ -341,7 +406,7 @@ begin
   aPath := CleanAndExpandDirectory(SetAsFolder(aPath));
 
   // TODO: Better security check...
-  if Length(w7zCacheDir) > 25 then
+  if Length(w7zCacheDir) > 15 then
     DeleteDirectory(w7zCacheDir, False);
   ForceDirectoriesUTF8(aPath);
   w7zCacheDir := aPath;
@@ -357,7 +422,7 @@ begin
   w7zGlobalCache := SetAsFolder(aPath);
 end;
 
-function w7zFileExists(a7zArchive: string; const aInnerFile: string;
+function w7zFileExists(a7zArchive: string; aInnerFile: string;
   const Password: string): integer;
 var
   aFileList: TStringList;
@@ -371,6 +436,8 @@ begin
     Exit;
   end;
 
+  aInnerFile:= SysPath(aInnerFile);
+
   aFileList := TStringList.Create;
   try
     aFileList.BeginUpdate;
@@ -381,7 +448,7 @@ begin
     Result := 1;
     while (Result <> 0) and (i < aFileList.Count) do
     begin
-      Result := CompareFilenames(aFileList[i], aInnerFile);
+      Result := CompareFilenamesIgnoreCase(SysPath(aFileList[i]), aInnerFile);
       Inc(i);
     end;
 
@@ -521,16 +588,17 @@ begin
     PackedFiles := TStringList.Create;
 
   // Checking needed file: 7z.exe
-  if not FileExistsUTF8(w7zGetPathTo7zexe) then
-    raise EInOutError.CreateFmt(w7zFileNotFound,
-      [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
+  if not w7zPathTo7zexeOK then
+    Exit;
 
   // Sometimes are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
   if not FileExistsUTF8(a7zArchive) then
-    raise EInOutError.CreateFmt(w7zFileNotFound,
-      [a7zArchive, GetCurrentDirUTF8]);
+  begin
+    w7zErrorAdd('w7zListFiles', Format(rsw7zFileNotFound, [a7zArchive]));
+    Exit;
+  end;
 
   // SHA1 of the file... cache file is saved always
   FileSHA1 := SHA1Print(SHA1File(UTF8ToSys(a7zArchive)));
@@ -594,9 +662,17 @@ begin
     FreeAndNil(msOutput);
   end;
 
-  // TODO 3: Handle Warnings too...
-  if (i <> 0) and (i <> 1) then // 1 = Warning
-    raise w7zException.CreateFmt(w7zExeError, [a7zArchive, i]);
+  if i > 1 then
+  begin
+    w7zErrorAdd('w7zListFiles', Format(rsw7zExeError, [a7zArchive, i]));
+    Exit;
+  end;
+
+  if i = 1 then // Warning
+  begin
+    w7zErrorAdd('w7zListFiles', Format(rsw7zExeWarning, [a7zArchive, i]));
+    //Exit; Don't exit
+  end;
 
   // Reading files and creating cache file
   // -------------------------------------
@@ -693,6 +769,8 @@ begin
 
   if OnlyPaths then
     ReturnOnlyPaths(PackedFiles);
+
+  w7zErrorOK;
 end;
 
 procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
@@ -778,35 +856,38 @@ begin
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
-  // TODO: If explorer is opened some times this raise the exception,
-  //   and file allready exists.
   if not FileExistsUTF8(a7zArchive) then
-    raise EInOutError.CreateFmt(w7zFileNotFound,
-      [a7zArchive, GetCurrentDirUTF8]);
+  begin
+    w7zErrorAdd('w7zExtractFile', Format(rsw7zFileNotFound, [a7zArchive]));
+    Exit;
+  end;
 
   aOptions := [poWaitOnExit];
-  aExeString := w7zGetPathTo7zexe;
-  aFolder := SetAsFolder(aFolder);
+
+  // 7z.exe returns Fatal Error if not changed back to windows style :-(
+  aFolder := SysPath(SetAsFolder(aFolder));
+
   if ShowProgress then
   begin
-    if not FileExistsUTF8(w7zGetPathTo7zGexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound,
-        [w7zGetPathTo7zGexe, GetCurrentDirUTF8]);
-    aExeString := w7zGetPathTo7zGexe;
+    if w7zPathTo7zGexeOK then
+    begin
+      aExeString := w7zGetPathTo7zGexe;
+    end
+    else if w7zPathTo7zexeOK then
+    begin
+      aExeString := w7zGetPathTo7zexe;
+      aOptions := aOptions + [poNewConsole];
+    end
+    else
+      Exit;
   end
   else
   begin
-    if not FileExistsUTF8(w7zGetPathTo7zexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound,
-        [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
+    if not w7zPathTo7zexeOK then
+      Exit;
 
-    if ShowProgress then
-      aOptions := aOptions + [poNewConsole]
-    else
-      aOptions := aOptions + [poNoConsole];
-
-    // 7z.exe returns Fatal Error if not changed back to windows style :-(
-    aFolder := SysPath(aFolder);
+    aExeString := w7zGetPathTo7zexe;
+    aOptions := aOptions + [poNoConsole];
   end;
 
   aProcess := TProcess.Create(nil);
@@ -836,6 +917,7 @@ begin
   finally
     FreeAndNil(aProcess);
   end;
+  w7zErrorOK;
 end;
 
 function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
@@ -848,19 +930,28 @@ var
 
 begin
   aOptions := [poWaitOnExit];
-  aExeString := w7zGetPathTo7zexe;
-  if (ShowProgress) and (FileExistsUTF8(w7zGetPathTo7zGexe)) then
-    aExeString := w7zGetPathTo7zGexe
+
+  if ShowProgress then
+  begin
+    if w7zPathTo7zGexeOK then
+    begin
+      aExeString := w7zGetPathTo7zGexe;
+    end
+    else if w7zPathTo7zexeOK then
+    begin
+      aExeString := w7zGetPathTo7zexe;
+      aOptions := aOptions + [poNewConsole];
+    end
+    else
+      Exit;
+  end
   else
   begin
-    if FileExistsUTF8(w7zGetPathTo7zexe) then
-      raise EInOutError.CreateFmt(w7zFileNotFound,
-        [w7zGetPathTo7zexe, GetCurrentDirUTF8]);
+    if not w7zPathTo7zexeOK then
+      Exit;
 
-    if ShowProgress then
-      aOptions := aOptions + [poNewConsole]
-    else
-      aOptions := aOptions + [poNoConsole];
+    aExeString := w7zGetPathTo7zexe;
+    aOptions := aOptions + [poNoConsole];
   end;
 
   // Sometime are stored as directories
@@ -898,6 +989,8 @@ begin
   finally
     FreeAndNil(aProcess);
   end;
+
+  w7zErrorOK;
 end;
 
 function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
@@ -910,7 +1003,7 @@ begin
     aInnerFile, Password), 0);
 end;
 
-function w7zCRC32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+function w7zCRC32InnerFileStr(a7zArchive: string; aInnerFile: string;
   const Password: string): string;
 var
   aFileList, TmpStrList: TStringList;
@@ -922,6 +1015,7 @@ begin
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
+  aInnerFile := SysPath(aInnerFile);
 
   aFileList := TStringList.Create;
   TmpStrList := TStringList.Create;
@@ -938,7 +1032,7 @@ begin
       TmpStrList.CommaText := aFileList[i];
 
       if (TmpStrList.Count > 4) and
-        (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
+        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]), aInnerFile) = 0) then
       begin
         Result := TmpStrList[4]; // CRC32
         Found := True;
@@ -995,7 +1089,7 @@ begin
     a7zArchive, aInnerFile, Password));
 end;
 
-function w7zSHA32InnerFileStr(a7zArchive: string; const aInnerFile: string;
+function w7zSHA32InnerFileStr(a7zArchive: string; aInnerFile: string;
   const Password: string): string;
 var
   aFileList, TmpStrList: TStringList;
@@ -1007,6 +1101,7 @@ begin
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
+  aInnerFile := SysPath(aInnerFile);
 
   aFileList := TStringList.Create;
   TmpStrList := TStringList.Create;
@@ -1023,7 +1118,7 @@ begin
       TmpStrList.CommaText := aFileList[i];
 
       if (TmpStrList.Count > 5) and
-        (CompareFilenamesIgnoreCase(TmpStrList[0], aInnerFile) = 0) then
+        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]), aInnerFile) = 0) then
       begin
         Result := TmpStrList[5]; // SHA1
         Found := True;
@@ -1075,19 +1170,35 @@ end;
 
 initialization
   w7zSetFileExts('');
+
+  w7zPathTo7zexeOK := False;
+  w7zPathTo7zGexeOK := False;
+
   // Little checks before default location...
-  w7zSetPathTo7zexe(GetCurrentDirUTF8 + PathDelim + '7z.exe');
-  if not FileExistsUTF8(w7zGetPathTo7zexe) then
+  if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z.exe') then
+    w7zSetPathTo7zexe(GetCurrentDirUTF8 + PathDelim + '7z.exe')
+  else if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z' +
+    PathDelim + '7z.exe') then
     w7zSetPathTo7zexe(GetCurrentDirUTF8 + PathDelim + '7z' +
       PathDelim + '7z.exe');
-  w7zSetPathTo7zGexe(GetCurrentDirUTF8 + PathDelim + '7zG.exe');
-  if not FileExistsUTF8(w7zGetPathTo7zGexe) then
+
+  if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7zG.exe') then
+    w7zSetPathTo7zGexe(GetCurrentDirUTF8 + PathDelim + '7zG.exe')
+  else if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z' +
+    PathDelim + '7zG.exe') then
     w7zSetPathTo7zGexe(GetCurrentDirUTF8 + PathDelim + '7z' +
       PathDelim + '7zG.exe');
 
   w7zSetCacheDir('');
+  w7zErrorList := TStringList.Create;
+  w7zSetErrorListFile('');
 
 finalization
+  if w7zErrorListFile <> '' then
+    if not (w7zErrorList.Count = 0) then
+      w7zErrorList.SaveToFile(w7zErrorListFile);
+  w7zErrorList.Free;
+
   // Removing Temp dir
   // TODO: Crappy security check
   if Length(w7zGetCacheDir) > 15 then

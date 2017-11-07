@@ -38,9 +38,9 @@ implementation
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 begin
   // Resource Strings
-  CL.AddConstantN('w7zFileNotFound', 'String').SetString(w7zFileNotFound);
-  CL.AddConstantN('rsw7zExeError', 'String').SetString(w7zExeError);
-  CL.AddConstantN('w7zNoCRC32', 'String').SetString(w7zNoCRC32);
+  CL.AddConstantN('w7zFileNotFound', 'String').SetString(rsw7zFileNotFound);
+  CL.AddConstantN('rsw7zExeError', 'String').SetString(rsw7zExeError);
+  CL.AddConstantN('w7zNoCRC32', 'String').SetString(rsw7zNoCRC32);
 
   // Constants
   CL.AddConstantN('kw7zGCIniPrefix', 'String').SetString(kw7zGCIniPrefix);
