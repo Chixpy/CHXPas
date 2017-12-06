@@ -638,8 +638,8 @@ begin
     aProcess.Parameters.Add('-scsUTF-8');
     aProcess.Parameters.Add('-sccUTF-8');
     if Password <> '' then
-      aProcess.Parameters.Add('-p' + UTF8ToSys(Password));
-    aProcess.Parameters.Add(UTF8ToSys(a7zArchive));
+      aProcess.Parameters.Add('-p' + UTF8ToWinCP(Password));
+    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
     aProcess.Options := aProcess.Options + [poUsePipes, poNoConsole];
     aProcess.Execute;
 
@@ -896,7 +896,7 @@ begin
     aProcess.Options := aOptions;
 
     aProcess.Parameters.Add('x');
-    aProcess.Parameters.Add(UTF8ToSys(a7zArchive));
+    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
     aProcess.Parameters.Add('-scsUTF-8');
     aProcess.Parameters.Add('-sccUTF-8');
 
@@ -908,10 +908,10 @@ begin
       aProcess.Parameters.Add('-y');
     end;
     if Password <> '' then
-      aProcess.Parameters.Add('-p' + UTF8ToSys(Password));
-    aProcess.Parameters.Add('-o' + UTF8ToSys(aFolder));
+      aProcess.Parameters.Add('-p' + UTF8ToWinCP(Password));
+    aProcess.Parameters.Add('-o' + UTF8ToWinCP(aFolder));
     aProcess.Parameters.Add('--');
-    aProcess.Parameters.Add(UTF8ToSys(aFileMask));
+    aProcess.Parameters.Add(UTF8ToWinCP(aFileMask));
     aProcess.Execute;
     Result := aProcess.ExitStatus;
   finally
@@ -964,7 +964,7 @@ begin
 
     aProcess.Parameters.Add('a');
     if CompType <> '' then
-      aProcess.Parameters.Add('-t' + UTF8ToSys(CompType));
+      aProcess.Parameters.Add('-t' + UTF8ToWinCP(CompType));
     aProcess.Parameters.Add('-scsUTF-8');
     aProcess.Parameters.Add('-sccUTF-8');
     aProcess.Parameters.Add('-mx=9');
@@ -978,11 +978,11 @@ begin
     end;
     aProcess.Parameters.Add('--');
 
-    aProcess.Parameters.Add(UTF8ToSys(a7zArchive));
+    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
 
 
     for i := 0 to aFileList.Count - 1 do
-      aProcess.Parameters.Add(UTF8ToSys(aFileList[i]));
+      aProcess.Parameters.Add(UTF8ToWinCP(aFileList[i]));
 
     aProcess.Execute;
     Result := aProcess.ExitStatus;

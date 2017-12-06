@@ -39,10 +39,8 @@ type
     procedure lbxImageCaptionsSelectionChange(Sender: TObject; User: boolean);
     procedure lbxImageFoldersSelectionChange(Sender: TObject; User: boolean);
   private
-    FBaseFolder: string;
     FCaptionList: TStrings;
     FFolderList: TStrings;
-    procedure SetBaseFolder(AValue: string);
     procedure SetCaptionList(AValue: TStrings);
     procedure SetFolderList(AValue: TStrings);
 
@@ -55,9 +53,10 @@ type
     procedure DoSaveFrameData;
 
   public
-    property BaseFolder: string read FBaseFolder write SetBaseFolder;
     property FolderList: TStrings read FFolderList write SetFolderList;
     property CaptionList: TStrings read FCaptionList write SetCaptionList;
+
+        procedure SetBaseFolder(AValue: string);
 
        constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -89,8 +88,7 @@ end;
 
 procedure TfmCHXMultiFolderEditor.SetBaseFolder(AValue: string);
 begin
-  if FBaseFolder=AValue then Exit;
-  FBaseFolder:=AValue;
+  SetDirEditInitialDir(eImageFolder, AValue);
 end;
 
 procedure TfmCHXMultiFolderEditor.SetFolderList(AValue: TStrings);
@@ -122,7 +120,6 @@ end;
 
 procedure TfmCHXMultiFolderEditor.eImageFolderButtonClick(Sender: TObject);
 begin
-  SetDirEditInitialDir(eImageFolder, BaseFolder);
 end;
 
 procedure TfmCHXMultiFolderEditor.actAddFolderExecute(Sender: TObject);

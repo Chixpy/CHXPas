@@ -65,9 +65,14 @@ begin
   Result := LeftBStr(AText, AByteCount);
 end;
 
-function CHXRPos(const Substr: string; const Source: string): SizeInt;
+function CHXRPos(const Substr, Source: string): SizeInt;
 begin
   Result := RPos(Substr, Source);
+end;
+
+function CHXRPosEx(const Substr, Source: string; OffSet: SizeInt): SizeInt;
+begin
+  Result := RPosEX(Substr, Source, OffSet);
 end;
 
 procedure SIRegister_FPCStrUtils(CL: TPSPascalCompiler);
@@ -245,10 +250,13 @@ begin
     'function Tab2Space(const S: string; Numb: Byte): string;');
   CL.AddDelphiFunction(
     'function NPos(const C: string; S: string; N: Integer): SizeInt;');
-  //CL.AddDelphiFunction(
-  //  'function RPosEX(C:char;const S : AnsiString;offs:cardinal):SizeInt;');
-  //CL.AddDelphiFunction(
-  //  'function RPosex (Const Substr : AnsiString; Const Source : AnsiString;offs:cardinal) : SizeInt;');
+  //-CL.AddDelphiFunction(
+  //-  'function RPosEX(C:char;const S : AnsiString;offs:cardinal):SizeInt;');
+  //-CL.AddDelphiFunction(
+  //-  'function RPosex (Const Substr : AnsiString; Const Source : AnsiString;offs:cardinal) : SizeInt;');
+  // CHX overload:
+  CL.AddDelphiFunction(
+    'function RPosEx(const Substr, Source: string; Offset: SizeUint): SizeInt;');
   //-CL.AddDelphiFunction(
   //-  'function RPos(c:char;const S : AnsiString):SizeInt;');
   //-CL.AddDelphiFunction(
@@ -469,7 +477,7 @@ begin
   S.RegisterDelphiFunction(@DelSpace1, 'DelSpace1', cdRegister);
   S.RegisterDelphiFunction(@Tab2Space, 'Tab2Space', cdRegister);
   S.RegisterDelphiFunction(@NPos, 'NPos', cdRegister);
-  S.RegisterDelphiFunction(@RPosEX, 'RPosEX', cdRegister);
+  S.RegisterDelphiFunction(@CHXRPosEX, 'RPosEX', cdRegister);
   S.RegisterDelphiFunction(@CHXRPos, 'RPos', cdRegister);
   S.RegisterDelphiFunction(@AddChar, 'AddChar', cdRegister);
   S.RegisterDelphiFunction(@AddCharR, 'AddCharR', cdRegister);

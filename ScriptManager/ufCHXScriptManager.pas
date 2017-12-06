@@ -474,6 +474,9 @@ end;
 procedure TfmCHXScriptManager.DoWriteLn(const aStr: string);
 begin
   mOutPut.Lines.Add(aStr);
+
+  // TODO: Maybe this must go with a timer...
+  Application.ProcessMessages;
 end;
 
 function TfmCHXScriptManager.DoReadLn(const aQuestion, DefAnswer: string): string;

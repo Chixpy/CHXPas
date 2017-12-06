@@ -106,6 +106,9 @@ procedure TfmSMAskMultiFile.actAddFilesExecute(Sender: TObject);
 begin
   if not OpenDialog1.Execute then Exit;
 
+  if OpenDialog1.Files.Count > 0 then
+    SetDlgInitialDir(OpenDialog1, ExtractFileDir(OpenDialog1.Files[0]));
+
   lbxFiles.Items.AddStrings(OpenDialog1.Files);
 end;
 
