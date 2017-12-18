@@ -3,8 +3,8 @@ object fmCHXFrame: TfmCHXFrame
   Height = 240
   Top = 0
   Width = 320
+  ChildSizing.VerticalSpacing = 4
   Enabled = False
-  LCLVersion = '6.0'
   TabOrder = 0
   DesignLeft = 470
   DesignTop = 246

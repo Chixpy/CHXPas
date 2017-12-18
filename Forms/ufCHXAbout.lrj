@@ -1,9 +1,9 @@
 {"version":1,"strings":[
-{"hash":229255092,"name":"tfrmchxabout.caption","sourcebytes":[102,114,109,67,72,88,65,98,111,117,116],"value":"frmCHXAbout"},
-{"hash":119212837,"name":"tfrmchxabout.ltitle.caption","sourcebytes":[108,84,105,116,108,101],"value":"lTitle"},
-{"hash":214538574,"name":"tfrmchxabout.lversion.caption","sourcebytes":[108,86,101,114,115,105,111,110],"value":"lVersion"},
-{"hash":132304622,"name":"tfrmchxabout.gbxcompilation.caption","sourcebytes":[103,98,120,67,111,109,112,105,108,97,116,105,111,110],"value":"gbxCompilation"},
-{"hash":153275454,"name":"tfrmchxabout.lcompilation.caption","sourcebytes":[108,67,111,109,112,105,108,97,116,105,111,110],"value":"lCompilation"},
-{"hash":51380724,"name":"tfrmchxabout.gbximageext.caption","sourcebytes":[103,98,120,73,109,97,103,101,69,120,116],"value":"gbxImageExt"},
-{"hash":58584564,"name":"tfrmchxabout.limageext.caption","sourcebytes":[108,73,109,97,103,101,69,120,116],"value":"lImageExt"}
+{"hash":231183028,"name":"tfrmchxabout.caption","sourcebytes":[67,72,88,65,98,111,117,116],"value":"CHXAbout"},
+{"hash":5966629,"name":"tfrmchxabout.ltitle.caption","sourcebytes":[84,105,116,108,101],"value":"Title"},
+{"hash":214540302,"name":"tfrmchxabout.lversion.caption","sourcebytes":[86,101,114,115,105,111,110],"value":"Version"},
+{"hash":50391055,"name":"tfrmchxabout.gbxcompilation.caption","sourcebytes":[67,111,109,112,105,108,97,116,105,111,110,32,105,110,102,111],"value":"Compilation info"},
+{"hash":6474798,"name":"tfrmchxabout.lcompilation.caption","sourcebytes":[67,111,109,112,105,108,97,116,105,111,110],"value":"Compilation"},
+{"hash":37660291,"name":"tfrmchxabout.gbximageext.caption","sourcebytes":[83,117,112,112,111,114,116,101,100,32,105,109,97,103,101,32,101,120,116,101,110,115,105,111,110,115],"value":"Supported image extensions"},
+{"hash":58563060,"name":"tfrmchxabout.limageext.caption","sourcebytes":[73,109,97,103,101,69,120,116],"value":"ImageExt"}
 ]}

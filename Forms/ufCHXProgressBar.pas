@@ -46,8 +46,8 @@ type
 
   TfrmCHXProgressBar = class(TForm)
     bCancel: TBitBtn;
-    lInfo1: TLabel;
     lAction: TLabel;
+    lInfo1: TLabel;
     lInfo2: TLabel;
     ProgressBar: TProgressBar;
     procedure bCancelClick(Sender: TObject);

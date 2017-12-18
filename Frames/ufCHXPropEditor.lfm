@@ -3,16 +3,17 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
   DesignTop = 268
   object pButtons: TPanel[0]
     Left = 0
-    Height = 27
-    Top = 213
+    Height = 26
+    Top = 214
     Width = 320
     Align = alBottom
     AutoSize = True
+    BevelOuter = bvNone
     ChildSizing.EnlargeHorizontal = crsHomogenousSpaceResize
     ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
     ChildSizing.Layout = cclTopToBottomThenLeftToRight
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 27
+    ClientHeight = 26
     ClientWidth = 320
     TabOrder = 0
     object chkCloseOnSave: TCheckBox

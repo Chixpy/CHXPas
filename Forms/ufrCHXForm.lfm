@@ -4,14 +4,17 @@ object frmCHXForm: TfrmCHXForm
   Top = 199
   Width = 640
   Caption = 'frmCHXForm'
+  ChildSizing.LeftRightSpacing = 4
+  ChildSizing.TopBottomSpacing = 4
+  ChildSizing.HorizontalSpacing = 4
   Position = poMainFormCenter
   SessionProperties = 'Height;Width;WindowState'
   ShowHint = True
-  LCLVersion = '6.0'
+  LCLVersion = '1.8.0.5'
   object IniPropStorage: TIniPropStorage
     StoredValues = <>
     IniSection = 'Forms'
-    Left = 488
-    Top = 416
+    left = 488
+    top = 416
   end
 end
