@@ -362,8 +362,7 @@ begin
 
   if Assigned(ScriptError) then
   begin
-    ScriptError.Add('PSScriptNeedFile - OriginFileName: ' + OriginFileName);
-    ScriptError.Add('PSScriptNeedFile - FileName: ' + FileName);
+    ScriptError.Add('PSScriptNeedFile: ' + FileName + ' (' + OriginFileName + ')');
   end;
 
   Result := False;
