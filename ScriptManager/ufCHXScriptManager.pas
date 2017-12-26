@@ -530,6 +530,7 @@ begin
 
   OnClearFrameData := @DoClearFrameData;
   OnLoadFrameData := @DoLoadFrameData;
+  OnLoadGUIConfig := @DoLoadGUIConfig;
   OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 

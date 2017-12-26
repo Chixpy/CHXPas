@@ -105,12 +105,10 @@ begin
     try
       if FileExistsUTF8(aFile) then
         Img.LoadFromFile(aFile);
-    except
-      // Add it empty
-      ;
+    finally
+      FileList.Add(aFile);
+      Result := Add(Img);
     end;
-    FileList.Add(aFile);
-    Result := Add(Img);
   end;
 end;
 

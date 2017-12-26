@@ -25,12 +25,12 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     ClientHeight = 31
     ClientWidth = 320
     TabOrder = 0
-    object eImageFolder: TDirectoryEdit
+    object eFolder: TDirectoryEdit
       Left = 4
       Height = 23
       Top = 4
       Width = 166
-      OnAcceptDirectory = eImageFolderAcceptDirectory
+      OnAcceptDirectory = eFolderAcceptDirectory
       DialogOptions = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
       ShowHidden = False
       ButtonWidth = 23
@@ -38,9 +38,9 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
       Flat = True
       MaxLength = 0
       TabOrder = 0
-      OnButtonClick = eImageFolderButtonClick
+      OnButtonClick = eFolderButtonClick
     end
-    object eImageCaption: TEdit
+    object eCaption: TEdit
       Left = 174
       Height = 23
       Top = 4
@@ -50,8 +50,8 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   end
   object pImageFolderLists: TPanel[2]
     Left = 0
-    Height = 158
-    Top = 55
+    Height = 147
+    Top = 63
     Width = 320
     Align = alClient
     BevelOuter = bvNone
@@ -65,12 +65,12 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     ChildSizing.ShrinkVertical = crsHomogenousChildResize
     ChildSizing.Layout = cclLeftToRightThenTopToBottom
     ChildSizing.ControlsPerLine = 2
-    ClientHeight = 158
+    ClientHeight = 147
     ClientWidth = 320
     TabOrder = 2
     object lbxImageFolders: TListBox
       Left = 4
-      Height = 150
+      Height = 139
       Top = 4
       Width = 154
       ItemHeight = 0
@@ -79,7 +79,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     end
     object lbxImageCaptions: TListBox
       Left = 162
-      Height = 150
+      Height = 139
       Top = 4
       Width = 154
       ItemHeight = 0
@@ -90,7 +90,7 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   object tbImageFolderButtons: TToolBar[3]
     Left = 0
     Height = 24
-    Top = 31
+    Top = 35
     Width = 320
     AutoSize = True
     Caption = 'tbImageFolderButtons'

@@ -244,7 +244,10 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
             aAction := TCustomAction(Action);
             ImageList := aAction.ActionList.Images;
             if (ImageList <> nil) and (aAction.Imageindex >= 0) then
+            begin
               ImageList.GetBitmap(aAction.Imageindex, Glyph);
+              ShowCaption := False; // Speed buttons -> no caption
+            end;
           end;
         end;
       end;

@@ -24,7 +24,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
   inifiles, IniPropStorage,
-  uCHXStrUtils,
+  uCHXStrUtils, uCHXImageUtils,
   ufCHXFrame;
 
 type
@@ -168,7 +168,7 @@ begin
 
   aIniFile := TMemIniFile.Create(aIconsIni);
   try
-    if Assigned(OnLoadGUIConfig) then
+    if Assigned(OnLoadGUIIcons) then
       OnLoadGUIIcons(aIniFile);
 
     // Updating all TfmCHXFrame components
@@ -176,6 +176,8 @@ begin
   finally
     aIniFile.Free;
   end;
+
+  FixComponentImagesFromActions(Self);
 end;
 
 constructor TfrmCHXForm.Create(TheOwner: TComponent);

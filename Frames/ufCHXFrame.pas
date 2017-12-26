@@ -22,7 +22,8 @@ unit ufCHXFrame;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, inifiles;
+  Classes, SysUtils, FileUtil, Forms, Controls, inifiles,
+  uCHXImageUtils;
 
 type
   TCHXUseGUIConfigIni = procedure(aIniFile: TIniFile) of object;
@@ -218,6 +219,8 @@ begin
     LoadGUIIconsChildren(Components[i], aIconsIni, aBaseFolder);
     Inc(i);
   end;
+
+  FixComponentImagesFromActions(Self);
 end;
 
 procedure TfmCHXFrame.ClearFrameData;

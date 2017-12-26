@@ -3,10 +3,14 @@ object frmCHXForm: TfrmCHXForm
   Height = 480
   Top = 199
   Width = 640
+  HorzScrollBar.Page = 1
+  VertScrollBar.Page = 1
+  AutoSize = True
   Caption = 'frmCHXForm'
   ChildSizing.LeftRightSpacing = 4
   ChildSizing.TopBottomSpacing = 4
   ChildSizing.HorizontalSpacing = 4
+  ChildSizing.VerticalSpacing = 4
   Position = poMainFormCenter
   SessionProperties = 'Height;Width;WindowState'
   ShowHint = True

@@ -21,8 +21,8 @@ type
     actFolderUp: TAction;
     actFolderDown: TAction;
     actUpdateFolder: TAction;
-    eImageCaption: TEdit;
-    eImageFolder: TDirectoryEdit;
+    eCaption: TEdit;
+    eFolder: TDirectoryEdit;
     lbxImageCaptions: TListBox;
     lbxImageFolders: TListBox;
     pEditFolder: TPanel;
@@ -34,15 +34,17 @@ type
     procedure actAddFolderExecute(Sender: TObject);
     procedure actDeleteFolderExecute(Sender: TObject);
     procedure actUpdateFolderExecute(Sender: TObject);
-    procedure eImageFolderAcceptDirectory(Sender: TObject; var Value: string);
-    procedure eImageFolderButtonClick(Sender: TObject);
+    procedure eFolderAcceptDirectory(Sender: TObject; var Value: string);
+    procedure eFolderButtonClick(Sender: TObject);
     procedure lbxImageCaptionsSelectionChange(Sender: TObject; User: boolean);
     procedure lbxImageFoldersSelectionChange(Sender: TObject; User: boolean);
   private
     FCaptionList: TStrings;
     FFolderList: TStrings;
+    FInitialFolder: string;
     procedure SetCaptionList(AValue: TStrings);
     procedure SetFolderList(AValue: TStrings);
+    procedure SetInitialFolder(AValue: string);
 
   protected
 
@@ -55,10 +57,9 @@ type
   public
     property FolderList: TStrings read FFolderList write SetFolderList;
     property CaptionList: TStrings read FCaptionList write SetCaptionList;
+    property InitialFolder: string read FInitialFolder write SetInitialFolder;
 
-        procedure SetBaseFolder(AValue: string);
-
-       constructor Create(TheOwner: TComponent); override;
+    constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
 
@@ -86,11 +87,6 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmCHXMultiFolderEditor.SetBaseFolder(AValue: string);
-begin
-  SetDirEditInitialDir(eImageFolder, AValue);
-end;
-
 procedure TfmCHXMultiFolderEditor.SetFolderList(AValue: TStrings);
 begin
   if FFolderList = AValue then
@@ -98,6 +94,12 @@ begin
   FFolderList := AValue;
 
   LoadFrameData;
+end;
+
+procedure TfmCHXMultiFolderEditor.SetInitialFolder(AValue: string);
+begin
+  if FInitialFolder=AValue then Exit;
+  FInitialFolder:=AValue;
 end;
 
 procedure TfmCHXMultiFolderEditor.lbxImageCaptionsSelectionChange(
@@ -109,35 +111,36 @@ begin
   UpdateFolderData;
 end;
 
-procedure TfmCHXMultiFolderEditor.eImageFolderAcceptDirectory(Sender: TObject;
+procedure TfmCHXMultiFolderEditor.eFolderAcceptDirectory(Sender: TObject;
   var Value: string);
 begin
   if DirectoryExistsUTF8(Value) then
-    eImageCaption.Text := ExtractFileName(ExcludeTrailingPathDelimiter(Value))
+    eCaption.Text := ExtractFileName(ExcludeTrailingPathDelimiter(Value))
   else
-    eImageCaption.Clear;
+    eCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.eImageFolderButtonClick(Sender: TObject);
+procedure TfmCHXMultiFolderEditor.eFolderButtonClick(Sender: TObject);
 begin
+  SetDirEditInitialDir(eFolder, InitialFolder);
 end;
 
 procedure TfmCHXMultiFolderEditor.actAddFolderExecute(Sender: TObject);
 begin
-  if eImageFolder.Directory = '' then
+  if eFolder.Directory = '' then
     Exit;
 
-  lbxImageFolders.Items.Add(SetAsFolder(eImageFolder.Directory));
+  lbxImageFolders.Items.Add(SetAsFolder(eFolder.Directory));
 
 
-  if eImageCaption.Text = '' then
+  if eCaption.Text = '' then
   begin
     lbxImageCaptions.Items.Add(
-      ExtractFileName(ExcludeTrailingPathDelimiter(eImageFolder.Directory)));
+      ExtractFileName(ExcludeTrailingPathDelimiter(eFolder.Directory)));
   end
   else
   begin
-    lbxImageCaptions.Items.Add(eImageCaption.Text);
+    lbxImageCaptions.Items.Add(eCaption.Text);
   end;
 end;
 
@@ -154,7 +157,7 @@ procedure TfmCHXMultiFolderEditor.actUpdateFolderExecute(Sender: TObject);
 var
   aPos: integer;
 begin
-  if eImageFolder.Directory = '' then
+  if eFolder.Directory = '' then
     Exit;
 
   aPos := lbxImageFolders.ItemIndex;
@@ -162,19 +165,19 @@ begin
     exit;
 
   lbxImageFolders.Items.BeginUpdate;
-  lbxImageFolders.Items.Insert(aPos, eImageFolder.Directory);
+  lbxImageFolders.Items.Insert(aPos, eFolder.Directory);
   lbxImageFolders.Items.Delete(aPos + 1);
   lbxImageFolders.Items.EndUpdate;
 
   lbxImageCaptions.Items.BeginUpdate;
-  if eImageCaption.Text = '' then
+  if eCaption.Text = '' then
   begin
     lbxImageCaptions.Items.Insert(aPos,
-      ExtractFileName(ExcludeTrailingPathDelimiter(eImageFolder.Directory)));
+      ExtractFileName(ExcludeTrailingPathDelimiter(eFolder.Directory)));
   end
   else
   begin
-    lbxImageCaptions.Items.Insert(aPos, eImageCaption.Text);
+    lbxImageCaptions.Items.Insert(aPos, eCaption.Text);
   end;
   lbxImageCaptions.Items.Delete(aPos + 1);
   lbxImageCaptions.Items.EndUpdate;
@@ -183,14 +186,14 @@ end;
 procedure TfmCHXMultiFolderEditor.UpdateFolderData;
 begin
   if lbxImageFolders.ItemIndex <> -1 then
-    eImageFolder.Directory := lbxImageFolders.Items[lbxImageFolders.ItemIndex]
+    eFolder.Directory := lbxImageFolders.Items[lbxImageFolders.ItemIndex]
   else
-    eImageFolder.Clear;
+    eFolder.Clear;
 
   if lbxImageCaptions.ItemIndex <> -1 then
-    eImageCaption.Text := lbxImageCaptions.Items[lbxImageCaptions.ItemIndex]
+    eCaption.Text := lbxImageCaptions.Items[lbxImageCaptions.ItemIndex]
   else
-    eImageCaption.Clear;
+    eCaption.Clear;
 end;
 
 constructor TfmCHXMultiFolderEditor.Create(TheOwner: TComponent);
@@ -211,8 +214,8 @@ procedure TfmCHXMultiFolderEditor.DoClearFrameData;
 begin
   lbxImageFolders.Clear;
   lbxImageCaptions.Clear;
-  eImageFolder.Clear;
-  eImageCaption.Clear;
+  eFolder.Clear;
+  eCaption.Clear;
 end;
 
 procedure TfmCHXMultiFolderEditor.DoLoadFrameData;
@@ -227,8 +230,8 @@ begin
 
   lbxImageFolders.Items.AddStrings(FolderList, True);
   lbxImageCaptions.Items.AddStrings(CaptionList, True);
-  eImageFolder.Clear;
-  eImageCaption.Clear;
+  eFolder.Clear;
+  eCaption.Clear;
 end;
 
 procedure TfmCHXMultiFolderEditor.DoSaveFrameData;
