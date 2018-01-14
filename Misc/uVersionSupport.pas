@@ -28,6 +28,9 @@ Interface
 
   Mike Thompson - mike.cornflake@gmail.com
   July 24 2011
+
+  Modified by Chixpy in 2017:
+  m GetWidgetSet: Use LCLPlatformDisplayNames
 *)
 
 Uses
@@ -42,16 +45,6 @@ Function GetOS: String;
 Function GetResourceStrings(oStringList : TStrings) : Boolean;
 Function GetLCLVersion: String;
 function GetWidgetSet: string;
-
-Const
-  WIDGETSET_GTK        = 'GTK widget set';
-  WIDGETSET_GTK2       = 'GTK 2 widget set';
-  WIDGETSET_WIN        = 'Win32/Win64 widget set';
-  WIDGETSET_WINCE      = 'WinCE widget set';
-  WIDGETSET_CARBON     = 'Carbon widget set';
-  WIDGETSET_QT         = 'QT widget set';
-  WIDGETSET_fpGUI      = 'fpGUI widget set';
-  WIDGETSET_OTHER      = 'Other gui';
 
 Implementation
 
@@ -81,27 +74,17 @@ Type
 
 function GetWidgetSet: string;
 begin
-  case WidgetSet.LCLPlatform of
-    lpGtk:   Result := WIDGETSET_GTK;
-    lpGtk2:  Result := WIDGETSET_GTK2;
-    lpWin32: Result := WIDGETSET_WIN;
-    lpWinCE: Result := WIDGETSET_WINCE;
-    lpCarbon:Result := WIDGETSET_CARBON;
-    lpQT:    Result := WIDGETSET_QT;
-    lpfpGUI: Result := WIDGETSET_fpGUI;
-  else
-    Result:=WIDGETSET_OTHER;
-  end;
+  Result := LCLPlatformDisplayNames[WidgetSet.LCLPlatform];
 end;
 
 Function GetCompilerInfo: String;
 begin
-  Result := 'FPC '+{$I %FPCVERSION%};
+  Result := 'FPC ' + {$I %FPCVERSION%};
 end;
 
 Function GetTargetInfo: String;
 begin
-  Result := {$I %FPCTARGETCPU%}+' - '+{$I %FPCTARGETOS%};
+  Result := {$I %FPCTARGETCPU%} + ' - ' + {$I %FPCTARGETOS%};
 end;
 
 Function GetOS: String;
@@ -111,7 +94,7 @@ End;
 
 Function GetLCLVersion: String;
 begin
-  Result := 'LCL '+lcl_version;
+  Result := 'LCL ' + lcl_version;
 end;
 
 Function GetCompiledDate: String;

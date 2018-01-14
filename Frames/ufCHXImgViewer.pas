@@ -510,7 +510,7 @@ begin
   try
     aForm.Name := 'frmCHXImgViewer';
     aForm.Caption := Application.Title + ': Image Viewer';
-
+    aForm.AutoSize := False;
     fmCHXImageViewer := TfmCHXImgViewer.Create(aForm);
     fmCHXImageViewer.Align := alClient;
 

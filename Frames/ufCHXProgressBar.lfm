@@ -1,0 +1,138 @@
+inherited fmCHXProgressBar: TfmCHXProgressBar
+  Height = 128
+  Width = 480
+  ClientHeight = 128
+  ClientWidth = 480
+  PopupMenu = pmProgressBar
+  DesignLeft = 291
+  object lInfo: TLabel[0]
+    Left = 0
+    Height = 32
+    Top = 36
+    Width = 480
+    Align = alTop
+    AutoSize = False
+    ParentColor = False
+    WordWrap = True
+  end
+  object lAction: TLabel[1]
+    Left = 0
+    Height = 32
+    Top = 0
+    Width = 480
+    Align = alTop
+    Alignment = taCenter
+    AutoSize = False
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object pProgress: TPanel[2]
+    Left = 0
+    Height = 25
+    Top = 103
+    Width = 480
+    Align = alBottom
+    AutoSize = True
+    BevelOuter = bvNone
+    ChildSizing.HorizontalSpacing = 4
+    ChildSizing.VerticalSpacing = 4
+    ClientHeight = 25
+    ClientWidth = 480
+    TabOrder = 0
+    object bCancel: TBitBtn
+      Left = 405
+      Height = 25
+      Top = 0
+      Width = 75
+      Action = actCancel
+      Align = alRight
+      Cancel = True
+      Default = True
+      TabOrder = 0
+    end
+    object lTime: TLabel
+      Left = 0
+      Height = 25
+      Top = 0
+      Width = 401
+      Align = alClient
+      Layout = tlCenter
+      ParentColor = False
+    end
+  end
+  object pbProgress: TProgressBar[3]
+    Left = 0
+    Height = 27
+    Top = 72
+    Width = 480
+    Align = alClient
+    TabOrder = 1
+  end
+  object pmProgressBar: TPopupMenu[4]
+    left = 120
+    top = 40
+    object mipbCancel: TMenuItem
+      Action = actCancel
+    end
+    object mipbUpdateFrecuency: TMenuItem
+      Caption = 'Update frecuency'
+      object mipbUpdate100: TMenuItem
+        Action = actUpdate100
+        AutoCheck = True
+      end
+      object mipbUpdate300: TMenuItem
+        Action = actUpdate250
+        AutoCheck = True
+      end
+      object mipbUpdate500: TMenuItem
+        Action = actUpdate500
+        AutoCheck = True
+      end
+      object mipbUpdate1000: TMenuItem
+        Action = actUpdate1000
+        AutoCheck = True
+      end
+    end
+  end
+  object ActionList: TActionList[5]
+    left = 184
+    top = 40
+    object actCancel: TAction
+      Category = 'Cancel'
+      Caption = 'Cancel'
+      Enabled = False
+      OnExecute = actCancelExecute
+    end
+    object actUpdate100: TAction
+      Category = 'Update'
+      AutoCheck = True
+      Caption = 'Update = 100 ms'
+      GroupIndex = 1
+      OnExecute = actUpdate100Execute
+    end
+    object actUpdate250: TAction
+      Category = 'Update'
+      AutoCheck = True
+      Caption = 'Update = 250 ms'
+      GroupIndex = 1
+      OnExecute = actUpdate250Execute
+    end
+    object actUpdate500: TAction
+      Category = 'Update'
+      AutoCheck = True
+      Caption = 'Update = 500 ms'
+      Checked = True
+      GroupIndex = 1
+      OnExecute = actUpdate500Execute
+    end
+    object actUpdate1000: TAction
+      Category = 'Update'
+      AutoCheck = True
+      Caption = 'Update = 1 s'
+      GroupIndex = 1
+      OnExecute = actUpdate1000Execute
+    end
+  end
+end

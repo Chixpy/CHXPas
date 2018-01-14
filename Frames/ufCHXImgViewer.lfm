@@ -1,6 +1,7 @@
 inherited fmCHXImgViewer: TfmCHXImgViewer
   Height = 480
   Width = 640
+  AutoSize = False
   ClientHeight = 480
   ClientWidth = 640
   DesignLeft = 286
@@ -130,16 +131,16 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
   end
   object Splitter: TSplitter[2]
-    Left = 196
-    Height = 435
-    Top = 22
+    Left = 200
+    Height = 427
+    Top = 26
     Width = 5
     Visible = False
   end
   object lbxFiles: TListBox[3]
     Left = 0
-    Height = 435
-    Top = 22
+    Height = 427
+    Top = 26
     Width = 196
     Align = alLeft
     ItemHeight = 0
@@ -149,15 +150,15 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     Visible = False
   end
   object sbxImage: TScrollBox[4]
-    Left = 201
-    Height = 435
-    Top = 22
-    Width = 439
-    HorzScrollBar.Page = 435
-    VertScrollBar.Page = 431
+    Left = 209
+    Height = 427
+    Top = 26
+    Width = 431
+    HorzScrollBar.Page = 410
+    VertScrollBar.Page = 406
     Align = alClient
-    ClientHeight = 431
-    ClientWidth = 435
+    ClientHeight = 406
+    ClientWidth = 410
     TabOrder = 3
     OnResize = sbxImageResize
     object Image: TImage
