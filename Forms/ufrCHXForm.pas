@@ -60,9 +60,6 @@ type
     destructor Destroy; override;
   end;
 
-var
-  frmCHXForm: TfrmCHXForm;
-
 implementation
 
 {$R *.lfm}

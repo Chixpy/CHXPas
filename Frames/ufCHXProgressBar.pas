@@ -266,6 +266,7 @@ begin
       frmCHXProgressBar.Visible := False;
       frmCHXProgressBar.Position := poDesktopCenter;
       frmCHXProgressBar.BorderIcons := [biSystemMenu, biMinimize];
+      frmCHXProgressBar.ShowInTaskBar := stAlways;
 
       // Some default values, overriden with aGUIConfigIni
       frmCHXProgressBar.ClientHeight := 128;
