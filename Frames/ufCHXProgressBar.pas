@@ -189,11 +189,13 @@ function TfmCHXProgressBar.UpdTextAndBar(const aAction, aInfo: string;
 var
   TimeDiff: TDateTime;
 begin
+  Result := Continue;
+
   // Uhm... Finishing
   if (aValue >= aMaxValue) or (aMaxValue <= 0) then
   begin
     Finish;
-    Result := False;
+    Result := Continue;
     Exit;
   end;
 
@@ -202,6 +204,7 @@ begin
     Start;
 
   Application.ProcessMessages;
+  Result := Continue;
 
   if Now < NextTime then
     Exit;
@@ -223,8 +226,6 @@ begin
     lTime.Caption := rsEstimatedTime0;
 
   NextTime := Now + UpdateInterval;
-
-  Result := Continue;
 end;
 
 procedure TfmCHXProgressBar.Start;

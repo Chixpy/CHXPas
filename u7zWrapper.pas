@@ -441,14 +441,14 @@ begin
   aFileList := TStringList.Create;
   try
     aFileList.BeginUpdate;
-    w7zListFiles(a7zArchive, aFileList, False, Password);
+    w7zListFiles(a7zArchive, aFileList, True, Password);
     aFileList.EndUpdate;
 
     i := 0;
     Result := 1;
     while (Result <> 0) and (i < aFileList.Count) do
     begin
-      Result := CompareFilenamesIgnoreCase(SysPath(aFileList[i]), aInnerFile);
+      Result := CompareFilenames(SysPath(aFileList[i]), aInnerFile);
       Inc(i);
     end;
 
