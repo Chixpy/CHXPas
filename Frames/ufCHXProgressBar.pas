@@ -23,17 +23,22 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, Buttons, ExtCtrls, Menus, ActnList, dateutils,
+  StdCtrls, Buttons, ExtCtrls, Menus, ActnList, dateutils, IniFiles,
   uCHXStrUtils,
   ufrCHXForm, ufCHXFrame;
 
 const
-  krsProgressBarFormKey = 'frmCHXProgressBar';
+  krsIniProgressBar = 'frmCHXProgressBar';
+  krsIniProgressBarInterval = 'UpdateInterval';
+  krsIniProgressBarSaveLog = 'SaveLog';
+  krsIniProgressBarLogFile = 'LogFile';
+  krsProgressBarFile = 'ProgressBar.log';
 
 resourcestring
   rsProgressBarTitle = 'Please Wait...';
   rsEstimatedTime = '%0:s (Left: %1:s)';
   rsEstimatedTime0 = 'Estimated Time to Finish: Unknown';
+  rsCHXPbarLogLine = '%0:s - %2:s (%1:s)';
 
 type
 
@@ -73,12 +78,18 @@ type
   private
     FCancelable: boolean;
     FContinue: boolean;
+    FLog: TStringList;
+    FLogFileName: string;
     FNextTime: TDateTime;
+    FSaveLog: Boolean;
     FStartTime: TDateTime;
     FUpdateInterval: TDateTime;
     procedure SetCancelable(AValue: boolean);
     procedure SetContinue(AValue: boolean);
+    procedure SetLog(AValue: TStringList);
+    procedure SetLogFileName(AValue: string);
     procedure SetNextTime(AValue: TDateTime);
+    procedure SetSaveLog(AValue: Boolean);
     procedure SetStartTime(AValue: TDateTime);
     procedure SetUpdateInterval(AValue: TDateTime);
 
@@ -86,11 +97,14 @@ type
     property StartTime: TDateTime read FStartTime write SetStartTime;
     property NextTime: TDateTime read FNextTime write SetNextTime;
 
+    property Log: TStringList read FLog write SetLog;
+
+    procedure DoLoadGUIConfig(aIniFile: TIniFile); virtual;
+    procedure DoSaveGUIConfig(aIniFile: TIniFile); virtual;
+
   public
     property Cancelable: boolean read FCancelable write SetCancelable;
     property Continue: boolean read FContinue write SetContinue;
-    property UpdateInterval: TDateTime read FUpdateInterval
-      write SetUpdateInterval;
 
     function UpdTextAndBar(const aAction, aInfo: string;
       const aValue, aMaxValue: int64; const IsCancelable: boolean): boolean;
@@ -104,6 +118,13 @@ type
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
+
+  published
+    property UpdateInterval: TDateTime read FUpdateInterval
+      write SetUpdateInterval;
+    property SaveLog: Boolean read FSaveLog write SetSaveLog;
+    property LogFileName: string read FLogFileName write SetLogFileName;
+
   end;
 
 
@@ -138,11 +159,29 @@ begin
   FContinue := AValue;
 end;
 
+procedure TfmCHXProgressBar.SetLog(AValue: TStringList);
+begin
+  if FLog=AValue then Exit;
+  FLog:=AValue;
+end;
+
+procedure TfmCHXProgressBar.SetLogFileName(AValue: string);
+begin
+  if FLogFileName=AValue then Exit;
+  FLogFileName:=AValue;
+end;
+
 procedure TfmCHXProgressBar.SetNextTime(AValue: TDateTime);
 begin
   if FNextTime = AValue then
     Exit;
   FNextTime := AValue;
+end;
+
+procedure TfmCHXProgressBar.SetSaveLog(AValue: Boolean);
+begin
+  if FSaveLog=AValue then Exit;
+  FSaveLog:=AValue;
 end;
 
 procedure TfmCHXProgressBar.SetStartTime(AValue: TDateTime);
@@ -157,6 +196,39 @@ begin
   if FUpdateInterval = AValue then
     Exit;
   FUpdateInterval := AValue;
+end;
+
+procedure TfmCHXProgressBar.DoLoadGUIConfig(aIniFile: TIniFile);
+var
+  Msec: Int64;
+begin
+  Msec := aIniFile.ReadInt64(krsIniProgressBar,
+    krsIniProgressBarInterval,
+    MilliSecondOfTheMinute(UpdateInterval));
+
+  // Converting Milliseconds to TDateTime
+  UpdateInterval:=TDateTime(MSec)/MSecsPerDay;
+
+  // Updating action checks (aprox. if hand-changed)
+  if Msec < 200 then
+    actUpdate100.Checked := True
+  else if Msec < 400 then
+    actUpdate250.Checked := True
+  else if Msec < 800 then
+    actUpdate500.Checked := True
+  else
+    actUpdate1000.Checked := True;
+
+  SaveLog:=aIniFile.ReadBool(krsIniProgressBar, krsIniProgressBarSaveLog, SaveLog);
+  LogFileName:=aIniFile.ReadString(krsIniProgressBar, krsIniProgressBarLogFile, LogFileName);
+end;
+
+procedure TfmCHXProgressBar.DoSaveGUIConfig(aIniFile: TIniFile);
+begin
+  // A minute is a giant update interval...
+  aIniFile.WriteInt64(krsIniProgressBar, krsIniProgressBarInterval, MilliSecondOfTheMinute(UpdateInterval));
+  aIniFile.WriteBool(krsIniProgressBar, krsIniProgressBarSaveLog, SaveLog);
+  aIniFile.WriteString(krsIniProgressBar, krsIniProgressBarLogFile, LogFileName);
 end;
 
 procedure TfmCHXProgressBar.actUpdate100Execute(Sender: TObject);
@@ -241,6 +313,9 @@ end;
 
 procedure TfmCHXProgressBar.Finish;
 begin
+  if SaveLog then
+    Log.Add(Format(rsCHXPbarLogLine, [DateTimeToStr(StartTime, True), TimeToStr(Now - StartTime), lAction.Caption]));
+
   Continue := False;
   StartTime := 0;
   NextTime := 0;
@@ -259,7 +334,7 @@ begin
 
     Application.CreateForm(TfrmCHXForm, frmCHXProgressBar);
     try
-      frmCHXProgressBar.Name := krsProgressBarFormKey;
+      frmCHXProgressBar.Name := krsIniProgressBar;
       frmCHXProgressBar.Caption :=
         Application.Title + ': ' + rsProgressBarTitle;
 
@@ -298,11 +373,25 @@ begin
 
   StartTime := 0;
   NextTime := 0;
+
   UpdateInterval := EncodeTime(0, 0, 0, 300);
+  LogFileName:=krsProgressBarFile;
+  SaveLog:=False;
+
+  FLog := TStringList.Create;
+
+  OnLoadGUIConfig:= @DoLoadGUIConfig;
+  OnSaveGUIConfig:= @DoSaveGUIConfig;
 end;
 
 destructor TfmCHXProgressBar.Destroy;
 begin
+  try
+  if SaveLog then
+     Log.SaveToFile(LogFileName);
+  finally
+    Log.Free;
+  end;
   inherited Destroy;
 end;
 
