@@ -23,7 +23,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  inifiles, IniPropStorage,
+  inifiles, IniPropStorage, DefaultTranslator,
   uCHXStrUtils, uCHXImageUtils,
   ufCHXFrame;
 
