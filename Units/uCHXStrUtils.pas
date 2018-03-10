@@ -501,6 +501,7 @@ begin
   DefaultFormatSettings.TimeSeparator := ':';
   DefaultFormatSettings.ShortDateFormat := 'yyyy/mm/dd';
   DefaultFormatSettings.ShortTimeFormat := 'hh:nn:ss';
+  DefaultFormatSettings.ListSeparator := ';';
 end;
 
 function StrCount(aString, ToSearch: string;

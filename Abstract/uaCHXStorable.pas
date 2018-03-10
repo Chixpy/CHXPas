@@ -1,4 +1,4 @@
-{ Copyright (C) 2006-2017 Chixpy
+{ Copyright (C) 2006-2018 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -22,69 +22,104 @@ unit uaCHXStorable;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, LazUTF8, LazFileUtils;
+  Classes, SysUtils, IniFiles, LazUTF8, LazFileUtils,
+  uCHXStrUtils;
 
 type
-  { caCHXStorableIni }
 
-  caCHXStorableIni = class(TComponent)
+  { caCHXStorable }
+
+  caCHXStorable = class(TComponent)
   private
-    FIniFileName: string;
-    procedure SetIniFileName(AValue: string);
+    FDefaultFileName: string;
+    procedure SetDefaultFileName(AValue: string);
 
   protected
+
   public
-    procedure LoadFromFileIni(aFilename: string); virtual;
+    procedure LoadFromFile(const aFilename: string); virtual; abstract;
+    {< Loads data from file.
+
+      @param(aFilename Filename of the inifile to read from. If '', try to load
+        from DefaultFileName property.)
+
+      DefaultFileName property is not updated with aFilename parameter.
+
+    }
+    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); virtual;
+      abstract;// ClearFile: Boolean); virtual; abstract;
+    {< Saves data to file.
+
+      @param(aFilename Filename of the inifile to write to.)
+      @param(ClearFile False -> if File exists load its content before saving.)
+
+      DefaultFileName property is not updated with aFilename parameter.
+    }
+
+    constructor Create(aOwner: TComponent); override;
+    destructor Destroy; override;
+
+  published
+    property DefaultFileName: string read FDefaultFileName
+      write SetDefaultFileName;
+    {< Default filename if not filename is used when calling Save or Load.
+
+    This property is NOT updated when calling Load or Save with it's parameter.
+    }
+  end;
+
+  { caCHXStorableIni }
+
+  caCHXStorableIni = class(caCHXStorable)
+  protected
+    type CBIniProc = procedure(aIniFile: TMemIniFile) of object;
+
+    procedure DoFileOpen(aFilename: string; aCBProc: CBIniProc;
+      FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
+
+  public
+    procedure LoadFromFile(const aFilename: string); override;
     {< Loads data from file.
 
          @param(aFilename Filename of the inifile to read from.)
     }
-    procedure LoadFromIni(aIniFile: TIniFile); virtual; abstract;
+    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Loads data from file.
 
          @param(aIniFile Inifile to read from.)
     }
-    procedure SaveToFileIni(aFilename: string;
-      const ExportMode: boolean); virtual;
+    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
     {< Saves data to file.
 
           @param(IniFile Inifile to write to.)
-          @param(ExportMode if @true don't save user data.)
     }
-    procedure SaveToIni(aIniFile: TMemIniFile; const ExportMode: boolean);
-      virtual; abstract;
+    procedure SaveToIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Saves data to file.
 
          @param(IniFile Inifile to write to.)
-         @param(ExportMode if @true don't save user data.)
     }
-
 
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
-  published
-    property IniFileName: string read FIniFileName write SetIniFileName;
-
   end;
 
   { caCHXStorableTxt }
 
-  caCHXStorableTxt = class(caCHXStorableIni)
+  caCHXStorableTxt = class(caCHXStorable)
   private
-
-    FTxtFileName: string;
-
-    procedure SetTxtFileName(AValue: string);
+    function GetCommaText: string;
+    procedure SetCommaText(AValue: string);
 
   protected
-    function GetTxtString: string; virtual;
-    procedure SetTxtString(AValue: string); virtual;
+    type CBTxtProc = procedure(aIniFile: TStrings) of object;
+
+    procedure DoFileOpen(aFilename: string; aCBProc: CBTxtProc;
+      FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
 
   public
-    property TXTString: string read GetTxtString write SetTxtString;
-    function TXTExportString: string;
+    property CommaText: string read GetCommaText write SetCommaText;
 
-    procedure LoadFromFileTxt(aFilename: string); virtual;
+    procedure LoadFromFile(const aFilename: string); override;
     {< Loads data from file.
 
          @param(aFilename Filename of the text file to read from.)
@@ -94,15 +129,13 @@ type
 
          @param(aTxtFile Text file to read from.)
     }
-    procedure SaveToFileTxt(aFilename: string;
-      const ExportMode: boolean); virtual;
+    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
     {< Saves data to file.
 
          @param(TxtFile Text file to write to.)
          @param(ExportMode if @true don't save user data.)
     }
-    procedure SaveToStrLst(aTxtFile: TStrings; const ExportMode: boolean);
-      virtual; abstract;
+    procedure SaveToStrLst(aTxtFile: TStrings); virtual; abstract;
     {< Saves data to file.
 
          @param(TxtFile Text file to write to.)
@@ -111,67 +144,81 @@ type
 
     constructor Create(aOwner: TComponent); override;
     destructor Destroy; override;
-
-  published
-    property TxtFileName: string read FTxtFileName write SetTxtFileName;
   end;
 
 
 implementation
 
+{ caCHXStorable }
+
+procedure caCHXStorable.SetDefaultFileName(AValue: string);
+begin
+  FDefaultFileName := SetAsFile(AValue);
+end;
+
+constructor caCHXStorable.Create(aOwner: TComponent);
+begin
+  inherited Create(aOwner);
+end;
+
+destructor caCHXStorable.Destroy;
+begin
+  inherited Destroy;
+end;
+
 { caCHXStorableIni }
 
-procedure caCHXStorableIni.SetIniFileName(AValue: string);
-begin
-  if FIniFileName = AValue then
-    Exit;
-  FIniFileName := AValue;
-end;
-
-procedure caCHXStorableIni.LoadFromFileIni(aFilename: string);
+procedure caCHXStorableIni.DoFileOpen(aFilename: string; aCBProc: CBIniProc;
+  FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
 var
   aIniFile: TMemIniFile;
   IniFileOps: TIniFileOptions;
 begin
-  if aFilename = '' then
-    aFilename := IniFileName;
-  if not FileExistsUTF8(aFilename) then
+  if not Assigned(aCBProc) then
+    Exit; // Nothing to do, so we don't waste time
+
+  if aFilename = '' then // Testing filename
+  begin
+    aFilename := DefaultFileName;
+
+    if aFilename = '' then
+      Exit;
+  end;
+
+  // Testing if file exists
+  if FileMustExists and (not FileExistsUTF8(aFilename)) then
     Exit;
 
+  // Removing file, ini files are autoloaded on creation,
+  //   so it may faster than loading and clearing.
+  if ClearFile then
+    DeleteFileUTF8(aFilename);
+
+  aIniFile := TMemIniFile.Create(UTF8ToSys(aFilename));
   try
-    aIniFile := TMemIniFile.Create(UTF8ToSys(aFilename));
-    IniFileOps :=  aIniFile.Options;
-    Exclude(IniFileOps, ifoCaseSensitive);
+    IniFileOps := aIniFile.Options;
+    Exclude(IniFileOps, ifoCaseSensitive); // Case insesitive
+    Exclude(IniFileOps, ifoFormatSettingsActive); // Ignore FormatSettings
     aIniFile.Options := IniFileOps;
 
-    LoadFromIni(aIniFile);
+    // if assigned(aCBProc) then <-- tested before
+    aCBProc(aIniFile);
+
+    if SaveAfter then
+      aIniFile.UpdateFile;
   finally
-    FreeAndNil(aIniFile);
+    aIniFile.Free;
   end;
 end;
 
-procedure caCHXStorableIni.SaveToFileIni(aFilename: string;
-  const ExportMode: boolean);
-var
-  aIniFile: TMemIniFile;
-  IniFileOps: TIniFileOptions;
+procedure caCHXStorableIni.LoadFromFile(const aFilename: string);
 begin
-  if aFilename = '' then
-    aFilename := IniFileName;
-  if aFilename = '' then
-    exit;
+  DoFileOpen(aFilename, @LoadFromIni, True, False, False);
+end;
 
-  try
-    aIniFile := TMemIniFile.Create(UTF8ToSys(aFilename));
-       IniFileOps :=  aIniFile.Options;
-    Exclude(IniFileOps, ifoCaseSensitive);
-    aIniFile.Options := IniFileOps;
-
-    SaveToIni(aIniFile, ExportMode);
-    aIniFile.UpdateFile;
-  finally
-    FreeAndNil(aIniFile);
-  end;
+procedure caCHXStorableIni.SaveToFile(const aFilename: string; ClearFile: Boolean);
+begin
+  DoFileOpen(aFilename, @SaveToIni, False, ClearFile, True);
 end;
 
 constructor caCHXStorableIni.Create(aOwner: TComponent);
@@ -184,20 +231,7 @@ begin
   inherited Destroy;
 end;
 
-function caCHXStorableTxt.GetTxtString: string;
-var
-  aStringList: TStringList;
-begin
-  aStringList := TStringList.Create;
-  try
-    SaveToStrLst(aStringList, False);
-  finally
-    Result := aStringList.CommaText;
-    FreeAndNil(aStringList);
-  end;
-end;
-
-procedure caCHXStorableTxt.SetTxtString(AValue: string);
+procedure caCHXStorableTxt.SetCommaText(AValue: string);
 var
   aStringList: TStringList;
 begin
@@ -211,69 +245,64 @@ begin
   end;
 end;
 
-function caCHXStorableTxt.TXTExportString: string;
+function caCHXStorableTxt.GetCommaText: string;
 var
   aStringList: TStringList;
 begin
   aStringList := TStringList.Create;
   try
-    SaveToStrLst(aStringList, True);
+    SaveToStrLst(aStringList);
   finally
     Result := aStringList.CommaText;
     FreeAndNil(aStringList);
   end;
 end;
 
-procedure caCHXStorableTxt.SetTxtFileName(AValue: string);
-begin
-  if FTxtFileName = AValue then
-    Exit;
-  FTxtFileName := AValue;
-end;
-
-procedure caCHXStorableTxt.LoadFromFileTxt(aFilename: string);
+procedure caCHXStorableTxt.DoFileOpen(aFilename: string; aCBProc: CBTxtProc;
+  FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
 var
   aTxtFile: TStringList;
 begin
-  if aFilename = '' then
-    aFilename := TxtFileName;
-  if not FileExistsUTF8(aFilename) then
-    Exit;
+  if not Assigned(aCBProc) then
+    Exit; // Nothing to do, so we don't waste time
 
-  try
-    aTxtFile := TStringList.Create;
-    aTxtFile.LoadFromFile(UTF8ToSys(aFilename));
-    aTxtFile.CaseSensitive := False;
+  if aFilename = '' then // Testing filename
+  begin
+    aFilename := DefaultFileName;
 
-    LoadFromStrLst(aTxtFile);
-  finally
-    FreeAndNil(aTxtFile);
+    if aFilename = '' then
+      Exit;
   end;
-end;
 
-procedure caCHXStorableTxt.SaveToFileTxt(aFilename: string;
-  const ExportMode: boolean);
-var
-  aTxtFile: TStringList;
-begin
-  if aFilename = '' then
-    aFilename := TxtFileName;
-  if aFilename = '' then
+  // Testing if file exists
+  if FileMustExists and (not FileExistsUTF8(aFilename)) then
     Exit;
 
+  aTxtFile := TStringList.Create;
   try
-    aTxtFile := TStringList.Create;
-
-    if ExportMode and FileExistsUTF8(aFilename) then
+    if (not ClearFile) and FileExistsUTF8(aFilename) then
       aTxtFile.LoadFromFile(UTF8ToSys(aFilename));
 
     aTxtFile.CaseSensitive := False;
 
-    SaveToStrLst(aTxtFile, ExportMode);
-    aTxtFile.SaveToFile(UTF8ToSys(aFilename));
+    // if assigned(aCBProc) then <-- tested before
+    aCBProc(aTxtFile);
+
+    if SaveAfter then
+      aTxtFile.SaveToFile(UTF8ToSys(aFilename));
   finally
-    FreeAndNil(aTxtFile);
+    aTxtFile.Free;
   end;
+end;
+
+procedure caCHXStorableTxt.LoadFromFile(const aFilename: string);
+begin
+  DoFileOpen(aFilename, @LoadFromStrLst, True, False, False);
+end;
+
+procedure caCHXStorableTxt.SaveToFile(const aFilename: string; ClearFile: Boolean);
+begin
+  DoFileOpen(aFilename, @SaveToStrLst, False, ClearFile, True);
 end;
 
 constructor caCHXStorableTxt.Create(aOwner: TComponent);
