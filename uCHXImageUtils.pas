@@ -227,7 +227,7 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
           // Not safe...
           aAction := TCustomAction(Action);
           ImageList := aAction.ActionList.Images;
-          if (ImageList <> nil) and (aAction.Imageindex >= 0) then
+          if (Assigned(ImageList)) and (aAction.Imageindex >= 0) then
             ImageList.GetBitmap(aAction.Imageindex, Glyph);
         end;
       end;
@@ -243,7 +243,7 @@ procedure FixComponentImagesFromActions(aComponent: TComponent);
             // Not safe...
             aAction := TCustomAction(Action);
             ImageList := aAction.ActionList.Images;
-            if (ImageList <> nil) and (aAction.Imageindex >= 0) then
+            if (Assigned(ImageList)) and (aAction.Imageindex >= 0) then
             begin
               ImageList.GetBitmap(aAction.Imageindex, Glyph);
               ShowCaption := False; // Speed buttons -> no caption
@@ -272,7 +272,7 @@ var
   Extension: string;
 begin
   Result := -1;
-  if aImageList = nil then
+  if not Assigned(aImageList) then
     Exit;
   if not FileExistsUTF8(FileName) then
     Exit;

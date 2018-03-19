@@ -582,7 +582,7 @@ var
 
 begin
   // Clearing PackedFiles file list
-  if PackedFiles <> nil then
+  if Assigned(PackedFiles) then
     PackedFiles.Clear
   else
     PackedFiles := TStringList.Create;

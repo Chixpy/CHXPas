@@ -173,7 +173,7 @@ function TextSimilarity(const aString1, aString2: string): byte;
     CurrPair: string;
     CharUTF8: string;
   begin
-    if aStrList = nil then
+    if not Assigned(aStrList) then
       aStrList := TStringListUTF8.Create
     else
       aStrList.Clear;
@@ -434,7 +434,7 @@ procedure CleanStringList(aStringList: TStrings; CommentChar: string = ';');
 var
   Cont: cardinal;
 begin
-  if aStringList = nil then
+  if not Assigned(aStringList) then
     Exit;
 
   for Cont := aStringList.Count - 1 downto 0 do
@@ -453,7 +453,7 @@ function AddToStringList(aList: TStrings; aString: string): integer;
 begin
   Result := -1;
   aString := Trim(aString);
-  if (aList = nil) or (aString = '') then
+  if (not Assigned(aList)) or (aString = '') then
     Exit;
   Result := aList.IndexOf(aString);
   if Result = -1 then
