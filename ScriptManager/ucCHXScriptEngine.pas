@@ -39,7 +39,7 @@ uses
   uPSC_forms, uPSC_buttons, uPSC_classes, uPSC_dateutils, uPSC_dll,
   uPSC_DB, uPSC_extctrls, uPSC_graphics, uPSC_menus, uPSC_comobj,
   // CHX
-  uCHXStrUtils, u7zWrapper,
+  uCHXStrUtils, uCHX7zWrapper,
   // Imported units
   uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
   uPSI_u7zWrapper;

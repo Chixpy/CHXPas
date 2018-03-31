@@ -5,7 +5,7 @@ interface
 uses
   SysUtils, Classes, uPSRuntime, uPSCompiler,
   FileUtil, LazFileUtils, LazUTF8
-  , u7zWrapper
+  , uCHX7zWrapper
   , uCHXFileUtils;
 
 { compile-time registration functions }

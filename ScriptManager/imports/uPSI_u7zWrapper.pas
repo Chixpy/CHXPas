@@ -23,7 +23,7 @@ interface
 
 uses
   SysUtils, Classes, uPSComponent, uPSRuntime, uPSCompiler,
-  u7zWrapper;
+  uCHX7zWrapper;
 
 { compile-time registration functions }
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);

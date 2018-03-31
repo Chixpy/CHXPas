@@ -29,7 +29,7 @@
     @item(7z.exe, 7zG.exe and 7z.dll have their own licenses.)
   )
 }
-unit u7zWrapper;
+unit uCHX7zWrapper;
 
 {$mode objfpc}{$H+}
 
@@ -38,6 +38,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, Process, LazUTF8, sha1,
   IniFiles,
+  // CHX units
   uCHXStrUtils, uCHXFileUtils;
 
 resourcestring
@@ -436,7 +437,7 @@ begin
     Exit;
   end;
 
-  aInnerFile:= SysPath(aInnerFile);
+  aInnerFile := SysPath(aInnerFile);
 
   aFileList := TStringList.Create;
   try
@@ -1032,7 +1033,8 @@ begin
       TmpStrList.CommaText := aFileList[i];
 
       if (TmpStrList.Count > 4) and
-        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]), aInnerFile) = 0) then
+        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]),
+        aInnerFile) = 0) then
       begin
         Result := TmpStrList[4]; // CRC32
         Found := True;
@@ -1118,7 +1120,8 @@ begin
       TmpStrList.CommaText := aFileList[i];
 
       if (TmpStrList.Count > 5) and
-        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]), aInnerFile) = 0) then
+        (CompareFilenamesIgnoreCase(SysPath(TmpStrList[0]),
+        aInnerFile) = 0) then
       begin
         Result := TmpStrList[5]; // SHA1
         Found := True;
@@ -1175,19 +1178,19 @@ initialization
   w7zPathTo7zGexeOK := False;
 
   // Little checks before default location...
-  if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z.exe') then
-    w7zSetPathTo7zexe(GetCurrentDirUTF8 + PathDelim + '7z.exe')
-  else if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z' +
-    PathDelim + '7z.exe') then
-    w7zSetPathTo7zexe(GetCurrentDirUTF8 + PathDelim + '7z' +
-      PathDelim + '7z.exe');
+  if FileExistsUTF8(SetAsFolder(ProgramDirectory) + '7z.exe') then
+    w7zSetPathTo7zexe(SetAsFolder(ProgramDirectory) + '7z.exe')
+  else if FileExistsUTF8(SetAsFolder(SetAsFolder(ProgramDirectory) + '7z') +
+    '7z.exe') then
+    w7zSetPathTo7zexe(SetAsFolder(SetAsFolder(ProgramDirectory) + '7z') +
+      '7z.exe');
 
-  if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7zG.exe') then
-    w7zSetPathTo7zGexe(GetCurrentDirUTF8 + PathDelim + '7zG.exe')
-  else if FileExistsUTF8(GetCurrentDirUTF8 + PathDelim + '7z' +
-    PathDelim + '7zG.exe') then
-    w7zSetPathTo7zGexe(GetCurrentDirUTF8 + PathDelim + '7z' +
-      PathDelim + '7zG.exe');
+  if FileExistsUTF8(SetAsFolder(ProgramDirectory) + '7zG.exe') then
+    w7zSetPathTo7zGexe(SetAsFolder(ProgramDirectory) + '7zG.exe')
+  else if FileExistsUTF8(SetAsFolder(SetAsFolder(ProgramDirectory) + '7z') +
+    '7zG.exe') then
+    w7zSetPathTo7zGexe(SetAsFolder(SetAsFolder(ProgramDirectory) + '7z') +
+      '7zG.exe');
 
   w7zSetCacheDir('');
   w7zErrorList := TStringList.Create;
