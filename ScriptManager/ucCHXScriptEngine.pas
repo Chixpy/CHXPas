@@ -45,18 +45,38 @@ uses
   uPSI_u7zWrapper;
 
 resourcestring
-  rsSEECompilationMsg = 'Compiling: %s.';
-  rsSEEExecutionMsg = 'Executing: %s.';
-  rsSEEError = 'Error!';
-  rsSEEOK = 'Success!';
+  // Error levels
+  rsSEELError = 'Error';
+  rsSEELWarning = 'Warning';
+  rsSEELInfo = 'Info';
+  rsSEELOK = 'OK';
+
+  // Compilation / Execute messajes
+  rsSEECompilationMsg = 'Compiling.';
+  rsSEEExecutionMsg = 'Executing.';
+
+  // Message format
+  rsSEMsgFormat = '[%0:s](%1:.4d:%2:.4d): %3:s';
+ {< Default format for messages
+  @definitionList(
+    @itemLabel(0)
+    @item(Error level. Usually: rsSEELError, rsSEELWarning, rsSEELInfo,
+      rsSEELOK)
+    @itemLabel(1, 2)
+    @item(Row and col of the message)
+    @itemLabel(3)
+    @item(Actual message test)
+  )
+}
+
 
 
 type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
-    string of object;
+  TCHXSEAskFileCB = function(
+    const aCaption, aExtFilter, DefFile: string): string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
@@ -163,6 +183,7 @@ type
       read FOnAskFolder write SetOnAskFolder;
 
     function RunScript: boolean;
+    procedure Stop;
     function CompileScript: boolean;
 
     constructor Create;
@@ -318,13 +339,14 @@ var
   FullFileName: string;
   f: TFileStream;
 begin
-  raise ENotImplemented.Create('PasScriptOnFindUnknownFile not implemented');
 
+  // TODO: Remove this info... or make a error level filter...
   if Assigned(ScriptError) then
   begin
-    ScriptError.Add('PasScriptOnFindUnknownFile - OriginFileName: ' +
-      OriginFileName);
-    ScriptError.Add('PasScriptOnFindUnknownFile - FileName: ' + FileName);
+    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELInfo, 0, 0,
+      'PasScriptOnFindUnknownFile']));
+    ScriptError.Add('- OriginFileName: ' + OriginFileName);
+    ScriptError.Add('- FileName: ' + FileName);
   end;
 
   Result := False;
@@ -360,11 +382,6 @@ begin
   FileName := AnsiDequotedStr(FileName, '''');
   FileName := AnsiDequotedStr(FileName, '"');
 
-  if Assigned(ScriptError) then
-  begin
-    ScriptError.Add('PSScriptNeedFile: ' + FileName + ' (' + OriginFileName + ')');
-  end;
-
   Result := False;
   FullFileName := CleanAndExpandFilename(
     SetAsFolder(ExtractFilePath(OriginFileName)) + FileName);
@@ -373,7 +390,18 @@ begin
     FullFileName := CleanAndExpandFilename(SetAsFolder(CommonUnitFolder) +
       FileName);
     if not FileExistsUTF8(FullFileName) then
+    begin
+      if Assigned(ScriptError) then
+      begin
+        Result := True; // Don't halt or create an exception.
+
+        ScriptError.Add(Format(rsSEMsgFormat, [rsSEELWarning, 0, 0,
+      'PasScriptOnFindUnknownFile']));
+        ScriptError.Add('- $I file not found: ' + FileName + ' (' +
+          OriginFileName + ')');
+      end;
       Exit;
+    end;
   end;
 
   try
@@ -589,7 +617,7 @@ begin
   if Result then
   begin
     if Assigned(ScriptError) then
-      ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEOK]));
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEEExecutionMsg]));
     Exit;
   end;
 
@@ -597,7 +625,7 @@ begin
     Exit;
 
   ScriptError.BeginUpdate;
-  ScriptError.Add(Format(rsSEEExecutionMsg, [rsSEEError]));
+  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0, rsSEEExecutionMsg]));
   ScriptError.Add(PasScript.ExecErrorToString);
   ScriptError.Add(Format('[Runtime error] %s(%d:%d)',
     [ScriptFile, PasScript.ExecErrorRow, PasScript.ExecErrorCol]));
@@ -605,6 +633,11 @@ begin
     [PasScript.ExecErrorProcNo, PasScript.ExecErrorByteCodePosition,
     PasScript.ExecErrorToString]));
   ScriptError.EndUpdate;
+end;
+
+procedure cCHXScriptEngine.Stop;
+begin
+  PaSScript.Stop;
 end;
 
 function cCHXScriptEngine.CompileScript: boolean;
@@ -619,7 +652,7 @@ begin
   if Result then
   begin
     if Assigned(ScriptError) then
-      ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEOK]));
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEECompilationMsg]));
     Exit;
   end;
 
@@ -631,7 +664,7 @@ begin
   for i := 0 to PaSScript.CompilerMessageCount - 1 do
     ScriptError.add(PaSScript.CompilerMessages[i].MessageToString);
 
-  ScriptError.Add(Format(rsSEECompilationMsg, [rsSEEError]));
+  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0, rsSEECompilationMsg]));
 
   for i := 0 to PaSScript.CompilerMessageCount - 1 do
     ScriptError.Add(PasScript.CompilerErrorToStr(i));

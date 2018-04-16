@@ -1172,6 +1172,10 @@ begin
 end;
 
 initialization
+  w7zErrorList := TStringList.Create;
+  w7zSetErrorListFile('');
+
+  w7zSetCacheDir('');
   w7zSetFileExts('');
 
   w7zPathTo7zexeOK := False;
@@ -1191,10 +1195,6 @@ initialization
     '7zG.exe') then
     w7zSetPathTo7zGexe(SetAsFolder(SetAsFolder(ProgramDirectory) + '7z') +
       '7zG.exe');
-
-  w7zSetCacheDir('');
-  w7zErrorList := TStringList.Create;
-  w7zSetErrorListFile('');
 
 finalization
   if w7zErrorListFile <> '' then

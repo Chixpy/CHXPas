@@ -15,7 +15,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   end
   object PageControl: TPageControl[1]
     Left = 0
-    Height = 297
+    Height = 289
     Top = 0
     Width = 644
     ActivePage = pagScriptList
@@ -24,45 +24,52 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
-      ClientHeight = 269
+      ClientHeight = 261
       ClientWidth = 636
-      object slvGeneral: TShellListView
+      object slvFiles: TShellListView
         Left = 175
-        Height = 174
+        Height = 166
         Top = 0
         Width = 461
         Align = alClient
         Color = clDefault
         HideSelection = False
+        PopupMenu = pmFileList
         RowSelect = True
         ScrollBars = ssAutoBoth
         SortType = stBoth
         TabOrder = 2
         OnSelectItem = slvSelectItem
         ObjectTypes = [otNonFolders]
-        ShellTreeView = ShellTreeView1
+        ShellTreeView = stvFolders
       end
       object pFolders: TPanel
         Left = 0
-        Height = 174
+        Height = 166
         Top = 0
         Width = 170
         Align = alLeft
-        ClientHeight = 174
+        ClientHeight = 166
         ClientWidth = 170
         TabOrder = 0
-        object ShellTreeView1: TShellTreeView
+        object stvFolders: TShellTreeView
           Left = 1
-          Height = 149
+          Height = 141
           Top = 24
           Width = 168
           Align = alClient
           FileSortType = fstNone
+          HideSelection = False
+          PopupMenu = pmFolderList
+          ReadOnly = True
+          RowSelect = True
+          ShowLines = False
           TabOrder = 1
+          Options = [tvoAutoItemHeight, tvoKeepCollapsedNodes, tvoReadOnly, tvoRowSelect, tvoShowButtons, tvoShowRoot, tvoShowSeparators, tvoToolTips, tvoThemedDraw]
           ObjectTypes = [otFolders]
-          ShellListView = slvGeneral
+          ShellListView = slvFiles
         end
-        object DirectoryEdit1: TDirectoryEdit
+        object eRootFolder: TDirectoryEdit
           Left = 1
           Height = 23
           Top = 1
@@ -79,7 +86,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object Splitter1: TSplitter
         Left = 170
-        Height = 174
+        Height = 166
         Top = 0
         Width = 5
       end
@@ -87,7 +94,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Cursor = crVSplit
         Left = 0
         Height = 5
-        Top = 174
+        Top = 166
         Width = 636
         Align = alBottom
         ResizeAnchor = akBottom
@@ -95,7 +102,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       object mScriptInfo: TMemo
         Left = 0
         Height = 90
-        Top = 179
+        Top = 171
         Width = 636
         Align = alBottom
         ScrollBars = ssAutoBoth
@@ -104,7 +111,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagSourceCode: TTabSheet
       Caption = 'Source Code'
-      ClientHeight = 284
+      ClientHeight = 261
       ClientWidth = 636
       object tbEditor: TToolBar
         Left = 0
@@ -138,14 +145,14 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator1: TToolButton
           Left = 24
-          Height = 8
+          Height = 22
           Top = 0
           Caption = '-'
           Style = tbsSeparator
         end
         object bSeparator2: TToolButton
           Left = 101
-          Height = 8
+          Height = 22
           Top = 0
           Caption = '-'
           Style = tbsSeparator
@@ -157,7 +164,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator3: TToolButton
           Left = 132
-          Height = 8
+          Height = 22
           Top = 0
           Caption = '-'
           Style = tbsSeparator
@@ -174,7 +181,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator4: TToolButton
           Left = 186
-          Height = 8
+          Height = 22
           Top = 0
           Caption = 'bSeparator4'
           Style = tbsSeparator
@@ -186,7 +193,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator5: TToolButton
           Left = 240
-          Height = 8
+          Height = 22
           Top = 0
           Caption = 'bSeparator5'
           Style = tbsSeparator
@@ -209,7 +216,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       inline SynEdit: TSynEdit
         Left = 0
-        Height = 235
+        Height = 212
         Top = 26
         Width = 636
         Align = alClient
@@ -713,7 +720,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       object sbSourceEditor: TStatusBar
         Left = 0
         Height = 23
-        Top = 261
+        Top = 238
         Width = 636
         Panels = <        
           item
@@ -728,11 +735,11 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagOutput: TTabSheet
       Caption = 'Output'
-      ClientHeight = 284
+      ClientHeight = 261
       ClientWidth = 636
       object mOutPut: TMemo
         Left = 0
-        Height = 258
+        Height = 235
         Top = 26
         Width = 636
         Align = alClient
@@ -762,7 +769,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object ToolButton2: TToolButton
           Left = 47
-          Height = 8
+          Height = 22
           Top = 2
           Caption = 'ToolButton2'
           Style = tbsSeparator
@@ -781,34 +788,48 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object pBottom: TPanel[2]
-    Left = 0
+    Left = 4
     Height = 95
-    Top = 297
-    Width = 644
+    Top = 293
+    Width = 636
     Align = alBottom
     AutoSize = True
+    BorderSpacing.Around = 4
     BevelOuter = bvNone
     ClientHeight = 95
-    ClientWidth = 644
+    ClientWidth = 636
     TabOrder = 1
     object gbxScript: TGroupBox
-      Left = 574
+      Left = 544
       Height = 80
       Top = 15
-      Width = 70
+      Width = 92
       Align = alRight
-      AutoSize = True
       Caption = 'Script'
+      ChildSizing.VerticalSpacing = 4
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.EnlargeVertical = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+      ChildSizing.ShrinkVertical = crsHomogenousChildResize
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 1
       ClientHeight = 60
-      ClientWidth = 66
+      ClientWidth = 88
       TabOrder = 1
+      object bStop: TBitBtn
+        Left = 0
+        Height = 28
+        Top = 0
+        Width = 88
+        Action = actStop
+        TabOrder = 1
+      end
       object bExecute2: TBitBtn
         Left = 0
-        Height = 25
-        Top = 35
-        Width = 66
+        Height = 28
+        Top = 32
+        Width = 88
         Action = actExecute
-        Align = alBottom
         AutoSize = True
         TabOrder = 0
       end
@@ -817,7 +838,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       Left = 0
       Height = 80
       Top = 15
-      Width = 574
+      Width = 544
       Align = alClient
       ItemHeight = 0
       OnDblClick = lbxInfoDblClick
@@ -828,7 +849,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       Left = 0
       Height = 15
       Top = 0
-      Width = 644
+      Width = 636
       Align = alTop
       Caption = ' '
       ParentColor = False
@@ -927,6 +948,22 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       BeforeExecute = actOutputSaveAsBeforeExecute
       OnAccept = actOutputSaveAsAccept
     end
+    object actStop: TAction
+      Category = 'Script'
+      Caption = 'Stop'
+      Enabled = False
+      OnExecute = actStopExecute
+    end
+    object actFileOpenFolder: TAction
+      Category = 'File'
+      Caption = 'Open folder in Explorer'
+      OnExecute = actFileOpenFolderExecute
+    end
+    object actFolderOpen: TAction
+      Category = 'Folder'
+      Caption = 'Open folder'
+      OnExecute = actFolderOpenExecute
+    end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[5]
     Enabled = False
@@ -951,5 +988,16 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Options = [ofNoChangeDir, ofPathMustExist, ofEnableSizing, ofViewDetail]
     left = 540
     top = 175
+  end
+  object pmFileList: TPopupMenu[9]
+    left = 315
+    top = 124
+    object miFileOpenFolder: TMenuItem
+      Action = actFileOpenFolder
+    end
+  end
+  object pmFolderList: TPopupMenu[10]
+    left = 129
+    top = 109
   end
 end

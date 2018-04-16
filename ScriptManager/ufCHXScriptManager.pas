@@ -25,7 +25,7 @@ uses
   Classes, SysUtils, FileUtil, LazFileUtils, SynEdit,
   SynHighlighterPas, SynMacroRecorder, Forms, Controls, Graphics,
   Dialogs, ExtCtrls, StdCtrls, ComCtrls, ShellCtrls, EditBtn,
-  Buttons, ActnList, StdActns, IniFiles, SynEditTypes,
+  Buttons, ActnList, StdActns, IniFiles, SynEditTypes, LCLIntf, Menus,
   // CHX units
   uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
   // CHX classes
@@ -61,6 +61,9 @@ type
     actExecute: TAction;
     actFileSaveAs: TFileSaveAs;
     actFileSave: TAction;
+    actFileOpenFolder: TAction;
+    actFolderOpen: TAction;
+    actStop: TAction;
     actOutputClear: TAction;
     ActionList: TActionList;
     actSearchFind: TSearchFind;
@@ -81,13 +84,15 @@ type
     bSeparator3: TToolButton;
     bSeparator4: TToolButton;
     bSeparator5: TToolButton;
-    DirectoryEdit1: TDirectoryEdit;
+    bStop: TBitBtn;
+    eRootFolder: TDirectoryEdit;
     actOutputSaveAs: TFileSaveAs;
     actOutputFontEdit: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lCurrentFile: TLabel;
     lbxInfo: TListBox;
+    miFileOpenFolder: TMenuItem;
     mOutPut: TMemo;
     mScriptInfo: TMemo;
     OpenDialog1: TOpenDialog;
@@ -97,11 +102,13 @@ type
     pagSourceCode: TTabSheet;
     pFolders: TPanel;
     pBottom: TPanel;
+    pmFileList: TPopupMenu;
+    pmFolderList: TPopupMenu;
     sbInfo: TStatusBar;
     sbSourceEditor: TStatusBar;
     SelectDirectoryDialog1: TSelectDirectoryDialog;
-    ShellTreeView1: TShellTreeView;
-    slvGeneral: TShellListView;
+    stvFolders: TShellTreeView;
+    slvFiles: TShellListView;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
     SynEdit: TSynEdit;
@@ -119,11 +126,14 @@ type
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
+    procedure actFileOpenFolderExecute(Sender: TObject);
+    procedure actFolderOpenExecute(Sender: TObject);
     procedure actOutputClearExecute(Sender: TObject);
     procedure actOutputFontEditAccept(Sender: TObject);
     procedure actOutputFontEditBeforeExecute(Sender: TObject);
     procedure actOutputSaveAsAccept(Sender: TObject);
     procedure actOutputSaveAsBeforeExecute(Sender: TObject);
+    procedure actStopExecute(Sender: TObject);
     procedure lbxInfoDblClick(Sender: TObject);
     procedure slvSelectItem(Sender: TObject; Item: TListItem;
       Selected: boolean);
@@ -158,6 +168,7 @@ type
 
     function Compile: boolean;
     function Execute: boolean;
+    procedure Stop;
 
     procedure UpdateSLV;
 
@@ -261,7 +272,7 @@ end;
 procedure TfmCHXScriptManager.actFileSaveAsBeforeExecute(Sender: TObject);
 begin
   actFileSaveAs.Dialog.FileName := CurrentFile;
-  SetDlgInitialDir(actFileSaveAs.Dialog, ShellTreeView1.Path);
+  SetDlgInitialDir(actFileSaveAs.Dialog, stvFolders.Path);
 
   actFileSaveAs.Dialog.Filter :=
     rsFSMScriptFileMaskDesc + '|' + kFSMScriptFileMask + '|' +
@@ -279,6 +290,16 @@ begin
   end
   else
     actFileSaveAs.Execute;
+end;
+
+procedure TfmCHXScriptManager.actFileOpenFolderExecute(Sender: TObject);
+begin
+  OpenDocument(slvFiles.Root);
+end;
+
+procedure TfmCHXScriptManager.actFolderOpenExecute(Sender: TObject);
+begin
+  OpenDocument(eRootFolder.Directory);
 end;
 
 procedure TfmCHXScriptManager.actOutputClearExecute(Sender: TObject);
@@ -305,10 +326,15 @@ end;
 procedure TfmCHXScriptManager.actOutputSaveAsBeforeExecute(Sender: TObject);
 begin
   actOutputSaveAs.Dialog.FileName := ChangeFileExt(CurrentFile, '.txt');
-  SetDlgInitialDir(actOutputSaveAs.Dialog, ShellTreeView1.Path);
+  SetDlgInitialDir(actOutputSaveAs.Dialog, stvFolders.Path);
 
   actOutputSaveAs.Dialog.Filter := 'Text file|*.txt|' + rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
   actOutputSaveAs.Dialog.DefaultExt := '.txt';
+end;
+
+procedure TfmCHXScriptManager.actStopExecute(Sender: TObject);
+begin
+  Stop;
 end;
 
 procedure TfmCHXScriptManager.lbxInfoDblClick(Sender: TObject);
@@ -467,7 +493,7 @@ begin
   ScriptEngine.ScriptText := SynEdit.Lines;
 
   // TODO: IF ASSIGNED IN CreateCustomEngine THIS IS LOST!!!!????
-  //   OR WORSE ASSIGNED TO A TFONT !!!!
+  //   OR WORSE... IT CHANGES TO A TFONT CLASS !!!!
 
   if not Assigned(ScriptEngine.ScriptError) then
     ScriptEngine.ScriptError := lbxInfo.Items;
@@ -484,12 +510,19 @@ begin
   if not Result then
     Exit;
 
+  actStop.Enabled := True;
   Result := ScriptEngine.RunScript;
+  actStop.Enabled := False;
+end;
+
+procedure TfmCHXScriptManager.Stop;
+begin
+  ScriptEngine.Stop;
 end;
 
 procedure TfmCHXScriptManager.UpdateSLV;
 begin
-  slvGeneral.Update;
+  slvFiles.Update;
 end;
 
 procedure TfmCHXScriptManager.DoWriteLn(const aStr: string);
@@ -519,9 +552,9 @@ end;
 
 procedure TfmCHXScriptManager.SetBaseFolder(const aFolder: string);
 begin
-  DirectoryEdit1.Directory := aFolder;
-  ShellTreeView1.Root := aFolder;
-  ScriptEngine.CommonUnitFolder := SetAsFolder(aFolder);
+  eRootFolder.Directory := SysPath(aFolder);
+  stvFolders.Root := SysPath(aFolder);
+  ScriptEngine.CommonUnitFolder := aFolder;
 end;
 
 procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;
