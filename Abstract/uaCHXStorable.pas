@@ -23,6 +23,7 @@ interface
 
 uses
   Classes, SysUtils, IniFiles, LazUTF8, LazFileUtils,
+  // CHX units
   uCHXStrUtils;
 
 type
