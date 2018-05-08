@@ -312,7 +312,8 @@ end;
 
 procedure TfmCHXProgressBar.Finish;
 begin
-  if SaveLog then
+  // (StartTime > 0) becuase it can be finished before it start.
+  if SaveLog and (StartTime > 0) then
     Log.Add(Format(rsCHXPbarLogLine, [DateTimeToStr(StartTime, True), TimeToStr(Now - StartTime), lAction.Caption]));
 
   Continue := False;
@@ -330,7 +331,6 @@ begin
   // Singleton check
   if not Assigned(frmCHXProgressBar) then
   begin
-
     Application.CreateForm(TfrmCHXForm, frmCHXProgressBar);
     try
       frmCHXProgressBar.Name := krsIniProgressBar;

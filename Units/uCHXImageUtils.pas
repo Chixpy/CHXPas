@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, Controls, Menus, ActnList, Graphics,
   IniFiles, LazFileUtils, LazUTF8, Buttons, ImgList,
-  // Custom
+  // CHX units
   uCHXStrUtils;
 
 procedure ReadActionsIconsIni(aIniFile: TIniFile; aBaseFolder: string;
@@ -39,8 +39,8 @@ procedure ReadActionsIconsIni(aIniFile: TIniFile; aBaseFolder: string;
 
   If ini file don't have the necesary key=value pair, then it will be created.
 
-  @param(aFileName Filename of a ini file where the icons filenames are
-    stored.)
+  @param(aIniFile Inifile where the icons filenames are stored.)
+  @param(aBaseFolder Base folder.)
   @param(Section Section where info will be searched.)
   @param(ImageList An image list where images are stored)
   @param(ActionList An action list which actions will be assigned an image.)
@@ -61,8 +61,8 @@ procedure ReadActionsIconsFile(const aFileName, aSection: string;
   @param(ActionList An action list which actions will be assigned an image.)
 }
 
-procedure ReadMenuIcons(const aFileName, Section: string;
-  ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIconsFile(const aFileName, aSection: string;
+  aImageList: TImageList; aMenu: TMenu);
 {< Reads icons for menu items with no action assigned and assigns them.
 
 It reads a .ini file to search which images must be loaded, relative paths
@@ -76,6 +76,9 @@ It reads a .ini file to search which images must be loaded, relative paths
   @param(ImageList An image list where images are stored)
   @param(Menu An menu which its items will be assigned an image.)
 }
+
+procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+  const aSection: string; aImageList: TImageList; aMenu: TMenu);
 
 procedure FixComponentImagesFromActions(aComponent: TComponent);
 { Assings images from actions to components (and subcomponents).
@@ -153,62 +156,75 @@ begin
   end;
 end;
 
-procedure ReadMenuIcons(const aFileName, Section: string;
-  ImageList: TImageList; Menu: TMenu);
-
-  procedure ReadIcon(IniFile: TMemIniFile; ImageList: TImageList;
-    Menu: TMenuItem; Section: string; BaseDir: string);
-  var
-    IconFile: string;
-    Cont: integer;
-  begin
-    if not (Menu.IsLine or Assigned(Menu.Action)) then
-    begin
-      IconFile := IniFile.ReadString(Section, Menu.Name, '');
-      if IconFile = '' then
-      begin
-        IconFile := Menu.Name + '.png';
-        IniFile.WriteString(Section, Menu.Name, IconFile);
-        IniFile.UpdateFile;
-      end;
-      Menu.ImageIndex := AddToImageList(ImageList, BaseDir + IconFile);
-    end;
-
-    Cont := 0;
-    while Cont < Menu.Count do
-    begin
-      ReadIcon(IniFile, ImageList, Menu.Items[Cont], Section, BaseDir);
-      Inc(Cont);
-    end;
-  end;
-
-  //procedure ReadMenuIcons(const aFileName, Section, BaseDir: String;
-  //  ImageList: TImageList; Menu: TMenu);
+procedure ReadMenuIconsFile(const aFileName, aSection: string;
+  aImageList: TImageList; aMenu: TMenu);
 var
   BaseDir: string;
   IniFile: TMemIniFile;
-  Cont: integer;
 begin
   if aFileName = '' then
-    Exit;
-  if Section = '' then
-    Exit;
-  if not Assigned(ImageList) then
     Exit;
 
   BaseDir := ExtractFilePath(aFileName);
 
   IniFile := TMemIniFile.Create(UTF8ToSys(aFileName));
   try
-    Cont := 0;
-    while Cont < Menu.Items.Count do
+    ReadMenuIconsIni(IniFile, BaseDir, aSection, aImageList, aMenu);
+  finally
+    IniFile.Free;
+  end;
+end;
+
+procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+  const aSection: string; aImageList: TImageList; aMenu: TMenu);
+
+  procedure ReadMenuItemIcon(aIniFile: TIniFile; aImageList: TImageList;
+    aMenu: TMenuItem; aSection: string; aBaseDir: string);
+  var
+    IconFile: string;
+    Cont: integer;
+  begin
+    if not (aMenu.IsLine or Assigned(aMenu.Action)) then
     begin
-      ReadIcon(IniFile, ImageList, Menu.Items[Cont], Section, BaseDir);
+      IconFile := aIniFile.ReadString(aSection, aMenu.Name, '');
+      if IconFile = '' then
+      begin
+        IconFile := aMenu.Name + '.png';
+        aIniFile.WriteString(aSection, aMenu.Name, IconFile);
+        aIniFile.UpdateFile;
+      end;
+      aMenu.ImageIndex := AddToImageList(aImageList, aBaseDir + IconFile);
+    end;
+
+    Cont := 0;
+    while Cont < aMenu.Count do
+    begin
+      ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont], aSection, aBaseDir);
       Inc(Cont);
     end;
-  finally
-    FreeAndNil(IniFile);
   end;
+
+//procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+//  const aSection: string; aImageList: TImageList; aMenu: TMenu);
+var
+  Cont: integer;
+begin
+  if (not Assigned(aIniFile)) or
+  (aSection = '') or
+  (not Assigned(aImageList)) or
+  (not Assigned(aMenu)) then
+    Exit;
+
+  // To be sure that aImageList is assigned to aMenu
+  aMenu.Images := aImageList;
+  aBaseFolder := SetAsFolder(aBaseFolder);
+
+    Cont := 0;
+    while Cont < aMenu.Items.Count do
+    begin
+      ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont], aSection, aBaseFolder);
+      Inc(Cont);
+    end;
 end;
 
 procedure FixComponentImagesFromActions(aComponent: TComponent);

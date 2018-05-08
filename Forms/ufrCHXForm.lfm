@@ -13,7 +13,7 @@ object frmCHXForm: TfrmCHXForm
   Position = poMainFormCenter
   SessionProperties = 'Height;Width;WindowState'
   ShowHint = True
-  LCLVersion = '1.8.0.5'
+  LCLVersion = '1.8.2.0'
   object IniPropStorage: TIniPropStorage
     StoredValues = <>
     IniSection = 'Forms'

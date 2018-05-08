@@ -36,10 +36,10 @@ type
 
   private
     FOnLoadGUIConfig: TCHXUseGUIConfigIni;
-    FOnLoadGUIIcons: TCHXUseGUIConfigIni;
+    FOnLoadGUIIcons: TCHXUseIconsConfigIni;
     FOnSaveGUIConfig: TCHXUseGUIConfigIni;
     procedure SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
-    procedure SetOnLoadGUIIcons(AValue: TCHXUseGUIConfigIni);
+    procedure SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
     procedure SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
 
   protected
@@ -48,7 +48,7 @@ type
     property OnSaveGUIConfig: TCHXUseGUIConfigIni
       read FOnSaveGUIConfig write SetOnSaveGUIConfig;
 
-    property OnLoadGUIIcons: TCHXUseGUIConfigIni
+    property OnLoadGUIIcons: TCHXUseIconsConfigIni
       read FOnLoadGUIIcons write SetOnLoadGUIIcons;
 
   public
@@ -72,7 +72,7 @@ begin
   FOnLoadGUIConfig := AValue;
 end;
 
-procedure TfrmCHXForm.SetOnLoadGUIIcons(AValue: TCHXUseGUIConfigIni);
+procedure TfrmCHXForm.SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
 begin
   if FOnLoadGUIIcons = AValue then
     Exit;
@@ -166,7 +166,7 @@ begin
   aIniFile := TMemIniFile.Create(aIconsIni);
   try
     if Assigned(OnLoadGUIIcons) then
-      OnLoadGUIIcons(aIniFile);
+      OnLoadGUIIcons(aIniFile, ExtractFilePath(aIconsIni));
 
     // Updating all TfmCHXFrame components
     LoadGUIIconsChildren(Self, aIniFile, ExtractFilePath(aIconsIni));
