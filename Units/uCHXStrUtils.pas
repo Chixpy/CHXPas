@@ -23,6 +23,7 @@ unit uCHXStrUtils;
 interface
 
 uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
+  // CHX units
   uCHXConst, uCHXRscStr;
 
 

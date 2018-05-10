@@ -23,6 +23,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, inifiles,
+  // CHX units
   uCHXImageUtils;
 
 type

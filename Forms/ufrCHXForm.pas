@@ -24,7 +24,9 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
   inifiles, IniPropStorage, DefaultTranslator,
+  // CHX units
   uCHXStrUtils, uCHXImageUtils,
+  // CHX frames
   ufCHXFrame;
 
 type
