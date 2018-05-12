@@ -7,7 +7,9 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
   StdCtrls, ActnList, ExtCtrls, LazFileUtils, IniFiles,
+  // CHX units
   uCHXStrUtils,
+  // CHX frames
   ufCHXStrLstPreview, ufCHXImgViewer;
 
 type

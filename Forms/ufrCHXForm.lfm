@@ -17,7 +17,7 @@ object frmCHXForm: TfrmCHXForm
   object IniPropStorage: TIniPropStorage
     StoredValues = <>
     IniSection = 'Forms'
-    left = 488
-    top = 416
+    left = 64
+    top = 64
   end
 end

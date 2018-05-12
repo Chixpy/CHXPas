@@ -30,7 +30,6 @@ uses
   ufCHXFrame;
 
 type
-
   { TfrmCHXForm }
 
   TfrmCHXForm = class(TForm)
