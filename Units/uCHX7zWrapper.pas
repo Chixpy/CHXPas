@@ -273,7 +273,7 @@ begin
   aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
     Copy(FileSHA1, 1, 3) + '.ini';
 
-  aIni := TMemIniFile.Create(aFile);
+  aIni := TMemIniFile.Create(UTF8ToSys(aFile));
   sl := TStringList.Create;
   slPath := TStringList.Create;
   slSizes := TStringList.Create;
