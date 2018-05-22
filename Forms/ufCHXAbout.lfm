@@ -14,7 +14,7 @@ object frmCHXAbout: TfrmCHXAbout
   FormStyle = fsStayOnTop
   OnCreate = FormCreate
   Position = poMainFormCenter
-  LCLVersion = '1.8.0.5'
+  LCLVersion = '1.8.2.0'
   object lTitle: TLabel
     Left = 4
     Height = 25
@@ -91,6 +91,7 @@ object frmCHXAbout: TfrmCHXAbout
     Top = 130
     Width = 472
     Align = alClient
+    ReadOnly = True
     ScrollBars = ssAutoVertical
     TabOrder = 2
   end
