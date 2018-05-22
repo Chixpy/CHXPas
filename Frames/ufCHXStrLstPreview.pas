@@ -22,19 +22,21 @@ unit ufCHXStrLstPreview;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, 
-    ufCHXListPreview;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  ufCHXListPreview;
 
 type
 
   { TfmCHXStrLstPreview }
 
-  TfmCHXStrLstPreview = class(TfmCHXListPreview)
+  TfmCHXStrLstPreview = class(TfmCHXListPreview, IFPObserver)
   private
     FStrList: TStrings;
     procedure SetStrList(AValue: TStrings);
 
   public
+    procedure FPOObservedChanged(ASender: TObject;
+      Operation: TFPObservedOperation; Data: Pointer);
     property StrList: TStrings read FStrList write SetStrList;
 
   end;
@@ -47,14 +49,33 @@ implementation
 
 procedure TfmCHXStrLstPreview.SetStrList(AValue: TStrings);
 begin
-  if FStrList = AValue then Exit;
+  if FStrList = AValue then
+    Exit;
+
+  if Assigned(StrList) then
+    StrList.FPODetachObserver(self);
+
   FStrList := AValue;
 
   if Assigned(StrList) then
-    ItemCount := StrList.Count
+  begin
+    StrList.FPODetachObserver(self);
+    ItemCount := StrList.Count;
+  end
   else
     ItemCount := 0;
 end;
 
-end.
+procedure TfmCHXStrLstPreview.FPOObservedChanged(ASender: TObject;
+  Operation: TFPObservedOperation; Data: Pointer);
+begin
+  if ASender = StrList then
+    case Operation of
+      ooChange, ooAddItem, ooDeleteItem: ItemCount := StrList.Count;
+      ooFree: StrList := nil;
+      else
+        ;
+    end;
+end;
 
+end.
