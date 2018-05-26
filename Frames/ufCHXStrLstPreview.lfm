@@ -1,2 +1,10 @@
 inherited fmCHXStrLstPreview: TfmCHXStrLstPreview
+  inherited tbPreviewList: TToolBar
+    inherited ToolButton1: TToolButton
+      Height = 22
+    end
+    inherited ToolButton6: TToolButton
+      Height = 22
+    end
+  end
 end

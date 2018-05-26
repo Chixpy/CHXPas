@@ -35,6 +35,8 @@ type
   { TfmCHXListPreview }
 
   TfmCHXListPreview = class(TfmCHXFrame)
+    actFirstItem: TAction;
+    actLastItem: TAction;
     actNextItem: TAction;
     actPreviousItem: TAction;
     alPreviewList: TActionList;
@@ -44,8 +46,12 @@ type
     tbNextItem: TToolButton;
     tbPreviewList: TToolBar;
     ToolButton1: TToolButton;
-    ToolButton3: TToolButton;
+    tbPreviousItem: TToolButton;
+    tbFirstItem: TToolButton;
+    tbLastItem: TToolButton;
     ToolButton6: TToolButton;
+    procedure actFirstItemExecute(Sender: TObject);
+    procedure actLastItemExecute(Sender: TObject);
     procedure actNextItemExecute(Sender: TObject);
     procedure actPreviousItemExecute(Sender: TObject);
     procedure cbxCurrItemSelect(Sender: TObject);
@@ -90,14 +96,15 @@ end;
 procedure TfmCHXListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
   aBaseFolder: string);
 begin
-  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList, alPreviewList);
+  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList,
+    alPreviewList);
 end;
 
 constructor TfmCHXListPreview.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
-    OnClearFrameData := @DoClearFrameData;
+  OnClearFrameData := @DoClearFrameData;
   OnLoadFrameData := @DoLoadFrameData;
   OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
@@ -115,6 +122,20 @@ begin
     CurrItem := 1
   else
     CurrItem := CurrItem + 1;
+end;
+
+procedure TfmCHXListPreview.actFirstItemExecute(Sender: TObject);
+begin
+  if ItemCount < 1 then
+    Exit;
+  CurrItem := 1;
+end;
+
+procedure TfmCHXListPreview.actLastItemExecute(Sender: TObject);
+begin
+  if ItemCount < 1 then
+    Exit;
+  CurrItem := ItemCount;
 end;
 
 procedure TfmCHXListPreview.actPreviousItemExecute(Sender: TObject);
