@@ -23,7 +23,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  inifiles, IniPropStorage, DefaultTranslator,
+  inifiles, DefaultTranslator,
   // CHX units
   uCHXStrUtils, uCHXImageUtils,
   // CHX frames
@@ -33,17 +33,19 @@ type
   { TfrmCHXForm }
 
   TfrmCHXForm = class(TForm)
-    IniPropStorage: TIniPropStorage;
-
   private
+    FFormGUIConfig: string;
     FOnLoadGUIConfig: TCHXUseGUIConfigIni;
     FOnLoadGUIIcons: TCHXUseIconsConfigIni;
     FOnSaveGUIConfig: TCHXUseGUIConfigIni;
+    procedure SetFormGUIConfig(const aFormGUIConfig: string);
     procedure SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
     procedure SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
     procedure SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
 
   protected
+    property FormGUIConfig: string read FFormGUIConfig write SetFormGUIConfig;
+
     property OnLoadGUIConfig: TCHXUseGUIConfigIni
       read FOnLoadGUIConfig write SetOnLoadGUIConfig;
     property OnSaveGUIConfig: TCHXUseGUIConfigIni
@@ -53,7 +55,7 @@ type
       read FOnLoadGUIIcons write SetOnLoadGUIIcons;
 
   public
-    procedure LoadGUIConfig(aGUIConfigIni: string);
+    procedure LoadGUIConfig(const aGUIConfigIni: string);
 
     procedure LoadGUIIcons(aIconsIni: string);
 
@@ -73,6 +75,11 @@ begin
   FOnLoadGUIConfig := AValue;
 end;
 
+procedure TfrmCHXForm.SetFormGUIConfig(const aFormGUIConfig: string);
+begin
+  FFormGUIConfig := SetAsFile(aFormGUIConfig);
+end;
+
 procedure TfrmCHXForm.SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
 begin
   if FOnLoadGUIIcons = AValue then
@@ -87,7 +94,7 @@ begin
   FOnSaveGUIConfig := AValue;
 end;
 
-procedure TfrmCHXForm.LoadGUIConfig(aGUIConfigIni: string);
+procedure TfrmCHXForm.LoadGUIConfig(const aGUIConfigIni: string);
 
   procedure LoadGUIConfigChildren(const aComponent: TComponent;
     aIniFile: TIniFile);
@@ -113,17 +120,26 @@ procedure TfrmCHXForm.LoadGUIConfig(aGUIConfigIni: string);
 
 var
   aIniFile: TMemIniFile;
+  aValue: string;
 begin
-  aGUIConfigIni := SetAsFile(aGUIConfigIni);
+  FormGUIConfig := aGUIConfigIni;
 
-  IniPropStorage.IniFileName := aGUIConfigIni;
-  IniPropStorage.Restore;
-
-  if aGUIConfigIni = '' then
+  if FormGUIConfig = '' then
     Exit;
 
-  aIniFile := TMemIniFile.Create(aGUIConfigIni);
+  aIniFile := TMemIniFile.Create(FormGUIConfig);
   try
+    // Loading Form properties
+    aValue := aIniFile.ReadString('Forms', Name + '_WindowState', '');
+
+    if CompareText(aValue, 'wsMaximized') = 0 then
+      WindowState := wsMaximized
+    else
+    begin
+      Width := aIniFile.ReadInteger('Forms', Name + '_Width', Width);
+      Height := aIniFile.ReadInteger('Forms', Name + '_Height', Height);
+    end;
+
     if Assigned(OnLoadGUIConfig) then
       OnLoadGUIConfig(aIniFile);
 
@@ -210,11 +226,22 @@ destructor TfrmCHXForm.Destroy;
 var
   aIniFile: TMemIniFile;
 begin
-  if IniPropStorage.IniFileName <> '' then
+
+  if FormGUIConfig <> '' then
   begin
     // Saving all TfmCHXFrame components
-    aIniFile := TMemIniFile.Create(IniPropStorage.IniFileName);
+    aIniFile := TMemIniFile.Create(FormGUIConfig);
     try
+      // Loading Form properties
+      if WindowState = wsMaximized then
+        aIniFile.WriteString('Forms', Name + '_WindowState', 'wsMaximized')
+      else
+      begin
+        aIniFile.WriteString('Forms', Name + '_WindowState', 'wsNormal');
+        aIniFile.WriteInteger('Forms', Name + '_Width', Width);
+        aIniFile.WriteInteger('Forms', Name + '_Height', Height);
+      end;
+
       if Assigned(OnSaveGUIConfig) then
         OnSaveGUIConfig(aIniFile);
 
