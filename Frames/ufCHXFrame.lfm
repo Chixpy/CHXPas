@@ -9,7 +9,6 @@ object fmCHXFrame: TfmCHXFrame
   ChildSizing.HorizontalSpacing = 4
   ChildSizing.VerticalSpacing = 4
   Enabled = False
-  LCLVersion = '1.8.0.5'
   TabOrder = 0
   DesignLeft = 470
   DesignTop = 246
