@@ -4,7 +4,7 @@ inherited fmCHXTxtListPreview: TfmCHXTxtListPreview
   end
   object mText: TMemo[1]
     Left = 0
-    Height = 214
+    Height = 210
     Top = 0
     Width = 320
     Align = alClient

@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":357001,"name":"tfmchxvideolistpreview.actplay.caption","sourcebytes":[80,108,97,121],"value":"Play"},
+{"hash":154360206,"name":"tfmchxvideolistpreview.actplay.hint","sourcebytes":[80,108,97,121,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Plays current media."},
+{"hash":5672085,"name":"tfmchxvideolistpreview.actpause.caption","sourcebytes":[80,97,117,115,101],"value":"Pause"},
+{"hash":121596542,"name":"tfmchxvideolistpreview.actpause.hint","sourcebytes":[80,97,117,115,101,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Pauses current media."},
+{"hash":371552,"name":"tfmchxvideolistpreview.actstop.caption","sourcebytes":[83,116,111,112],"value":"Stop"},
+{"hash":46422366,"name":"tfmchxvideolistpreview.actstop.hint","sourcebytes":[83,116,111,112,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Stops current media."}
+]}
