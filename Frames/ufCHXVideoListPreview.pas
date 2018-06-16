@@ -34,22 +34,31 @@ type
   { TfmCHXVideoListPreview }
 
   TfmCHXVideoListPreview = class(TfmCHXStrLstPreview)
+    actMute: TAction;
     actStop: TAction;
     actPause: TAction;
     actPlay: TAction;
     MPlayerControl: TMPlayerControl;
     tbPlay: TToolButton;
     tbPause: TToolButton;
+    tbPlayer: TToolBar;
+    tbrVolume: TTrackBar;
     tbStop: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    procedure actMuteExecute(Sender: TObject);
     procedure actPauseExecute(Sender: TObject);
     procedure actPlayExecute(Sender: TObject);
     procedure actStopExecute(Sender: TObject);
-
+    procedure tbrVolumeClick(Sender: TObject);
   private
     FMPlayerPath: string;
+    FVolume: integer;
     procedure SetMPlayerPath(const aMPlayerPath: string);
+    procedure SetVolume(const aVolume: integer);
 
   protected
+    property Volume: integer read FVolume write SetVolume;
     procedure OnCurrItemChange; override;
 
   public
@@ -70,14 +79,21 @@ begin
     Exit;
 
   if MPlayerControl.Playing then
-    MPlayerControl.Stop
+    actStop.Execute
   else
-    MPlayerControl.Play;
+    actPlay.Execute;
 end;
 
 procedure TfmCHXVideoListPreview.actStopExecute(Sender: TObject);
 begin
   MPlayerControl.Stop;
+end;
+
+procedure TfmCHXVideoListPreview.tbrVolumeClick(Sender: TObject);
+begin
+  // It's not only "on Click".
+  // It works at end of drag, too
+  MPlayerControl.Volume := tbrVolume.Position;
 end;
 
 procedure TfmCHXVideoListPreview.SetMPlayerPath(const aMPlayerPath: string);
@@ -89,9 +105,28 @@ begin
   MPlayerControl.MPlayerPath := MPlayerPath;
 end;
 
+procedure TfmCHXVideoListPreview.SetVolume(const aVolume: integer);
+begin
+  if FVolume = aVolume then Exit;
+  FVolume := aVolume;
+end;
+
 procedure TfmCHXVideoListPreview.actPauseExecute(Sender: TObject);
 begin
   MPlayerControl.Paused := not MPlayerControl.Paused;
+end;
+
+procedure TfmCHXVideoListPreview.actMuteExecute(Sender: TObject);
+begin
+ if actMute.Checked then
+   begin
+     Volume := MPlayerControl.Volume;
+     MPlayerControl.Volume := 0;
+   end
+   else
+   begin
+     MPlayerControl.Volume := Volume;
+   end;
 end;
 
 procedure TfmCHXVideoListPreview.OnCurrItemChange;
@@ -99,7 +134,7 @@ begin
   if (CurrItem < 1) or (not Assigned(StrList)) or (StrList.Count = 0) then
   begin
     if MPlayerControl.Playing then
-      MPlayerControl.Stop;
+      actPlay.Execute;
     MPlayerControl.Filename := '';
     Exit;
   end;

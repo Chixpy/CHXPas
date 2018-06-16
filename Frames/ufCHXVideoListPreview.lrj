@@ -1,8 +1,12 @@
 {"version":1,"strings":[
+{"hash":124946530,"name":"tfmchxvideolistpreview.tbplayer.caption","sourcebytes":[116,98,80,108,97,121,101,114],"value":"tbPlayer"},
+{"hash":160486418,"name":"tfmchxvideolistpreview.toolbutton2.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,50],"value":"ToolButton2"},
 {"hash":357001,"name":"tfmchxvideolistpreview.actplay.caption","sourcebytes":[80,108,97,121],"value":"Play"},
 {"hash":154360206,"name":"tfmchxvideolistpreview.actplay.hint","sourcebytes":[80,108,97,121,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Plays current media."},
 {"hash":5672085,"name":"tfmchxvideolistpreview.actpause.caption","sourcebytes":[80,97,117,115,101],"value":"Pause"},
 {"hash":121596542,"name":"tfmchxvideolistpreview.actpause.hint","sourcebytes":[80,97,117,115,101,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Pauses current media."},
 {"hash":371552,"name":"tfmchxvideolistpreview.actstop.caption","sourcebytes":[83,116,111,112],"value":"Stop"},
-{"hash":46422366,"name":"tfmchxvideolistpreview.actstop.hint","sourcebytes":[83,116,111,112,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Stops current media."}
+{"hash":46422366,"name":"tfmchxvideolistpreview.actstop.hint","sourcebytes":[83,116,111,112,115,32,99,117,114,114,101,110,116,32,109,101,100,105,97,46],"value":"Stops current media."},
+{"hash":347301,"name":"tfmchxvideolistpreview.actmute.caption","sourcebytes":[77,117,116,101],"value":"Mute"},
+{"hash":115304046,"name":"tfmchxvideolistpreview.actmute.hint","sourcebytes":[77,117,116,101,32,97,117,100,105,111,46],"value":"Mute audio."}
 ]}
