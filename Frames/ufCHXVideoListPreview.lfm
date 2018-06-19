@@ -73,7 +73,7 @@ inherited fmCHXVideoListPreview: TfmCHXVideoListPreview
       Width = 100
       Max = 100
       PageSize = 10
-      Position = 0
+      Position = 100
       TickMarks = tmTopLeft
       OnClick = tbrVolumeClick
       TabOrder = 0
