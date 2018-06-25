@@ -288,8 +288,10 @@ end;
 
 function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
 begin
+  // CreateRelativeSearchPath don't work with already relative paths
+  //   CreateRelativeSearchPath('a\b', 'a\') returns 'a\b' instead 'b'.
   // CreateRelativePath doesn't like Unix Style under Windows... :-(
-  Result := CreateRelativeSearchPath(SysPath(aFileName), SysPath(BaseDir));
+  Result := CreateRelativePath(SysPath(aFileName), SysPath(BaseDir));
 
   Result := SetAsFile(Result);
 end;
