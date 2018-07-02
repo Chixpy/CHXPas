@@ -9,6 +9,8 @@ uses
 
 type
 
+  // TODO: Merge with uMUGENIni of MUGENConf; it's different from a ini file
+
   { TODO : Use this from IniFiles }
   TCHXIniOption = (ociStripComments,    // Strip comments when reading file
     ociStripInvalid,
