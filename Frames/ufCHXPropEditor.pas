@@ -56,7 +56,7 @@ type
     property OnSaveFrameData: TCHXFrameDataUpdate
       read FOnSaveFrameData write SetOnSaveFrameData;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string); virtual;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
 
   public
     { public declarations }
@@ -131,7 +131,7 @@ begin
 end;
 
 procedure TfmCHXPropEditor.DoLoadGUIIcons(aIniFile: TIniFile;
-  aBaseFolder: string);
+  const aBaseFolder: string);
 begin
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPropEditor, alPropEditor);
 end;

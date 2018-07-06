@@ -70,7 +70,7 @@ type
     procedure DoClearFrameData;
     procedure DoLoadFrameData;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string); virtual;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
 
   public
     property ItemCount: integer read FItemCount write SetItemCount;
@@ -96,7 +96,7 @@ begin
 end;
 
 procedure TfmCHXListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
-  aBaseFolder: string);
+  const aBaseFolder: string);
 begin
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList,
     alPreviewList);

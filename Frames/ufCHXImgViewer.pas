@@ -120,7 +120,7 @@ type
 
     procedure SaveStats;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string);
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string);
 
   public
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
@@ -329,8 +329,8 @@ begin
   FStartTime := AValue;
 end;
 
-procedure TfmCHXImgViewer.DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string
-  );
+procedure TfmCHXImgViewer.DoLoadGUIIcons(aIniFile: TIniFile;
+  const aBaseFolder: string);
 begin
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilActions, ActionList);
 end;

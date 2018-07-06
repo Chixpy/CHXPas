@@ -28,8 +28,7 @@ uses
 
 type
   TCHXUseGUIConfigIni = procedure(aIniFile: TIniFile) of object;
-  TCHXUseIconsConfigIni = procedure(aIniFile: TIniFile;
-    aBaseFolder: string) of object;
+  TCHXUseIconsConfigIni = procedure(aIniFile: TIniFile; const aBaseFolder: string) of object;
   TCHXFrameDataUpdate = procedure of object;
 
   { TfmCHXFrame }

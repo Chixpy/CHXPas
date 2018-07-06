@@ -181,7 +181,7 @@ type
     procedure DoClearFrameData;
     procedure DoLoadFrameData;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
-    procedure DoLoadGUIIcons(aIconsIni: TIniFile; aBaseFolder: string);
+    procedure DoLoadGUIIcons(aIconsIni: TIniFile; const aBaseFolder: string);
 
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
@@ -409,7 +409,7 @@ begin
 end;
 
 procedure TfmCHXScriptManager.DoLoadGUIIcons(aIconsIni: TIniFile;
-  aBaseFolder: string);
+  const aBaseFolder: string);
 begin
   GUIIconsIni:= aIconsIni.FileName;
   ReadActionsIconsIni(aIconsIni, aBaseFolder, Name, ilActions, ActionList);

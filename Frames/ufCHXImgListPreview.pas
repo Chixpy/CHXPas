@@ -34,7 +34,7 @@ type
 
     procedure OnCurrItemChange; override;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; aBaseFolder: string); override;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); override;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
 
   public
@@ -84,7 +84,7 @@ begin
 end;
 
 procedure TfmCHXImgListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
-  aBaseFolder: string);
+  const aBaseFolder: string);
 begin
   inherited DoLoadGUIIcons(aIniFile, aBaseFolder);
 

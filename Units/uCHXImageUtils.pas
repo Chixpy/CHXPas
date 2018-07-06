@@ -131,8 +131,13 @@ begin
       aIniFile.UpdateFile;
     end;
 
-    TCustomAction(aActionList.Actions[Cont]).ImageIndex :=
-      AddToImageList(aImageList, aBaseFolder + IconFile);
+    // Only override default icon if already exists.
+    if FileExistsUTF8(aBaseFolder + IconFile) then
+    begin
+      TCustomAction(aActionList.Actions[Cont]).ImageIndex :=
+        AddToImageList(aImageList, aBaseFolder + IconFile);
+    end;
+
     Inc(Cont);
   end;
 end;
