@@ -276,7 +276,8 @@ begin
   end;
 
   // Testing if file exists
-  if FileMustExists and (not FileExistsUTF8(aFilename)) then
+  if FileMustExists then
+   if not FileExistsUTF8(aFilename) then
     Exit;
 
   aTxtFile := TStringList.Create;
