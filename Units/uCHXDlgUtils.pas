@@ -17,6 +17,9 @@ implementation
 
 procedure SetDlgInitialDir(aDialog: TFileDialog; BaseDir: string);
 begin
+  if not Assigned(aDialog) then
+    Exit;
+
   BaseDir := SysPath(SetAsFolder(BaseDir));
   aDialog.FileName := SysPath(aDialog.FileName);
 
@@ -42,6 +45,9 @@ end;
 procedure SetDirEditInitialDir(aDirectoryEdit: TDirectoryEdit;
   BaseDir: string);
 begin
+  if not Assigned(aDirectoryEdit) then
+    Exit;
+
   BaseDir := SysPath(SetAsFolder(BaseDir));
   aDirectoryEdit.Directory :=
     ExcludeTrailingPathDelimiter(SysPath(aDirectoryEdit.Directory));
@@ -60,12 +66,16 @@ begin
       BaseDir := CleanAndExpandFilename(
         SysPath(SetAsFolder(GetCurrentDirUTF8)) + BaseDir);
 
-    aDirectoryEdit.RootDir := CleanAndExpandFilename(BaseDir + aDirectoryEdit.Directory);
+    aDirectoryEdit.RootDir :=
+      CleanAndExpandFilename(BaseDir + aDirectoryEdit.Directory);
   end;
 end;
 
 procedure SetFileEditInitialDir(aFileEdit: TFileNameEdit; BaseDir: string);
 begin
+  if not Assigned(aFileEdit) then
+    Exit;
+
   BaseDir := SysPath(SetAsFolder(BaseDir));
   aFileEdit.FileName := SysPath(aFileEdit.FileName);
 
