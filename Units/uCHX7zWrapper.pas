@@ -577,6 +577,7 @@ var
   aPos, i: integer;
   slLine, slOutput: TStringList;
   msOutput: TMemoryStream;
+  sOutput: string;
   aProcess: TProcess;
   aParam, aValue: string;
   aPath, Size, PSize, aDate, aCRC, aSHA1: string;
@@ -627,40 +628,19 @@ begin
   if PackedFiles.Count > 0 then
     Exit;
 
-  // If not cached data found...
-  // Executing '7z.exe l -slt -scsUTF-8 -sccUTF-8 <archive>'
-  // -------------------------------------------------------
-  aProcess := TProcess.Create(nil);
-  msOutput := TMemoryStream.Create;
-  try
-    aProcess.Executable := UTF8ToSys(w7zGetPathTo7zexe);
-    aProcess.Parameters.Add('l');
-    aProcess.Parameters.Add('-slt');
-    aProcess.Parameters.Add('-scsUTF-8');
-    aProcess.Parameters.Add('-sccUTF-8');
-    if Password <> '' then
-      aProcess.Parameters.Add('-p' + UTF8ToWinCP(Password));
-    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
-    aProcess.Options := aProcess.Options + [poUsePipes, poNoConsole];
-    aProcess.Execute;
+  RunCommandInDir('',UTF8ToSys(ChangeFileExt(w7zGetPathTo7zexe,'.bat')),
+  ['l', '-slt', '--', unicodestring(a7zArchive)],
+    sOutput, i, [poNewConsole]);
 
-    // Reading output
-    aPos := 0;
-    while (aProcess.Running) or (aProcess.Output.NumBytesAvailable > 0) do
-    begin
-      i := aProcess.Output.NumBytesAvailable;
-      if i > 0 then
-      begin
-        msOutput.SetSize(aPos + i);
-        Inc(aPos, aProcess.Output.Read((msOutput.Memory + aPos)^, i));
-      end;
-    end;
-    msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
+  slOutput := TStringList.Create;
+  try
+    slOutput.BeginUpdate;
+    SplitToStrLst(sOutput, sLineBreak, slOutput);
+    slOutput.EndUpdate;
+    slOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
       kw7zCacheFileExt));
   finally
-    i := aProcess.ExitStatus;
-    FreeAndNil(aProcess);
-    FreeAndNil(msOutput);
+    slOutput.Free;
   end;
 
   if i > 1 then
@@ -980,10 +960,11 @@ begin
     aProcess.Parameters.Add('--');
 
     aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
-
+    //aProcess.Parameters.Add(a7zArchive);
 
     for i := 0 to aFileList.Count - 1 do
       aProcess.Parameters.Add(UTF8ToWinCP(aFileList[i]));
+      //aProcess.Parameters.Add(aFileList[i]);
 
     aProcess.Execute;
     Result := aProcess.ExitStatus;

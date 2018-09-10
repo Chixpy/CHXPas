@@ -22,7 +22,7 @@ unit uCHXStrUtils;
 
 interface
 
-uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
+uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes, strutils,
   // CHX units
   uCHXConst, uCHXRscStr;
 
@@ -101,6 +101,10 @@ function AddToStringList(aList: TStrings; aString: string): integer;
   Remember that you can use:
     aTStrings.Duplicates := dupIgnore
     aTStrings.AddStrings(aTStrings)
+}
+
+procedure SplitToStrLst(aString, aDelimiter: string; aSL: TStrings);
+{< Splits a String to TString, using delimiters as separators
 }
 
 function FileMaskFromStringList(aList: TStrings): string;
@@ -478,6 +482,29 @@ begin
   Result := aList.IndexOf(aString);
   if Result = -1 then
     Result := aList.Add(aString);
+end;
+
+procedure SplitToStrLst(aString, aDelimiter: string; aSL: TStrings);
+var
+  Len, i: integer;
+  PosStart, PosDel: SizeInt;
+begin
+  if not Assigned(aSL) then
+    Exit;
+
+  i := 0;
+  Len := Length(aDelimiter);
+  PosStart := 1;
+  PosDel := Pos(aDelimiter, aString);
+
+  while PosDel > 0 do
+  begin
+    aSL.Add(Copy(aString, PosStart, PosDel - PosStart));
+    PosStart := PosDel + Len;
+    PosDel := PosEx(aDelimiter, aString, PosStart);
+    Inc(i);
+  end;
+  aSL.Add(Copy(aString, PosStart, Length(aString))); //Last string
 end;
 
 function FileMaskFromStringList(aList: TStrings): string;
