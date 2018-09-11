@@ -37,9 +37,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, LazUTF8, sha1,
-  IniFiles, Process, UTF8Process,
+  IniFiles,
   // CHX units
-  uCHXStrUtils, uCHXFileUtils;
+  uCHXStrUtils, uCHXFileUtils, uCHXExecute;
 
 resourcestring
   rsw7zErrorLine = '%0:s - %1:s: %2:s';
@@ -250,6 +250,19 @@ procedure w7zErrorAdd(const aFunction, aError: string);
 begin
   w7zErrorList.Add(Format(rsw7zErrorLine, [DateTimeToStr(Now),
     aFunction, aError]));
+end;
+
+procedure w7zErrorAddStdErr(aStdErr: TMemoryStream);
+var
+  TempSL: TStringList;
+begin
+  TempSL := TStringList.Create;
+  try
+    TempSL.LoadFromStream(aStdErr);
+    w7zErrorList.AddStrings(TempSL);
+  finally
+    TempSL.Free;
+  end;
 end;
 
 procedure w7zErrorOK;
@@ -578,8 +591,7 @@ var
   slLine, slOutput: TStringList;
   aParam, aValue: string;
   aPath, Size, PSize, aDate, aCRC, aSHA1: string;
-  aProcess: TProcessUTF8;
-  msOutput: TMemoryStream;
+  msOutput, msStdErr: TMemoryStream;
 
 begin
   // Clearing PackedFiles file list
@@ -630,50 +642,42 @@ begin
   // If not cached data found...
   // Executing '7z.exe l -slt -scsUTF-8 -sccUTF-8 <archive>'
   // -------------------------------------------------------
-  aProcess := TProcessUTF8.Create(nil);
-  msOutput := TMemoryStream.Create;
-  try
-    aProcess.Executable := w7zGetPathTo7zexe;
-    aProcess.Parameters.Add('l');
-    aProcess.Parameters.Add('-slt');
-    aProcess.Parameters.Add('-scsUTF-8');
-    aProcess.Parameters.Add('-sccUTF-8');
-    if Password <> '' then
-      aProcess.Parameters.Add('-p' + Password);
-    aProcess.Parameters.Add(a7zArchive);
-    aProcess.Options := aProcess.Options + [poUsePipes, poNoConsole];
-    aProcess.Execute;
+  if Password <> '' then;
+  aParam := '-p' + Password;
 
-    // Reading output
-    aPos := 0;
-    while (aProcess.Running) or (aProcess.Output.NumBytesAvailable > 0) do
-    begin
-      i := aProcess.Output.NumBytesAvailable;
-      if i > 0 then
-      begin
-        msOutput.SetSize(aPos + i);
-        Inc(aPos, aProcess.Output.Read((msOutput.Memory + aPos)^, i));
-      end;
-    end;
+  msOutput := TMemoryStream.Create;
+  msStdErr := TMemoryStream.Create;
+  try
+    ExecuteCMD('', w7zGetPathTo7zexe,
+      ['l', '-slt', '-scsUTF-8', '-sccUTF-8', aParam, '--',
+      SysPath(a7zArchive)],
+      msOutput, msStdErr, i);
+
     msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
       kw7zCacheFileExt));
+
+    // Checking errors
+    if i > 1 then
+    begin
+      w7zErrorAdd('w7zListFiles', Format(rsw7zExeError, [a7zArchive, i]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
+    if i = 1 then // Warning
+    begin
+      w7zErrorAdd('w7zListFiles', Format(rsw7zExeWarning, [a7zArchive, i]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
   finally
-    i := aProcess.ExitStatus;
-    FreeAndNil(aProcess);
-    FreeAndNil(msOutput);
+    msOutput.Free;
+    msStdErr.Free;
   end;
+
+  w7zErrorOK;
 
   if i > 1 then
-  begin
-    w7zErrorAdd('w7zListFiles', Format(rsw7zExeError, [a7zArchive, i]));
     Exit;
-  end;
-
-  if i = 1 then // Warning
-  begin
-    w7zErrorAdd('w7zListFiles', Format(rsw7zExeWarning, [a7zArchive, i]));
-    //Exit; Don't exit
-  end;
 
   // Reading files and creating cache file
   // -------------------------------------
@@ -848,11 +852,11 @@ function w7zExtractFile(a7zArchive: string; const aFileMask: string;
   aFolder: string; const ShowProgress: boolean;
   const Password: string): integer;
 var
-  aProcess: TProcessUTF8;
-  aOptions: TProcessOptions;
   aExeString: string;
+  Params: TStringList;
+  msStdErr: TMemoryStream;
 begin
-  Result := 0;
+  Result := -1;
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
@@ -863,11 +867,11 @@ begin
     Exit;
   end;
 
-  aOptions := [poWaitOnExit];
-
   // 7z.exe returns Fatal Error if not changed back to windows style :-(
   aFolder := SysPath(SetAsFolder(aFolder));
 
+
+  // Selecting graphical exe to show progress.
   if ShowProgress then
   begin
     if w7zPathTo7zGexeOK then
@@ -877,7 +881,6 @@ begin
     else if w7zPathTo7zexeOK then
     begin
       aExeString := w7zGetPathTo7zexe;
-      aOptions := aOptions + [poNewConsole];
     end
     else
       Exit;
@@ -888,52 +891,73 @@ begin
       Exit;
 
     aExeString := w7zGetPathTo7zexe;
-    aOptions := aOptions + [poNoConsole];
+    msStdErr := TMemoryStream.Create; // To hide console and catch errors
   end;
 
-  aProcess := TProcessUTF8.Create(nil);
+  // Parameters
+  Params := TStringList.Create;
   try
-    aProcess.Executable := aExeString;
-    aProcess.Options := aOptions;
-
-    aProcess.Parameters.Add('x');
-    aProcess.Parameters.Add(a7zArchive);
-    aProcess.Parameters.Add('-scsUTF-8');
-    aProcess.Parameters.Add('-sccUTF-8');
+    Params.Add('x');
+    Params.Add('-scsUTF-8');
+    Params.Add('-sccUTF-8');
 
     if not ShowProgress then
     begin
-      // if progress is not shown then respond yes to all queries
+      // if progress is not shown then answer yes to all queries
       //   and overwrite if file exist... use it with care.
-      aProcess.Parameters.Add('-aoa');
-      aProcess.Parameters.Add('-y');
+      Params.Add('-aoa');
+      Params.Add('-y');
     end;
+
     if Password <> '' then
-      aProcess.Parameters.Add('-p' + Password);
-    aProcess.Parameters.Add('-o' + aFolder);
-    aProcess.Parameters.Add('--');
+      Params.Add('-p' + Password);
 
+    Params.Add('-o' + aFolder);
+    Params.Add('--');
 
-    aProcess.Parameters.Add(aFileMask);
-    aProcess.Execute;
-    Result := aProcess.ExitStatus;
+    Params.Add(a7zArchive);
+    Params.Add(aFileMask);
+
+    ExecuteCMD('', aExeString, Params, nil, msStdErr, Result);
+
+    // Checking errors
+    if Result > 1 then
+    begin
+      w7zErrorAdd('w7zExtractFile', Format(rsw7zExeError,
+        [a7zArchive, Result]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
+    if Result = 1 then // Warning
+    begin
+      w7zErrorAdd('w7zExtractFile', Format(rsw7zExeWarning,
+        [a7zArchive, Result]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
   finally
-    FreeAndNil(aProcess);
+    Params.Free;
+    msStdErr.Free;
   end;
+
   w7zErrorOK;
 end;
 
 function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
   const ShowProgress: boolean; const CompType: string): integer;
 var
-  aProcess: TProcessUTF8;
-  aOptions: TProcessOptions;
   aExeString: string;
   i: integer;
+  msStdErr: TMemoryStream;
+  Params: TStringList;
 
 begin
-  aOptions := [poWaitOnExit];
+  Result := -1;
 
+  // Sometime are stored as directories
+  a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
+
+  // Selecting graphical exe to show progress.
   if ShowProgress then
   begin
     if w7zPathTo7zGexeOK then
@@ -943,7 +967,6 @@ begin
     else if w7zPathTo7zexeOK then
     begin
       aExeString := w7zGetPathTo7zexe;
-      aOptions := aOptions + [poNewConsole];
     end
     else
       Exit;
@@ -954,42 +977,57 @@ begin
       Exit;
 
     aExeString := w7zGetPathTo7zexe;
-    aOptions := aOptions + [poNoConsole];
+    msStdErr := TMemoryStream.Create; // To hide console and catch errors
   end;
 
-  // Sometime are stored as directories
-  a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
-
-  aProcess := TProcessUTF8.Create(nil);
+  // Parameters
+  Params := TStringList.Create;
   try
-    aProcess.Executable := aExeString;
-    aProcess.Options := aOptions;
-
-    aProcess.Parameters.Add('a');
+    Params.Add('a');
     if CompType <> '' then
-      aProcess.Parameters.Add('-t' + CompType);
-    aProcess.Parameters.Add('-scsUTF-8');
-    aProcess.Parameters.Add('-sccUTF-8');
-    aProcess.Parameters.Add('-mx=9');
+      Params.Add('-t' + CompType);
+    Params.Add('-scsUTF-8');
+    Params.Add('-sccUTF-8');
+    Params.Add('-mx=9');
 
     if not ShowProgress then
     begin
-      // if progress is not shown then respond yes to all queries
+      // if progress is not shown then answer yes to all queries
       //   and overwrite if file exist... use it with care.
-      aProcess.Parameters.Add('-aoa');
-      aProcess.Parameters.Add('-y');
+      Params.Add('-aoa');
+      Params.Add('-y');
     end;
-    aProcess.Parameters.Add('--');
 
-    aProcess.Parameters.Add(a7zArchive);
+    //if Password <> '' then
+    //  Params.Add('-p' + Password);
+
+    Params.Add('--');
+
+    Params.Add(a7zArchive);
 
     for i := 0 to aFileList.Count - 1 do
-      aProcess.Parameters.Add(aFileList[i]);
+      Params.Add(aFileList[i]);
 
-    aProcess.Execute;
-    Result := aProcess.ExitStatus;
+    ExecuteCMD('', aExeString, Params, nil, msStdErr, Result);
+
+    // Checking errors
+    if Result > 1 then
+    begin
+      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
+        [a7zArchive, Result]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
+    if Result = 1 then // Warning
+    begin
+      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
+        [a7zArchive, Result]));
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
   finally
-    FreeAndNil(aProcess);
+    Params.Free;
+    msStdErr.Free;
   end;
 
   w7zErrorOK;

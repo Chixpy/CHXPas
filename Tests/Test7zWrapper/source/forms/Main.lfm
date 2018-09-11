@@ -1,0 +1,56 @@
+object Form1: TForm1
+  Left = 400
+  Height = 377
+  Top = 183
+  Width = 665
+  Caption = 'Form1'
+  ClientHeight = 377
+  ClientWidth = 665
+  LCLVersion = '1.8.4.0'
+  object bScanFiles: TButton
+    Left = 8
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'bScanFiles'
+    OnClick = bScanFilesClick
+    TabOrder = 0
+  end
+  object lbx7zFiles: TListBox
+    Left = 8
+    Height = 152
+    Top = 40
+    Width = 260
+    ItemHeight = 0
+    OnClick = lbx7zFilesClick
+    TabOrder = 1
+  end
+  object lbxCompFiles: TListBox
+    Left = 288
+    Height = 152
+    Top = 40
+    Width = 352
+    ItemHeight = 0
+    TabOrder = 2
+  end
+  object mErrores: TMemo
+    Left = 8
+    Height = 114
+    Top = 208
+    Width = 632
+    Lines.Strings = (
+      'mErrores'
+    )
+    ScrollBars = ssAutoVertical
+    TabOrder = 3
+  end
+  object bCacheFolder: TButton
+    Left = 96
+    Height = 25
+    Top = 8
+    Width = 75
+    Caption = 'bCacheFolder'
+    OnClick = bCacheFolderClick
+    TabOrder = 4
+  end
+end
