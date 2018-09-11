@@ -22,7 +22,7 @@ unit uCHXStrUtils;
 
 interface
 
-uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes, strutils,
+uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
   // CHX units
   uCHXConst, uCHXRscStr;
 
@@ -103,8 +103,8 @@ function AddToStringList(aList: TStrings; aString: string): integer;
     aTStrings.AddStrings(aTStrings)
 }
 
-procedure SplitToStrLst(aString, aDelimiter: string; aSL: TStrings);
-{< Splits a String to TString, using delimiters as separators
+procedure StringToFile(const aString, aFilename: string);
+{< Saves a string to a File, lines separated with sLineBreak.
 }
 
 function FileMaskFromStringList(aList: TStrings): string;
@@ -484,27 +484,17 @@ begin
     Result := aList.Add(aString);
 end;
 
-procedure SplitToStrLst(aString, aDelimiter: string; aSL: TStrings);
+procedure StringToFile(const aString, aFilename: string);
 var
-  Len, i: integer;
-  PosStart, PosDel: SizeInt;
+  slOutput: TStringList;
 begin
-  if not Assigned(aSL) then
-    Exit;
-
-  i := 0;
-  Len := Length(aDelimiter);
-  PosStart := 1;
-  PosDel := Pos(aDelimiter, aString);
-
-  while PosDel > 0 do
-  begin
-    aSL.Add(Copy(aString, PosStart, PosDel - PosStart));
-    PosStart := PosDel + Len;
-    PosDel := PosEx(aDelimiter, aString, PosStart);
-    Inc(i);
+    slOutput := TStringList.Create;
+  try
+    slOutput.Text := aString;
+    slOutput.SaveToFile(UTF8ToSys(aFilename));
+  finally
+    slOutput.Free;
   end;
-  aSL.Add(Copy(aString, PosStart, Length(aString))); //Last string
 end;
 
 function FileMaskFromStringList(aList: TStrings): string;

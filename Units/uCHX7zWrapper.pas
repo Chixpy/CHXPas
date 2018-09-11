@@ -1,4 +1,4 @@
-{ 7z.exe and 7zG.exe Wrapper
+{ 7z.exe and 7zG.exe Wrapper.
 
   Copyright (C) 2011-2017 Chixpy
 
@@ -36,8 +36,8 @@ unit uCHX7zWrapper;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LazFileUtils, Process, LazUTF8, sha1,
-  IniFiles,
+  Classes, SysUtils, FileUtil, LazFileUtils, LazUTF8, sha1,
+  IniFiles, Process, UTF8Process,
   // CHX units
   uCHXStrUtils, uCHXFileUtils;
 
@@ -576,11 +576,10 @@ var
   FileSHA1: string;
   aPos, i: integer;
   slLine, slOutput: TStringList;
-  msOutput: TMemoryStream;
-  sOutput: string;
-  aProcess: TProcess;
   aParam, aValue: string;
   aPath, Size, PSize, aDate, aCRC, aSHA1: string;
+  aProcess: TProcessUTF8;
+  msOutput: TMemoryStream;
 
 begin
   // Clearing PackedFiles file list
@@ -628,19 +627,40 @@ begin
   if PackedFiles.Count > 0 then
     Exit;
 
-  RunCommandInDir('',UTF8ToSys(ChangeFileExt(w7zGetPathTo7zexe,'.bat')),
-  ['l', '-slt', '--', unicodestring(a7zArchive)],
-    sOutput, i, [poNewConsole]);
-
-  slOutput := TStringList.Create;
+  // If not cached data found...
+  // Executing '7z.exe l -slt -scsUTF-8 -sccUTF-8 <archive>'
+  // -------------------------------------------------------
+  aProcess := TProcessUTF8.Create(nil);
+  msOutput := TMemoryStream.Create;
   try
-    slOutput.BeginUpdate;
-    SplitToStrLst(sOutput, sLineBreak, slOutput);
-    slOutput.EndUpdate;
-    slOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
+    aProcess.Executable := w7zGetPathTo7zexe;
+    aProcess.Parameters.Add('l');
+    aProcess.Parameters.Add('-slt');
+    aProcess.Parameters.Add('-scsUTF-8');
+    aProcess.Parameters.Add('-sccUTF-8');
+    if Password <> '' then
+      aProcess.Parameters.Add('-p' + Password);
+    aProcess.Parameters.Add(a7zArchive);
+    aProcess.Options := aProcess.Options + [poUsePipes, poNoConsole];
+    aProcess.Execute;
+
+    // Reading output
+    aPos := 0;
+    while (aProcess.Running) or (aProcess.Output.NumBytesAvailable > 0) do
+    begin
+      i := aProcess.Output.NumBytesAvailable;
+      if i > 0 then
+      begin
+        msOutput.SetSize(aPos + i);
+        Inc(aPos, aProcess.Output.Read((msOutput.Memory + aPos)^, i));
+      end;
+    end;
+    msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
       kw7zCacheFileExt));
   finally
-    slOutput.Free;
+    i := aProcess.ExitStatus;
+    FreeAndNil(aProcess);
+    FreeAndNil(msOutput);
   end;
 
   if i > 1 then
@@ -828,7 +848,7 @@ function w7zExtractFile(a7zArchive: string; const aFileMask: string;
   aFolder: string; const ShowProgress: boolean;
   const Password: string): integer;
 var
-  aProcess: TProcess;
+  aProcess: TProcessUTF8;
   aOptions: TProcessOptions;
   aExeString: string;
 begin
@@ -871,13 +891,13 @@ begin
     aOptions := aOptions + [poNoConsole];
   end;
 
-  aProcess := TProcess.Create(nil);
+  aProcess := TProcessUTF8.Create(nil);
   try
-    aProcess.Executable := UTF8ToSys(aExeString);
+    aProcess.Executable := aExeString;
     aProcess.Options := aOptions;
 
     aProcess.Parameters.Add('x');
-    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
+    aProcess.Parameters.Add(a7zArchive);
     aProcess.Parameters.Add('-scsUTF-8');
     aProcess.Parameters.Add('-sccUTF-8');
 
@@ -889,10 +909,12 @@ begin
       aProcess.Parameters.Add('-y');
     end;
     if Password <> '' then
-      aProcess.Parameters.Add('-p' + UTF8ToWinCP(Password));
-    aProcess.Parameters.Add('-o' + UTF8ToWinCP(aFolder));
+      aProcess.Parameters.Add('-p' + Password);
+    aProcess.Parameters.Add('-o' + aFolder);
     aProcess.Parameters.Add('--');
-    aProcess.Parameters.Add(UTF8ToWinCP(aFileMask));
+
+
+    aProcess.Parameters.Add(aFileMask);
     aProcess.Execute;
     Result := aProcess.ExitStatus;
   finally
@@ -904,7 +926,7 @@ end;
 function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
   const ShowProgress: boolean; const CompType: string): integer;
 var
-  aProcess: TProcess;
+  aProcess: TProcessUTF8;
   aOptions: TProcessOptions;
   aExeString: string;
   i: integer;
@@ -938,14 +960,14 @@ begin
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
-  aProcess := TProcess.Create(nil);
+  aProcess := TProcessUTF8.Create(nil);
   try
-    aProcess.Executable := UTF8ToSys(aExeString);
+    aProcess.Executable := aExeString;
     aProcess.Options := aOptions;
 
     aProcess.Parameters.Add('a');
     if CompType <> '' then
-      aProcess.Parameters.Add('-t' + UTF8ToWinCP(CompType));
+      aProcess.Parameters.Add('-t' + CompType);
     aProcess.Parameters.Add('-scsUTF-8');
     aProcess.Parameters.Add('-sccUTF-8');
     aProcess.Parameters.Add('-mx=9');
@@ -959,12 +981,10 @@ begin
     end;
     aProcess.Parameters.Add('--');
 
-    aProcess.Parameters.Add(UTF8ToWinCP(a7zArchive));
-    //aProcess.Parameters.Add(a7zArchive);
+    aProcess.Parameters.Add(a7zArchive);
 
     for i := 0 to aFileList.Count - 1 do
-      aProcess.Parameters.Add(UTF8ToWinCP(aFileList[i]));
-      //aProcess.Parameters.Add(aFileList[i]);
+      aProcess.Parameters.Add(aFileList[i]);
 
     aProcess.Execute;
     Result := aProcess.ExitStatus;
