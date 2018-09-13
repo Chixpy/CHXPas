@@ -28,7 +28,7 @@ uses
   // CHX units
   uCHXStrUtils;
 
-function ExecuteCMD(const aWorkFolder, aExeFile: string;
+function ExecuteCMDSL(aWorkFolder, aExeFile: string;
   aParams: TStrings; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
 { Executes a external program. Waits to exit, if you don't want to wait maybe
@@ -52,13 +52,17 @@ function ExecuteCMD(const aWorkFolder, aExeFile: string;
     If both are @nil, console will be shown.
 }
 
-function ExecuteCMD(const aWorkFolder, aExeFile: string;
+function ExecuteCMDArray(const aWorkFolder, aExeFile: string;
   aParams: array of string; oStdOut, oStdErr: TCustomMemoryStream;
+  out oExitCode: integer): boolean;
+
+function ExecuteCMDString(const aWorkFolder, aExeFile: string;
+  aParams: string; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
 
 implementation
 
-function ExecuteCMD(const aWorkFolder, aExeFile: string;
+function ExecuteCMDSL(aWorkFolder, aExeFile: string;
   aParams: TStrings; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
 var
@@ -70,9 +74,20 @@ var
 begin
   Result := False;
   oExitCode := -1;
+  aWorkFolder := SysPath(aWorkFolder);
+  aExeFile := SysPath(aExeFile);
 
-  if not FileExistsUTF8(SetAsFile(SetAsFolder(aWorkFolder) + aExeFile)) then
-    Exit;
+  // Testing executable existence
+  if FilenameIsAbsolute(aExeFile) then
+  begin
+    if not FileExistsUTF8(aExeFile) then
+      Exit;
+  end
+  else
+  begin
+    if not FileExistsUTF8(TrimAndExpandFilename(aExeFile, aWorkFolder)) then
+      Exit;
+  end;
 
   TempStream := TMemoryStream.Create;
   aProcess := TProcessUTF8.Create(nil);
@@ -153,7 +168,8 @@ begin
   end;
 end;
 
-function ExecuteCMD(const aWorkFolder, aExeFile: string;
+
+function ExecuteCMDArray(const aWorkFolder, aExeFile: string;
   aParams: array of string; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
 var
@@ -172,7 +188,25 @@ begin
       end;
     end;
 
-    Result := ExecuteCMD(aWorkFolder, aExeFile, Params, oStdOut,
+    Result := ExecuteCMDSL(aWorkFolder, aExeFile, Params, oStdOut,
+      oStdErr, oExitCode);
+
+  finally
+    Params.Free;
+  end;
+end;
+
+function ExecuteCMDString(const aWorkFolder, aExeFile: string;
+  aParams: string; oStdOut, oStdErr: TCustomMemoryStream;
+  out oExitCode: integer): boolean;
+var
+  Params: TStringList;
+begin
+  Params := TStringList.Create;
+  try
+    SplitCmdLineParams(aParams, Params, False);
+
+    Result := ExecuteCMDSL(aWorkFolder, aExeFile, Params, oStdOut,
       oStdErr, oExitCode);
 
   finally

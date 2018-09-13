@@ -648,7 +648,7 @@ begin
   msOutput := TMemoryStream.Create;
   msStdErr := TMemoryStream.Create;
   try
-    ExecuteCMD('', w7zGetPathTo7zexe,
+    ExecuteCMDArray('', w7zGetPathTo7zexe,
       ['l', '-slt', '-scsUTF-8', '-sccUTF-8', aParam, '--',
       SysPath(a7zArchive)],
       msOutput, msStdErr, i);
@@ -857,6 +857,7 @@ var
   msStdErr: TMemoryStream;
 begin
   Result := -1;
+  msStdErr := nil;
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
@@ -918,7 +919,7 @@ begin
     Params.Add(a7zArchive);
     Params.Add(aFileMask);
 
-    ExecuteCMD('', aExeString, Params, nil, msStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
 
     // Checking errors
     if Result > 1 then
@@ -1008,7 +1009,7 @@ begin
     for i := 0 to aFileList.Count - 1 do
       Params.Add(aFileList[i]);
 
-    ExecuteCMD('', aExeString, Params, nil, msStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
 
     // Checking errors
     if Result > 1 then
