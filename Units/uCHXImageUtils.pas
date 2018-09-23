@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, Controls, Menus, ActnList, Graphics,
-  IniFiles, LazFileUtils, LazUTF8, Buttons, ImgList,
+  IniFiles, LazFileUtils, LazUTF8, Buttons, ImgList, typinfo,
   // CHX units
   uCHXStrUtils;
 
@@ -97,6 +97,10 @@ function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 {< Returns a TRect with the correct aspect ratio for the picture inside the
   OrigRect.
 }
+
+// Font related
+procedure SaveFontToIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
 
 implementation
 
@@ -343,5 +347,57 @@ begin
     Result.Right := OrigRect.Right - Adjustment;
   end;
 end;
+
+procedure SaveFontToIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+var
+  FontProps: TStringList;
+begin
+  if not Assigned(FStream) then Exit;
+  if not Assigned(smFont) then Exit;
+
+  FontProps := TStringList.Create;
+  try
+    FontProps.Add(smFont.Name);
+    FontProps.Add(IntToStr(smFont.CharSet));
+    FontProps.Add(IntToStr(smFont.Color));
+    FontProps.Add(IntToStr(smFont.Size));
+
+    FontProps.Add(SetToString(GetPropInfo(smFont, 'Style'), LongInt(smFont.Style),True));
+
+
+    FStream.WriteString(Section, Key, FontProps.CommaText);
+finally
+    FontProps.Free;
+  end;
+end;
+
+procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+var
+  FontProps: TStringList;
+begin
+  if not Assigned(FStream) then Exit;
+  if not Assigned(smFont) then Exit;
+    FontProps := TStringList.Create;
+  try
+    FontProps.CommaText := FStream.ReadString(Section, Key, ',,,,');
+    while FontProps.Count < 5 do
+      FontProps.Add('');
+
+    if FontProps[0] <> '' then
+        smFont.Name := FontProps[0];
+    if FontProps[1] <> '' then
+    smFont.Charset := TFontCharSet(StrToIntDef(FontProps[1], smFont.Charset));
+    if FontProps[2] <> '' then
+     smFont.Color := TColor(StrToIntDef(FontProps[2], smFont.Color));
+    if FontProps[3] <> '' then
+        smFont.Size := StrToIntDef(FontProps[3], smFont.Size);
+    if FontProps[4] <> '' then
+        smFont.Style := TFontStyles(StringToSet(GetPropInfo(smFont, 'Style'), FontProps[4]));
+
+  finally
+      FontProps.Free;
+  end;
+end;
+
 
 end.

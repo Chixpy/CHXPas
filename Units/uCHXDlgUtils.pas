@@ -6,12 +6,15 @@ interface
 
 uses
   Classes, SysUtils, EditBtn, LazFileUtils, Dialogs,
+  // CHX units
   uCHXStrUtils;
 
 procedure SetDlgInitialDir(aDialog: TFileDialog; BaseDir: string);
 procedure SetDirEditInitialDir(aDirectoryEdit: TDirectoryEdit;
   BaseDir: string);
 procedure SetFileEditInitialDir(aFileEdit: TFileNameEdit; BaseDir: string);
+
+
 
 implementation
 

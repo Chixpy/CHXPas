@@ -22,7 +22,7 @@ unit uCHXFileUtils;
 interface
 
 uses
-  Classes, SysUtils, crc, sha1, FileUtil, LazFileUtils, LazUTF8,
+  Classes, SysUtils, crc, sha1, FileUtil, LazFileUtils, LazUTF8, IniFiles,
   // CHX units
   uCHXStrUtils;
 
@@ -43,7 +43,6 @@ function SearchFirstFileInFolderByExtSL(aFolder: string;
   Extensions: TStrings): string;
 {< Searches first file found with a matched extension from a list in a folder.
 }
-
 
 // Some hashing
 // ------------
@@ -260,7 +259,7 @@ begin
       end;
 end;
 
-function FilesInFolder(aFolder, aFileMask: string): integer;
+function FilesInFolder(aFolder, aFileMAsk: string): integer;
 var
   Info: TSearchRec;
 begin
