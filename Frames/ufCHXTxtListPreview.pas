@@ -1,4 +1,5 @@
-{ Frame for previewing a list of text files.
+unit ufCHXTxtListPreview;
+{< TfmCHXTxtListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
 
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit ufCHXTxtListPreview;
-
 {$mode objfpc}{$H+}
 
 interface

@@ -1,4 +1,5 @@
-{ Script Engine.
+unit ucCHXScriptEngine;
+{< cCHXScriptEngine class unit.
 
   Copyright (C) 2006-2018 Chixpy
 
@@ -17,10 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-
-{ Unit of Script Engine class. }
-unit ucCHXScriptEngine;
-
 {$mode objfpc}{$H+}
 
 interface
@@ -75,8 +72,8 @@ type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(
-    const aCaption, aExtFilter, DefFile: string): string of object;
+  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
+    string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
@@ -85,7 +82,6 @@ type
   { cCHXScriptEngine }
 
   cCHXScriptEngine = class(TObject)
-
   private
     FCommonUnitFolder: string;
     FOnAskFile: TCHXSEAskFileCB;
@@ -395,10 +391,10 @@ begin
       begin
         Result := True; // Don't halt or create an exception.
 
-        ScriptError.Add(Format(rsSEMsgFormat, [rsSEELWarning, 0, 0,
-      'PasScriptOnFindUnknownFile']));
-        ScriptError.Add('- $I file not found: ' + FileName + ' (' +
-          OriginFileName + ')');
+        ScriptError.Add(Format(rsSEMsgFormat,
+          [rsSEELWarning, 0, 0, 'PasScriptOnFindUnknownFile']));
+        ScriptError.Add('- $I file not found: ' + FileName +
+          ' (' + OriginFileName + ')');
       end;
       Exit;
     end;
@@ -617,7 +613,8 @@ begin
   if Result then
   begin
     if Assigned(ScriptError) then
-      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEEExecutionMsg]));
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
+        rsSEEExecutionMsg]));
     Exit;
   end;
 
@@ -625,7 +622,8 @@ begin
     Exit;
 
   ScriptError.BeginUpdate;
-  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0, rsSEEExecutionMsg]));
+  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0,
+    rsSEEExecutionMsg]));
   ScriptError.Add(PasScript.ExecErrorToString);
   ScriptError.Add(Format('[Runtime error] %s(%d:%d)',
     [ScriptFile, PasScript.ExecErrorRow, PasScript.ExecErrorCol]));
@@ -652,7 +650,8 @@ begin
   if Result then
   begin
     if Assigned(ScriptError) then
-      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEECompilationMsg]));
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
+        rsSEECompilationMsg]));
     Exit;
   end;
 
@@ -664,7 +663,8 @@ begin
   for i := 0 to PaSScript.CompilerMessageCount - 1 do
     ScriptError.add(PaSScript.CompilerMessages[i].MessageToString);
 
-  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0, rsSEECompilationMsg]));
+  ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0,
+    rsSEECompilationMsg]));
 
   for i := 0 to PaSScript.CompilerMessageCount - 1 do
     ScriptError.Add(PasScript.CompilerErrorToStr(i));

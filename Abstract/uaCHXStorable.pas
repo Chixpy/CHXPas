@@ -1,4 +1,7 @@
-{ Copyright (C) 2006-2018 Chixpy
+unit uaCHXStorable;
+{< caCHXStorable, caCHXStorableIni and caCHXStorableTxt classes unit.
+
+  Copyright (C) 2006-2018 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -15,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit uaCHXStorable;
-
 {$mode objfpc}{$H+}
 
 interface
@@ -80,24 +81,16 @@ type
 
   public
     procedure LoadFromFile(const aFilename: string); override;
-    {< Loads data from file.
-
-         @param(aFilename Filename of the inifile to read from.)
-    }
     procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Loads data from file.
 
-         @param(aIniFile Inifile to read from.)
+      @param(aIniFile Inifile to read from.)
     }
     procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
-    {< Saves data to file.
-
-          @param(IniFile Inifile to write to.)
-    }
     procedure SaveToIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Saves data to file.
 
-         @param(IniFile Inifile to write to.)
+      @param(IniFile Inifile to write to.)
     }
 
     constructor Create(aOwner: TComponent); override;
@@ -121,26 +114,16 @@ type
     property CommaText: string read GetCommaText write SetCommaText;
 
     procedure LoadFromFile(const aFilename: string); override;
-    {< Loads data from file.
-
-         @param(aFilename Filename of the text file to read from.)
-    }
     procedure LoadFromStrLst(aTxtFile: TStrings); virtual; abstract;
     {< Loads data from file.
 
-         @param(aTxtFile Text file to read from.)
+      @param(aTxtFile Text file to read from.)
     }
     procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
-    {< Saves data to file.
-
-         @param(TxtFile Text file to write to.)
-         @param(ExportMode if @true don't save user data.)
-    }
     procedure SaveToStrLst(aTxtFile: TStrings); virtual; abstract;
     {< Saves data to file.
 
-         @param(TxtFile Text file to write to.)
-         @param(ExportMode if @true don't save user data.)
+      @param(aTxtFile Text file to write to.)
     }
 
     constructor Create(aOwner: TComponent); override;

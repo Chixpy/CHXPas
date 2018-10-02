@@ -127,6 +127,7 @@ procedure w7zSetGlobalCache(aPath: string);
 
 function w7zFileExists(a7zArchive: string; aInnerFile: string;
   const Password: string): integer;
+{< Search if a file exists.}
 
 procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
   const OnlyPaths: boolean; const Password: string);

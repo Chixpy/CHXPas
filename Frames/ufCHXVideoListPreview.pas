@@ -1,4 +1,5 @@
-{ Frame for previewing a list of video/music files.
+unit ufCHXVideoListPreview;
+{< TfmCHXVideoListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
 
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit ufCHXVideoListPreview;
-
 {$mode objfpc}{$H+}
 
 interface

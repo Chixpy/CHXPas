@@ -1,4 +1,5 @@
-{ Frame for preview a list of items.
+unit ufCHXListPreview;
+{< TfmCHXListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
 
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit ufCHXListPreview;
-
 {$mode objfpc}{$H+}
 
 interface
@@ -26,7 +25,9 @@ interface
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
   StdCtrls, ExtCtrls, ActnList, IniFiles,
+  // CHX units
   uCHXImageUtils,
+  // CHX frames
   ufCHXFrame;
 
 resourcestring

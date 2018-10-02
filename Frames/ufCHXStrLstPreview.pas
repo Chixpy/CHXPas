@@ -1,4 +1,5 @@
-{ Specialization of TfmCHXListPreview base on a TStringList.
+unit ufCHXStrLstPreview;
+{< TfmCHXStrLstPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
 
@@ -17,14 +18,13 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit ufCHXStrLstPreview;
-
 {$mode objfpc}{$H+}
 
 interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  // CHX frames
   ufCHXListPreview;
 
 type
@@ -37,9 +37,12 @@ type
     procedure SetStrList(AValue: TStrings);
 
   public
+    property StrList: TStrings read FStrList write SetStrList;
+    {< File list. }
+
     procedure FPOObservedChanged(ASender: TObject;
       Operation: TFPObservedOperation; Data: Pointer);
-    property StrList: TStrings read FStrList write SetStrList;
+    {< IFPObserver callback. }
 
   end;
 

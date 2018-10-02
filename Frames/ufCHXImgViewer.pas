@@ -1,6 +1,7 @@
-{ CHX Image Viewer
+unit ufCHXImgViewer;
+{< TfmCHXImgViewer frame unit.
 
-  Copyright (C) 2006-2017 Chixpy
+  Copyright (C) 2006-2018 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit ufCHXImgViewer;
-
 {$mode objfpc}{$H+}
 
 interface
@@ -27,8 +26,12 @@ uses
   Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls,
   Graphics, Dialogs, ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList,
   IniFiles, dateutils,
+  // CHX units
   uCHXStrUtils, uCHXFileUtils, uCHXImageUtils,
-  ufrCHXForm, ufCHXFrame;
+  // CHX forms
+  ufrCHXForm,
+  // CHX frames
+  ufCHXFrame;
 
 type
 
