@@ -1,5 +1,5 @@
 unit uaCHXStorable;
-{< caCHXStorable, caCHXStorableIni and caCHXStorableTxt classes unit.
+{< caCHXStorable, caCHXStorableIni and caCHXStorableTxt abstract classes unit.
 
   Copyright (C) 2006-2018 Chixpy
 
