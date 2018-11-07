@@ -61,8 +61,6 @@ type
     procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
 
   public
-    { public declarations }
-
     property SaveButtons: boolean read FSaveButtons write SetSaveButtons;
     //< Show save and cancel buttons?
     property ButtonClose: boolean read FButtonClose write SetButtonClose;

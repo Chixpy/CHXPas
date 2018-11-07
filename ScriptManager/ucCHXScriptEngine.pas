@@ -52,19 +52,19 @@ resourcestring
   rsSEECompilationMsg = 'Compiling.';
   rsSEEExecutionMsg = 'Executing.';
 
-  // Message format
   rsSEMsgFormat = '[%0:s](%1:.4d:%2:.4d): %3:s';
- {< Default format for messages
-  @definitionList(
-    @itemLabel(0)
-    @item(Error level. Usually: rsSEELError, rsSEELWarning, rsSEELInfo,
-      rsSEELOK)
-    @itemLabel(1, 2)
-    @item(Row and col of the message)
-    @itemLabel(3)
-    @item(Actual message test)
-  )
-}
+  {< Default format for messages.
+
+    @definitionList(
+      @itemLabel(0)
+        @item(Error level. Usually: rsSEELError, rsSEELWarning, rsSEELInfo,
+          rsSEELOK)
+      @itemLabel(1, 2)
+        @item(Row and col of the message)
+      @itemLabel(3)
+        @item(Actual message test)
+    )
+  }
 
 
 
@@ -72,8 +72,8 @@ type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
-    string of object;
+  TCHXSEAskFileCB = function(
+    const aCaption, aExtFilter, DefFile: string): string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of

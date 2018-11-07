@@ -1,6 +1,12 @@
 inherited fmCHXTxtListPreview: TfmCHXTxtListPreview
   inherited tbPreviewList: TToolBar
     TabOrder = 1
+    inherited ToolButton1: TToolButton
+      Height = 22
+    end
+    inherited ToolButton6: TToolButton
+      Height = 22
+    end
   end
   object mText: TMemo[1]
     Left = 0
@@ -8,6 +14,7 @@ inherited fmCHXTxtListPreview: TfmCHXTxtListPreview
     Top = 0
     Width = 320
     Align = alClient
+    ReadOnly = True
     ScrollBars = ssAutoVertical
     TabOrder = 0
   end

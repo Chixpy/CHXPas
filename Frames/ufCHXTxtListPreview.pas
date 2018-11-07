@@ -24,7 +24,9 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ActnList, ufCHXStrLstPreview;
+  StdCtrls, ActnList,
+  // CHX frames
+  ufCHXStrLstPreview;
 
 type
 

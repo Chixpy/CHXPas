@@ -29,14 +29,10 @@ uses
 
 type
 
-  { caCHXStorable }
-
   caCHXStorable = class(TComponent)
   private
     FDefaultFileName: string;
     procedure SetDefaultFileName(AValue: string);
-
-  protected
 
   public
     procedure LoadFromFile(const aFilename: string); virtual; abstract;
@@ -46,7 +42,6 @@ type
         from DefaultFileName property.)
 
       DefaultFileName property is not updated with aFilename parameter.
-
     }
     procedure SaveToFile(const aFilename: string; ClearFile: Boolean); virtual;
       abstract;// ClearFile: Boolean); virtual; abstract;
@@ -81,14 +76,23 @@ type
 
   public
     procedure LoadFromFile(const aFilename: string); override;
-    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
     {< Loads data from file.
+
+      @param(aFilename Inifile to read from.)
+    }
+    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
+    {< Loads data from opened .ini file.
 
       @param(aIniFile Inifile to read from.)
     }
     procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
+     {< Saves data to opened .ini file.
+
+      @param(IniFile aFilename to write to.)
+      @param(ClearFile Clear file content before saving.)
+    }
     procedure SaveToIni(aIniFile: TMemIniFile); virtual; abstract;
-    {< Saves data to file.
+    {< Saves data to opened .ini file.
 
       @param(IniFile Inifile to write to.)
     }

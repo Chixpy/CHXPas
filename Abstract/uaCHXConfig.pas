@@ -29,7 +29,6 @@ uses
 
 type
 
-  { caCHXConfig }
   caCHXConfig = class(caCHXStorableIni)
   public
     procedure ResetDefaultConfig; virtual; abstract;
@@ -41,8 +40,6 @@ type
   {< Abstract config holder class. }
 
 implementation
-
-{ caCHXConfig }
 
 constructor caCHXConfig.Create(aOwner: TComponent);
 begin

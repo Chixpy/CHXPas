@@ -43,7 +43,7 @@ uses
 
 resourcestring
   rsw7zErrorLine = '%0:s - %1:s: %2:s';
-  //< Translatable string, line in file error: ''%0:s - %1:s: %2:s'
+  {< Translatable string, line in file error: '%0:s - %1:s: %2:s' }
   rsw7zFileNotFound = '"%0:s" file not found.';
   //< Translatable string: '"%0:s" file not found'
   rsw7zExeError = '7z.exe/7zG.exe error %1:d exit code.' +

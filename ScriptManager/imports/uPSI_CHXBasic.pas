@@ -1,4 +1,5 @@
-{ Basic function for Pascal Script.
+unit uPSI_CHXBasic;
+{< Basic functions for Pascal Script.
 
   Copyright (C) 2011-2018 Chixpy
 
@@ -17,8 +18,6 @@
   writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
   Boston, MA 02111-1307, USA.
 }
-unit uPSI_CHXBasic;
-
 {$mode objfpc}{$H+}
 
 interface
@@ -26,17 +25,17 @@ interface
 uses
   SysUtils, Classes, uPSRuntime, uPSCompiler;
 
-  { compile-time registration functions }
 procedure SIRegister_CHXBasic(CL: TPSPascalCompiler);
+{< Compile-time registration functions. }
 
-{ run-time registration functions }
 procedure RIRegister_CHXBasic_Routines(S: TPSExec);
+{< Run-time registration functions. }
 
 implementation
 
 procedure SIRegister_CHXBasic(CL: TPSPascalCompiler);
 begin
-   // CL.AddDelphiFunction('function XXX;');
+  // CL.AddDelphiFunction('function XXX;');
 
   // Basic types
   {$ifdef CPU64}
@@ -52,13 +51,11 @@ begin
   CL.AddTypeS('SizeInt','Integer');
   CL.AddTypeS('SizeUInt','Word');
   {$endif CPU32}
-
 end;
 
 procedure RIRegister_CHXBasic_Routines(S: TPSExec);
 begin
- // S.RegisterDelphiFunction(@XXX, 'XXX', cdRegister);
-
+  // S.RegisterDelphiFunction(@XXX, 'XXX', cdRegister);
 end;
 
 end.
