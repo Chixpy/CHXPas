@@ -77,7 +77,6 @@ end;
 
 procedure SIRegister_FPCStrUtils(CL: TPSPascalCompiler);
 begin
-
   // Case insensitive search/replace
 
   CL.AddDelphiFunction(

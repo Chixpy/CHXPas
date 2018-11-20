@@ -1,4 +1,5 @@
 unit ufCHXListPreview;
+
 {< TfmCHXListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
@@ -68,10 +69,11 @@ type
   protected
     procedure OnCurrItemChange; virtual; abstract;
 
-    procedure DoClearFrameData;
+    procedure DoClearFrameData; virtual;
     procedure DoLoadFrameData;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile;
+      const aBaseFolder: string); virtual;
 
   public
     property ItemCount: integer read FItemCount write SetItemCount;

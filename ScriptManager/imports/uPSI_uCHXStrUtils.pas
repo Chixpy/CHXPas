@@ -1,4 +1,5 @@
-{ uCHXStrUtils for Pascal Script.
+unit uPSI_uCHXStrUtils;
+{< uCHXStrUtils for Pascal Script.
 
   Copyright (C) 2011-2018 Chixpy
 
@@ -17,7 +18,7 @@
   writing to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
   Boston, MA 02111-1307, USA.
 }
-unit uPSI_uCHXStrUtils;
+{$mode objfpc}{$H+}
 
 interface
 

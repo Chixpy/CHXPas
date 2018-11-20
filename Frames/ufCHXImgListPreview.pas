@@ -1,4 +1,5 @@
 unit ufCHXImgListPreview;
+
 {< TfmCHXImgListPreview frame unit.
 
   Copyright (C) 2006-2017 Chixpy
@@ -52,7 +53,8 @@ type
 
     procedure OnCurrItemChange; override;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); override;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string);
+      override;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
 
   public
@@ -70,13 +72,15 @@ implementation
 
 procedure TfmCHXImgListPreview.iImageDblClick(Sender: TObject);
 begin
-  TfmCHXImgViewer.SimpleFormIL(StrList, SHA1Folder, CurrItem, GUIIconsIni, GUIConfigIni);
+  TfmCHXImgViewer.SimpleFormIL(StrList, SHA1Folder, CurrItem,
+    GUIIconsIni, GUIConfigIni);
 end;
 
 procedure TfmCHXImgListPreview.SetSHA1Folder(AValue: string);
 begin
   AValue := SetAsFolder(AValue);
-  if CompareFilenames(FSHA1Folder,AValue) =  0 then Exit;
+  if CompareFilenames(FSHA1Folder, AValue) = 0 then
+    Exit;
   FSHA1Folder := AValue;
 end;
 

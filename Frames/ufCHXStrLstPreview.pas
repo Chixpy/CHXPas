@@ -1,6 +1,8 @@
 unit ufCHXStrLstPreview;
 {< TfmCHXStrLstPreview frame unit.
 
+  // TODO: Rename to (prefix)CHXFileListPreview
+
   Copyright (C) 2017-2018 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
@@ -64,7 +66,7 @@ begin
 
   if Assigned(StrList) then
   begin
-    StrList.FPODetachObserver(self);
+    StrList.FPOAttachObserver(self);
     ItemCount := StrList.Count;
   end
   else
