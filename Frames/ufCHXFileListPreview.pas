@@ -1,7 +1,6 @@
-unit ufCHXStrLstPreview;
-{< TfmCHXStrLstPreview frame unit.
+unit ufCHXFileListPreview;
 
-  // TODO: Rename to (prefix)CHXFileListPreview
+{< TfmCHXFileListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
 
@@ -31,58 +30,71 @@ uses
 
 type
 
-  { TfmCHXStrLstPreview }
+  { TfmCHXFileListPreview }
 
-  TfmCHXStrLstPreview = class(TfmCHXListPreview, IFPObserver)
+  TfmCHXFileListPreview = class(TfmCHXListPreview, IFPObserver)
   private
-    FStrList: TStrings;
-    procedure SetStrList(AValue: TStrings);
+    FFileList: TStrings;
+    procedure SetFileList(AValue: TStrings);
 
   public
-    property StrList: TStrings read FStrList write SetStrList;
+    property FileList: TStrings read FFileList write SetFileList;
     {< File list. }
 
     procedure FPOObservedChanged(ASender: TObject;
       Operation: TFPObservedOperation; Data: Pointer);
     {< IFPObserver callback. }
 
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
 
 {$R *.lfm}
 
-{ TfmCHXStrLstPreview }
+{ TfmCHXFileListPreview }
 
-procedure TfmCHXStrLstPreview.SetStrList(AValue: TStrings);
+procedure TfmCHXFileListPreview.SetFileList(AValue: TStrings);
 begin
-  if FStrList = AValue then
+  if FFileList = AValue then
     Exit;
 
-  if Assigned(StrList) then
-    StrList.FPODetachObserver(self);
+  if Assigned(FileList) then
+    FileList.FPODetachObserver(self);
 
-  FStrList := AValue;
+  FFileList := AValue;
 
-  if Assigned(StrList) then
+  if Assigned(FileList) then
   begin
-    StrList.FPOAttachObserver(self);
-    ItemCount := StrList.Count;
+    FileList.FPOAttachObserver(self);
+    ItemCount := FileList.Count;
   end
   else
     ItemCount := 0;
 end;
 
-procedure TfmCHXStrLstPreview.FPOObservedChanged(ASender: TObject;
+procedure TfmCHXFileListPreview.FPOObservedChanged(ASender: TObject;
   Operation: TFPObservedOperation; Data: Pointer);
 begin
-  if ASender = StrList then
+  if ASender = FileList then
     case Operation of
-      ooChange, ooAddItem, ooDeleteItem: ItemCount := StrList.Count;
-      ooFree: StrList := nil;
+      ooFree: FileList := nil;
       else
-        ;
+        FileList.Count;
     end;
+end;
+
+constructor TfmCHXFileListPreview.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+end;
+
+destructor TfmCHXFileListPreview.Destroy;
+begin
+  if Assigned(FileList) then
+    FileList.FPODetachObserver(self);
+  inherited Destroy;
 end;
 
 end.

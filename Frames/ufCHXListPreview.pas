@@ -61,9 +61,9 @@ type
     procedure cbxCurrItemSelect(Sender: TObject);
 
   private
-    FCurrItem: integer;
+    FItemIndex: integer;
     FItemCount: integer;
-    procedure SetCurrItem(AValue: integer);
+    procedure SetItemIndex(AValue: integer);
     procedure SetItemCount(AValue: integer);
 
   protected
@@ -77,7 +77,9 @@ type
 
   public
     property ItemCount: integer read FItemCount write SetItemCount;
-    property CurrItem: integer read FCurrItem write SetCurrItem;
+    {< Total number of items. }
+    property ItemIndex: integer read FItemIndex write SetItemIndex;
+    {< Current selected item position. }
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -109,6 +111,8 @@ constructor TfmCHXListPreview.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
 
+  ItemIndex := -1;
+
   OnClearFrameData := @DoClearFrameData;
   OnLoadFrameData := @DoLoadFrameData;
   OnLoadGUIIcons := @DoLoadGUIIcons;
@@ -121,70 +125,77 @@ end;
 
 procedure TfmCHXListPreview.actNextItemExecute(Sender: TObject);
 begin
-  if ItemCount < 1 then
+  // If there is only 1 item, do nothing.
+  if ItemCount < 2 then
     Exit;
-  if CurrItem = ItemCount then
-    CurrItem := 1
+
+  if ItemIndex >= (ItemCount - 1) then
+    ItemIndex := 0
   else
-    CurrItem := CurrItem + 1;
+    ItemIndex := ItemIndex + 1;
 end;
 
 procedure TfmCHXListPreview.actFirstItemExecute(Sender: TObject);
 begin
-  if ItemCount < 1 then
+  // If there is only 1 item, do nothing.
+  if ItemCount < 2 then
     Exit;
-  CurrItem := 1;
+
+  ItemIndex := 0;
 end;
 
 procedure TfmCHXListPreview.actLastItemExecute(Sender: TObject);
 begin
-  if ItemCount < 1 then
+  // If there is only 1 item, do nothing.
+  if ItemCount < 2 then
     Exit;
-  CurrItem := ItemCount;
+
+  ItemIndex := ItemCount - 1;
 end;
 
 procedure TfmCHXListPreview.actPreviousItemExecute(Sender: TObject);
 begin
-  if ItemCount < 1 then
+    // If there is only 1 item, do nothing.
+  if ItemCount < 2 then
     Exit;
-  if CurrItem = 1 then
-    CurrItem := ItemCount
+
+  if ItemIndex <= 0 then
+    ItemIndex := ItemCount - 1
   else
-    CurrItem := CurrItem - 1;
+    ItemIndex := ItemIndex - 1;
 end;
 
 procedure TfmCHXListPreview.cbxCurrItemSelect(Sender: TObject);
 begin
-  CurrItem := cbxCurrItem.ItemIndex + 1;
+  ItemIndex := cbxCurrItem.ItemIndex;
 end;
 
-procedure TfmCHXListPreview.SetCurrItem(AValue: integer);
+procedure TfmCHXListPreview.SetItemIndex(AValue: integer);
 begin
-
   if ItemCount > 0 then
   begin
-    // Keep in range [1..ItemCount]
-    if AValue > ItemCount then
+    // Keep in range...
+    if AValue >= ItemCount then
     begin
-      AValue := ItemCount;
+      AValue := ItemCount - 1;
     end
-    else if AValue < 1 then
+    else if AValue < 0 then
     begin
-      AValue := 1;
+      AValue := 0;
     end;
   end
   else
   begin
-    // if ItemCount = 0 then
-    AValue := 0;
+    // if ItemCount <= 0 then
+    AValue := -1;
   end;
 
-  if FCurrItem = AValue then
+  if FItemIndex = AValue then
     Exit;
 
-  FCurrItem := AValue;
+  FItemIndex := AValue;
 
-  cbxCurrItem.ItemIndex := FCurrItem - 1;
+  cbxCurrItem.ItemIndex := FItemIndex;
 
   OnCurrItemChange;
 end;
@@ -193,7 +204,7 @@ procedure TfmCHXListPreview.DoClearFrameData;
 begin
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
   cbxCurrItem.Clear;
-  CurrItem := 0;
+  ItemIndex := -1;
 end;
 
 procedure TfmCHXListPreview.DoLoadFrameData;
@@ -220,11 +231,13 @@ begin
 
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
 
+  actFirstItem.Enabled := ItemCount > 1;
+  actLastItem.Enabled := ItemCount > 1;
   actNextItem.Enabled := ItemCount > 1;
   actPreviousItem.Enabled := ItemCount > 1;
   cbxCurrItem.Enabled := ItemCount > 1;
 
-  CurrItem := 1;
+  ItemIndex := 0;
 end;
 
 end.

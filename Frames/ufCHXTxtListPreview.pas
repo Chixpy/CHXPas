@@ -26,13 +26,13 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
   StdCtrls, ActnList,
   // CHX frames
-  ufCHXStrLstPreview;
+  ufCHXFileListPreview;
 
 type
 
   { TfmCHXTxtListPreview }
 
-  TfmCHXTxtListPreview = class(TfmCHXStrLstPreview)
+  TfmCHXTxtListPreview = class(TfmCHXFileListPreview)
     mText: TMemo;
 
   private
@@ -52,14 +52,14 @@ implementation
 
 procedure TfmCHXTxtListPreview.OnCurrItemChange;
 begin
-  if (CurrItem < 1) or (not Assigned(StrList)) or
-    (StrList.Count = 0) then
+  if (ItemIndex < 0) or (not Assigned(FileList)) or
+    (FileList.Count = 0) then
   begin
     mText.Clear;
     Exit;
   end;
 
-  mText.Lines.LoadFromFile(StrList[CurrItem - 1]);
+  mText.Lines.LoadFromFile(FileList[ItemIndex]);
 end;
 
 end.

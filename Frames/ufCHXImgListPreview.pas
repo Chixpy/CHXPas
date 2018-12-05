@@ -29,13 +29,13 @@ uses
   // CHX units
   uCHXStrUtils,
   // CHX frames
-  ufCHXStrLstPreview, ufCHXImgViewer;
+  ufCHXFileListPreview, ufCHXImgViewer;
 
 type
 
   { TfmCHXImgListPreview }
 
-  TfmCHXImgListPreview = class(TfmCHXStrLstPreview)
+  TfmCHXImgListPreview = class(TfmCHXFileListPreview)
     iImage: TImage;
     procedure iImageDblClick(Sender: TObject);
 
@@ -72,16 +72,17 @@ implementation
 
 procedure TfmCHXImgListPreview.iImageDblClick(Sender: TObject);
 begin
-  TfmCHXImgViewer.SimpleFormIL(StrList, SHA1Folder, CurrItem,
-    GUIIconsIni, GUIConfigIni);
+  if assigned(FileList) and (ItemCount > 0) then
+    TfmCHXImgViewer.SimpleFormIL(FileList, SHA1Folder, ItemIndex,
+      GUIIconsIni, GUIConfigIni);
 end;
 
 procedure TfmCHXImgListPreview.SetSHA1Folder(AValue: string);
 begin
-  AValue := SetAsFolder(AValue);
-  if CompareFilenames(FSHA1Folder, AValue) = 0 then
-    Exit;
-  FSHA1Folder := AValue;
+  if DirectoryExistsUTF8(AValue) then
+    FSHA1Folder := SetAsFolder(AValue)
+  else
+    FSHA1Folder := '';
 end;
 
 procedure TfmCHXImgListPreview.SetGUIConfigIni(AValue: string);
@@ -96,13 +97,13 @@ end;
 
 procedure TfmCHXImgListPreview.OnCurrItemChange;
 begin
-  if (CurrItem < 1) or (not Assigned(StrList)) or (StrList.Count = 0) then
+  if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
   begin
     iImage.Picture.Clear;
     Exit;
   end;
 
-  iImage.Picture.LoadFromFile(StrList[CurrItem - 1]);
+  iImage.Picture.LoadFromFile(FileList[ItemIndex]);
 end;
 
 procedure TfmCHXImgListPreview.DoLoadGUIIcons(aIniFile: TIniFile;

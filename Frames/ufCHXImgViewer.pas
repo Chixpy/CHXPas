@@ -1,4 +1,5 @@
 unit ufCHXImgViewer;
+
 {< TfmCHXImgViewer frame unit.
 
   Copyright (C) 2006-2018 Chixpy
@@ -23,69 +24,36 @@ unit ufCHXImgViewer;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LazFileUtils, Forms, Controls,
-  Graphics, Dialogs, ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList,
-  IniFiles, dateutils,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  StdCtrls, ActnList, ExtCtrls, LazFileUtils, IniFiles, DateUtils,
   // CHX units
-  uCHXStrUtils, uCHXFileUtils, uCHXImageUtils,
-  // CHX forms
-  ufrCHXForm,
+  uCHXStrUtils, uCHXFileUtils,
   // CHX frames
-  ufCHXFrame;
+  ufCHXFileListPreview,
+  // CHX forms
+  ufrCHXForm;
 
 type
 
   { TfmCHXImgViewer }
 
-  // TODO: REDO LOAD/CLEAR/SAVE
-
-  TfmCHXImgViewer = class(TfmCHXFrame)
-    actFirst: TAction;
-    ActionList: TActionList;
-    actLast: TAction;
-    actNext: TAction;
-    actOriginalSize: TAction;
-    actPrevious: TAction;
-    actShowFileList: TAction;
+  TfmCHXImgViewer = class(TfmCHXFileListPreview)
+    actClose: TAction;
+    actToggleFileList: TAction;
     actStretch: TAction;
-    actZoomIn: TAction;
     actZoomOut: TAction;
-    bFirst: TToolButton;
-    bLast: TToolButton;
-    bNext: TToolButton;
-    bPrevious: TToolButton;
-    bSep1: TToolButton;
-    bSep3: TToolButton;
-    bSep4: TToolButton;
-    bShowFileList: TToolButton;
-    bStretch: TToolButton;
-    cbxCurrImage: TComboBox;
-    ilActions: TImageList;
+    actZoomIn: TAction;
+    actOriginalSize: TAction;
     Image: TImage;
     lbxFiles: TListBox;
-    lTotalImages: TLabel;
-    mClose: TMenuItem;
-    mOriginalSize: TMenuItem;
-    mZoomIn: TMenuItem;
-    mZoomOut: TMenuItem;
-    pmAction: TPopupMenu;
     sbInfo: TStatusBar;
     sbxImage: TScrollBox;
-    Splitter: TSplitter;
-    tbImage: TToolBar;
-    tbOriginalSize: TToolButton;
-    tbZoomIn: TToolButton;
-    tbZoomOut: TToolButton;
-    procedure actFirstExecute(Sender: TObject);
-    procedure actLastExecute(Sender: TObject);
-    procedure actNextExecute(Sender: TObject);
+    Splitter1: TSplitter;
     procedure actOriginalSizeExecute(Sender: TObject);
-    procedure actPreviousExecute(Sender: TObject);
-    procedure actShowFileListExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
+    procedure actToggleFileListExecute(Sender: TObject);
     procedure actZoomInExecute(Sender: TObject);
     procedure actZoomOutExecute(Sender: TObject);
-    procedure cbxCurrImageSelect(Sender: TObject);
     procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
@@ -97,18 +65,18 @@ type
   private
     FDragBeginX: longint;
     FDragBeginY: longint;
-    FImageIndex: integer;
     FSHA1: string;
     FSHA1Folder: string;
     FStartTime: TTime;
-    procedure SetDragBeginX(AValue: longint);
-    procedure SetDragBeginY(AValue: longint);
-    procedure SetImageIndex(AValue: integer);
-    procedure SetSHA1(AValue: string);
-    procedure SetSHA1Folder(AValue: string);
-    procedure SetStartTime(AValue: TTime);
+    procedure SetDragBeginX(const aDragBeginX: longint);
+    procedure SetDragBeginY(const aDragBeginY: longint);
+    procedure SetSHA1(const aSHA1: string);
+    procedure SetSHA1Folder(const aSHA1Folder: string);
+    procedure SetStartTime(const aStartTime: TTime);
 
   protected
+    procedure OnCurrItemChange; override;
+
     property DragBeginX: longint read FDragBeginX write SetDragBeginX;
     property DragBeginY: longint read FDragBeginY write SetDragBeginY;
 
@@ -123,16 +91,9 @@ type
 
     procedure SaveStats;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string);
-
   public
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
-
-    property ImageIndex: integer read FImageIndex write SetImageIndex;
-
-
-    procedure AddImages(aImageList: TStrings; Index: integer = 0);
-    procedure AddImage(aImageFile: string; aObject: TObject = nil);
+    {< Folder to store picture visualization statistics. }
 
     // Creates a form with image viewer.
     class function SimpleFormIL(aImageList: TStrings;
@@ -151,24 +112,6 @@ implementation
 
 { TfmCHXImgViewer }
 
-procedure TfmCHXImgViewer.actFirstExecute(Sender: TObject);
-begin
-  ImageIndex := 1;
-end;
-
-procedure TfmCHXImgViewer.actLastExecute(Sender: TObject);
-begin
-  ImageIndex := lbxFiles.Items.Count;
-end;
-
-procedure TfmCHXImgViewer.actNextExecute(Sender: TObject);
-begin
-  if ImageIndex < lbxFiles.Items.Count then
-    ImageIndex := ImageIndex + 1
-  else
-    ImageIndex := 1;
-end;
-
 procedure TfmCHXImgViewer.actOriginalSizeExecute(Sender: TObject);
 begin
   actStretch.Checked := False;
@@ -179,26 +122,18 @@ begin
   sbxImage.VertScrollBar.Position := Image.Height shr 1;
 end;
 
-procedure TfmCHXImgViewer.actPreviousExecute(Sender: TObject);
-begin
-  if ImageIndex > 1 then
-    ImageIndex := ImageIndex - 1
-  else
-    ImageIndex := lbxFiles.Items.Count;
-end;
-
-procedure TfmCHXImgViewer.actShowFileListExecute(Sender: TObject);
-begin
-  Splitter.Visible := actShowFileList.Checked;
-  lbxFiles.Visible := actShowFileList.Checked;
-end;
-
 procedure TfmCHXImgViewer.actStretchExecute(Sender: TObject);
 begin
   if actStretch.Checked then
     StretchImage;
 
   FixPosition;
+end;
+
+procedure TfmCHXImgViewer.actToggleFileListExecute(Sender: TObject);
+begin
+  Splitter1.Visible := actToggleFileList.Checked;
+  lbxFiles.Visible := actToggleFileList.Checked;
 end;
 
 procedure TfmCHXImgViewer.actZoomInExecute(Sender: TObject);
@@ -233,11 +168,6 @@ begin
   Image.Height := Image.Height shr 1;
   Image.Width := Image.Width shr 1;
   FixPosition;
-end;
-
-procedure TfmCHXImgViewer.cbxCurrImageSelect(Sender: TObject);
-begin
-  ImageIndex := cbxCurrImage.ItemIndex + 1;
 end;
 
 procedure TfmCHXImgViewer.ImageMouseDown(Sender: TObject;
@@ -279,7 +209,7 @@ procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject;
   User: boolean);
 begin
   if User then
-    ImageIndex := lbxFiles.ItemIndex + 1;
+    ItemIndex := lbxFiles.ItemIndex;
 end;
 
 procedure TfmCHXImgViewer.sbxImageResize(Sender: TObject);
@@ -289,53 +219,45 @@ begin
   FixPosition;
 end;
 
-procedure TfmCHXImgViewer.SetDragBeginX(AValue: longint);
+procedure TfmCHXImgViewer.SetDragBeginX(const aDragBeginX: longint);
 begin
-  if FDragBeginX = AValue then
+  if FDragBeginX = aDragBeginX then
     Exit;
-  FDragBeginX := AValue;
+  FDragBeginX := aDragBeginX;
 end;
 
-procedure TfmCHXImgViewer.SetDragBeginY(AValue: longint);
+procedure TfmCHXImgViewer.SetDragBeginY(const aDragBeginY: longint);
 begin
-  if FDragBeginY = AValue then
+  if FDragBeginY = aDragBeginY then
     Exit;
-  FDragBeginY := AValue;
+  FDragBeginY := aDragBeginY;
 end;
 
-procedure TfmCHXImgViewer.SetImageIndex(AValue: integer);
+procedure TfmCHXImgViewer.SetSHA1(const aSHA1: string);
 begin
-  if FImageIndex = AValue then
+  if FSHA1 = aSHA1 then
     Exit;
-  FImageIndex := AValue;
-  cbxCurrImage.ItemIndex := ImageIndex - 1;
-  lbxFiles.ItemIndex := ImageIndex - 1;
-  ChangeImage;
+  FSHA1 := aSHA1;
 end;
 
-procedure TfmCHXImgViewer.SetSHA1(AValue: string);
+procedure TfmCHXImgViewer.SetSHA1Folder(const aSHA1Folder: string);
 begin
-  if FSHA1 = AValue then
+  if DirectoryExistsUTF8(aSHA1Folder) then
+    FSHA1Folder := SetAsFolder(aSHA1Folder)
+  else
+    FSHA1Folder := '';
+end;
+
+procedure TfmCHXImgViewer.SetStartTime(const aStartTime: TTime);
+begin
+  if FStartTime = aStartTime then
     Exit;
-  FSHA1 := AValue;
+  FStartTime := aStartTime;
 end;
 
-procedure TfmCHXImgViewer.SetSHA1Folder(AValue: string);
+procedure TfmCHXImgViewer.OnCurrItemChange;
 begin
-  FSHA1Folder := SetAsFolder(AValue);
-end;
-
-procedure TfmCHXImgViewer.SetStartTime(AValue: TTime);
-begin
-  if FStartTime = AValue then
-    Exit;
-  FStartTime := AValue;
-end;
-
-procedure TfmCHXImgViewer.DoLoadGUIIcons(aIniFile: TIniFile;
-  const aBaseFolder: string);
-begin
-  ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilActions, ActionList);
+    ChangeImage;
 end;
 
 procedure TfmCHXImgViewer.StretchImage;
@@ -392,14 +314,14 @@ begin
     StartTime := 0;
   end;
 
-  if (ImageIndex < 1) or (lbxFiles.Items.Count = 0) then
+  if (ItemIndex < 0) or (ItemCount <= 0) then
   begin
     Image.Picture.Clear;
     UpdateStatusBar;
     Exit;
   end;
 
-  aFilename := lbxFiles.Items[ImageIndex - 1];
+  aFilename := FileList[ItemIndex];
 
   if FileExistsUTF8(aFilename) then
   begin
@@ -414,20 +336,20 @@ begin
   else
   begin
     Image.Picture.Clear;
-    lbxFiles.Items.Delete(ImageIndex - 1);
+    FileList.Delete(ItemIndex);
     ChangeImage;
   end;
 end;
 
 procedure TfmCHXImgViewer.UpdateStatusBar;
 begin
-  if ImageIndex > 0 then
+  if ItemIndex >= 0 then
   begin
     sbInfo.Panels[0].Text :=
       IntToStr(Image.Picture.Width) + 'x' + IntToStr(Image.Picture.Height);
     sbInfo.Panels[1].Text :=
       ' (' + IntToStr(Image.Width) + 'x' + IntToStr(Image.Height) + ')';
-    sbInfo.Panels[2].Text := lbxFiles.Items[ImageIndex - 1];
+    sbInfo.Panels[2].Text := FileList[ItemIndex];
   end
   else
   begin
@@ -436,15 +358,7 @@ begin
     sbInfo.Panels[2].Text := '';
   end;
 
-  lTotalImages.Caption := '/ ' + IntToStr(lbxFiles.Items.Count);
-
-  Enabled := lbxFiles.Items.Count > 0;
-  cbxCurrImage.Enabled := lbxFiles.Items.Count > 1;
-  actFirst.Enabled := cbxCurrImage.Enabled;
-  actPrevious.Enabled := cbxCurrImage.Enabled;
-  actNext.Enabled := cbxCurrImage.Enabled;
-  actLast.Enabled := cbxCurrImage.Enabled;
-  actShowFileList.Enabled := cbxCurrImage.Enabled;
+  actToggleFileList.Enabled := ItemCount > 1;
 end;
 
 procedure TfmCHXImgViewer.SaveStats;
@@ -461,7 +375,7 @@ begin
   aFileName := SHA1Folder + SetAsFolder(copy(SHA1, 1, 1)) +
     copy(SHA1, 1, 3) + '.ini';
 
-  ForceDirectories(ExtractFileDir(aFileName)); // Actually a folder now
+  ForceDirectories(ExtractFileDir(aFileName));
 
   aIni := TMemIniFile.Create(aFileName);
   try
@@ -472,34 +386,8 @@ begin
     { TODO : Other Stats? }
     aIni.UpdateFile;
   finally
-    FreeAndNil(aIni);
+    aIni.Free;
   end;
-end;
-
-procedure TfmCHXImgViewer.AddImages(aImageList: TStrings; Index: integer);
-var
-  i: integer;
-begin
-  Index := Index + lbxFiles.Items.Count;
-  lbxFiles.Items.AddStrings(aImageList);
-
-  cbxCurrImage.Items.BeginUpdate;
-  try
-    cbxCurrImage.Items.Clear;
-    for i := 1 to lbxFiles.Items.Count do
-      cbxCurrImage.Items.Add(IntToStr(i));
-  finally
-    cbxCurrImage.Items.EndUpdate;
-  end;
-
-  ImageIndex := Index;
-end;
-
-procedure TfmCHXImgViewer.AddImage(aImageFile: string; aObject: TObject);
-begin
-  lbxFiles.Items.AddObject(aImageFile, aObject);
-  cbxCurrImage.Items.Add(IntToStr(lbxFiles.Count));
-  ImageIndex := lbxFiles.Count;
 end;
 
 class function TfmCHXImgViewer.SimpleFormIL(aImageList: TStrings;
@@ -520,7 +408,8 @@ begin
     fmCHXImageViewer.Align := alClient;
 
     fmCHXImageViewer.SHA1Folder := aSHA1Folder;
-    fmCHXImageViewer.AddImages(aImageList, aCurrItem);
+    fmCHXImageViewer.FileList := aImageList;
+    fmCHXImageViewer.ItemIndex := aCurrItem;
 
     aForm.LoadGUIConfig(aGUIConfigIni);
     aForm.LoadGUIIcons(aGUIIconsIni);
@@ -555,14 +444,13 @@ end;
 constructor TfmCHXImgViewer.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-  ImageIndex := -1;
-  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXImgViewer.Destroy;
 begin
   if (SHA1Folder <> '') then
     SaveStats;
+
   inherited Destroy;
 end;
 

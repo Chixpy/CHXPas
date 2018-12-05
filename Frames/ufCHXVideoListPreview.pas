@@ -26,13 +26,13 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
   StdCtrls, ActnList, MPlayerCtrl, LazFileUtils,
   // CHX frames
-  ufCHXStrLstPreview;
+  ufCHXFileListPreview;
 
 type
 
   { TfmCHXVideoListPreview }
 
-  TfmCHXVideoListPreview = class(TfmCHXStrLstPreview)
+  TfmCHXVideoListPreview = class(TfmCHXFileListPreview)
     actMute: TAction;
     actStop: TAction;
     actPause: TAction;
@@ -130,7 +130,7 @@ end;
 
 procedure TfmCHXVideoListPreview.OnCurrItemChange;
 begin
-  if (CurrItem < 1) or (not Assigned(StrList)) or (StrList.Count = 0) then
+  if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
   begin
     if MPlayerControl.Playing then
       actPlay.Execute;
@@ -138,7 +138,7 @@ begin
     Exit;
   end;
 
-  MPlayerControl.Filename := StrList[CurrItem - 1];
+  MPlayerControl.Filename := FileList[ItemIndex];
 end;
 
 end.
