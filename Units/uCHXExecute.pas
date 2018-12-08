@@ -32,7 +32,7 @@ function ExecuteCMDSL(aWorkFolder, aExeFile: string;
   aParams: TStrings; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
 { Executes a external program. Waits to exit, if you don't want to wait maybe
-    want to create in thread.
+    want to create it in a thread.
 
     @param(aWorkFolder Folder from command will be executed,
       empty = Current Folder)
@@ -40,7 +40,7 @@ function ExecuteCMDSL(aWorkFolder, aExeFile: string;
     @Param(aParams List of parameters to pass to executable, one by line)
     @param(oStdOut Stream where normal output will be stored, if not nil
       it will activate the use of pipes.)
-    @param(oStdErr Stream where normal output will be stored, if not nil
+    @param(oStdErr Stream where error output will be stored, if not nil
       it will activate the use of pipes.)
     @param(oExitCode Exit code of command.)
     @param(Options Additional TProcess options, example:
