@@ -1,4 +1,5 @@
 {"version":1,"strings":[
+{"hash":160486418,"name":"tfmchximgviewer.toolbutton2.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,50],"value":"ToolButton2"},
 {"hash":23626005,"name":"tfmchximgviewer.actoriginalsize.caption","sourcebytes":[79,114,105,103,105,110,97,108,32,115,105,122,101],"value":"Original size"},
 {"hash":23458974,"name":"tfmchximgviewer.actzoomin.caption","sourcebytes":[90,111,111,109,32,73,110],"value":"Zoom In"},
 {"hash":106909908,"name":"tfmchximgviewer.actzoomout.caption","sourcebytes":[90,111,111,109,32,79,117,116],"value":"Zoom Out"},

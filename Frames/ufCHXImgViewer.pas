@@ -49,6 +49,12 @@ type
     sbInfo: TStatusBar;
     sbxImage: TScrollBox;
     Splitter1: TSplitter;
+    tbTogleFileList: TToolButton;
+    ToolButton2: TToolButton;
+    tbZoomIn: TToolButton;
+    tbOriginalSize: TToolButton;
+    tbZoomOut: TToolButton;
+    tbStretch: TToolButton;
     procedure actOriginalSizeExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actToggleFileListExecute(Sender: TObject);

@@ -1,4 +1,5 @@
 unit ufCHXTxtListPreview;
+
 {< TfmCHXTxtListPreview frame unit.
 
   Copyright (C) 2017-2018 Chixpy
@@ -41,7 +42,8 @@ type
     procedure OnCurrItemChange; override;
 
   public
-
+    constructor Create(TheOwner: TComponent); override;
+    destructor Destroy; override;
   end;
 
 implementation
@@ -60,6 +62,16 @@ begin
   end;
 
   mText.Lines.LoadFromFile(FileList[ItemIndex]);
+end;
+
+constructor TfmCHXTxtListPreview.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+end;
+
+destructor TfmCHXTxtListPreview.Destroy;
+begin
+  inherited Destroy;
 end;
 
 end.

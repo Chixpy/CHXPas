@@ -1,7 +1,7 @@
 unit uaCHXStorable;
 {< caCHXStorable, caCHXStorableIni and caCHXStorableTxt abstract classes unit.
 
-  Copyright (C) 2006-2018 Chixpy
+  Copyright (C) 2006-2019 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
