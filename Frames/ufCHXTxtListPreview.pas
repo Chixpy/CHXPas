@@ -41,6 +41,8 @@ type
   protected
     procedure OnCurrItemChange; override;
 
+    procedure DoClearFrameData; override;
+
   public
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -62,6 +64,13 @@ begin
   end;
 
   mText.Lines.LoadFromFile(FileList[ItemIndex]);
+end;
+
+procedure TfmCHXTxtListPreview.DoClearFrameData;
+begin
+  inherited DoClearFrameData;
+
+  mText.Clear;
 end;
 
 constructor TfmCHXTxtListPreview.Create(TheOwner: TComponent);

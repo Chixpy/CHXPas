@@ -24,7 +24,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     end
     object ToolButton1: TToolButton
       Left = 85
-      Height = 5
+      Height = 22
       Top = 2
       Caption = 'ToolButton1'
       Style = tbsDivider
@@ -41,7 +41,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     end
     object ToolButton6: TToolButton
       Left = 182
-      Height = 8
+      Height = 22
       Top = 2
       Caption = 'ToolButton6'
       Style = tbsSeparator

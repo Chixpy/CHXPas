@@ -57,6 +57,8 @@ type
       override;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
 
+    procedure DoClearFrameData; override;
+
   public
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
 
@@ -117,6 +119,13 @@ end;
 procedure TfmCHXImgListPreview.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
   GUIConfigIni := aIniFile.FileName;
+end;
+
+procedure TfmCHXImgListPreview.DoClearFrameData;
+begin
+  inherited DoClearFrameData;
+
+  iImage.Picture.Clear;
 end;
 
 constructor TfmCHXImgListPreview.Create(TheOwner: TComponent);

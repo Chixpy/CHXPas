@@ -81,7 +81,9 @@ begin
     case Operation of
       ooFree: FileList := nil;
       else
-        FileList.Count;
+      begin
+        ItemCount := FileList.Count;
+      end;
     end;
 end;
 
