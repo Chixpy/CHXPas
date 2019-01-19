@@ -5,7 +5,9 @@ unit ufCHXSMExampleMain;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
+  // CHX frames
+  ufCHXScriptManager;
 
 type
 
@@ -13,6 +15,7 @@ type
 
   TfrmCHXSMExampleMain = class(TForm)
     bOpenScriptManager: TButton;
+    procedure bOpenScriptManagerClick(Sender: TObject);
   private
 
   public
@@ -26,5 +29,12 @@ implementation
 
 {$R *.lfm}
 
-end.
+{ TfrmCHXSMExampleMain }
 
+procedure TfrmCHXSMExampleMain.bOpenScriptManagerClick(Sender: TObject);
+begin
+  TfmCHXScriptManager.SimpleForm(
+    ExtractFileDir(ExtractFileDir(ExtractFileDir(GetCurrentDir))), '', '');
+end;
+
+end.

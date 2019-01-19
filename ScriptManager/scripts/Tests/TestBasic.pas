@@ -81,13 +81,12 @@ begin
 
   // Filename strings
   WriteLn('');
-  WriteLn('function CleanFileName(const aFileName: String): String;');
+  WriteLn('function CleanFileName(const AFileName: string; const DoTrim: boolean; const PathAware: boolean): String;');
   WriteLn('  Remove or change some invalid characters in Filenames.');
-  WriteLn('  It''s NOT folder aware.');
-  WriteLn('    CleanFileName(''Inv: char?.txt'') -> ' +
-    CleanFileName('Inv: char?.txt'));
+  WriteLn('    CleanFileName(''Inv: char?.txt'', True, True) -> ' +
+    CleanFileName('Inv: char?.txt', True, True));
   WriteLn('    CleanFileName(''A/folder/with/file.txt'') -> ' +
-    CleanFileName('A/folder/with/file.txt'));
+    CleanFileName('A/folder/with/file.txt', True, True));
   WriteLn('');
   WriteLn('function ExcludeTrailingPathDelimiter(const aString: String): String;');
   WriteLn('  Removes folder ending ("/" or "\") in a folder name');
@@ -97,7 +96,7 @@ begin
     ''') -> ' + ExcludeTrailingPathDelimiter(aFolder));
   WriteLn('');
   WriteLn('function ExtractFilePath(const aFileName: String): String;');
-  WriteLn('  Extracts a folder path.');
+  WriteLn('  Extracts a folder path. Includes trailing separator.');
   WriteLn('    ExtractFilePath(''' + aFile + ''') -> ' +
     ExtractFilePath(aFile));
   WriteLn('    ExtractFilePath(''' + aFolder + ''') -> ' +

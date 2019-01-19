@@ -8,6 +8,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
+      <AutoCreateForms Value="False"/>
       <Title Value="CHXSMExample"/>
       <Scaled Value="True"/>
       <ResourceType Value="res"/>
@@ -35,7 +36,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value=".."/>
+            <OtherUnitFiles Value="..;..\frames;..\..\Forms;..\..\Frames;..\..\Units;..\imports"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -66,12 +67,18 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="pascalscript"/>
       </Item1>
+      <Item2>
+        <PackageName Value="SynEdit"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="16">
       <Unit0>
         <Filename Value="CHXSMExample.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -86,8 +93,67 @@
       <Unit2>
         <Filename Value="../ufCHXScriptManager.pas"/>
         <IsPartOfProject Value="True"/>
+        <ComponentName Value="fmCHXScriptManager"/>
         <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="../frames/ufSMAskMultiFile.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="../../Forms/ufrCHXForm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <HasResources Value="True"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../Frames/ufCHXFrame.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fmCHXFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="../ucCHXScriptEngine.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="../../Units/uCHXDlgUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="../../Units/uCHXImageUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="../../Units/uCHXStrUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="../../Units/uCHX7zWrapper.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="../imports/uPSI_CHXBasic.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="../imports/uPSI_FPCStrUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="../imports/uPSI_uCHXStrUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="../imports/uPSI_uCHXFileUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="../imports/uPSI_u7zWrapper.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit15>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -98,7 +164,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value=".."/>
+      <OtherUnitFiles Value="..;..\frames;..\..\Forms;..\..\Frames;..\..\Units;..\imports"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

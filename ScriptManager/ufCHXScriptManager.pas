@@ -184,6 +184,8 @@ type
       const aCaption, aExtFilter, DefFolder: string); virtual;
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
 
+    procedure DoOnline(Sender: TObject); virtual;
+
     procedure DoClearFrameData;
     procedure DoLoadFrameData;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
@@ -447,6 +449,9 @@ begin
     ScriptEngine.OnAskMultiFile := @DoAskMultiFile;
   if not assigned(ScriptEngine.OnAskFolder) then
     ScriptEngine.OnAskFolder := @DoAskFolder;
+
+  if not assigned(ScriptEngine.OnLine) then
+    ScriptEngine.OnLine := @DoOnline;
 end;
 
 procedure TfmCHXScriptManager.LoadScriptFile(const aFile: string);
@@ -613,6 +618,11 @@ begin
     Result := IncludeTrailingPathDelimiter(SelectDirectoryDialog1.FileName);
 end;
 
+procedure TfmCHXScriptManager.DoOnline(Sender: TObject);
+begin
+  Application.ProcessMessages;
+end;
+
 constructor TfmCHXScriptManager.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
@@ -625,6 +635,8 @@ begin
   OnLoadFrameData := @DoLoadFrameData;
   OnLoadGUIConfig := @DoLoadGUIConfig;
   OnLoadGUIIcons := @DoLoadGUIIcons;
+
+  Enabled:=assigned(ScriptEngine);
 end;
 
 destructor TfmCHXScriptManager.Destroy;

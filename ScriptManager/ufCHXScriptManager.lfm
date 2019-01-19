@@ -7,15 +7,15 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   DesignTop = 175
   object sbInfo: TStatusBar[0]
     Left = 0
-    Height = 23
-    Top = 392
+    Height = 29
+    Top = 386
     Width = 644
     AutoHint = True
     Panels = <>
   end
   object PageControl: TPageControl[1]
     Left = 0
-    Height = 289
+    Height = 258
     Top = 0
     Width = 644
     ActivePage = pagScriptList
@@ -24,11 +24,11 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
-      ClientHeight = 261
+      ClientHeight = 225
       ClientWidth = 636
       object slvFiles: TShellListView
         Left = 175
-        Height = 166
+        Height = 130
         Top = 0
         Width = 461
         Align = alClient
@@ -45,17 +45,17 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object pFolders: TPanel
         Left = 0
-        Height = 166
+        Height = 130
         Top = 0
         Width = 170
         Align = alLeft
-        ClientHeight = 166
+        ClientHeight = 130
         ClientWidth = 170
         TabOrder = 0
         object stvFolders: TShellTreeView
           Left = 1
-          Height = 141
-          Top = 24
+          Height = 100
+          Top = 29
           Width = 168
           Align = alClient
           FileSortType = fstNone
@@ -71,7 +71,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object eRootFolder: TDirectoryEdit
           Left = 1
-          Height = 23
+          Height = 28
           Top = 1
           Width = 168
           DialogOptions = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
@@ -86,7 +86,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object Splitter1: TSplitter
         Left = 170
-        Height = 166
+        Height = 130
         Top = 0
         Width = 5
       end
@@ -94,7 +94,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Cursor = crVSplit
         Left = 0
         Height = 5
-        Top = 166
+        Top = 130
         Width = 636
         Align = alBottom
         ResizeAnchor = akBottom
@@ -102,7 +102,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       object mScriptInfo: TMemo
         Left = 0
         Height = 90
-        Top = 171
+        Top = 135
         Width = 636
         Align = alBottom
         ScrollBars = ssAutoBoth
@@ -111,7 +111,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagSourceCode: TTabSheet
       Caption = 'Source Code'
-      ClientHeight = 261
+      ClientHeight = 225
       ClientWidth = 636
       object tbEditor: TToolBar
         Left = 0
@@ -124,35 +124,35 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Images = ilActions
         TabOrder = 0
         object bEditCopy: TToolButton
-          Left = 32
+          Left = 38
           Top = 0
           Action = actEditCopy
         end
         object bEditCut: TToolButton
-          Left = 55
+          Left = 67
           Top = 0
           Action = actEditCut
         end
         object bEditDelete: TToolButton
-          Left = 109
+          Left = 133
           Top = 0
           Action = actEditDelete
         end
         object bEditPaste: TToolButton
-          Left = 78
+          Left = 96
           Top = 0
           Action = actEditPaste
         end
         object bSeparator1: TToolButton
-          Left = 24
-          Height = 22
+          Left = 30
+          Height = 8
           Top = 0
           Caption = '-'
           Style = tbsSeparator
         end
         object bSeparator2: TToolButton
-          Left = 101
-          Height = 22
+          Left = 125
+          Height = 8
           Top = 0
           Caption = '-'
           Style = tbsSeparator
@@ -163,60 +163,60 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Action = actEditUndo
         end
         object bSeparator3: TToolButton
-          Left = 132
-          Height = 22
+          Left = 162
+          Height = 8
           Top = 0
           Caption = '-'
           Style = tbsSeparator
         end
         object bSearchFind: TToolButton
-          Left = 140
+          Left = 170
           Top = 0
           Action = actSearchFind
         end
         object bSearchReplace: TToolButton
-          Left = 163
+          Left = 199
           Top = 0
           Action = actSearchReplace
         end
         object bSeparator4: TToolButton
-          Left = 186
-          Height = 22
+          Left = 228
+          Height = 8
           Top = 0
           Caption = 'bSeparator4'
           Style = tbsSeparator
         end
         object bSaveFileAs: TToolButton
-          Left = 217
+          Left = 265
           Top = 0
           Action = actFileSaveAs
         end
         object bSeparator5: TToolButton
-          Left = 240
-          Height = 22
+          Left = 294
+          Height = 8
           Top = 0
           Caption = 'bSeparator5'
           Style = tbsSeparator
         end
         object bCompile: TToolButton
-          Left = 248
+          Left = 302
           Top = 0
           Action = actCompile
         end
         object bExecute: TToolButton
-          Left = 271
+          Left = 331
           Top = 0
           Action = actExecute
         end
         object bSave: TToolButton
-          Left = 194
+          Left = 236
           Top = 0
           Action = actFileSave
         end
       end
       inline SynEdit: TSynEdit
         Left = 0
-        Height = 212
+        Height = 170
         Top = 26
         Width = 636
         Align = alClient
@@ -228,7 +228,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         ParentColor = False
         ParentFont = False
         TabOrder = 1
-        Gutter.Width = 57
+        Gutter.Width = 68
         Gutter.MouseActions = <>
         RightGutter.Width = 0
         RightGutter.MouseActions = <>
@@ -683,7 +683,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         OnStatusChange = SynEditStatusChange
         inline SynLeftGutterPartList1: TSynGutterPartList
           object SynGutterMarks1: TSynGutterMarks
-            Width = 24
+            Width = 30
             MouseActions = <>
           end
           object SynGutterLineNumber1: TSynGutterLineNumber
@@ -697,18 +697,19 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
             LeadingZeros = False
           end
           object SynGutterChanges1: TSynGutterChanges
-            Width = 4
+            Width = 5
             MouseActions = <>
             ModifiedColor = 59900
             SavedColor = clGreen
           end
           object SynGutterSeparator1: TSynGutterSeparator
-            Width = 2
+            Width = 3
             MouseActions = <>
             MarkupInfo.Background = clWhite
             MarkupInfo.Foreground = clGray
           end
           object SynGutterCodeFolding1: TSynGutterCodeFolding
+            Width = 13
             MouseActions = <>
             MarkupInfo.Background = clNone
             MarkupInfo.Foreground = clGray
@@ -719,8 +720,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object sbSourceEditor: TStatusBar
         Left = 0
-        Height = 23
-        Top = 238
+        Height = 29
+        Top = 196
         Width = 636
         Panels = <        
           item
@@ -769,7 +770,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object ToolButton2: TToolButton
           Left = 47
-          Height = 22
+          Height = 8
           Top = 2
           Caption = 'ToolButton2'
           Style = tbsSeparator
@@ -789,20 +790,20 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   end
   object pBottom: TPanel[2]
     Left = 4
-    Height = 95
-    Top = 293
+    Height = 120
+    Top = 262
     Width = 636
     Align = alBottom
     AutoSize = True
     BorderSpacing.Around = 4
     BevelOuter = bvNone
-    ClientHeight = 95
+    ClientHeight = 120
     ClientWidth = 636
     TabOrder = 1
     object gbxScript: TGroupBox
       Left = 544
-      Height = 80
-      Top = 15
+      Height = 100
+      Top = 20
       Width = 92
       Align = alRight
       Caption = 'Script'
@@ -813,12 +814,12 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       ChildSizing.ShrinkVertical = crsHomogenousChildResize
       ChildSizing.Layout = cclLeftToRightThenTopToBottom
       ChildSizing.ControlsPerLine = 1
-      ClientHeight = 60
+      ClientHeight = 75
       ClientWidth = 88
       TabOrder = 1
       object bStop: TBitBtn
         Left = 0
-        Height = 28
+        Height = 36
         Top = 0
         Width = 88
         Action = actStop
@@ -826,8 +827,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       object bExecute2: TBitBtn
         Left = 0
-        Height = 28
-        Top = 32
+        Height = 35
+        Top = 40
         Width = 88
         Action = actExecute
         AutoSize = True
@@ -836,8 +837,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object lbxInfo: TListBox
       Left = 0
-      Height = 80
-      Top = 15
+      Height = 100
+      Top = 20
       Width = 544
       Align = alClient
       ItemHeight = 0
@@ -847,7 +848,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object lCurrentFile: TLabel
       Left = 0
-      Height = 15
+      Height = 20
       Top = 0
       Width = 636
       Align = alTop

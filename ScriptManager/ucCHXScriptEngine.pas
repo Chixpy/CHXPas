@@ -87,9 +87,10 @@ type
     FOnAskFile: TCHXSEAskFileCB;
     FOnAskFolder: TCHXSEAskFolderCB;
     FOnAskMultiFile: TCHXSEAskMultiFileCB;
+    FOnLine: TNotifyEvent;
     FOnReadLn: TCHXSEReadLnCB;
     FOnWriteLn: TCHXSEWriteLnCB;
-    FPasScript: TPSScript;
+    FPasScript: TPSScriptDebugger;
     FScriptError: TStrings;
     function getScriptFile: string;
     function getScriptText: TStrings;
@@ -97,15 +98,16 @@ type
     procedure SetOnAskFile(AValue: TCHXSEAskFileCB);
     procedure SetOnAskFolder(AValue: TCHXSEAskFolderCB);
     procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
+    procedure SetOnLine(AValue: TNotifyEvent);
     procedure SetOnReadLn(AValue: TCHXSEReadLnCB);
     procedure SetOnWriteLn(AValue: TCHXSEWriteLnCB);
-    procedure SetPasScript(AValue: TPSScript);
+    procedure SetPasScript(AValue: TPSScriptDebugger);
     procedure SetScriptError(AValue: TStrings);
     procedure setScriptFile(AValue: string);
     procedure setScriptText(AValue: TStrings);
 
   protected
-    property PasScript: TPSScript read FPasScript write SetPasScript;
+    property PasScript: TPSScriptDebugger read FPasScript write SetPasScript;
     {< PSScript object.}
 
     procedure PasScriptOnCompImport(Sender: TObject;
@@ -170,6 +172,8 @@ type
 
     property ScriptError: TStrings read FScriptError write SetScriptError;
 
+    property OnLine: TNotifyEvent read FOnLine write SetOnLine;
+
     property OnWriteLn: TCHXSEWriteLnCB read FOnWriteLn write SetOnWriteLn;
     property OnReadLn: TCHXSEReadLnCB read FOnReadLn write SetOnReadLn;
     property OnAskFile: TCHXSEAskFileCB read FOnAskFile write SetOnAskFile;
@@ -227,6 +231,14 @@ begin
   FOnAskMultiFile := AValue;
 end;
 
+procedure cCHXScriptEngine.SetOnLine(AValue: TNotifyEvent);
+begin
+  if FOnLine = AValue then Exit;
+  FOnLine := AValue;
+
+  PasScript.OnLine := OnLine;
+end;
+
 procedure cCHXScriptEngine.SetOnReadLn(AValue: TCHXSEReadLnCB);
 begin
   if FOnReadLn = AValue then
@@ -241,7 +253,7 @@ begin
   FOnWriteLn := AValue;
 end;
 
-procedure cCHXScriptEngine.SetPasScript(AValue: TPSScript);
+procedure cCHXScriptEngine.SetPasScript(AValue: TPSScriptDebugger);
 begin
   if FPasScript = AValue then
     Exit;
@@ -675,7 +687,7 @@ constructor cCHXScriptEngine.Create;
 begin
   inherited Create;
 
-  FPasScript := TPSScript.Create(nil);
+  FPasScript := TPSScriptDebugger.Create(nil);
   PasScript.UsePreProcessor := True;
   PasScript.OnCompImport := @PasScriptOnCompImport;
   PasScript.OnCompile := @PasScriptOnCompile;
