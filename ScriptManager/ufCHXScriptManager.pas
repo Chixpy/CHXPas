@@ -31,6 +31,8 @@ uses
   uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
   // CHX classes
   ucCHXScriptEngine,
+    // CHX frames
+  ufrCHXForm,
   // CHX frames
   ufCHXFrame,
   // CHX Script Engine frames
@@ -187,6 +189,9 @@ type
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
 
+
+        // Creates a form with Script Manager.
+    class function SimpleForm(aBaseFolder: string; aGUIIconsIni: string; aGUIConfigIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -556,6 +561,34 @@ begin
   eRootFolder.Directory := SysPath(aFolder);
   stvFolders.Root := SysPath(aFolder);
   ScriptEngine.CommonUnitFolder := aFolder;
+end;
+
+class function TfmCHXScriptManager.SimpleForm(aBaseFolder: string;
+  aGUIIconsIni: string; aGUIConfigIni: string): integer;
+var
+  aForm: TfrmCHXForm;
+  aFrame: TfmCHXScriptManager;
+begin
+  Result := mrNone;
+
+  Application.CreateForm(TfrmCHXForm, aForm);
+  try
+    aForm.Name := 'frmCHXScriptManager';
+    aForm.Caption := 'CHX Script Manager';
+
+    aFrame := TfmCHXScriptManager.Create(aForm);
+    aFrame.Align := alClient;
+
+    aFrame.SetBaseFolder(aBaseFolder);
+
+    aForm.LoadGUIConfig(aGUIConfigIni);
+    aForm.LoadGUIIcons(aGUIIconsIni);
+    aFrame.Parent := aForm;
+
+    Result := aForm.ShowModal;
+  finally
+    aForm.Free;
+  end;
 end;
 
 procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;

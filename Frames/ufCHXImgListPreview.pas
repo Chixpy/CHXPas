@@ -1,8 +1,7 @@
 unit ufCHXImgListPreview;
-
 {< TfmCHXImgListPreview frame unit.
 
-  Copyright (C) 2006-2017 Chixpy
+  Copyright (C) 2006-2019 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -43,9 +42,9 @@ type
     FGUIConfigIni: string;
     FGUIIconsIni: string;
     FSHA1Folder: string;
-    procedure SetGUIConfigIni(AValue: string);
-    procedure SetGUIIconsIni(AValue: string);
-    procedure SetSHA1Folder(AValue: string);
+    procedure SetGUIConfigIni(const AValue: string);
+    procedure SetGUIIconsIni(const AValue: string);
+    procedure SetSHA1Folder(const AValue: string);
 
   protected
     property GUIConfigIni: string read FGUIConfigIni write SetGUIConfigIni;
@@ -79,7 +78,7 @@ begin
       GUIIconsIni, GUIConfigIni);
 end;
 
-procedure TfmCHXImgListPreview.SetSHA1Folder(AValue: string);
+procedure TfmCHXImgListPreview.SetSHA1Folder(const AValue: string);
 begin
   if DirectoryExistsUTF8(AValue) then
     FSHA1Folder := SetAsFolder(AValue)
@@ -87,12 +86,12 @@ begin
     FSHA1Folder := '';
 end;
 
-procedure TfmCHXImgListPreview.SetGUIConfigIni(AValue: string);
+procedure TfmCHXImgListPreview.SetGUIConfigIni(const AValue: string);
 begin
   FGUIConfigIni := SetAsFile(AValue);
 end;
 
-procedure TfmCHXImgListPreview.SetGUIIconsIni(AValue: string);
+procedure TfmCHXImgListPreview.SetGUIIconsIni(const AValue: string);
 begin
   FGUIIconsIni := SetAsFile(AValue);
 end;
