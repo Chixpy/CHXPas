@@ -1,7 +1,8 @@
 unit ufCHXScriptManager;
+
 {< TfmCHXScriptManager frame unit.
 
-  Copyright (C) 2006-2018 Chixpy
+  Copyright (C) 2006-2019 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -47,8 +48,8 @@ resourcestring
   rsFSMFileSaved = 'File saved: %s';
   rsFSMScriptFileMaskDesc = 'Pascal script file';
   rsFSMAllFilesMaskDesc = 'All files';
-  rsFSMAskSaveChanges = 'The sourcefile has changed.' +
-    sLineBreak + 'Save?' + sLineBreak + '%s';
+  rsFSMAskSaveChanges = 'The sourcefile has changed.' + sLineBreak +
+    'Save?' + sLineBreak + '%s';
 
 type
 
@@ -177,8 +178,10 @@ type
 
     procedure DoWriteLn(const aStr: string); virtual;
     function DoReadLn(const aQuestion, DefAnswer: string): string; virtual;
-    function DoAskFile(const aCaption, aExtFilter, DefFile: string): string; virtual;
-    procedure DoAskMultiFile(aFileList: TStrings; const aCaption, aExtFilter, DefFolder: string); virtual;
+    function DoAskFile(const aCaption, aExtFilter, DefFile: string): string;
+      virtual;
+    procedure DoAskMultiFile(aFileList: TStrings;
+      const aCaption, aExtFilter, DefFolder: string); virtual;
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
 
     procedure DoClearFrameData;
@@ -334,7 +337,8 @@ begin
   actOutputSaveAs.Dialog.FileName := ChangeFileExt(CurrentFile, '.txt');
   SetDlgInitialDir(actOutputSaveAs.Dialog, stvFolders.Path);
 
-  actOutputSaveAs.Dialog.Filter := 'Text file|*.txt|' + rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
+  actOutputSaveAs.Dialog.Filter :=
+    'Text file|*.txt|' + rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
   actOutputSaveAs.Dialog.DefaultExt := '.txt';
 end;
 
@@ -417,7 +421,7 @@ end;
 procedure TfmCHXScriptManager.DoLoadGUIIcons(aIconsIni: TIniFile;
   const aBaseFolder: string);
 begin
-  GUIIconsIni:= aIconsIni.FileName;
+  GUIIconsIni := aIconsIni.FileName;
   ReadActionsIconsIni(aIconsIni, aBaseFolder, Name, ilActions, ActionList);
 end;
 
@@ -539,13 +543,14 @@ begin
   Application.ProcessMessages;
 end;
 
-function TfmCHXScriptManager.DoReadLn(const aQuestion, DefAnswer: string): string;
+function TfmCHXScriptManager.DoReadLn(
+  const aQuestion, DefAnswer: string): string;
 begin
   Result := InputBox(Application.Title, aQuestion, DefAnswer);
 end;
 
-function TfmCHXScriptManager.DoAskFile(const aCaption, aExtFilter,
-  DefFile: string): string;
+function TfmCHXScriptManager.DoAskFile(
+  const aCaption, aExtFilter, DefFile: string): string;
 begin
   Result := '';
   OpenDialog1.Title := aCaption;
@@ -598,8 +603,8 @@ begin
     DefFolder, GUIIconsIni, GUIConfigIni);
 end;
 
-function TfmCHXScriptManager.DoAskFolder(const aCaption, DefFolder: string
-  ): string;
+function TfmCHXScriptManager.DoAskFolder(
+  const aCaption, DefFolder: string): string;
 begin
   Result := '';
   SelectDirectoryDialog1.Title := aCaption;
