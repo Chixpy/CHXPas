@@ -1,32 +1,12 @@
 inherited fmCHXImgListPreview: TfmCHXImgListPreview
   inherited tbPreviewList: TToolBar
-    Top = 274
-    Width = 400
-    inherited ToolButton1: TToolButton
-      Height = 28
-    end
-    inherited tbPreviousItem: TToolButton
-      Left = 119
-    end
-    inherited tbNextItem: TToolButton
-      Left = 148
-    end
-    inherited ToolButton6: TToolButton
-      Left = 206
-      Height = 28
-    end
     inherited cbxCurrItem: TComboBox
-      Height = 28
-      Top = -3
-      ItemHeight = 20
-    end
-    inherited tbLastItem: TToolButton
-      Left = 177
+      Top = 0
     end
   end
   object iImage: TImage[1]
     Left = 0
-    Height = 270
+    Height = 266
     Hint = 'DblClk to open in Image Viewer'
     Top = 0
     Width = 400

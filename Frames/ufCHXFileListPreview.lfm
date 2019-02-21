@@ -1,10 +1,29 @@
 inherited fmCHXFileListPreview: TfmCHXFileListPreview
   inherited tbPreviewList: TToolBar
+    Height = 30
+    Top = 270
+    Width = 400
+    AutoSize = True
     inherited ToolButton1: TToolButton
-      Height = 5
+      Height = 28
+    end
+    inherited tbPreviousItem: TToolButton
+      Left = 119
+    end
+    inherited tbNextItem: TToolButton
+      Left = 148
     end
     inherited ToolButton6: TToolButton
-      Height = 8
+      Left = 206
+      Height = 28
+    end
+    inherited cbxCurrItem: TComboBox
+      Height = 28
+      Top = 1
+      ItemHeight = 20
+    end
+    inherited tbLastItem: TToolButton
+      Left = 177
     end
   end
 end
