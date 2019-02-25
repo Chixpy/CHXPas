@@ -347,4 +347,10 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXFrame);
+
+finalization
+  UnRegisterClass(TfmCHXFrame);
+
 end.

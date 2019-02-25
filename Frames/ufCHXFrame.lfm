@@ -1,14 +1,17 @@
 object fmCHXFrame: TfmCHXFrame
   Left = 0
-  Height = 240
+  Height = 300
   Top = 0
-  Width = 320
+  Width = 400
   HorzScrollBar.Page = 1
   VertScrollBar.Page = 1
   AutoSize = True
   ChildSizing.HorizontalSpacing = 4
   ChildSizing.VerticalSpacing = 4
+  DesignTimePPI = 120
   Enabled = False
+  LCLVersion = '2.0.0.3'
+  ParentFont = False
   TabOrder = 0
   DesignLeft = 470
   DesignTop = 246

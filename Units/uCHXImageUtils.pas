@@ -1,4 +1,7 @@
-{ Copyright (C) 2006-2018 Chixpy
+unit uCHXImageUtils;
+{< Custom image utils.
+
+  Copyright (C) 2006-2019 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -15,10 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-
-{ Custom image utils. }
-unit uCHXImageUtils;
-
 {$mode objfpc}{$H+}
 
 interface

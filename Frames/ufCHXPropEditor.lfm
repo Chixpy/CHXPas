@@ -3,9 +3,9 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
   DesignTop = 268
   object pButtons: TPanel[0]
     Left = 0
-    Height = 26
-    Top = 214
-    Width = 320
+    Height = 30
+    Top = 270
+    Width = 400
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
@@ -13,23 +13,23 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
     ChildSizing.Layout = cclTopToBottomThenLeftToRight
     ChildSizing.ControlsPerLine = 1
-    ClientHeight = 26
-    ClientWidth = 320
+    ClientHeight = 30
+    ClientWidth = 400
     TabOrder = 0
     object chkCloseOnSave: TCheckBox
-      Left = 32
-      Height = 26
+      Left = 46
+      Height = 30
       Top = 0
-      Width = 49
+      Width = 60
       Caption = 'Close'
       OnChange = chkCloseOnSaveChange
       TabOrder = 0
     end
     object bSave: TBitBtn
-      Left = 113
-      Height = 26
+      Left = 152
+      Height = 30
       Top = 0
-      Width = 62
+      Width = 66
       Action = actFrameOK
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -71,10 +71,10 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
       TabOrder = 1
     end
     object bCancel: TBitBtn
-      Left = 207
-      Height = 26
+      Left = 264
+      Height = 30
       Top = 0
-      Width = 82
+      Width = 90
       Action = actFrameCancel
       Cancel = True
       Glyph.Data = {

@@ -1,6 +1,7 @@
-{ Unit with some string related functions.
+unit uCHXStrUtils;
+{< Unit with some string related functions.
 
-  Copyright (C) 2011-2018 Chixpy
+  Copyright (C) 2011-2019 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit uCHXStrUtils;
-
 {$DEBUGINFO OFF}
 
 interface
@@ -31,7 +30,7 @@ uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
 // STRING UTILS
 // ------------
 function UTF8TextReplace(const S, OldPattern, NewPattern: string;
-  ALanguage: string = ''): string;
+  const ALanguage: string = ''): string;
 {< Until it is not in LazUTF8...}
 
 function RemoveFromBrackets(const aString: string): string;
@@ -72,15 +71,15 @@ function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
     with space.)
     @param(PathAware Keep paths)
 }
-function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
-function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
+function SetAsRelativeFile(const aFileName, BaseDir: string): string;
+function SetAsAbsoluteFile(const aFileName, BaseDir: string): string;
 
 function SetAsFile(const aFileName: string): string;
 {< Paths are converted to Linux one as Windows AND
   MS-DOS (+2.0) can recognise them without problem.
 }
 
-function SupportedExtCT(aFilename: string; aExtCT: string): boolean;
+function SupportedExtCT(const aFilename, aExtCT: string): boolean;
 function SupportedExtSL(aFilename: string; aExt: TStrings): boolean;
 {< Search if a file is in a list of supported extensions.
 
@@ -90,7 +89,7 @@ function SupportedExtSL(aFilename: string; aExt: TStrings): boolean;
 // TSTRINGLIST UTILS
 // ----------------------
 
-procedure CleanStringList(aStringList: TStrings; CommentChar: string = ';');
+procedure CleanStringList(aStringList: TStrings; const CommentChar: string = ';');
 {< Removes comments and empty lines from a TStringList.
 }
 
@@ -110,7 +109,7 @@ procedure StringToFile(const aString, aFilename: string);
 
 function FileMaskFromStringList(aList: TStrings): string;
 {< Creates a file mask from a TStrings with an extension by line}
-function FileMaskFromCommaText(aText: string): string;
+function FileMaskFromCommaText(const aText: string): string;
 {< Creates a file mask from a string with extension separated by a comma }
 
 // MISC
@@ -124,8 +123,7 @@ procedure StandardFormatSettings;
 
 }
 
-function StrCount(aString, ToSearch: string;
-  CaseSensitve: boolean = False): cardinal;
+function StrCount(aString, ToSearch: string; const CaseSensitve: boolean = False): cardinal;
 {< Counts the times that a substring is in a string.
 
   NOTE: StrCount('ooo', 'oo') = 2 .
@@ -142,7 +140,7 @@ function SecondsToFmtStr(aValue: int64): string;
 implementation
 
 function UTF8TextReplace(const S, OldPattern, NewPattern: string;
-  ALanguage: string): string;
+  const ALanguage: string): string;
 begin
   Result := UTF8StringReplace(S, OldPattern, NewPattern,
     [rfReplaceAll, rfIgnoreCase], ALanguage);
@@ -291,7 +289,7 @@ begin
   Result := SetAsFile(Result);
 end;
 
-function SetAsRelativeFile(const aFileName: string; BaseDir: string): string;
+function SetAsRelativeFile(const aFileName, BaseDir: string): string;
 begin
   // CreateRelativeSearchPath don't work with already relative paths
   //   CreateRelativeSearchPath('a\b', 'a\') returns 'a\b' instead 'b'.
@@ -301,7 +299,7 @@ begin
   Result := SetAsFile(Result);
 end;
 
-function SetAsAbsoluteFile(const aFileName: string; BaseDir: string): string;
+function SetAsAbsoluteFile(const aFileName, BaseDir: string): string;
 var
   IsFolder: boolean;
 begin
@@ -324,7 +322,7 @@ begin
   Result := UnixPath(aFileName);
 end;
 
-function SupportedExtCT(aFilename: string; aExtCT: string): boolean;
+function SupportedExtCT(const aFilename, aExtCT: string): boolean;
 var
   aTempSL: TStringList;
 begin
@@ -455,7 +453,7 @@ end;
 // UTILIDADES TSTRINGLIST
 // ----------------------
 
-procedure CleanStringList(aStringList: TStrings; CommentChar: string = ';');
+procedure CleanStringList(aStringList: TStrings; const CommentChar: string);
 var
   Cont: cardinal;
 begin
@@ -508,7 +506,7 @@ begin
   Result := FileMaskFromCommaText(Result);
 end;
 
-function FileMaskFromCommaText(aText: string): string;
+function FileMaskFromCommaText(const aText: string): string;
 begin
   Result := '';
   if aText = '' then
@@ -542,8 +540,8 @@ begin
   DefaultFormatSettings.ListSeparator := ';';
 end;
 
-function StrCount(aString, ToSearch: string;
-  CaseSensitve: boolean = False): cardinal;
+function StrCount(aString, ToSearch: string; const CaseSensitve: boolean
+  ): cardinal;
 var
   Cont: cardinal;
   TempCadena: string;

@@ -168,4 +168,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXPropEditor);
+
+finalization
+  UnRegisterClass(TfmCHXPropEditor);
 end.
