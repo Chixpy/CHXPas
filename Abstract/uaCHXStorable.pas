@@ -44,7 +44,7 @@ type
       DefaultFileName property is not updated with aFilename parameter.
     }
     procedure SaveToFile(const aFilename: string; ClearFile: Boolean); virtual;
-      abstract;// ClearFile: Boolean); virtual; abstract;
+      abstract;
     {< Saves data to file.
 
       @param(aFilename Filename of the inifile to write to.)

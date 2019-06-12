@@ -1,5 +1,5 @@
 unit uPSI_CHXBasic;
-{< Basic functions for Pascal Script.
+{< Basic types and functions for Pascal Script.
 
   Copyright (C) 2011-2018 Chixpy
 
