@@ -406,6 +406,7 @@ begin
 
   Application.CreateForm(TfrmCHXForm, aForm);
   try
+    // TODO. Use inherited GenSimpleModalForm
     aForm.Name := 'frmCHXImgViewer';
     aForm.Caption := Application.Title + ': Image Viewer';
     aForm.AutoSize := False;

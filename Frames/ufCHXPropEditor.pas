@@ -1,4 +1,5 @@
 unit ufCHXPropEditor;
+
 {< TfmCHXPropEditor frame unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -58,7 +59,8 @@ type
     property OnSaveFrameData: TCHXFrameDataUpdate
       read FOnSaveFrameData write SetOnSaveFrameData;
 
-    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile;
+      const aBaseFolder: string); virtual;
 
   public
     property SaveButtons: boolean read FSaveButtons write SetSaveButtons;

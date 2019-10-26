@@ -1,0 +1,8 @@
+{"version":1,"strings":[
+{"hash":5966629,"name":"tfmchxabout.ltitle.caption","sourcebytes":[84,105,116,108,101],"value":"Title"},
+{"hash":214540302,"name":"tfmchxabout.lversion.caption","sourcebytes":[86,101,114,115,105,111,110],"value":"Version"},
+{"hash":50391055,"name":"tfmchxabout.gbxcompilation.caption","sourcebytes":[67,111,109,112,105,108,97,116,105,111,110,32,105,110,102,111],"value":"Compilation info"},
+{"hash":6474798,"name":"tfmchxabout.lcompilation.caption","sourcebytes":[67,111,109,112,105,108,97,116,105,111,110],"value":"Compilation"},
+{"hash":37660291,"name":"tfmchxabout.gbximageext.caption","sourcebytes":[83,117,112,112,111,114,116,101,100,32,105,109,97,103,101,32,101,120,116,101,110,115,105,111,110,115],"value":"Supported image extensions"},
+{"hash":58563060,"name":"tfmchxabout.limageext.caption","sourcebytes":[73,109,97,103,101,69,120,116],"value":"ImageExt"}
+]}

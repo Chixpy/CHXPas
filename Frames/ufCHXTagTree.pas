@@ -1,4 +1,5 @@
 unit ufCHXTagTree;
+
 {< TfmCHXTagTree frame unit.
 
   Copyright (C) 2017-2019 Chixpy
@@ -23,7 +24,7 @@ unit ufCHXTagTree;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, VirtualTrees, Forms, Controls,
+  Classes, SysUtils, FileUtil, VirtualTrees, VTHeaderPopup, Forms, Controls,
   Graphics, Dialogs,
   LazFileUtils, LazUTF8,
   uCHXStrUtils, ufCHXFrame;
@@ -47,16 +48,15 @@ type
 
   TfmCHXTagTree = class(TfmCHXFrame)
     VST: TVirtualStringTree;
+    VTHeaderPopupMenu: TVTHeaderPopupMenu;
     procedure VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
+    procedure VSTCompareNodes(Sender: TBaseVirtualTree; Node1,
+      Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
     procedure VSTFreeNode(Sender: TBaseVirtualTree; Node: PVirtualNode);
     procedure VSTGetNodeDataSize(Sender: TBaseVirtualTree;
       var NodeDataSize: integer);
     procedure VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
-    procedure VSTInitNode(Sender: TBaseVirtualTree;
-      ParentNode, Node: PVirtualNode;
-      var InitialStates: TVirtualNodeInitStates);
-
   private
     FCheckedList: TStringList;
     FFolder: string;
@@ -98,7 +98,7 @@ procedure TfmCHXTagTree.VSTFreeNode(Sender: TBaseVirtualTree;
 var
   Data: PCHXTagTreeData;
 begin
-  Data := VST.GetNodeData(Node);
+  Data := Sender.GetNodeData(Node);
   if Assigned(Data) then
   begin
     Data^.Title := '';
@@ -120,33 +120,20 @@ procedure TfmCHXTagTree.VSTGetText(Sender: TBaseVirtualTree;
 var
   Data: PCHXTagTreeData;
 begin
-  Data := VST.GetNodeData(Node);
-  case Column of
-    1: CellText := Data^.Folder;
-    2: CellText := Data^.FileName;
+  Data := Sender.GetNodeData(Node);
+
+  case TextType of
+    ttNormal:
+    begin
+      case Column of
+        1: CellText := Data^.Folder;
+        2: CellText := Data^.FileName;
+        else
+          CellText := Data^.Title;
+      end;
+    end;
     else
-      CellText := Data^.Title;
-  end;
-end;
-
-procedure TfmCHXTagTree.VSTInitNode(Sender: TBaseVirtualTree;
-  ParentNode, Node: PVirtualNode; var InitialStates: TVirtualNodeInitStates);
-var
-  pData: PCHXTagTreeData;
-begin
-  pdata := Sender.GetNodeData(Node);
-
-  if (pData^.FileName = '') then
-  begin
-    // It's a Folder, read it's subtree :-P
-    if pData^.Folder <> '' then
-      SearchTagFiles(pData^.Folder, Node);
-  end
-  else
-  begin
-    // Don't use: Node^.CheckState or Node^.CheckType...;
-    Sender.CheckType[Node] := ctCheckBox;
-    Sender.CheckState[Node] := csUncheckedNormal;
+      ;
   end;
 end;
 
@@ -157,6 +144,9 @@ var
   i: integer;
 begin
   Data := VST.GetNodeData(Node);
+
+  if Data^.FileName = '' then Exit;
+
   // This is called after un/checked
   if node^.CheckState = csCheckedNormal then
   begin
@@ -168,8 +158,30 @@ begin
     if i <> -1 then
       CheckedList.Delete(i);
   end;
+
   if Assigned(OnCheckChange) then
     OnCheckChange(CheckedList);
+end;
+
+procedure TfmCHXTagTree.VSTCompareNodes(Sender: TBaseVirtualTree; Node1,
+  Node2: PVirtualNode; Column: TColumnIndex; var Result: Integer);
+var
+  pData1, pData2: PCHXTagTreeData;
+begin
+  Result := 0;
+  pData1 := Sender.GetNodeData(Node1);
+  pData2 := Sender.GetNodeData(Node2);
+
+  case Column of
+      0: // Title
+        Result := UTF8CompareText(pData1^.Title, pData2^.Title);
+      1: // Folder
+      Result := UTF8CompareText(pData1^.Folder, pData2^.Folder);
+      2: // Filename
+      Result := UTF8CompareText(pData1^.FileName, pData2^.FileName);
+      else
+      Result := 0;
+  end;
 end;
 
 procedure TfmCHXTagTree.SetCheckedList(AValue: TStringList);
@@ -209,11 +221,15 @@ var
 begin
   if not assigned(aRootNode) then
     aRootNode := VST.RootNode;
+
+  // TODO: Maybe load tree dinamically with VSTInitNode, but
+  //   when tree is shown and children are added AddChild calls
+  //   VSTInitNode before PData is set.
+
   aList := TStringList.Create;
   try
     // 1.- Add Directories
     FindAllDirectories(aList, aFolder, False);
-    aList.Sort;
     i := 0;
     while i < aList.Count do
     begin
@@ -222,22 +238,24 @@ begin
       Pdata^.Title := ExtractFileNameOnly(aList[i]);
       Pdata^.Folder := SetAsFolder(aList[i]);
       Pdata^.FileName := '';
+      SearchTagFiles(aList[i], CurrNode);
       Inc(i);
     end;
 
     // 2.- Add Category files
     aList.Clear;
     FindAllFiles(aList, aFolder, TagsFileMask, False);
-    aList.Sort;
     i := 0;
     while i < aList.Count do
     begin
       CurrNode := VST.AddChild(aRootNode);
       Pdata := VST.GetNodeData(CurrNode);
-      Pdata^.Title := ExtractFileNameOnly(aList[i]);
-      Pdata^.Folder := SetAsFolder(ExtractFilePath(aList[i]));
-      Pdata^.FileName := ExtractFileName(aList[i]);
-      CurrNode := VST.GetNextSibling(CurrNode);
+        Pdata^.Title := ExtractFileNameOnly(aList[i]);
+        Pdata^.Folder := SetAsFolder(ExtractFilePath(aList[i]));
+        Pdata^.FileName := ExtractFileName(aList[i]);
+            // Don't use: Node^.CheckState or Node^.CheckType...;
+    VST.CheckType[CurrNode] := ctCheckBox;
+    VST.CheckState[CurrNode] := csUncheckedNormal;
       Inc(i);
     end;
 
@@ -277,6 +295,8 @@ begin
   TagsFileMask := krsCHXTagTreeFileMask;
   VST.NodeDataSize := SizeOf(TCHXTagTreeData);
   FCheckedList := TStringList.Create;
+
+  Enabled := True; // Always enabled
 end;
 
 destructor TfmCHXTagTree.Destroy;

@@ -1,11 +1,11 @@
 inherited fmCHXTagTree: TfmCHXTagTree
-  DesignLeft = 620
-  DesignTop = 239
+  DesignLeft = 669
+  DesignTop = 347
   object VST: TVirtualStringTree[0]
     Left = 0
-    Height = 240
+    Height = 300
     Top = 0
-    Width = 320
+    Width = 400
     Align = alClient
     Colors.UnfocusedColor = clMedGray
     DefaultText = 'Node'
@@ -14,7 +14,7 @@ inherited fmCHXTagTree: TfmCHXTagTree
       item
         Position = 0
         Text = 'Title'
-        Width = 100
+        Width = 300
       end    
       item
         Position = 1
@@ -28,15 +28,22 @@ inherited fmCHXTagTree: TfmCHXTagTree
       end>
     Header.DefaultHeight = 17
     Header.Height = 17
-    Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
+    Header.Options = [hoColumnResize, hoDblClickResize, hoDrag, hoRestrictDrag, hoShowHint, hoShowSortGlyphs, hoVisible, hoHeaderClickAutoSort]
+    Header.PopupMenu = VTHeaderPopupMenu
     TabOrder = 0
-    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes]
-    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning, toEditOnClick]
-    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
+    TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
+    TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
+    TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
+    TreeOptions.SelectionOptions = [toFullRowSelect]
     OnChecked = VSTChecked
+    OnCompareNodes = VSTCompareNodes
     OnFreeNode = VSTFreeNode
     OnGetText = VSTGetText
     OnGetNodeDataSize = VSTGetNodeDataSize
-    OnInitNode = VSTInitNode
+  end
+  object VTHeaderPopupMenu: TVTHeaderPopupMenu[1]
+    Options = [poResizeToFitItem]
+    left = 190
+    top = 83
   end
 end

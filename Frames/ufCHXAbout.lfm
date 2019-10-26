@@ -1,0 +1,90 @@
+inherited fmCHXAbout: TfmCHXAbout
+  DesignLeft = 673
+  DesignTop = 392
+  object lTitle: TLabel[0]
+    Left = 0
+    Height = 32
+    Top = 0
+    Width = 400
+    Align = alTop
+    Alignment = taCenter
+    Caption = 'Title'
+    Font.Height = 33
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object lVersion: TLabel[1]
+    Left = 0
+    Height = 20
+    Top = 36
+    Width = 400
+    Align = alTop
+    Alignment = taCenter
+    Caption = 'Version'
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+  end
+  object gbxCompilation: TGroupBox[2]
+    Left = 0
+    Height = 45
+    Top = 60
+    Width = 400
+    Align = alTop
+    AutoSize = True
+    Caption = 'Compilation info'
+    ClientHeight = 20
+    ClientWidth = 396
+    ParentFont = False
+    TabOrder = 0
+    object lCompilation: TLabel
+      Left = 0
+      Height = 20
+      Top = 0
+      Width = 396
+      Align = alTop
+      Alignment = taCenter
+      Caption = 'Compilation'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+  end
+  object gbxImageExt: TGroupBox[3]
+    Left = 0
+    Height = 45
+    Top = 109
+    Width = 400
+    Align = alTop
+    AutoSize = True
+    Caption = 'Supported image extensions'
+    ClientHeight = 20
+    ClientWidth = 396
+    ParentFont = False
+    TabOrder = 1
+    object lImageExt: TLabel
+      Left = 0
+      Height = 20
+      Top = 0
+      Width = 396
+      Align = alClient
+      Alignment = taCenter
+      Caption = 'ImageExt'
+      ParentColor = False
+      ParentFont = False
+      WordWrap = True
+    end
+  end
+  object mAditional: TMemo[4]
+    Left = 0
+    Height = 142
+    Top = 158
+    Width = 400
+    Align = alClient
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssAutoVertical
+    TabOrder = 2
+  end
+end

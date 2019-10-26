@@ -1,4 +1,4 @@
-unit ufCHXAbout;
+unit ufrCHXAbout;
 {< TfrmCHXAbout form unit.
 
   Copyright (C) 2006-2019 Chixpy
