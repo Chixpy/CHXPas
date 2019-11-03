@@ -34,7 +34,7 @@ inherited fmCHXTagTree: TfmCHXTagTree
     TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoTristateTracking, toAutoDeleteMovedNodes, toAutoChangeScale]
     TreeOptions.MiscOptions = [toAcceptOLEDrop, toCheckSupport, toFullRepaintOnResize, toInitOnSave, toToggleOnDblClick, toWheelPanning]
     TreeOptions.PaintOptions = [toShowButtons, toShowDropmark, toShowTreeLines, toShowVertGridLines, toThemeAware, toUseBlendedImages, toFullVertGridLines]
-    TreeOptions.SelectionOptions = [toFullRowSelect]
+    TreeOptions.SelectionOptions = [toFullRowSelect, toMiddleClickSelect, toRightClickSelect]
     OnChecked = VSTChecked
     OnCompareNodes = VSTCompareNodes
     OnFreeNode = VSTFreeNode
@@ -43,7 +43,31 @@ inherited fmCHXTagTree: TfmCHXTagTree
   end
   object VTHeaderPopupMenu: TVTHeaderPopupMenu[1]
     Options = [poResizeToFitItem]
-    left = 190
-    top = 83
+    left = 24
+    top = 40
+  end
+  object pmTree: TPopupMenu[2]
+    left = 32
+    top = 216
+    object miTreeUncheckAll: TMenuItem
+      Action = actUncheckAll
+    end
+    object miTreeUpdateTree: TMenuItem
+      Action = actUpdateTagTree
+    end
+  end
+  object alCHXTagTree: TActionList[3]
+    left = 312
+    top = 216
+    object actUncheckAll: TAction
+      Category = 'Tree'
+      Caption = 'Uncheck All'
+      OnExecute = actUncheckAllExecute
+    end
+    object actUpdateTagTree: TAction
+      Category = 'Tree'
+      Caption = 'Update Tree'
+      OnExecute = actUpdateTagTreeExecute
+    end
   end
 end
