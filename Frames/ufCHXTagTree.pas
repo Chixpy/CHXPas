@@ -216,6 +216,8 @@ begin
   VST.IterateSubtree(nil, @UncheckAllFiles, nil);
   vst.EndUpdate;
 
+  CheckedList.Clear;
+
   if Assigned(OnCheckChange) then
     OnCheckChange(CheckedList);
 end;
@@ -319,7 +321,7 @@ var
 begin
   Abort := False;
 
-  VST.CheckState[Node] := csUncheckedNormal;
+  Sender.CheckState[Node] := csUncheckedNormal;
 end;
 
 function TfmCHXTagTree.AddFolder(const aFolder: string;
