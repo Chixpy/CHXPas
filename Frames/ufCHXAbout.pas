@@ -96,6 +96,8 @@ begin
 
   Caption := Application.Title + ': ' + Caption;
 
+  lTitle.Caption := Application.Title;
+
   lVersion.Caption := GetFileVersion;
 
   if GetProductVersion <> '0.0.0.0' then
