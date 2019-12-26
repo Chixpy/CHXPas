@@ -1,8 +1,8 @@
 object frmCHXForm: TfrmCHXForm
   Left = 279
-  Height = 400
+  Height = 500
   Top = 107
-  Width = 640
+  Width = 800
   HorzScrollBar.Page = 1
   VertScrollBar.Page = 1
   Caption = 'frmCHXForm'
@@ -10,7 +10,8 @@ object frmCHXForm: TfrmCHXForm
   ChildSizing.TopBottomSpacing = 4
   ChildSizing.HorizontalSpacing = 4
   ChildSizing.VerticalSpacing = 4
+  DesignTimePPI = 120
   Position = poMainFormCenter
   ShowHint = True
-  LCLVersion = '1.8.2.0'
+  LCLVersion = '2.0.2.0'
 end

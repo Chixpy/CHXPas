@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, VirtualTrees, VTHeaderPopup, Forms, Controls,
-  Graphics, Dialogs, Menus, ActnList,
+  Graphics, Dialogs, Menus, ActnList, ExtCtrls, ComCtrls, LCLIntf,
   LazFileUtils, LazUTF8,
   uCHXStrUtils, ufCHXFrame;
 
@@ -54,6 +54,7 @@ type
     actAddGroup2TagFile: TAction;
     actDeleteFolder: TAction;
     actDeleteFile: TAction;
+    actOpenTagFolder: TAction;
     actUpdateTagTree: TAction;
     actUncheckAll: TAction;
     actRenameFile: TAction;
@@ -61,6 +62,8 @@ type
     actRemoveTagFile: TAction;
     actRemoveGroupFromFile: TAction;
     alCHXTagTree: TActionList;
+    ilCHXTagTree: TImageList;
+    miOpenTagFolder: TMenuItem;
     miTreeUpdateTree: TMenuItem;
     miTreeUncheckAll: TMenuItem;
     MenuItem2: TMenuItem;
@@ -77,8 +80,15 @@ type
     mipmFAddFolder: TMenuItem;
     mipmFAddTagFile: TMenuItem;
     pmTree: TPopupMenu;
+    tbTagTree: TToolBar;
+    tbOpenTagFolder: TToolButton;
+    ToolButton1: TToolButton;
+    tbUncheckAll: TToolButton;
+    ToolButton2: TToolButton;
+    tbUpdateTagTree: TToolButton;
     VST: TVirtualStringTree;
     VTHeaderPopupMenu: TVTHeaderPopupMenu;
+    procedure actOpenTagFolderExecute(Sender: TObject);
     procedure actUncheckAllExecute(Sender: TObject);
     procedure actUpdateTagTreeExecute(Sender: TObject);
     procedure VSTChecked(Sender: TBaseVirtualTree; Node: PVirtualNode);
@@ -220,6 +230,14 @@ begin
 
   if Assigned(OnCheckChange) then
     OnCheckChange(CheckedList);
+end;
+
+procedure TfmCHXTagTree.actOpenTagFolderExecute(Sender: TObject);
+begin
+  if not DirectoryExistsUTF8(TagsFolder) then
+    Exit;
+
+  OpenDocument(TagsFolder);
 end;
 
 procedure TfmCHXTagTree.VSTCompareNodes(Sender: TBaseVirtualTree;

@@ -23,7 +23,8 @@ unit ufCHXFileListPreview;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
+  StdCtrls, ActnList, LCLIntf, LazFileUtils,
   // CHX frames
   ufCHXListPreview;
 
@@ -32,6 +33,9 @@ type
   { TfmCHXFileListPreview }
 
   TfmCHXFileListPreview = class(TfmCHXListPreview, IFPObserver)
+    actOpenWithDefApp: TAction;
+    tbOpenWithDefApp: TToolButton;
+    procedure actOpenWithDefAppExecute(Sender: TObject);
   private
     FFileList: TStrings;
     procedure SetFileList(AValue: TStrings);
@@ -53,6 +57,19 @@ implementation
 {$R *.lfm}
 
 { TfmCHXFileListPreview }
+
+procedure TfmCHXFileListPreview.actOpenWithDefAppExecute(Sender: TObject);
+var
+  aFilename: String;
+begin
+    if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
+    Exit;
+
+      aFilename := FileList[ItemIndex];
+
+  if FileExistsUTF8(aFilename) then
+    OpenDocument(aFilename);
+end;
 
 procedure TfmCHXFileListPreview.SetFileList(AValue: TStrings);
 begin

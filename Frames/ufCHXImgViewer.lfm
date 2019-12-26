@@ -3,55 +3,64 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   Width = 619
   ClientHeight = 443
   ClientWidth = 619
-  DesignLeft = 321
-  DesignTop = 146
+  DesignLeft = 655
+  DesignTop = 276
   inherited tbPreviewList: TToolBar
     Top = 0
     Width = 619
     Align = alTop
-    inherited ToolButton1: TToolButton
-      Height = 22
+    inherited tbPreviousItem: TToolButton
+      Left = 177
+    end
+    inherited tbNextItem: TToolButton
+      Left = 206
     end
     inherited ToolButton6: TToolButton
-      Height = 22
+      Left = 301
     end
-    object tbTogleFileList: TToolButton[8]
-      Left = 190
+    inherited tbFirstItem: TToolButton
+      Left = 148
+    end
+    inherited tbLastItem: TToolButton
+      Left = 235
+    end
+    object tbTogleFileList: TToolButton[9]
+      Left = 119
       Top = 2
       Action = actToggleFileList
     end
-    object ToolButton2: TToolButton[9]
-      Left = 213
-      Height = 22
+    object ToolButton2: TToolButton[10]
+      Left = 264
+      Height = 28
       Top = 2
       Caption = 'ToolButton2'
       Style = tbsSeparator
     end
-    object tbZoomIn: TToolButton[10]
-      Left = 221
+    object tbZoomIn: TToolButton[11]
+      Left = 272
       Top = 2
       Action = actZoomIn
     end
-    object tbOriginalSize: TToolButton[11]
-      Left = 244
+    object tbOriginalSize: TToolButton[12]
+      Left = 309
       Top = 2
       Action = actOriginalSize
     end
-    object tbZoomOut: TToolButton[12]
-      Left = 267
+    object tbZoomOut: TToolButton[13]
+      Left = 338
       Top = 2
       Action = actZoomOut
     end
-    object tbStretch: TToolButton[13]
-      Left = 290
+    object tbStretch: TToolButton[14]
+      Left = 367
       Top = 2
       Action = actStretch
     end
   end
   object sbInfo: TStatusBar[1]
     Left = 0
-    Height = 23
-    Top = 420
+    Height = 29
+    Top = 414
     Width = 619
     Panels = <    
       item
@@ -69,8 +78,8 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   end
   object lbxFiles: TListBox[2]
     Left = 0
-    Height = 386
-    Top = 30
+    Height = 376
+    Top = 34
     Width = 196
     Align = alLeft
     ItemHeight = 0
@@ -81,20 +90,20 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   end
   object Splitter1: TSplitter[3]
     Left = 200
-    Height = 386
-    Top = 30
+    Height = 376
+    Top = 34
     Width = 5
     Visible = False
   end
   object sbxImage: TScrollBox[4]
     Left = 209
-    Height = 386
-    Top = 30
+    Height = 376
+    Top = 34
     Width = 410
     HorzScrollBar.Page = 100
     VertScrollBar.Page = 100
     Align = alClient
-    ClientHeight = 382
+    ClientHeight = 372
     ClientWidth = 406
     TabOrder = 4
     OnResize = sbxImageResize
@@ -114,7 +123,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   end
   inherited ilPreviewList: TImageList[5]
     Bitmap = {
-      4C69090000001000000010000000BD7F3F4DBD7F3F67BD7F3F4DBD7F3F00BD7F
+      4C690A0000001000000010000000BD7F3F4DBD7F3F67BD7F3F4DBD7F3F00BD7F
       3F00AA754000BD7F3F00BD7F3F00BD7F3F2FBD7F3F4DBD7F3F00BD7F3F00AA75
       4000855B30000000000000000000BC7F3F69FDF4E1FFBD80416ABC7F3F00BC7F
       3F00BD7F3F00BD7F3F00BD7F3F2FBD7F3F66BD7F3F66BD7F3F00BD7F3F00BD7F
@@ -242,7 +251,39 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
       002900000031705030A661452A74000000310000002000000011000000100000
       001D7352309C996C40C47352309F00000000000000050000000A000000100000
       0015000000190000001A0000001A000000190000001000000009000000080000
-      000F000000170000001A0000001A8080804D8080806680808066808080668080
+      000F000000170000001A0000001AFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00545454005454540055555522555555595555
+      5566555555665555556655555566555555665555556655555566555555665555
+      556655555566555555595555552252525200525252005252525BC6C6C6D4DBDB
+      DBFFD7D7D7FFD2D3D3FFCDCECEFFC8C9C9FFC6C5C5FFC7C4C4FFCAC5C5FFCFC7
+      C7FFD5CACAFFC4B8B8D45252525B505050005050500050505069BBBBBBFFB9B9
+      B9FFB7B7B7FFB4B4B4FFB2B2B2FFAEAEAEFFABABABFFA8A8A8FFA4A4A4FFA2A2
+      A2FF9F9F9FFF9C9C9CFF03030366555555005555550055555567FFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFFFFFFFF55555567484848005151510051515168FDFDFDFFCACA
+      CAFFBDBDBDFFE5E5E5FFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFCFCFFFCFC
+      FCFFFCFCFCFFFDFDFDFF515151683E3E3E00454545004D4D4D6AFAFAFAFFB2B2
+      B2FFFFFFFFFFC4C4C4FFE8E8E8FFF8F8F8FFF8F8F8FFF8F8F8FFF8F8F8FFF8F8
+      F8FFF8F8F8FFFAFAFAFF4D4D4D6A3D3D3D553E3E3E713E3E3E71A8A8A8FFA8A8
+      A8FFE9E9E9FFFDFDFDFFD0D0D0FFECECECFFF4F4F4FFF4F4F4FFF4F4F4FFF4F4
+      F4FFF4F4F4FFF7F7F7FF4949496C31313177FFFFFFFFFFFFFFFFFFFFFFFFFFFF
+      FFFFFFFFFFFFFBFBFBFFF7F7F7FFF3F3F3FFEFEFEFFFEFEFEFFFEFEFEFFFEFEF
+      EFFFEFEFEFFFF3F3F3FF4444446E2424245D2222227D2222227D909090FF9090
+      90FFE4E4E4FFFAFAFAFFBFBFBFFFE1E1E1FFEBEBEBFFEBEBEBFFEBEBEBFFEBEB
+      EBFFEBEBEBFFF0F0F0FF3E3E3E71222222002424240038383873EDEDEDFF8585
+      85FFFEFEFEFF9D9D9DFFD0D0D0FFE6E6E6FFE6E6E6FFE6E6E6FFE6E6E6FFE6E6
+      E6FFE6E6E6FFEDEDEDFF38383873292929003232320032323276EAEAEAFF9696
+      96FF808080FFBEBEBEFFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2E2FFE2E2
+      E2FFE2E2E2FFEAEAEAFF3232327627272700272727002727277BEBEBEBFFE7E7
+      E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7E7FFE7E7
+      E7FFE7E7E7FFEBEBEBFF2727277B0A0A0A000A0A0A000D0D0D67101010851010
+      1085101010851010108510101085101010851010108510101085101010851010
+      108510101085101010850D0D0D6700000000000000000000000A000000180000
+      001A0000001A0000001A0000001A0000001A0000001A0000001A0000001A0000
+      001A0000001A000000180000000BFFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+      FF00FFFFFF00FFFFFF00FFFFFF008080804D8080806680808066808080668080
       80668080806680808066808080668080806680808066808080667E7E7E667E7E
       7E667E7E7E667E7E7E667D7D7D4D7C7C7C67FFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC8C8C8FFFFFF
@@ -409,19 +450,19 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     object actOriginalSize: TAction[4]
       Category = 'Image'
       Caption = 'Original size'
-      ImageIndex = 6
+      ImageIndex = 7
       OnExecute = actOriginalSizeExecute
     end
     object actZoomIn: TAction[5]
       Category = 'Image'
       Caption = 'Zoom In'
-      ImageIndex = 5
+      ImageIndex = 6
       OnExecute = actZoomInExecute
     end
     object actZoomOut: TAction[6]
       Category = 'Image'
       Caption = 'Zoom Out'
-      ImageIndex = 7
+      ImageIndex = 8
       OnExecute = actZoomOutExecute
     end
     object actStretch: TAction[7]
@@ -429,7 +470,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
       AutoCheck = True
       Caption = 'actStretch'
       Checked = True
-      ImageIndex = 8
+      ImageIndex = 9
       OnExecute = actStretchExecute
     end
     object actClose: TAction[8]
@@ -439,8 +480,10 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     object actToggleFileList: TAction[9]
       Category = 'Window'
       Caption = 'actToggleFileList'
-      ImageIndex = 4
+      ImageIndex = 5
       OnExecute = actToggleFileListExecute
+    end
+    inherited actOpenWithDefApp: TAction[10]
     end
   end
 end

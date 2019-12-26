@@ -131,15 +131,19 @@ begin
   aIniFile := TMemIniFile.Create(FormGUIConfig);
   try
     // Loading Form properties
-    Width := aIniFile.ReadInteger('Forms', Name + '_Width', Width);
-    Height := aIniFile.ReadInteger('Forms', Name + '_Height', Height);
-
     aValue := aIniFile.ReadString('Forms', Name + '_WindowState', '');
 
     if CompareText(aValue, 'wsMaximized') = 0 then
+    begin
       WindowState := wsMaximized
+    end
     else if CompareText(aValue, 'wsNormal') = 0 then
+    begin
       WindowState := wsNormal;
+      Width := aIniFile.ReadInteger('Forms', Name + '_Width', Width);
+      Height := aIniFile.ReadInteger('Forms', Name + '_Height', Height);
+    end;
+
 
     if Assigned(OnLoadGUIConfig) then
       OnLoadGUIConfig(aIniFile);
