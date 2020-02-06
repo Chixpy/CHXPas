@@ -6,7 +6,7 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
   end
   object iImage: TImage[1]
     Left = 0
-    Height = 266
+    Height = 242
     Hint = 'DblClk to open in Image Viewer'
     Top = 0
     Width = 400
@@ -16,8 +16,18 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
     Proportional = True
     Stretch = True
   end
-  inherited ilPreviewList: TImageList[2]
+  object lImageProps: TLabel[2]
+    Left = 0
+    Height = 20
+    Top = 246
+    Width = 400
+    Align = alBottom
+    Alignment = taCenter
+    Caption = 'No image loaded'
+    ParentColor = False
   end
-  inherited alPreviewList: TActionList[3]
+  inherited ilPreviewList: TImageList[3]
+  end
+  inherited alPreviewList: TActionList[4]
   end
 end

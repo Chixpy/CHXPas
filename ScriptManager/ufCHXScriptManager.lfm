@@ -917,9 +917,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object actFileSaveAs: TFileSaveAs
       Category = 'File'
-      Caption = 'Gu&ardar Como...'
+      Caption = 'Save as...'
       Dialog.Options = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
-      Hint = 'Guardar Como'
+      Hint = 'Save with another filename.'
       BeforeExecute = actFileSaveAsBeforeExecute
       OnAccept = actFileSaveAsAccept
     end
@@ -940,6 +940,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     object actFileSave: TAction
       Category = 'File'
       Caption = 'Save File'
+      Hint = 'Quick save of the file.'
       OnExecute = actFileSaveExecute
     end
     object actOutputSaveAs: TFileSaveAs
@@ -958,6 +959,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     object actFileOpenFolder: TAction
       Category = 'File'
       Caption = 'Open folder in Explorer'
+      Hint = 'Open folder of the file with explorer.'
       OnExecute = actFileOpenFolderExecute
     end
     object actFolderOpen: TAction

@@ -1,3 +1,4 @@
 {"version":1,"strings":[
-{"hash":240698354,"name":"tfmchximglistpreview.iimage.hint","sourcebytes":[68,98,108,67,108,107,32,116,111,32,111,112,101,110,32,105,110,32,73,109,97,103,101,32,86,105,101,119,101,114],"value":"DblClk to open in Image Viewer"}
+{"hash":240698354,"name":"tfmchximglistpreview.iimage.hint","sourcebytes":[68,98,108,67,108,107,32,116,111,32,111,112,101,110,32,105,110,32,73,109,97,103,101,32,86,105,101,119,101,114],"value":"DblClk to open in Image Viewer"},
+{"hash":37114580,"name":"tfmchximglistpreview.limageprops.caption","sourcebytes":[78,111,32,105,109,97,103,101,32,108,111,97,100,101,100],"value":"No image loaded"}
 ]}

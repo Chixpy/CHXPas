@@ -30,12 +30,17 @@ uses
   // CHX frames
   ufCHXFileListPreview, ufCHXImgViewer;
 
+resourcestring
+  rsNoImageLoaded = 'No image loaded';
+  rsImageProps = '%2:s: %0:d x %1:d';
+
 type
 
   { TfmCHXImgListPreview }
 
   TfmCHXImgListPreview = class(TfmCHXFileListPreview)
     iImage: TImage;
+    lImageProps: TLabel;
     procedure iImageDblClick(Sender: TObject);
 
   private
@@ -101,10 +106,14 @@ begin
   if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
   begin
     iImage.Picture.Clear;
+    lImageProps.Caption := rsNoImageLoaded;
     Exit;
   end;
 
   iImage.Picture.LoadFromFile(FileList[ItemIndex]);
+  lImageProps.Caption := Format(rsImageProps, [iImage.Picture.Width,
+    iImage.Picture.Height, ExtractFileExt(FileList[ItemIndex])]);
+
 end;
 
 procedure TfmCHXImgListPreview.DoLoadGUIIcons(aIniFile: TIniFile;

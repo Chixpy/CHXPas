@@ -1,7 +1,7 @@
 unit ucCHXScriptEngine;
 {< cCHXScriptEngine class unit.
 
-  Copyright (C) 2006-2018 Chixpy
+  Copyright (C) 2006-2020 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -37,8 +37,9 @@ uses
   uPSC_DB, uPSC_extctrls, uPSC_graphics, uPSC_menus, uPSC_comobj,
   // CHX
   uCHXStrUtils, uCHX7zWrapper,
-  // Imported units
-  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
+  // CHX Imported units
+  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_FPCFileUtil, uPSI_uCHXStrUtils,
+  uPSI_uCHXFileUtils,
   uPSI_u7zWrapper;
 
 resourcestring
@@ -125,31 +126,6 @@ type
 
     // Added functions
     // ---------------
-    // TODO: Make them external.
-
-    // Strings
-    function CHXLowerCase(const AInStr: string): string;
-    function CHXUpperCase(const AInStr: string): string;
-
-    function CHXCompareText(const S1, S2: string): integer;
-    function CHXCompareStr(const S1, S2: string): integer;
-
-    function CHXUTF8ToSys(const S: string): string;
-    function CHXSysToUTF8(const S: string): string;
-
-    function CHXBoolToStr(const aBool: boolean): string;
-
-    // Path and filename strings
-    function CHXExcludeTrailingPathDelimiter(const aString: string): string;
-    function CHXExtractFilePath(const aFileName: string): string;
-    function CHXExtractFileName(const aFileName: string): string;
-    function CHXExtractFileNameOnly(const AFilename: string): string;
-    function CHXExtractFileExt(const AFilename: string): string;
-    function CHXChangeFileExt(const aFileName, aExtension: string): string;
-
-    // Files and Folders UTF8
-    function CHXFileExistsUTF8(const aFileName: string): boolean;
-    function CHXDirectoryExistsUTF8(const aFileName: string): boolean;
 
     // CallBacks
     procedure CHXWriteLn(const aStr: string);
@@ -159,8 +135,8 @@ type
       const aCaption, aExtFilter, DefFolder: string);
     function CHXAskFolder(const aCaption, DefFolder: string): string;
 
-    // HACK: We can't create Stringlist!!!
-    // TODO: Make a generic constructor? TApl
+    // HACK: We can't create Stringlists!!!
+    // TODO: Make a generic constructor?
     function CHXCreateStringList: TStringList;
 
   public
@@ -285,42 +261,6 @@ begin
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXReadLn,
     'function ReadLn(const aQuestion, DefAnswer: String): String;');
 
-  // String handling
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareText,
-    'function CompareText(const S1, S2: String): Integer;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXCompareStr,
-    'function CompareStr(const S1, S2: String): Integer;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXLowerCase,
-    'function LowerCase(const AInStr: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXUpperCase,
-    'function UpperCase(const AInStr: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXUTF8ToSys,
-    'function UTF8ToSys(const S: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXSysToUTF8,
-    'function SysToUTF8(const S: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXBoolToStr,
-    'function BoolToStr(const aBool: Boolean): String;');
-
-  // Path and filename strings
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExcludeTrailingPathDelimiter,
-    'function ExcludeTrailingPathDelimiter(const aString: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFilePath,
-    'function ExtractFilePath(const aFileName: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileName,
-    'function ExtractFileName(const aFileName: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileNameOnly,
-    'function ExtractFileNameOnly(const AFilename: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXExtractFileExt,
-    'function ExtractFileExt(const AFilename: String): String;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXChangeFileExt,
-    'function ChangeFileExt(const aFileName, aExtension: String): String;');
-
-  // Files and Folders UTF8
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXFileExistsUTF8,
-    'function FileExistsUTF8(const aFileName: String): Boolean;');
-  Sender.AddMethod(Self, @cCHXScriptEngine.CHXDirectoryExistsUTF8,
-    'function DirectoryExistsUTF8(const aFileName: String): Boolean;');
-
   // Dialogs
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFile,
     'function AskFile(const aTitle, aExt, DefFile: String): String;');
@@ -444,85 +384,6 @@ begin
     raise ENotImplemented.Create('OnReadLn not assigned.');
 end;
 
-function cCHXScriptEngine.CHXLowerCase(const AInStr: string): string;
-begin
-  Result := UTF8LowerCase(AInStr, '');
-end;
-
-function cCHXScriptEngine.CHXUpperCase(const AInStr: string): string;
-begin
-  Result := UTF8UpperCase(AInStr, '');
-end;
-
-function cCHXScriptEngine.CHXCompareText(const S1, S2: string): integer;
-begin
-  Result := UTF8CompareText(S1, S2);
-end;
-
-function cCHXScriptEngine.CHXCompareStr(const S1, S2: string): integer;
-begin
-  Result := UTF8CompareStr(S1, S2);
-end;
-
-function cCHXScriptEngine.CHXUTF8ToSys(const S: string): string;
-begin
-  Result := UTF8ToSys(S);
-end;
-
-function cCHXScriptEngine.CHXSysToUTF8(const S: string): string;
-begin
-  Result := SysToUTF8(S);
-end;
-
-function cCHXScriptEngine.CHXBoolToStr(const aBool: boolean): string;
-begin
-  Result := BoolToStr(aBool, True);
-end;
-
-function cCHXScriptEngine.CHXExcludeTrailingPathDelimiter(
-  const aString: string): string;
-begin
-  Result := ExcludeTrailingPathDelimiter(aString);
-end;
-
-function cCHXScriptEngine.CHXExtractFilePath(const aFileName: string): string;
-begin
-  Result := ExtractFilePath(aFileName);
-end;
-
-function cCHXScriptEngine.CHXExtractFileName(const aFileName: string): string;
-begin
-  Result := ExtractFileName(aFileName);
-end;
-
-function cCHXScriptEngine.CHXExtractFileNameOnly(
-  const AFilename: string): string;
-begin
-  Result := ExtractFileNameOnly(aFileName);
-end;
-
-function cCHXScriptEngine.CHXExtractFileExt(const AFilename: string): string;
-begin
-  Result := ExtractFileExt(aFileName);
-end;
-
-function cCHXScriptEngine.CHXChangeFileExt(
-  const aFileName, aExtension: string): string;
-begin
-  Result := ChangeFileExt(aFileName, aExtension);
-end;
-
-function cCHXScriptEngine.CHXFileExistsUTF8(const aFileName: string): boolean;
-begin
-  Result := FileExistsUTF8(SysPath(aFileName));
-end;
-
-function cCHXScriptEngine.CHXDirectoryExistsUTF8(
-  const aFileName: string): boolean;
-begin
-  Result := DirectoryExistsUTF8(SysPath(aFileName));
-end;
-
 function cCHXScriptEngine.CHXAskFile(
   const aCaption, aExtFilter, DefFile: string): string;
 begin
@@ -579,6 +440,7 @@ begin
 
   // FPC
   SIRegister_FPCStrUtils(x);
+  SIRegister_FPCFileUtil(x);
 
   // CHX
   SIRegister_u7zWrapper(x);
@@ -605,10 +467,11 @@ begin
 
   RIRegister_CHXBasic_Routines(se);
 
-  // FPC
+  // FPC units
   RIRegister_FPCStrUtils_Routines(se);
+  RIRegister_FPCFileUtil_Routines(se);
 
-  // CHX
+  // CHX units
   RIRegister_u7zWrapper_Routines(se);
   RIRegister_uCHXStrUtils_Routines(se);
   RIRegister_uCHXFileUtils_Routines(se);

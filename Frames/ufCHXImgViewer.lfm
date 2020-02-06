@@ -10,51 +10,51 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     Width = 619
     Align = alTop
     inherited tbPreviousItem: TToolButton
-      Left = 177
+      Left = 185
     end
     inherited tbNextItem: TToolButton
-      Left = 206
+      Left = 214
     end
     inherited ToolButton6: TToolButton
-      Left = 301
+      Left = 272
     end
     inherited tbFirstItem: TToolButton
-      Left = 148
+      Left = 156
     end
     inherited tbLastItem: TToolButton
-      Left = 235
+      Left = 243
     end
     object tbTogleFileList: TToolButton[9]
       Left = 119
       Top = 2
       Action = actToggleFileList
     end
-    object ToolButton2: TToolButton[10]
-      Left = 264
-      Height = 28
-      Top = 2
-      Caption = 'ToolButton2'
-      Style = tbsSeparator
-    end
-    object tbZoomIn: TToolButton[11]
-      Left = 272
+    object tbZoomIn: TToolButton[10]
+      Left = 280
       Top = 2
       Action = actZoomIn
     end
-    object tbOriginalSize: TToolButton[12]
+    object tbOriginalSize: TToolButton[11]
       Left = 309
       Top = 2
       Action = actOriginalSize
     end
-    object tbZoomOut: TToolButton[13]
+    object tbZoomOut: TToolButton[12]
       Left = 338
       Top = 2
       Action = actZoomOut
     end
-    object tbStretch: TToolButton[14]
+    object tbStretch: TToolButton[13]
       Left = 367
       Top = 2
       Action = actStretch
+    end
+    object ToolButton2: TToolButton[14]
+      Left = 148
+      Height = 28
+      Top = 2
+      Caption = 'ToolButton2'
+      Style = tbsSeparator
     end
   end
   object sbInfo: TStatusBar[1]
