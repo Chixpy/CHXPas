@@ -189,6 +189,8 @@ begin
    CL.AddDelphiFunction('function IsPathDelimiter(const Path: string; Index: Integer): Boolean;');
    CL.AddDelphiFunction('function SetDirSeparators (const FileName : string) : string;');
    CL.AddDelphiFunction('procedure DoDirSeparators (var FileName : string);'); // {$ifdef FPC_HAS_CPSTRING}rtlproc;{$endif}
+
+
 end;
 
 procedure RIRegister_CHXBasic_Routines(S: TPSExec);

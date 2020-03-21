@@ -38,8 +38,8 @@ uses
   // CHX
   uCHXStrUtils, uCHX7zWrapper,
   // CHX Imported units
-  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_FPCFileUtil, uPSI_uCHXStrUtils,
-  uPSI_uCHXFileUtils,
+  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
+  uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
   uPSI_u7zWrapper;
 
 resourcestring
@@ -440,6 +440,7 @@ begin
 
   // FPC
   SIRegister_FPCStrUtils(x);
+  SIRegister_FPCLazUTF8(x);
   SIRegister_FPCFileUtil(x);
 
   // CHX
@@ -469,6 +470,7 @@ begin
 
   // FPC units
   RIRegister_FPCStrUtils_Routines(se);
+  RIRegister_FPCLazUTF8_Routines(se);
   RIRegister_FPCFileUtil_Routines(se);
 
   // CHX units
