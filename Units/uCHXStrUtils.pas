@@ -34,9 +34,9 @@ function UTF8TextReplace(const S, OldPattern, NewPattern: string;
 {< Until it is not in LazUTF8...}
 
 function RemoveFromBrackets(const aString: string): string;
-{< Removes text from the first '(' o '[' found in the aString. }
+{< Removes text from the first ' (' o ' [' found in the aString. }
 function CopyFromBrackets(const aString: string): string;
-{< Copy text from the first '(' o '[' found in the aString. }
+{< Copy text from the first ' (' o ' [' found in the aString. }
 
 function TextSimilarity(const aString1, aString2: string): byte;
 {< Returns the similarity between 2 strings.
@@ -152,8 +152,8 @@ function RemoveFromBrackets(const aString: string): string;
 var
   Pos1, Pos2: integer;
 begin
-  Pos1 := UTF8Pos('(', aString);
-  Pos2 := UTF8Pos('[', aString);
+  Pos1 := UTF8Pos(' (', aString);
+  Pos2 := UTF8Pos(' [', aString);
 
   // if not found...
   if Pos1 < 1 then
@@ -171,8 +171,8 @@ function CopyFromBrackets(const aString: string): string;
 var
   Pos1, Pos2: integer;
 begin
-  Pos1 := UTF8Pos('(', aString);
-  Pos2 := UTF8Pos('[', aString);
+  Pos1 := UTF8Pos(' (', aString);
+  Pos2 := UTF8Pos(' [', aString);
 
   // if not found...
   if Pos1 < 1 then
