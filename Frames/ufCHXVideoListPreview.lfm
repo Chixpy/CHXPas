@@ -1,19 +1,5 @@
 inherited fmCHXVideoListPreview: TfmCHXVideoListPreview
   ChildSizing.VerticalSpacing = 0
-  inherited tbPreviewList: TToolBar
-    Height = 24
-    Top = 216
-    AutoSize = True
-    inherited lMaxItems: TLabel
-      Height = 22
-    end
-    inherited ToolButton1: TToolButton
-      Height = 22
-    end
-    inherited ToolButton6: TToolButton
-      Height = 22
-    end
-  end
   object MPlayerControl: TMPlayerControl[1]
     Left = 0
     Height = 190

@@ -1,9 +1,4 @@
 inherited fmCHXImgListPreview: TfmCHXImgListPreview
-  inherited tbPreviewList: TToolBar
-    inherited cbxCurrItem: TComboBox
-      Top = 0
-    end
-  end
   object iImage: TImage[1]
     Left = 0
     Height = 242
@@ -25,9 +20,5 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
     Alignment = taCenter
     Caption = 'No image loaded'
     ParentColor = False
-  end
-  inherited ilPreviewList: TImageList[3]
-  end
-  inherited alPreviewList: TActionList[4]
   end
 end

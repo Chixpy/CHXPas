@@ -24,7 +24,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, ActnList, IniFiles,
+  StdCtrls, ExtCtrls, ActnList, Menus, IniFiles,
   // CHX units
   uCHXImageUtils,
   // CHX frames
@@ -46,13 +46,22 @@ type
     cbxCurrItem: TComboBox;
     ilPreviewList: TImageList;
     lMaxItems: TLabel;
+    miniLastItem: TMenuItem;
+    miniNextItem: TMenuItem;
+    pmpiFirstItem: TMenuItem;
+    pmpiPreviousItem: TMenuItem;
+    mipmPreviousItem: TMenuItem;
+    mipmNextItem: TMenuItem;
+    mipmLastItem: TMenuItem;
+    mipmFirstItem: TMenuItem;
+    pmNextItems: TPopupMenu;
+    pmPreviewList: TPopupMenu;
+    pmPreviousItems: TPopupMenu;
     tbNextItem: TToolButton;
     tbPreviewList: TToolBar;
-    ToolButton1: TToolButton;
+    tbSeparator1: TToolButton;
     tbPreviousItem: TToolButton;
-    tbFirstItem: TToolButton;
-    tbLastItem: TToolButton;
-    ToolButton6: TToolButton;
+    tbSepNavButtons: TToolButton;
     procedure actFirstItemExecute(Sender: TObject);
     procedure actLastItemExecute(Sender: TObject);
     procedure actNextItemExecute(Sender: TObject);
@@ -69,7 +78,7 @@ type
     procedure OnCurrItemChange; virtual; abstract;
 
     procedure DoClearFrameData; virtual;
-    procedure DoLoadFrameData;
+    procedure DoLoadFrameData; virtual;
 
     procedure DoLoadGUIIcons(aIniFile: TIniFile;
       const aBaseFolder: string); virtual;
@@ -209,6 +218,7 @@ end;
 procedure TfmCHXListPreview.DoLoadFrameData;
 var
   i: integer;
+  ButtonEnabled: boolean;
 begin
   Enabled := ItemCount > 0;
 
@@ -230,11 +240,13 @@ begin
 
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
 
-  actFirstItem.Enabled := ItemCount > 1;
-  actLastItem.Enabled := ItemCount > 1;
-  actNextItem.Enabled := ItemCount > 1;
-  actPreviousItem.Enabled := ItemCount > 1;
-  cbxCurrItem.Enabled := ItemCount > 1;
+  ButtonEnabled := ItemCount > 1;
+
+  actFirstItem.Enabled := ButtonEnabled;
+  actLastItem.Enabled := ButtonEnabled;
+  actNextItem.Enabled := ButtonEnabled;
+  actPreviousItem.Enabled := ButtonEnabled;
+  cbxCurrItem.Enabled := ButtonEnabled;
 
   ItemIndex := 0;
 end;

@@ -1,67 +1,66 @@
 inherited fmCHXImgViewer: TfmCHXImgViewer
-  Height = 443
-  Width = 619
-  ClientHeight = 443
-  ClientWidth = 619
+  Height = 480
+  Width = 640
+  ClientHeight = 480
+  ClientWidth = 640
   DesignLeft = 655
   DesignTop = 276
   inherited tbPreviewList: TToolBar
-    Top = 0
-    Width = 619
-    Align = alTop
+    Width = 640
     inherited tbPreviousItem: TToolButton
-      Left = 185
+      Left = 110
     end
     inherited tbNextItem: TToolButton
-      Left = 214
+      Left = 152
     end
-    inherited ToolButton6: TToolButton
-      Left = 272
+    inherited tbSepNavButtons: TToolButton
+      Left = 194
+      Height = 28
     end
-    inherited tbFirstItem: TToolButton
-      Left = 156
+    inherited tbOpenFile: TToolButton
+      Left = 199
     end
-    inherited tbLastItem: TToolButton
-      Left = 243
+    inherited tbSepOpenFile: TToolButton
+      Left = 241
+      Height = 28
     end
-    object tbTogleFileList: TToolButton[9]
-      Left = 119
+    object tbTogleFileList: TToolButton[7]
+      Left = 76
       Top = 2
       Action = actToggleFileList
     end
-    object tbZoomIn: TToolButton[10]
-      Left = 280
+    object tbZoomIn: TToolButton[8]
+      Left = 275
       Top = 2
       Action = actZoomIn
     end
-    object tbOriginalSize: TToolButton[11]
-      Left = 309
+    object tbOriginalSize: TToolButton[9]
+      Left = 304
       Top = 2
       Action = actOriginalSize
     end
-    object tbZoomOut: TToolButton[12]
-      Left = 338
+    object tbZoomOut: TToolButton[10]
+      Left = 246
       Top = 2
       Action = actZoomOut
     end
-    object tbStretch: TToolButton[13]
-      Left = 367
+    object tbStretch: TToolButton[11]
+      Left = 333
       Top = 2
       Action = actStretch
     end
-    object ToolButton2: TToolButton[14]
-      Left = 148
+    object tbSepZoom: TToolButton[12]
+      Left = 362
       Height = 28
       Top = 2
-      Caption = 'ToolButton2'
-      Style = tbsSeparator
+      Style = tbsDivider
     end
   end
   object sbInfo: TStatusBar[1]
     Left = 0
     Height = 29
-    Top = 414
-    Width = 619
+    Top = 451
+    Width = 640
     Panels = <    
       item
         Alignment = taCenter
@@ -78,7 +77,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   end
   object lbxFiles: TListBox[2]
     Left = 0
-    Height = 376
+    Height = 413
     Top = 34
     Width = 196
     Align = alLeft
@@ -88,23 +87,23 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     TabOrder = 2
     Visible = False
   end
-  object Splitter1: TSplitter[3]
+  object splFileList: TSplitter[3]
     Left = 200
-    Height = 376
+    Height = 413
     Top = 34
     Width = 5
     Visible = False
   end
   object sbxImage: TScrollBox[4]
     Left = 209
-    Height = 376
+    Height = 413
     Top = 34
-    Width = 410
+    Width = 431
     HorzScrollBar.Page = 100
     VertScrollBar.Page = 100
     Align = alClient
-    ClientHeight = 372
-    ClientWidth = 406
+    ClientHeight = 409
+    ClientWidth = 427
     TabOrder = 4
     OnResize = sbxImageResize
     object Image: TImage
@@ -485,5 +484,15 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
     inherited actOpenWithDefApp: TAction[10]
     end
+    inherited actOpenFileFolder: TAction[11]
+    end
+  end
+  inherited pmPreviewList: TPopupMenu[7]
+  end
+  inherited pmPreviousItems: TPopupMenu[8]
+  end
+  inherited pmNextItems: TPopupMenu[9]
+  end
+  inherited pmOpenFile: TPopupMenu[10]
   end
 end

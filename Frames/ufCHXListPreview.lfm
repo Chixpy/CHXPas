@@ -1,20 +1,60 @@
 inherited fmCHXListPreview: TfmCHXListPreview
+  PopupMenu = pmPreviewList
   DesignLeft = 554
   DesignTop = 333
   object tbPreviewList: TToolBar[0]
     Left = 0
-    Height = 26
-    Top = 214
-    Width = 320
-    Align = alBottom
+    Height = 30
+    Top = 0
+    Width = 400
+    ButtonHeight = 29
+    ButtonWidth = 42
     Caption = 'tbPreviewList'
     Images = ilPreviewList
+    PopupMenu = pmPreviewList
     TabOrder = 0
-    object lMaxItems: TLabel
-      Left = 55
-      Height = 24
+    object tbPreviousItem: TToolButton
+      Left = 96
       Top = 2
-      Width = 30
+      Action = actPreviousItem
+      AutoSize = True
+      DropdownMenu = pmPreviousItems
+      PopupMenu = pmPreviousItems
+      Style = tbsButtonDrop
+    end
+    object tbNextItem: TToolButton
+      Left = 151
+      Top = 2
+      Action = actNextItem
+      DropdownMenu = pmNextItems
+      PopupMenu = pmNextItems
+      Style = tbsButtonDrop
+    end
+    object tbSepNavButtons: TToolButton
+      Left = 206
+      Height = 29
+      Top = 2
+      AutoSize = True
+      Caption = 'tbSepNavButtons'
+      Style = tbsDivider
+    end
+    object cbxCurrItem: TComboBox
+      Left = 0
+      Height = 28
+      Top = 0
+      Width = 50
+      Align = alLeft
+      Enabled = False
+      ItemHeight = 20
+      OnSelect = cbxCurrItemSelect
+      Style = csDropDownList
+      TabOrder = 0
+    end
+    object lMaxItems: TLabel
+      Left = 56
+      Height = 28
+      Top = 0
+      Width = 40
       Align = alLeft
       AutoSize = False
       BorderSpacing.Left = 4
@@ -22,55 +62,10 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Layout = tlCenter
       ParentColor = False
     end
-    object ToolButton1: TToolButton
-      Left = 85
-      Height = 22
-      Top = 2
-      Caption = 'ToolButton1'
-      Style = tbsDivider
-    end
-    object tbPreviousItem: TToolButton
-      Left = 113
-      Top = 2
-      Action = actPreviousItem
-    end
-    object tbNextItem: TToolButton
-      Left = 136
-      Top = 2
-      Action = actNextItem
-    end
-    object ToolButton6: TToolButton
-      Left = 182
-      Height = 22
-      Top = 2
-      Caption = 'ToolButton6'
-      Style = tbsSeparator
-    end
-    object cbxCurrItem: TComboBox
-      Left = 1
-      Height = 23
-      Top = 2
-      Width = 50
-      Align = alLeft
-      ItemHeight = 15
-      OnSelect = cbxCurrItemSelect
-      Style = csDropDownList
-      TabOrder = 0
-    end
-    object tbFirstItem: TToolButton
-      Left = 90
-      Top = 2
-      Action = actFirstItem
-    end
-    object tbLastItem: TToolButton
-      Left = 159
-      Top = 2
-      Action = actLastItem
-    end
   end
   object ilPreviewList: TImageList[1]
-    left = 24
-    top = 16
+    left = 216
+    top = 112
     Bitmap = {
       4C69040000001000000010000000BD7F3F4DBD7F3F67BD7F3F4DBD7F3F00BD7F
       3F00AA754000BD7F3F00BD7F3F00BD7F3F2FBD7F3F4DBD7F3F00BD7F3F00AA75
@@ -205,11 +200,12 @@ inherited fmCHXListPreview: TfmCHXListPreview
   end
   object alPreviewList: TActionList[2]
     Images = ilPreviewList
-    left = 96
-    top = 16
+    left = 216
+    top = 40
     object actPreviousItem: TAction
       Category = 'List'
       Caption = 'Previous item'
+      Enabled = False
       Hint = 'Go to previous item.'
       ImageIndex = 1
       OnExecute = actPreviousItemExecute
@@ -217,6 +213,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     object actNextItem: TAction
       Category = 'List'
       Caption = 'Next item'
+      Enabled = False
       Hint = 'Go to next item.'
       ImageIndex = 2
       OnExecute = actNextItemExecute
@@ -224,6 +221,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     object actFirstItem: TAction
       Category = 'List'
       Caption = 'First item'
+      Enabled = False
       Hint = 'Go to first item'
       ImageIndex = 0
       OnExecute = actFirstItemExecute
@@ -231,9 +229,49 @@ inherited fmCHXListPreview: TfmCHXListPreview
     object actLastItem: TAction
       Category = 'List'
       Caption = 'Last item'
+      Enabled = False
       Hint = 'Go to last item.'
       ImageIndex = 3
       OnExecute = actLastItemExecute
+    end
+  end
+  object pmPreviewList: TPopupMenu[3]
+    Images = ilPreviewList
+    left = 312
+    top = 112
+    object mipmFirstItem: TMenuItem
+      Action = actFirstItem
+    end
+    object mipmPreviousItem: TMenuItem
+      Action = actPreviousItem
+    end
+    object mipmNextItem: TMenuItem
+      Action = actNextItem
+    end
+    object mipmLastItem: TMenuItem
+      Action = actLastItem
+    end
+  end
+  object pmPreviousItems: TPopupMenu[4]
+    Images = ilPreviewList
+    left = 312
+    top = 184
+    object pmpiPreviousItem: TMenuItem
+      Action = actPreviousItem
+    end
+    object pmpiFirstItem: TMenuItem
+      Action = actFirstItem
+    end
+  end
+  object pmNextItems: TPopupMenu[5]
+    Images = ilPreviewList
+    left = 312
+    top = 40
+    object miniNextItem: TMenuItem
+      Action = actNextItem
+    end
+    object miniLastItem: TMenuItem
+      Action = actLastItem
     end
   end
 end

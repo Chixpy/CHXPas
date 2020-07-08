@@ -31,7 +31,7 @@ uses
   ufCHXFileListPreview, ufCHXImgViewer;
 
 resourcestring
-  rsNoImageLoaded = 'No image loaded';
+  rsNoImageLoaded = 'No image loaded.';
   rsImageProps = '%2:s: %0:d x %1:d';
 
 type
@@ -113,7 +113,6 @@ begin
   iImage.Picture.LoadFromFile(FileList[ItemIndex]);
   lImageProps.Caption := Format(rsImageProps, [iImage.Picture.Width,
     iImage.Picture.Height, ExtractFileExt(FileList[ItemIndex])]);
-
 end;
 
 procedure TfmCHXImgListPreview.DoLoadGUIIcons(aIniFile: TIniFile;

@@ -47,13 +47,13 @@ type
     lbxFiles: TListBox;
     sbInfo: TStatusBar;
     sbxImage: TScrollBox;
-    Splitter1: TSplitter;
+    splFileList: TSplitter;
     tbTogleFileList: TToolButton;
     tbZoomIn: TToolButton;
     tbOriginalSize: TToolButton;
     tbZoomOut: TToolButton;
     tbStretch: TToolButton;
-    ToolButton2: TToolButton;
+    tbSepZoom: TToolButton;
     procedure actOriginalSizeExecute(Sender: TObject);
     procedure actStretchExecute(Sender: TObject);
     procedure actToggleFileListExecute(Sender: TObject);
@@ -137,7 +137,7 @@ end;
 
 procedure TfmCHXImgViewer.actToggleFileListExecute(Sender: TObject);
 begin
-  Splitter1.Visible := actToggleFileList.Checked;
+  splFileList.Visible := actToggleFileList.Checked;
   lbxFiles.Visible := actToggleFileList.Checked;
 end;
 

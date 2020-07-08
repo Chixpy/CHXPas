@@ -1,4 +1,5 @@
 unit ufCHXFileListPreview;
+
 {< TfmCHXFileListPreview frame unit.
 
   Copyright (C) 2017-2019 Chixpy
@@ -24,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ActnList, LCLIntf, LazFileUtils,
+  StdCtrls, ActnList, LCLIntf, Menus, ExtCtrls, LazFileUtils,
   // CHX frames
   ufCHXListPreview;
 
@@ -33,12 +34,25 @@ type
   { TfmCHXFileListPreview }
 
   TfmCHXFileListPreview = class(TfmCHXListPreview, IFPObserver)
+    actOpenFileFolder: TAction;
     actOpenWithDefApp: TAction;
-    tbOpenWithDefApp: TToolButton;
+    miopOpenFileFolder: TMenuItem;
+    miopOpenWithDefApp: TMenuItem;
+    mipmOpen: TMenuItem;
+    mipmOpenFileFolder: TMenuItem;
+    mipmOpenWithDefApp: TMenuItem;
+    pmOpenFile: TPopupMenu;
+    tbOpenFile: TToolButton;
+    tbSepOpenFile: TToolButton;
+    procedure actOpenFileFolderExecute(Sender: TObject);
     procedure actOpenWithDefAppExecute(Sender: TObject);
+
   private
     FFileList: TStrings;
     procedure SetFileList(AValue: TStrings);
+
+  protected
+    procedure DoLoadFrameData; override;
 
   public
     property FileList: TStrings read FFileList write SetFileList;
@@ -60,15 +74,28 @@ implementation
 
 procedure TfmCHXFileListPreview.actOpenWithDefAppExecute(Sender: TObject);
 var
-  aFilename: String;
+  aFilename: string;
 begin
-    if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
+  if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
     Exit;
 
-      aFilename := FileList[ItemIndex];
+  aFilename := FileList[ItemIndex];
 
   if FileExistsUTF8(aFilename) then
     OpenDocument(aFilename);
+end;
+
+procedure TfmCHXFileListPreview.actOpenFileFolderExecute(Sender: TObject);
+var
+  aFolder: string;
+begin
+  if (ItemIndex < 0) or (not Assigned(FileList)) or (FileList.Count = 0) then
+    Exit;
+
+  aFolder := ExtractFileDir(FileList[ItemIndex]);
+
+  if DirectoryExistsUTF8(aFolder) then
+    OpenDocument(aFolder);
 end;
 
 procedure TfmCHXFileListPreview.SetFileList(AValue: TStrings);
@@ -88,6 +115,14 @@ begin
   end
   else
     ItemCount := 0;
+end;
+
+procedure TfmCHXFileListPreview.DoLoadFrameData;
+begin
+  inherited DoLoadFrameData;
+
+  actOpenWithDefApp.Enabled := ItemCount > 0;
+  actOpenFileFolder.Enabled := ItemCount > 0;
 end;
 
 procedure TfmCHXFileListPreview.FPOObservedChanged(ASender: TObject;

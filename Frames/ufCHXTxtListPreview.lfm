@@ -1,13 +1,4 @@
 inherited fmCHXTxtListPreview: TfmCHXTxtListPreview
-  inherited tbPreviewList: TToolBar
-    TabOrder = 1
-    inherited ToolButton1: TToolButton
-      Height = 22
-    end
-    inherited ToolButton6: TToolButton
-      Height = 22
-    end
-  end
   object mText: TMemo[1]
     Left = 0
     Height = 210
