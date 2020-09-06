@@ -20,18 +20,18 @@ inherited fmCHXListPreview: TfmCHXListPreview
       AutoSize = True
       DropdownMenu = pmPreviousItems
       PopupMenu = pmPreviousItems
-      Style = tbsButtonDrop
+      Style = tbsDropDown
     end
     object tbNextItem: TToolButton
-      Left = 151
+      Left = 153
       Top = 2
       Action = actNextItem
       DropdownMenu = pmNextItems
       PopupMenu = pmNextItems
-      Style = tbsButtonDrop
+      Style = tbsDropDown
     end
     object tbSepNavButtons: TToolButton
-      Left = 206
+      Left = 210
       Height = 29
       Top = 2
       AutoSize = True
@@ -64,8 +64,8 @@ inherited fmCHXListPreview: TfmCHXListPreview
     end
   end
   object ilPreviewList: TImageList[1]
-    left = 216
-    top = 112
+    Left = 216
+    Top = 112
     Bitmap = {
       4C69040000001000000010000000BD7F3F4DBD7F3F67BD7F3F4DBD7F3F00BD7F
       3F00AA754000BD7F3F00BD7F3F00BD7F3F2FBD7F3F4DBD7F3F00BD7F3F00AA75
@@ -200,8 +200,8 @@ inherited fmCHXListPreview: TfmCHXListPreview
   end
   object alPreviewList: TActionList[2]
     Images = ilPreviewList
-    left = 216
-    top = 40
+    Left = 216
+    Top = 40
     object actPreviousItem: TAction
       Category = 'List'
       Caption = 'Previous item'
@@ -237,8 +237,8 @@ inherited fmCHXListPreview: TfmCHXListPreview
   end
   object pmPreviewList: TPopupMenu[3]
     Images = ilPreviewList
-    left = 312
-    top = 112
+    Left = 312
+    Top = 112
     object mipmFirstItem: TMenuItem
       Action = actFirstItem
     end
@@ -254,8 +254,8 @@ inherited fmCHXListPreview: TfmCHXListPreview
   end
   object pmPreviousItems: TPopupMenu[4]
     Images = ilPreviewList
-    left = 312
-    top = 184
+    Left = 312
+    Top = 184
     object pmpiPreviousItem: TMenuItem
       Action = actPreviousItem
     end
@@ -265,8 +265,8 @@ inherited fmCHXListPreview: TfmCHXListPreview
   end
   object pmNextItems: TPopupMenu[5]
     Images = ilPreviewList
-    left = 312
-    top = 40
+    Left = 312
+    Top = 40
     object miniNextItem: TMenuItem
       Action = actNextItem
     end

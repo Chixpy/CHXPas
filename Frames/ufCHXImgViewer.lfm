@@ -8,50 +8,48 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   inherited tbPreviewList: TToolBar
     Width = 640
     inherited tbPreviousItem: TToolButton
-      Left = 110
+      Left = 138
     end
     inherited tbNextItem: TToolButton
-      Left = 152
+      Left = 195
     end
     inherited tbSepNavButtons: TToolButton
-      Left = 194
-      Height = 28
+      Left = 252
     end
     inherited tbOpenFile: TToolButton
-      Left = 199
+      Left = 257
     end
     inherited tbSepOpenFile: TToolButton
-      Left = 241
-      Height = 28
+      Left = 314
     end
     object tbTogleFileList: TToolButton[7]
-      Left = 76
+      Left = 96
       Top = 2
       Action = actToggleFileList
     end
     object tbZoomIn: TToolButton[8]
-      Left = 275
+      Left = 361
       Top = 2
       Action = actZoomIn
     end
     object tbOriginalSize: TToolButton[9]
-      Left = 304
+      Left = 403
       Top = 2
       Action = actOriginalSize
     end
     object tbZoomOut: TToolButton[10]
-      Left = 246
+      Left = 319
       Top = 2
       Action = actZoomOut
     end
     object tbStretch: TToolButton[11]
-      Left = 333
+      Left = 445
       Top = 2
       Action = actStretch
     end
     object tbSepZoom: TToolButton[12]
-      Left = 362
-      Height = 28
+      Left = 487
+      Height = 29
       Top = 2
       Style = tbsDivider
     end
@@ -494,5 +492,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   inherited pmNextItems: TPopupMenu[9]
   end
   inherited pmOpenFile: TPopupMenu[10]
+    Left = 216
+    Top = 200
   end
 end

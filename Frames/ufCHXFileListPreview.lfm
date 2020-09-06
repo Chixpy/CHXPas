@@ -1,13 +1,13 @@
 inherited fmCHXFileListPreview: TfmCHXFileListPreview
   inherited tbPreviewList: TToolBar
     object tbOpenFile: TToolButton[5]
-      Left = 211
+      Left = 215
       Top = 2
       Action = actOpenWithDefApp
-      Style = tbsButtonDrop
+      Style = tbsDropDown
     end
     object tbSepOpenFile: TToolButton[6]
-      Left = 266
+      Left = 272
       Height = 29
       Top = 2
       Style = tbsDivider
@@ -237,8 +237,8 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
   end
   object pmOpenFile: TPopupMenu[6]
     Images = ilPreviewList
-    left = 200
-    top = 40
+    Left = 200
+    Top = 40
     object miopOpenWithDefApp: TMenuItem
       Action = actOpenWithDefApp
     end

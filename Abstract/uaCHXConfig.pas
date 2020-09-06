@@ -29,6 +29,8 @@ uses
 
 type
 
+  { caCHXConfig }
+
   caCHXConfig = class(caCHXStorableIni)
   public
     procedure ResetDefaultConfig; virtual; abstract;
