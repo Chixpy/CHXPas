@@ -18,9 +18,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 259
     Top = 0
     Width = 645
-    ActivePage = pagScriptList
+    ActivePage = pagSourceCode
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -111,13 +111,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagSourceCode: TTabSheet
       Caption = 'Source Code'
-      ClientHeight = 225
-      ClientWidth = 636
+      ClientHeight = 226
+      ClientWidth = 637
       object tbEditor: TToolBar
         Left = 0
         Height = 26
         Top = 0
-        Width = 636
+        Width = 637
         Caption = 'tbEditor'
         EdgeInner = esNone
         EdgeOuter = esNone
@@ -145,14 +145,14 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator1: TToolButton
           Left = 30
-          Height = 8
+          Height = 28
           Top = 0
           Caption = '-'
           Style = tbsSeparator
         end
         object bSeparator2: TToolButton
           Left = 125
-          Height = 8
+          Height = 28
           Top = 0
           Caption = '-'
           Style = tbsSeparator
@@ -164,7 +164,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator3: TToolButton
           Left = 162
-          Height = 8
+          Height = 28
           Top = 0
           Caption = '-'
           Style = tbsSeparator
@@ -181,7 +181,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator4: TToolButton
           Left = 228
-          Height = 8
+          Height = 28
           Top = 0
           Caption = 'bSeparator4'
           Style = tbsSeparator
@@ -193,7 +193,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         end
         object bSeparator5: TToolButton
           Left = 294
-          Height = 8
+          Height = 28
           Top = 0
           Caption = 'bSeparator5'
           Style = tbsSeparator
@@ -216,9 +216,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       end
       inline SynEdit: TSynEdit
         Left = 0
-        Height = 170
+        Height = 171
         Top = 26
-        Width = 636
+        Width = 637
         Align = alClient
         BlockTabIndent = 2
         Font.Height = -13
@@ -721,8 +721,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       object sbSourceEditor: TStatusBar
         Left = 0
         Height = 29
-        Top = 196
-        Width = 636
+        Top = 197
+        Width = 637
         Panels = <        
           item
             Alignment = taCenter
@@ -857,13 +857,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object ilActions: TImageList[3]
-    left = 32
-    top = 168
+    Left = 32
+    Top = 168
   end
   object ActionList: TActionList[4]
     Images = ilActions
-    left = 32
-    top = 232
+    Left = 32
+    Top = 232
     object actEditCut: TEditCut
       Category = 'Edit'
       Caption = 'Cor&tar'
@@ -972,35 +972,35 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
-    left = 32
-    top = 112
+    Left = 32
+    Top = 112
   end
   object SynMacroRecorder: TSynMacroRecorder[6]
     RecordShortCut = 24658
     PlaybackShortCut = 24656
     Editor = SynEdit
-    left = 32
-    top = 64
+    Left = 32
+    Top = 64
   end
   object OpenDialog1: TOpenDialog[7]
     Options = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
-    left = 536
-    top = 72
+    Left = 536
+    Top = 72
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog[8]
     Options = [ofNoChangeDir, ofPathMustExist, ofEnableSizing, ofViewDetail]
-    left = 540
-    top = 175
+    Left = 540
+    Top = 175
   end
   object pmFileList: TPopupMenu[9]
-    left = 315
-    top = 124
+    Left = 315
+    Top = 124
     object miFileOpenFolder: TMenuItem
       Action = actFileOpenFolder
     end
   end
   object pmFolderList: TPopupMenu[10]
-    left = 129
-    top = 109
+    Left = 129
+    Top = 109
   end
 end

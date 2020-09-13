@@ -32,7 +32,7 @@ uses
   uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
   // CHX classes
   ucCHXScriptEngine,
-    // CHX frames
+  // CHX frames
   ufrCHXForm,
   // CHX frames
   ufCHXFrame,
@@ -43,6 +43,11 @@ const
   kFSMScriptFileExt = '.pas';
   kFSMScriptFileMask = '*' + kFSMScriptFileExt;
   kFSMInfoSection = 'Info';
+
+  krsIniScriptMngSection = 'Script Manager';
+  {< Config file section name. }
+  krsIniScriptMngSourceFont = 'SourceFont';
+  krsIniScriptMngOutputFont = 'OutputFont';
 
 resourcestring
   rsFSMFileSaved = 'File saved: %s';
@@ -189,14 +194,16 @@ type
     procedure DoClearFrameData;
     procedure DoLoadFrameData;
     procedure DoLoadGUIConfig(aIniFile: TIniFile);
+    procedure DoSaveGUIConfig(aIniFile: TIniFile);
     procedure DoLoadGUIIcons(aIconsIni: TIniFile; const aBaseFolder: string);
 
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
 
 
-        // Creates a form with Script Manager.
-    class function SimpleForm(aBaseFolder: string; aGUIIconsIni: string; aGUIConfigIni: string): integer;
+    // Creates a form with Script Manager.
+    class function SimpleForm(aBaseFolder: string; aGUIIconsIni: string;
+      aGUIConfigIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -418,6 +425,19 @@ end;
 procedure TfmCHXScriptManager.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
   GUIConfigIni := aIniFile.FileName;
+
+  LoadFontFromIni(aIniFile, krsIniScriptMngSection,
+    krsIniScriptMngSourceFont, SynEdit.Font);
+  LoadFontFromIni(aIniFile, krsIniScriptMngSection,
+    krsIniScriptMngOutputFont, mOutPut.Font);
+end;
+
+procedure TfmCHXScriptManager.DoSaveGUIConfig(aIniFile: TIniFile);
+begin
+  SaveFontToIni(aIniFile, krsIniScriptMngSection,
+    krsIniScriptMngSourceFont, SynEdit.Font);
+  SaveFontToIni(aIniFile, krsIniScriptMngSection,
+    krsIniScriptMngOutputFont, mOutPut.Font);
 end;
 
 procedure TfmCHXScriptManager.DoLoadGUIIcons(aIconsIni: TIniFile;
@@ -634,9 +654,10 @@ begin
   OnClearFrameData := @DoClearFrameData;
   OnLoadFrameData := @DoLoadFrameData;
   OnLoadGUIConfig := @DoLoadGUIConfig;
+  OnSaveGUIConfig := @DoSaveGUIConfig;
   OnLoadGUIIcons := @DoLoadGUIIcons;
 
-  Enabled:=assigned(ScriptEngine);
+  Enabled := assigned(ScriptEngine);
 end;
 
 destructor TfmCHXScriptManager.Destroy;
