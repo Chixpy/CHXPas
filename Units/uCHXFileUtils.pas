@@ -1,4 +1,5 @@
 unit uCHXFileUtils;
+
 {< Copyright (C) 2011-2020 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
@@ -27,12 +28,16 @@ uses
 
 const
   kCHXSHA1Empty: TSHA1Digest =
-  (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 
 type
-  TItFolderObj = function(aFolder: string; FileInfo: TSearchRec): boolean of object;
+  TItFolderObj = function(aFolder: string;
+    FileInfo: TSearchRec): boolean of object;
   TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
+
+function CHXCheckFileRename(const aFile: string): string;
+{< Checks if a file already exists, and change its name adding '(x)' }
 
 
 // Searching...
@@ -54,7 +59,7 @@ function CRC32FileStr(const aFileName: string): string;
 function SHA1FileStr(const aFileName: string): string;
 {< Calculates SHA1 checksum of a file and return as string.
 }
-function StringToSHA1Digest(aSHA1String: string):TSHA1Digest;
+function StringToSHA1Digest(aSHA1String: string): TSHA1Digest;
 
 // Iterating Folders
 // -----------------
@@ -133,6 +138,25 @@ begin
     Result := kCHXSHA1Empty
   else
     HexToBin(PChar(aSHA1String), @Result, 20);
+end;
+
+function CHXCheckFileRename(const aFile: string): string;
+
+var
+  j: integer;
+  aFilePath, aFilename, aFileExt: string;
+begin
+  Result := aFile;
+  aFilePath := ExtractFilePath(aFile);
+  aFilename := ExtractFilenameOnly(aFile);
+  aFileExt := ExtractFileExt(aFile);
+
+  j := 1;
+  while FileExists(Result) do
+  begin
+    Result := aFilePath + aFilename + ' (' + IntToStr(j) + ')' + aFileExt;
+    Inc(j);
+  end;
 end;
 
 function SearchFirstFileInFolderByExtCT(aFolder: string;
