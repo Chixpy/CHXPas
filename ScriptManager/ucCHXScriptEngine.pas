@@ -38,7 +38,7 @@ uses
   // CHX
   uCHXStrUtils, uCHX7zWrapper,
   // CHX Imported units
-  uPSI_CHXBasic, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
+  uPSI_CHXBasic, uPSI_FPCSysUtils, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
   uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
   uPSI_u7zWrapper;
 
@@ -439,6 +439,7 @@ begin
   SIRegister_CHXBasic(x);
 
   // FPC
+  SIRegister_FPCSysUtils(x);
   SIRegister_FPCStrUtils(x);
   SIRegister_FPCLazUTF8(x);
   SIRegister_FPCFileUtil(x);
@@ -469,6 +470,7 @@ begin
   RIRegister_CHXBasic_Routines(se);
 
   // FPC units
+  RIRegister_FPCSysUtils_Routines(se);
   RIRegister_FPCStrUtils_Routines(se);
   RIRegister_FPCLazUTF8_Routines(se);
   RIRegister_FPCFileUtil_Routines(se);
