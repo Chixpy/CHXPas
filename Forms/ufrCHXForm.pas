@@ -24,7 +24,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ActnList,
-  inifiles, DefaultTranslator,
+  IniFiles, DefaultTranslator,
   // CHX units
   uCHXStrUtils, uCHXImageUtils,
   // CHX frames
@@ -240,7 +240,7 @@ begin
       // Loading Form properties
       if WindowState = wsMaximized then
         aIniFile.WriteString('Forms', Name + '_WindowState', 'wsMaximized')
-      else if WindowState = wsNormal then
+      else {if WindowState = wsNormal then }
       begin
         // Saving Width & Height only if wsNormal
         aIniFile.WriteString('Forms', Name + '_WindowState', 'wsNormal');
