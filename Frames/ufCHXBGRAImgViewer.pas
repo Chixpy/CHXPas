@@ -37,14 +37,15 @@ type
     pbxImage: TPaintBox;
     sbxImage: TScrollBox;
     procedure pbxImagePaint(Sender: TObject);
-
+    procedure sbxImageResize(Sender: TObject);
   private
     FActualImage: TBGRABitmap;
-    FAutoZoomOnLoad: Boolean;
+    FAutoCenterOnLoad: boolean;
+    FAutoZoomOnLoad: boolean;
     FVisibleImage: TBGRABitmap;
     FZoom: integer;
-    procedure SetActualImage(AValue: TBGRABitmap);
-    procedure SetAutoZoomOnLoad(AValue: Boolean);
+    procedure SetAutoCenterOnLoad(AValue: boolean);
+    procedure SetAutoZoomOnLoad(AValue: boolean);
     procedure SetVisibleImage(AValue: TBGRABitmap);
     procedure SetZoom(AValue: integer);
 
@@ -54,18 +55,27 @@ type
       read FVisibleImage write SetVisibleImage;
     {< Visible image with zoom, selection, effects... }
 
+    procedure SetActualImage(AValue: TBGRABitmap); virtual;
+
     procedure DoLoadFrameData;
     procedure DoClearFrameData;
 
     procedure DrawImage;
 
-  public
+    procedure AfterDrawImage; virtual;
 
+    procedure OnZoomChange; virtual;
+
+  public
     property ActualImage: TBGRABitmap read FActualImage write SetActualImage;
     {< Actual image. }
 
-    property AutoZoomOnLoad: Boolean read FAutoZoomOnLoad write SetAutoZoomOnLoad;
-    {< Change Zoom on load image}
+    property AutoZoomOnLoad: boolean read FAutoZoomOnLoad
+      write SetAutoZoomOnLoad;
+    {< Change Zoom on load image. }
+    property AutoCenterOnLoad: boolean
+      read FAutoCenterOnLoad write SetAutoCenterOnLoad;
+    {< Center image when loaded. }
     property Zoom: integer read FZoom write SetZoom;
     {< Percentaje Zoom * 100. }
 
@@ -85,10 +95,16 @@ implementation
 
 procedure TfmCHXBGRAImgViewer.pbxImagePaint(Sender: TObject);
 begin
-    if not Assigned(VisibleImage) then
+  if not Assigned(VisibleImage) then
     Exit;
 
   VisibleImage.Draw(pbxImage.Canvas, 0, 0, False);
+end;
+
+procedure TfmCHXBGRAImgViewer.sbxImageResize(Sender: TObject);
+begin
+  if AutoZoomOnLoad then
+    AutoZoom;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetActualImage(AValue: TBGRABitmap);
@@ -100,13 +116,21 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmCHXBGRAImgViewer.SetAutoZoomOnLoad(AValue: Boolean);
+procedure TfmCHXBGRAImgViewer.SetAutoZoomOnLoad(AValue: boolean);
 begin
-  if FAutoZoomOnLoad = AValue then Exit;
+  if FAutoZoomOnLoad = AValue then
+    Exit;
   FAutoZoomOnLoad := AValue;
 
   if AutoZoomOnLoad then
     AutoZoom;
+end;
+
+procedure TfmCHXBGRAImgViewer.SetAutoCenterOnLoad(AValue: boolean);
+begin
+  if FAutoCenterOnLoad = AValue then
+    Exit;
+  FAutoCenterOnLoad := AValue;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetVisibleImage(AValue: TBGRABitmap);
@@ -118,6 +142,7 @@ end;
 
 procedure TfmCHXBGRAImgViewer.SetZoom(AValue: integer);
 begin
+  FreeAndNil(FVisibleImage);
 
   if not Assigned(ActualImage) then
   begin
@@ -126,8 +151,9 @@ begin
     Exit;
   end;
 
-  // Checking very high zoom
-  while ((max(ActualImage.Width, ActualImage.Height) div 100) * AVAlue) > (2 ** 14) do
+  // Checking very high zoom, to avoid memory overflow
+  while ((max(ActualImage.Width, ActualImage.Height) div 100) * AVAlue) >
+    (2 ** 14) do
     Dec(AValue);
 
   if AValue <= 0 then
@@ -135,7 +161,7 @@ begin
 
   FZoom := AValue;
 
-  // lZoomInput.Caption := Format('%dx', [Zoom]);
+  OnZoomChange;
 
   DrawImage;
 end;
@@ -143,7 +169,12 @@ end;
 procedure TfmCHXBGRAImgViewer.DoLoadFrameData;
 begin
   // Updating Zoom, if it's to high for new image.
-  if AutoZoomOnLoad then AutoZoom else SetZoom(Zoom);
+  if AutoZoomOnLoad then
+    AutoZoom
+  else
+    SetZoom(Zoom);
+
+  DrawImage;
 
   Enabled := Assigned(ActualImage);
 end;
@@ -166,6 +197,8 @@ begin
   begin
     pbxImage.ClientWidth := 0;
     pbxImage.ClientHeight := 0;
+    pbxImage.Top := 0;
+    pbxImage.Left := 0;
     Exit;
   end;
 
@@ -177,6 +210,19 @@ begin
   begin
     pbxImage.ClientWidth := ZWidth;
     pbxImage.ClientHeight := ZHeight;
+
+    if AutoCenterOnLoad then
+    begin
+      if sbxImage.ClientHeight > pbxImage.Height then
+        pbxImage.Top := (sbxImage.ClientHeight - pbxImage.Height) shr 1;
+      if sbxImage.ClientWidth > pbxImage.Width then
+        pbxImage.Left := (sbxImage.ClientWidth - pbxImage.Width) shr 1;
+    end
+    else
+    begin
+      pbxImage.Top := 0;
+      pbxImage.Left := 0;
+    end;
   end;
 
   FVisibleImage := TBGRABitmap.Create(ZWidth, ZHeight);
@@ -197,11 +243,19 @@ begin
 
   Temp.Free;
 
-  //  if not SelectionInput.isEmpty then
-  //    VisibleImage.Rectangle(SelectionZoom,
-  //      BGRA(127, 127, 127, 255), dmXor);
+  AfterDrawImage;
 
   pbxImage.Invalidate;
+end;
+
+procedure TfmCHXBGRAImgViewer.AfterDrawImage;
+begin
+
+end;
+
+procedure TfmCHXBGRAImgViewer.OnZoomChange;
+begin
+
 end;
 
 procedure TfmCHXBGRAImgViewer.ZoomIn;
@@ -216,17 +270,17 @@ end;
 
 procedure TfmCHXBGRAImgViewer.AutoZoom;
 var
-  i: Double;
+  i: integer;
 begin
-   if not assigned(ActualImage) then
+  if not assigned(ActualImage) then
     Exit;
 
-  i := Min(sbxImage.ClientWidth / ActualImage.Width * 100,
-    sbxImage.ClientHeight / ActualImage.Height * 100);
+  i := Min((sbxImage.ClientWidth * 100) div ActualImage.Width,
+    (sbxImage.ClientHeight * 100) div ActualImage.Height);
   if i < 1 then
     i := 1;
 
-  Zoom := Floor(i);
+  Zoom := i;
 end;
 
 constructor TfmCHXBGRAImgViewer.Create(TheOwner: TComponent);
@@ -234,6 +288,7 @@ begin
   inherited Create(TheOwner);
 
   Zoom := 100;
+  AutoCenterOnLoad := True;;
 
   OnLoadFrameData := @DoLoadFrameData;
   OnClearFrameData := @DoClearFrameData;

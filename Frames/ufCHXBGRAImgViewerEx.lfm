@@ -1,0 +1,33 @@
+inherited fmCHXBGRAImgViewerEx: TfmCHXBGRAImgViewerEx
+  DesignLeft = 723
+  DesignTop = 381
+  inherited sbxImage: TScrollBox
+    Height = 267
+    ClientHeight = 263
+    inherited pbxImage: TPaintBox
+      OnMouseDown = pbxImageMouseDown
+      OnMouseLeave = pbxImageMouseLeave
+      OnMouseMove = pbxImageMouseMove
+      OnMouseUp = pbxImageMouseUp
+    end
+  end
+  object StatusBar: TStatusBar[1]
+    Left = 0
+    Height = 29
+    Top = 271
+    Width = 400
+    Panels = <    
+      item
+        Alignment = taCenter
+        Width = 70
+      end    
+      item
+        Alignment = taCenter
+        Width = 130
+      end    
+      item
+        Width = 50
+      end>
+    SimplePanel = False
+  end
+end

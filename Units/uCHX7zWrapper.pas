@@ -71,9 +71,10 @@ const
     'hxw,img,iso,jar,lha,lit,lzh,lzma,lzma86,mbr,msi,msp,nsis,ntfs,ppt,' +
     'r00,rar,rpm,scap,squashfs,swf,swm,sys,tar,taz,tbz,tbz2,tgz,tpz,txz,' +
     'vhd,wim,xar,xls,xpi,xz,z,zip';
-//< Initial suported file extensions, use w7zGetFileExts to get current
-//  ones. A program can drop or add supported extensions. After all it's
-//  only a reference list.
+
+  {< Initial suported file extensions, use w7zGetFileExts to get current
+     ones. A program can drop or add supported extensions. After all, it's
+     only a reference list. }
 
 function w7zGetErrorList: TStringList;
 function w7zGetLastError: string;
@@ -85,11 +86,11 @@ procedure w7zSetFileExts(aExtList: string = '');
 
   String with suported file extensions by 7z.
 
-   Format: 'ext,ext,ext' for easy creating a TStringList. At least until
-     we found a better way for searching files with different extension.
+  Format: 'ext,ext,ext' for easy creating a TStringList. At least until
+    we found a better way for searching files with different extension.
 
-   Warning: It's not used for test if the files passed as params are
-     compressed files. It's only a reference list.
+  Warning: It's not used for test if the files passed as params are
+    compressed files. It's only a reference list.
 }
 
 function w7zPathsOK: boolean;
@@ -152,7 +153,8 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
 
 procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
   aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
-{< Searches all files with selected extensions, searching in compressed archives too.
+{< Searches all files with selected extensions, searching in compressed
+   archives too.
 
      @param(AOutFolderList StringList with the folder or compressed archive
        were files in AOutFileList are found. If nil it will be created,
@@ -187,6 +189,19 @@ function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
 
   @param(a7zArchive Name of the 7z/zip archive.)
   @param(aFileList List of files to add to the archive.)
+  @param(ShowProgress If true, progress of decompression will be shown.)
+  @param(CompType Type of the archive.)
+  @return(Exit code)
+}
+
+function w7zCompressFolder(a7zArchive, aFolder: string;
+  IncludeRoot: boolean; const ShowProgress: boolean;
+  const CompType: string = ''): integer;
+{< Compress files in a 7z (or other type) archive.
+
+  @param(a7zArchive Name of the 7z/zip archive.)
+  @param(aFolder Folder to compress.)
+  @param(IncludeRoot Include root folder inside archive.)
   @param(ShowProgress If true, progress of decompression will be shown.)
   @param(CompType Type of the archive.)
   @return(Exit code)
@@ -952,7 +967,6 @@ var
   i: integer;
   msStdErr: TMemoryStream;
   Params: TStringList;
-
 begin
   Result := -1;
 
@@ -1030,6 +1044,102 @@ begin
   finally
     Params.Free;
     msStdErr.Free;
+  end;
+
+  w7zErrorOK;
+end;
+
+function w7zCompressFolder(a7zArchive, aFolder: string;
+  IncludeRoot: boolean; const ShowProgress: boolean;
+  const CompType: string): integer;
+var
+  aExeString: string;
+  msStdErr: TMemoryStream;
+  Params: TStringList;
+begin
+  Result := -1;
+  msStdErr := nil;
+
+  // Sometime are stored as directories
+  a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
+  aFolder := SysPath(SetAsFolder(aFolder));
+
+  // Selecting graphical exe to show progress.
+  if ShowProgress then
+  begin
+    if w7zPathTo7zGexeOK then
+    begin
+      aExeString := w7zGetPathTo7zGexe;
+    end
+    else if w7zPathTo7zexeOK then
+    begin
+      aExeString := w7zGetPathTo7zexe;
+    end
+    else
+      Exit;
+  end
+  else
+  begin
+    if not w7zPathTo7zexeOK then
+      Exit;
+
+    aExeString := w7zGetPathTo7zexe;
+    msStdErr := TMemoryStream.Create; // To hide console and catch errors
+  end;
+
+  // Parameters
+  Params := TStringList.Create;
+  try
+    Params.Add('a');
+    if CompType <> '' then
+      Params.Add('-t' + CompType);
+    Params.Add('-scsUTF-8');
+    Params.Add('-sccUTF-8');
+    Params.Add('-mx=9');
+
+    if not ShowProgress then
+    begin
+      // if progress is not shown then answer yes to all queries
+      //   and overwrite if file exist... use it with care.
+      Params.Add('-aoa');
+      Params.Add('-y');
+    end;
+
+    // if Password <> '' then
+    //   Params.Add('-p' + Password);
+
+    Params.Add('--');
+
+    Params.Add(a7zArchive);
+
+    if IncludeRoot then
+      Params.Add(aFolder)
+    else
+      Params.Add(aFolder + '*');
+
+    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
+
+    // Checking errors
+    if Result > 1 then
+    begin
+      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
+        [a7zArchive, Result]));
+      if Assigned(msStdErr) then
+        w7zErrorAddStdErr(msStdErr);
+    end;
+
+    if Result = 1 then // Warning
+    begin
+      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
+        [a7zArchive, Result]));
+      if Assigned(msStdErr) then
+      w7zErrorAddStdErr(msStdErr);
+    end;
+
+  finally
+    Params.Free;
+    if Assigned(msStdErr) then
+      msStdErr.Free;
   end;
 
   w7zErrorOK;

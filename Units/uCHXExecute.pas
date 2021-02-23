@@ -1,6 +1,7 @@
-{ Unit with some executing process procedures.
+unit uCHXExecute;
+{< Unit with some executing process procedures.
 
-  Copyright (C) 2011-2018 Chixpy
+  Copyright (C) 2011-2021 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -17,8 +18,6 @@
   to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
   MA 02111-1307, USA.
 }
-unit uCHXExecute;
-
 {$mode objfpc}{$H+}
 
 interface

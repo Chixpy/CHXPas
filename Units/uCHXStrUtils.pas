@@ -347,7 +347,11 @@ begin
     Exit;
 
   // Extract extension, remove dot.
-  aFilename := copy(ExtractFileExt(aFilename), 2, MaxInt);
+  TempExt := ExtractFileExt(aFilename);
+  if Length(TempExt) > 1 then
+    aFilename := copy(TempExt, 2, MaxInt)
+  else
+    Exit;
 
   i := 0;
   while (i < aExt.Count) and (not Result) do

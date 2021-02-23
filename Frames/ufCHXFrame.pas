@@ -1,4 +1,5 @@
 unit ufCHXFrame;
+
 {< TfmCHXFrame frame unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -29,7 +30,8 @@ uses
 
 type
   TCHXUseGUIConfigIni = procedure(aIniFile: TIniFile) of object;
-  TCHXUseIconsConfigIni = procedure(aIniFile: TIniFile; const aBaseFolder: string) of object;
+  TCHXUseIconsConfigIni = procedure(aIniFile: TIniFile;
+    const aBaseFolder: string) of object;
   TCHXFrameDataUpdate = procedure of object;
 
   { TfmCHXFrame }
@@ -61,13 +63,13 @@ type
       read FOnLoadFrameData write SetOnLoadFrameData;
 
     class function GenSimpleModalForm(aCHXFrame: TfmCHXFrame;
-      const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni: string): integer;
+      const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni:
+      string): integer;
 
     class procedure GenSimpleForm(aCHXFrame: TfmCHXFrame;
       const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni: string);
 
   public
-
     procedure LoadGUIConfig(aIniFile: TIniFile);
     //< Load GUI config.
     procedure SaveGUIConfig(aIniFile: TIniFile);
@@ -162,7 +164,6 @@ begin
   finally
     aForm.Free;
   end;
-
 end;
 
 class procedure TfmCHXFrame.GenSimpleForm(aCHXFrame: TfmCHXFrame;

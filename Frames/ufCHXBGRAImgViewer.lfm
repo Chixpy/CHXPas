@@ -9,12 +9,17 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
     Align = alClient
     ClientHeight = 296
     ClientWidth = 396
+    Color = clFuchsia
+    ParentColor = False
     TabOrder = 0
+    OnResize = sbxImageResize
     object pbxImage: TPaintBox
+      Cursor = crCross
       Left = 0
       Height = 0
       Top = 0
       Width = 0
+      ParentColor = False
       OnPaint = pbxImagePaint
     end
   end
