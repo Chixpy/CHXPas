@@ -29,15 +29,51 @@ uses
 
 type
   TRectString = record helper for TRect
-    procedure FromString(const S: string; const Delim: Char = ',');
+    function FromString(const S: string; const Delim: char = ','): boolean;
+    function ToString(const Delim: char = ','): string;
+  end;
+
+  { TPointString }
+
+  TPointString = record helper for TPoint
+    function FromString(const S: string; const Delim: char = ','): boolean;
     function ToString(const Delim: char = ','): string;
   end;
 
 implementation
 
-procedure TRectString.FromString(const S: string; const Delim: Char);
+{ TPointString }
+
+function TPointString.FromString(const S: string; const Delim: char): boolean;
 var
-  aSuccess: boolean;
+  StrLst: TStringList;
+begin
+  Self := Zero;
+
+  StrLst := TStringList.Create;
+  StrLst.Delimiter := Delim;
+  StrLst.CommaText := S;
+  try
+    Result := StrLst.Count = 2;
+    if Result then
+      Result := TryStrToInt(StrLst[0], self.X);
+    if Result then
+      Result := TryStrToInt(StrLst[1], self.Y);
+  finally
+    StrLst.Free;
+  end;
+
+  if not Result then
+    Self := Zero;
+end;
+
+function TPointString.ToString(const Delim: char): string;
+begin
+  Result := Format('%d%s%d', [self.X, Delim, self.Y]);
+end;
+
+function TRectString.FromString(const S: string; const Delim: char): boolean;
+var
   StrLst: TStringList;
 begin
   Self := Empty;
@@ -46,24 +82,24 @@ begin
   StrLst.Delimiter := Delim;
   StrLst.CommaText := S;
   try
-    aSuccess := StrLst.Count = 4;
-    if aSuccess then
-      aSuccess := TryStrToInt(StrLst[0], self.Left);
-    if aSuccess then
-      aSuccess := TryStrToInt(StrLst[1], self.Top);
-    if aSuccess then
-      aSuccess := TryStrToInt(StrLst[2], self.Right);
-    if aSuccess then
-      aSuccess := TryStrToInt(StrLst[3], self.Bottom);
+    Result := StrLst.Count = 4;
+    if Result then
+      Result := TryStrToInt(StrLst[0], self.Left);
+    if Result then
+      Result := TryStrToInt(StrLst[1], self.Top);
+    if Result then
+      Result := TryStrToInt(StrLst[2], self.Right);
+    if Result then
+      Result := TryStrToInt(StrLst[3], self.Bottom);
   finally
     StrLst.Free;
   end;
 
-  if not aSuccess then
+  if not Result then
     Self := Empty;
 end;
 
-function TRectString.ToString(const Delim: Char): string;
+function TRectString.ToString(const Delim: char): string;
 begin
   Result := Format('%d%s%d%s%d%s%d', [self.Left, Delim, self.Top,
     Delim, self.Right, Delim, self.Bottom]);

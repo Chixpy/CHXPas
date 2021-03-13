@@ -37,6 +37,7 @@ type
     pbxImage: TPaintBox;
     sbxImage: TScrollBox;
     procedure pbxImagePaint(Sender: TObject);
+    procedure pbxImageResize(Sender: TObject);
     procedure sbxImageResize(Sender: TObject);
   private
     FActualImage: TBGRABitmap;
@@ -101,10 +102,19 @@ begin
   VisibleImage.Draw(pbxImage.Canvas, 0, 0, False);
 end;
 
+procedure TfmCHXBGRAImgViewer.pbxImageResize(Sender: TObject);
+begin
+  FreeAndNil(FVisibleImage);
+end;
+
 procedure TfmCHXBGRAImgViewer.sbxImageResize(Sender: TObject);
 begin
-  if AutoZoomOnLoad then
-    AutoZoom;
+  //FreeAndNil(FVisibleImage);
+  //
+  //if AutoZoomOnLoad then
+  //  AutoZoom
+  //else
+  //  DrawImage;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetActualImage(AValue: TBGRABitmap);
@@ -122,8 +132,12 @@ begin
     Exit;
   FAutoZoomOnLoad := AValue;
 
+  FreeAndNil(FVisibleImage);
+
   if AutoZoomOnLoad then
-    AutoZoom;
+    AutoZoom
+  else
+    DrawImage;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetAutoCenterOnLoad(AValue: boolean);
@@ -152,7 +166,7 @@ begin
   end;
 
   // Checking very high zoom, to avoid memory overflow
-  while ((max(ActualImage.Width, ActualImage.Height) div 100) * AVAlue) >
+  while ((Max(ActualImage.Width, ActualImage.Height) div 100) * AVAlue) >
     (2 ** 14) do
     Dec(AValue);
 
@@ -181,6 +195,7 @@ end;
 
 procedure TfmCHXBGRAImgViewer.DoClearFrameData;
 begin
+  FreeAndNil(FVisibleImage);
   Zoom := 1;
   ActualImage := nil;
   Enabled := False;
@@ -260,11 +275,15 @@ end;
 
 procedure TfmCHXBGRAImgViewer.ZoomIn;
 begin
+  FreeAndNil(FVisibleImage);
+
   Zoom := Zoom * 2;
 end;
 
 procedure TfmCHXBGRAImgViewer.ZoomOut;
 begin
+  FreeAndNil(FVisibleImage);
+
   Zoom := Zoom div 2;
 end;
 
@@ -272,6 +291,8 @@ procedure TfmCHXBGRAImgViewer.AutoZoom;
 var
   i: integer;
 begin
+  FreeAndNil(FVisibleImage);
+
   if not assigned(ActualImage) then
     Exit;
 
@@ -288,7 +309,7 @@ begin
   inherited Create(TheOwner);
 
   Zoom := 100;
-  AutoCenterOnLoad := True;;
+  AutoCenterOnLoad := True;
 
   OnLoadFrameData := @DoLoadFrameData;
   OnClearFrameData := @DoClearFrameData;

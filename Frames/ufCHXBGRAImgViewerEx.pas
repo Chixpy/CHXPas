@@ -52,7 +52,6 @@ type
       X, Y: integer);
     procedure pbxImageMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
-
   private
     FMouseActionMode: TMouseActionMode;
     FOnImgMouseDown: TMouseEvent;
