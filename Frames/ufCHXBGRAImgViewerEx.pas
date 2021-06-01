@@ -1,4 +1,5 @@
 unit ufCHXBGRAImgViewerEx;
+
 {< TfmCHXBGRAImgViewerEx frame unit.
 
   Copyright (C) 2021 Chixpy
@@ -52,6 +53,7 @@ type
       X, Y: integer);
     procedure pbxImageMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+
   private
     FMouseActionMode: TMouseActionMode;
     FOnImgMouseDown: TMouseEvent;
@@ -128,10 +130,10 @@ begin
           SelectionRect.Create(Point(ImgX, ImgY), 0, 0);
 
           StatusBar.Panels[1].Text :=
-            Format('%5d, %5d', [SelectionRect.Width, SelectionRect.Height]);
+            Format('%5d x %5d', [SelectionRect.Width, SelectionRect.Height]);
 
           StatusBar.Panels[2].Text :=
-            Format('%5d, %5d', [SelectionRect.Left, SelectionRect.Top]);
+            Format('%5d:%5d', [SelectionRect.Left, SelectionRect.Top]);
 
           MouseActionMode := maiMouseSelectingRect;
         end;
@@ -152,6 +154,7 @@ procedure TfmCHXBGRAImgViewerEx.pbxImageMouseMove(Sender: TObject;
 var
   ImgX, ImgY: integer;
   aPixel: PBGRAPixel;
+  CurrSelection: TRect;
 begin
   ImgX := (X * 100) div Zoom;
   ImgY := (Y * 100) div Zoom;
@@ -168,7 +171,10 @@ begin
 
     maiMouseSelectingRect:
     begin
-      pbxImage.Canvas.DrawFocusRect(ZoomedRect);
+      CurrSelection := ZoomedRect;
+      CurrSelection.Offset(-sbxImage.HorzScrollBar.Position,
+        -sbxImage.VertScrollBar.Position);
+      pbxImage.Canvas.DrawFocusRect(CurrSelection);
 
       SelectionRect.BottomRight := Point(ImgX + 1, ImgY + 1);
 
@@ -178,7 +184,11 @@ begin
       StatusBar.Panels[2].Text :=
         Format('%5d, %5d', [SelectionRect.Left, SelectionRect.Top]);
 
-      pbxImage.Canvas.DrawFocusRect(ZoomedRect);
+      CurrSelection := ZoomedRect;
+      CurrSelection.Offset(-sbxImage.HorzScrollBar.Position,
+        -sbxImage.VertScrollBar.Position);
+
+      pbxImage.Canvas.DrawFocusRect(CurrSelection);
     end;
 
     else
@@ -302,22 +312,16 @@ begin
   SelectionRect.NormalizeRect;
 
   if not SelectionRect.isEmpty then
-    VisibleImage.Rectangle((SelectionRect.Left * Zoom) div 100,
-      (SelectionRect.Top * Zoom) div 100, (SelectionRect.Right * Zoom) div 100,
-      (SelectionRect.Bottom * Zoom) div 100, BGRA(255, 0, 255, 255), dmSet);
+    VisibleImage.Rectangle(ZoomedRect, BGRA(255, 0, 255, 255), dmSet);
 end;
 
 function TfmCHXBGRAImgViewerEx.ZoomedRect: TRect;
 begin
   // Result := SelectionRect;
-  Result.Left := (((SelectionRect.Left) * Zoom) div 100) -
-    sbxImage.HorzScrollBar.Position;
-  Result.Right := (((SelectionRect.Right + 1) * Zoom) div 100) -
-    sbxImage.HorzScrollBar.Position;
-  Result.Top := (((SelectionRect.Top) * Zoom) div 100) -
-    sbxImage.VertScrollBar.Position;
-  Result.Bottom := (((SelectionRect.Bottom + 1) * Zoom) div 100) -
-    sbxImage.VertScrollBar.Position;
+  Result.Left := (SelectionRect.Left * Zoom) div 100;
+  Result.Right := (SelectionRect.Right * Zoom) div 100;
+  Result.Top := (SelectionRect.Top * Zoom) div 100;
+  Result.Bottom := (SelectionRect.Bottom * Zoom) div 100;
   Result.NormalizeRect;
 end;
 

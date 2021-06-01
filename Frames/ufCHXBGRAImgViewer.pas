@@ -39,6 +39,7 @@ type
     procedure pbxImagePaint(Sender: TObject);
     procedure pbxImageResize(Sender: TObject);
     procedure sbxImageResize(Sender: TObject);
+
   private
     FActualImage: TBGRABitmap;
     FAutoCenterOnLoad: boolean;
@@ -51,7 +52,6 @@ type
     procedure SetZoom(AValue: integer);
 
   protected
-
     property VisibleImage: TBGRABitmap
       read FVisibleImage write SetVisibleImage;
     {< Visible image with zoom, selection, effects... }
@@ -160,7 +160,7 @@ begin
 
   if not Assigned(ActualImage) then
   begin
-    FZoom := 100;
+    // FZoom := 100;
     // lZoomInput.Caption := Format('%dx', [ZoomInput]);
     Exit;
   end;
@@ -196,7 +196,7 @@ end;
 procedure TfmCHXBGRAImgViewer.DoClearFrameData;
 begin
   FreeAndNil(FVisibleImage);
-  Zoom := 1;
+  Zoom := 100;
   ActualImage := nil;
   Enabled := False;
 end;

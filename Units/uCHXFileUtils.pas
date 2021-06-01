@@ -1,6 +1,6 @@
 unit uCHXFileUtils;
 
-{< Copyright (C) 2011-2020 Chixpy
+{< Copyright (C) 2011-2021 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -41,10 +41,10 @@ function CHXCheckFileRename(const aFile: string): string;
 
 
 // Searching...
-function SearchFirstFileInFolderByExtCT(aFolder: string;
-  Extensions: string): string;
+function SearchFirstFileInFolderByExtCT(const aFolder: string;
+  const Extensions: string): string;
 function SearchFirstFileInFolderByExtSL(aFolder: string;
-  Extensions: TStrings): string;
+  const Extensions: TStrings): string;
 {< Searches first file found with a matched extension from a list in a folder.
 }
 
@@ -59,7 +59,7 @@ function CRC32FileStr(const aFileName: string): string;
 function SHA1FileStr(const aFileName: string): string;
 {< Calculates SHA1 checksum of a file and return as string.
 }
-function StringToSHA1Digest(aSHA1String: string): TSHA1Digest;
+function StringToSHA1Digest(const aSHA1String: string): TSHA1Digest;
 
 // Iterating Folders
 // -----------------
@@ -86,6 +86,9 @@ Notas:
 
 function FilesInFolder(aFolder, aFileMAsk: string): integer;
 //< TODO 2: Is there a better way?
+
+function RemoveReadOnlyFileAttrib(aFolder: string; FileInfo: TSearchRec): boolean;
+procedure RemoveReadOnlyFolderRecursive(const aFolder: string);
 
 implementation
 
@@ -132,7 +135,7 @@ begin
     Result := SHA1Print(SHA1File(aFileName, 32768));
 end;
 
-function StringToSHA1Digest(aSHA1String: string): TSHA1Digest;
+function StringToSHA1Digest(const aSHA1String: string): TSHA1Digest;
 begin
   if Length(aSHA1String) < 20 then
     Result := kCHXSHA1Empty
@@ -159,8 +162,8 @@ begin
   end;
 end;
 
-function SearchFirstFileInFolderByExtCT(aFolder: string;
-  Extensions: string): string;
+function SearchFirstFileInFolderByExtCT(const aFolder: string;
+  const Extensions: string): string;
 var
   aTempSL: TStringList;
 begin
@@ -174,7 +177,7 @@ begin
 end;
 
 function SearchFirstFileInFolderByExtSL(aFolder: string;
-  Extensions: TStrings): string;
+  const Extensions: TStrings): string;
 var
   Info: TSearchRec;
 begin
@@ -300,6 +303,18 @@ begin
     finally
       FindCloseUTF8(Info);
     end;
+end;
+
+function RemoveReadOnlyFileAttrib(aFolder: string; FileInfo: TSearchRec): boolean;
+begin
+  Result := True;
+  FileSetAttr(aFolder + FileInfo.Name, FileInfo.Attr and not faReadOnly);
+end;
+
+
+procedure RemoveReadOnlyFolderRecursive(const aFolder: string);
+begin
+  IterateFolderFun(aFolder, @RemoveReadOnlyFileAttrib, True);
 end;
 
 end.

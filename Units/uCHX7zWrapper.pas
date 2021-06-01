@@ -957,6 +957,8 @@ begin
     msStdErr.Free;
   end;
 
+  RemoveReadOnlyFolderRecursive(aFolder);
+
   w7zErrorOK;
 end;
 

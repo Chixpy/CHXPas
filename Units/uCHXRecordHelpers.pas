@@ -38,6 +38,9 @@ type
   TPointString = record helper for TPoint
     function FromString(const S: string; const Delim: char = ','): boolean;
     function ToString(const Delim: char = ','): string;
+    {< Usually for storing it and read later with FromString. }
+    function ToFmtString(const FmsStr: string): string;
+    {< For pretty formating, but not read later. }
   end;
 
 implementation
@@ -56,9 +59,9 @@ begin
   try
     Result := StrLst.Count = 2;
     if Result then
-      Result := TryStrToInt(StrLst[0], self.X);
+      Result := TryStrToInt(Trim(StrLst[0]), self.X);
     if Result then
-      Result := TryStrToInt(StrLst[1], self.Y);
+      Result := TryStrToInt(Trim(StrLst[1]), self.Y);
   finally
     StrLst.Free;
   end;
@@ -69,7 +72,12 @@ end;
 
 function TPointString.ToString(const Delim: char): string;
 begin
-  Result := Format('%d%s%d', [self.X, Delim, self.Y]);
+  Result := IntToStr(self.X) + Delim + IntToStr(self.Y);
+end;
+
+function TPointString.ToFmtString(const FmsStr: string): string;
+begin
+  Result := Format(FmsStr, [self.X, self.Y]);
 end;
 
 function TRectString.FromString(const S: string; const Delim: char): boolean;
@@ -84,13 +92,13 @@ begin
   try
     Result := StrLst.Count = 4;
     if Result then
-      Result := TryStrToInt(StrLst[0], self.Left);
+      Result := TryStrToInt(Trim(StrLst[0]), self.Left);
     if Result then
-      Result := TryStrToInt(StrLst[1], self.Top);
+      Result := TryStrToInt(Trim(StrLst[1]), self.Top);
     if Result then
-      Result := TryStrToInt(StrLst[2], self.Right);
+      Result := TryStrToInt(Trim(StrLst[2]), self.Right);
     if Result then
-      Result := TryStrToInt(StrLst[3], self.Bottom);
+      Result := TryStrToInt(Trim(StrLst[3]), self.Bottom);
   finally
     StrLst.Free;
   end;
@@ -101,8 +109,8 @@ end;
 
 function TRectString.ToString(const Delim: char): string;
 begin
-  Result := Format('%d%s%d%s%d%s%d', [self.Left, Delim, self.Top,
-    Delim, self.Right, Delim, self.Bottom]);
+  Result := IntToStr(self.Left) + Delim + IntToStr(self.Top)
+    + Delim + IntToStr(self.Right) + Delim + IntToStr(self.Bottom);
 end;
 
 end.
