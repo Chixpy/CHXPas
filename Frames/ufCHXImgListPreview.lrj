@@ -1,4 +1,6 @@
 {"version":1,"strings":[
 {"hash":240698354,"name":"tfmchximglistpreview.iimage.hint","sourcebytes":[68,98,108,67,108,107,32,116,111,32,111,112,101,110,32,105,110,32,73,109,97,103,101,32,86,105,101,119,101,114],"value":"DblClk to open in Image Viewer"},
-{"hash":37114580,"name":"tfmchximglistpreview.limageprops.caption","sourcebytes":[78,111,32,105,109,97,103,101,32,108,111,97,100,101,100],"value":"No image loaded"}
+{"hash":37114580,"name":"tfmchximglistpreview.limageprops.caption","sourcebytes":[78,111,32,105,109,97,103,101,32,108,111,97,100,101,100],"value":"No image loaded"},
+{"hash":260167710,"name":"tfmchximglistpreview.actopenwithdefapp.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,32,119,105,116,104,32,100,101,102,97,117,108,116,32,115,121,115,116,101,109,32,97,112,112,108,105,99,97,116,105,111,110,46],"value":"Open file with default system application."},
+{"hash":130030222,"name":"tfmchximglistpreview.actopenfilefolder.hint","sourcebytes":[79,112,101,110,115,32,102,105,108,101,39,115,32,102,111,108,100,101,114,46],"value":"Opens file's folder."}
 ]}

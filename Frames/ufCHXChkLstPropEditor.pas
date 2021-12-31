@@ -26,10 +26,8 @@ uses
   Classes, SysUtils, FileUtil, Forms, Controls, StdCtrls,
   Graphics, Dialogs, ExtCtrls, Buttons, ComCtrls, CheckLst,
   ActnList, Menus,
+  // CHX frames
   ufCHXPropEditor;
-
-resourcestring
-  rsLECLPESaveList = 'Save list';
 
 type
 
@@ -162,8 +160,6 @@ begin
   inherited Create(TheOwner);
 
   OnClearFrameData := @DoClearFrameData;
-
-  actFrameOK.Caption := rsLECLPESaveList; // Make clear that is item list save
 end;
 
 destructor TfmCHXChkLstPropEditor.Destroy;

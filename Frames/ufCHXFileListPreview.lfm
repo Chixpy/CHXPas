@@ -1,5 +1,8 @@
 inherited fmCHXFileListPreview: TfmCHXFileListPreview
   inherited tbPreviewList: TToolBar
+    inherited tbSepNavButtons: TToolButton
+      Height = 29
+    end
     object tbOpenFile: TToolButton[5]
       Left = 215
       Top = 2
@@ -214,12 +217,14 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
     object actOpenWithDefApp: TAction[4]
       Category = 'Item'
       Caption = 'Open with Default Application'
+      Hint = 'Open file with default system application.'
       ImageIndex = 4
       OnExecute = actOpenWithDefAppExecute
     end
     object actOpenFileFolder: TAction[5]
       Category = 'Item'
       Caption = 'Open File Folder'
+      Hint = 'Open file''s folder.'
       ImageIndex = 5
       OnExecute = actOpenFileFolderExecute
     end
@@ -237,7 +242,7 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
   end
   object pmOpenFile: TPopupMenu[6]
     Images = ilPreviewList
-    Left = 200
+    Left = 136
     Top = 40
     object miopOpenWithDefApp: TMenuItem
       Action = actOpenWithDefApp

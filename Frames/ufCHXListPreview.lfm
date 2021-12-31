@@ -41,6 +41,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     object cbxCurrItem: TComboBox
       Left = 0
       Height = 28
+      Hint = 'Select item.'
       Top = 0
       Width = 50
       Align = alLeft
@@ -53,6 +54,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
     object lMaxItems: TLabel
       Left = 56
       Height = 28
+      Hint = 'Number of items.'
       Top = 0
       Width = 40
       Align = alLeft

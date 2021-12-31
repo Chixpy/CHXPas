@@ -1,4 +1,6 @@
 {"version":1,"strings":[
 {"hash":83531534,"name":"tfmchxfilelistpreview.actopenwithdefapp.caption","sourcebytes":[79,112,101,110,32,119,105,116,104,32,68,101,102,97,117,108,116,32,65,112,112,108,105,99,97,116,105,111,110],"value":"Open with Default Application"},
-{"hash":77434482,"name":"tfmchxfilelistpreview.actopenfilefolder.caption","sourcebytes":[79,112,101,110,32,70,105,108,101,32,70,111,108,100,101,114],"value":"Open File Folder"}
+{"hash":260167710,"name":"tfmchxfilelistpreview.actopenwithdefapp.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,32,119,105,116,104,32,100,101,102,97,117,108,116,32,115,121,115,116,101,109,32,97,112,112,108,105,99,97,116,105,111,110,46],"value":"Open file with default system application."},
+{"hash":77434482,"name":"tfmchxfilelistpreview.actopenfilefolder.caption","sourcebytes":[79,112,101,110,32,70,105,108,101,32,70,111,108,100,101,114],"value":"Open File Folder"},
+{"hash":120147902,"name":"tfmchxfilelistpreview.actopenfilefolder.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,39,115,32,102,111,108,100,101,114,46],"value":"Open file's folder."}
 ]}

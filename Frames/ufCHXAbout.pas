@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  strutils,
+  StrUtils,
   // CHX forms
   ufCHXFrame, ufrCHXForm,
   // Misc

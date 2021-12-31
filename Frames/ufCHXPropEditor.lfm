@@ -19,6 +19,7 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
     object chkCloseOnSave: TCheckBox
       Left = 46
       Height = 30
+      Hint = 'Closes windows after accepting or canceling.'
       Top = 0
       Width = 60
       Caption = 'Close'
@@ -119,21 +120,23 @@ inherited fmCHXPropEditor: TfmCHXPropEditor
   end
   object alPropEditor: TActionList[1]
     Images = ilPropEditor
-    left = 24
-    top = 8
+    Left = 24
+    Top = 8
     object actFrameOK: TAction
       Category = 'PropEditor'
       Caption = 'OK'
+      Hint = 'Accept and save changes.'
       OnExecute = actFrameOKExecute
     end
     object actFrameCancel: TAction
       Category = 'PropEditor'
       Caption = 'Cancel'
+      Hint = 'Cancel not saved changes.'
       OnExecute = actFrameCancelExecute
     end
   end
   object ilPropEditor: TImageList[2]
-    left = 96
-    top = 8
+    Left = 96
+    Top = 8
   end
 end

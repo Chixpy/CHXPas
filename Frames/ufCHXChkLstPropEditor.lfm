@@ -6,28 +6,29 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
   DesignLeft = 287
   DesignTop = 118
   inherited pButtons: TPanel
-    Top = 526
+    Top = 522
     Width = 802
     ClientWidth = 802
     TabOrder = 2
     inherited chkCloseOnSave: TCheckBox
-      Left = 153
+      Left = 138
     end
     inherited bSave: TBitBtn
-      Left = 355
+      Left = 336
+      Width = 103
     end
     inherited bCancel: TBitBtn
-      Left = 570
+      Left = 577
     end
   end
   object pPropChkList: TPanel[1]
     Left = 0
-    Height = 526
+    Height = 518
     Top = 0
     Width = 200
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 526
+    ClientHeight = 518
     ClientWidth = 200
     TabOrder = 0
     object tbPropChkList: TToolBar
@@ -44,38 +45,38 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
         Action = actAddItem
       end
       object ToolButton3: TToolButton
-        Left = 24
-        Height = 22
+        Left = 30
+        Height = 28
         Top = 2
         Caption = 'ToolButton3'
         Style = tbsSeparator
       end
       object tbImportList: TToolButton
-        Left = 32
+        Left = 38
         Top = 2
         Action = actImportList
       end
       object tbExportList: TToolButton
-        Left = 55
+        Left = 67
         Top = 2
         Action = actExportList
       end
       object ToolButton6: TToolButton
-        Left = 78
-        Height = 22
+        Left = 96
+        Height = 28
         Top = 2
         Caption = 'ToolButton6'
         Style = tbsSeparator
       end
       object tbDeleteItem: TToolButton
-        Left = 86
+        Left = 104
         Top = 2
         Action = actDeleteItem
       end
     end
     object clbPropItems: TCheckListBox
       Left = 0
-      Height = 477
+      Height = 463
       Top = 26
       Width = 200
       Align = alClient
@@ -88,21 +89,25 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     end
     object sbPropChkList: TStatusBar
       Left = 0
-      Height = 23
-      Top = 503
+      Height = 29
+      Top = 489
       Width = 200
       Panels = <>
     end
   end
   object splPropChkList: TSplitter[2]
-    Left = 200
-    Height = 526
+    Left = 204
+    Height = 518
     Top = 0
     Width = 5
   end
   inherited alPropEditor: TActionList[3]
-    left = 32
-    top = 184
+    Left = 256
+    Top = 48
+    inherited actFrameOK: TAction
+      Caption = 'Save List'
+      Hint = 'Accepts and saves the list.'
+    end
     object actAddItem: TAction[2]
       Category = 'ChkLstProp'
       Caption = 'Add item'
@@ -135,11 +140,13 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     end
   end
   inherited ilPropEditor: TImageList[4]
+    Left = 256
+    Top = 232
   end
   object pmPropChkList: TPopupMenu[5]
     Images = ilPropEditor
-    left = 32
-    top = 432
+    Left = 256
+    Top = 144
     object miCheckAll: TMenuItem
       Action = actCheckAll
     end

@@ -1,9 +1,17 @@
 inherited fmCHXImgListPreview: TfmCHXImgListPreview
+  inherited tbPreviewList: TToolBar
+    inherited tbSepNavButtons: TToolButton
+      Height = 29
+    end
+    inherited tbSepOpenFile: TToolButton
+      Height = 29
+    end
+  end
   object iImage: TImage[1]
     Left = 0
     Height = 242
     Hint = 'DblClk to open in Image Viewer'
-    Top = 0
+    Top = 34
     Width = 400
     Align = alClient
     Center = True
@@ -14,11 +22,30 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
   object lImageProps: TLabel[2]
     Left = 0
     Height = 20
-    Top = 246
+    Top = 280
     Width = 400
     Align = alBottom
     Alignment = taCenter
     Caption = 'No image loaded'
     ParentColor = False
+  end
+  inherited ilPreviewList: TImageList[3]
+  end
+  inherited alPreviewList: TActionList[4]
+    inherited actOpenWithDefApp: TAction
+      Hint = 'Open file with default system application.'
+    end
+    inherited actOpenFileFolder: TAction
+      Hint = 'Opens file''s folder.'
+    end
+  end
+  inherited pmPreviewList: TPopupMenu[5]
+  end
+  inherited pmPreviousItems: TPopupMenu[6]
+  end
+  inherited pmNextItems: TPopupMenu[7]
+  end
+  inherited pmOpenFile: TPopupMenu[8]
+    Left = 136
   end
 end
