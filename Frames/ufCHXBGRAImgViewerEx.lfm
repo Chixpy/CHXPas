@@ -30,4 +30,10 @@ inherited fmCHXBGRAImgViewerEx: TfmCHXBGRAImgViewerEx
       end>
     SimplePanel = False
   end
+  inherited alImgViewer: TActionList[2]
+  end
+  inherited ilImgViewer: TImageList[3]
+  end
+  inherited pmImgViewer: TPopupMenu[4]
+  end
 end

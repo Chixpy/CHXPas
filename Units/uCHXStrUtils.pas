@@ -22,7 +22,7 @@ unit uCHXStrUtils;
 
 interface
 
-uses Classes, SysUtils, LazFileUtils, LazUTF8, LazUTF8Classes,
+uses Classes, SysUtils, LazFileUtils, LazUTF8,
   // CHX units
   uCHXConst, uCHXRscStr;
 
@@ -55,7 +55,7 @@ function SetAsFolder(const aValue: string): string;
     we don't need test @code (@(aFolder=''@) or @(aFolder=PathDelim@))
 
   In the other hand, paths are converted to Linux one as Windows AND
-    MS-DOS (+2.0) can recognise them without problem.
+    MS-DOS (+2.0) can recognize them without problem.
 }
 function SysPath(const aPath: string): string;
 function WinPath(const aPath: string): string;
@@ -67,7 +67,7 @@ function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
   const PathAware: boolean = False): string;
 {< Changes some invalid characters in filenames.
 
-  @param(DoTrim Trim spaces at beggining and end, preventing filenames beggining
+  @param(DoTrim Trim spaces at beggining and end, preventing filenames beginning
     with space.)
     @param(PathAware Keep paths)
 }
@@ -195,7 +195,7 @@ function TextSimilarity(const aString1, aString2: string): byte;
     CharUTF8: string;
   begin
     if not Assigned(aStrList) then
-      aStrList := TStringListUTF8.Create
+      aStrList := TStringList.Create
     else
       aStrList.Clear;
 
@@ -229,7 +229,7 @@ function TextSimilarity(const aString1, aString2: string): byte;
   end;
 
 var
-  StrList1, StrList2: TStringListUTF8;
+  StrList1, StrList2: TStringList;
   CurrPair: string;
   i, j: integer;
   Intersection: integer;
@@ -239,8 +239,8 @@ begin
   if (aString1 = '') or (aString2 = '') then
     Exit;
 
-  StrList1 := TStringListUTF8.Create;
-  StrList2 := TStringListUTF8.Create;
+  StrList1 := TStringList.Create;
+  StrList2 := TStringList.Create;
   StrList1.CaseSensitive := False;
   StrList2.CaseSensitive := False;
   try
@@ -280,6 +280,11 @@ begin
   Result := aValue;
 
   Result := ExcludeTrailingPathDelimiter(Result);
+
+  // HACK:
+  //   Windows have problems removing folders ended with a dot...
+  if Utf8EndsText('.', Result) then
+    Result[UTF8LengthFast(Result)] := '_';
 
   { Always with TrailingPathDelimiter, but only if it's not empty or root }
   if Result <> '' then

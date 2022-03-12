@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":214296398,"name":"tfmchxfilelist.actaddfile.caption","sourcebytes":[65,100,100,32,70,105,108,101,46,46,46],"value":"Add File..."},
+{"hash":84549166,"name":"tfmchxfilelist.actaddfolder.caption","sourcebytes":[65,100,100,32,70,111,108,100,101,114,46,46,46],"value":"Add Folder..."},
+{"hash":204328669,"name":"tfmchxfilelist.actremoveitem.caption","sourcebytes":[82,101,109,111,118,101,32,73,116,101,109],"value":"Remove Item"},
+{"hash":138514964,"name":"tfmchxfilelist.actclearlist.caption","sourcebytes":[67,108,101,97,114,32,76,105,115,116],"value":"Clear List"}
+]}

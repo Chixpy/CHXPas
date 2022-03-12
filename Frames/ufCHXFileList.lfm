@@ -1,0 +1,133 @@
+inherited fmCHXFileList: TfmCHXFileList
+  Height = 614
+  Width = 319
+  ClientHeight = 614
+  ClientWidth = 319
+  DesignLeft = 382
+  DesignTop = 211
+  object pButtonsFile: TPanel[0]
+    Left = 0
+    Height = 72
+    Top = 0
+    Width = 319
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    ChildSizing.LeftRightSpacing = 4
+    ChildSizing.TopBottomSpacing = 4
+    ChildSizing.HorizontalSpacing = 4
+    ChildSizing.VerticalSpacing = 4
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 72
+    ClientWidth = 319
+    TabOrder = 0
+    object bAddFile: TButton
+      Left = 4
+      Height = 30
+      Top = 4
+      Width = 156
+      Action = actAddFile
+      TabOrder = 0
+    end
+    object bAddFolder: TButton
+      Left = 164
+      Height = 30
+      Top = 4
+      Width = 151
+      Action = actAddFolder
+      TabOrder = 1
+    end
+    object bRemoveItem: TButton
+      Left = 4
+      Height = 30
+      Top = 38
+      Width = 156
+      Action = actRemoveItem
+      TabOrder = 2
+    end
+    object bClearList: TButton
+      Left = 164
+      Height = 30
+      Top = 38
+      Width = 151
+      Action = actClearList
+      TabOrder = 3
+    end
+  end
+  object FileList: TListBox[1]
+    Left = 0
+    Height = 538
+    Top = 76
+    Width = 319
+    Align = alClient
+    IntegralHeight = True
+    ItemHeight = 0
+    OnSelectionChange = FileListSelectionChange
+    PopupMenu = pmFileList
+    ScrollWidth = 1024
+    Sorted = True
+    TabOrder = 1
+  end
+  object alFileList: TActionList[2]
+    Images = ilFileList
+    Left = 24
+    Top = 120
+    object actAddFile: TAction
+      Category = 'FileList'
+      Caption = 'Add File...'
+      OnExecute = actAddFileExecute
+    end
+    object actAddFolder: TAction
+      Category = 'FileList'
+      Caption = 'Add Folder...'
+      OnExecute = actAddFolderExecute
+    end
+    object actRemoveItem: TAction
+      Category = 'FileList'
+      Caption = 'Remove Item'
+      OnExecute = actRemoveItemExecute
+    end
+    object actClearList: TAction
+      Category = 'FileList'
+      Caption = 'Clear List'
+      OnExecute = actClearListExecute
+    end
+  end
+  object pmFileList: TPopupMenu[3]
+    Images = ilFileList
+    Left = 24
+    Top = 200
+    object mipmAddFile: TMenuItem
+      Action = actAddFile
+    end
+    object mipmAddFolder: TMenuItem
+      Action = actAddFolder
+    end
+    object Separator1: TMenuItem
+      Caption = '-'
+    end
+    object mipmRemoveItem: TMenuItem
+      Action = actRemoveItem
+    end
+    object mipmClearList: TMenuItem
+      Action = actClearList
+    end
+  end
+  object ilFileList: TImageList[4]
+    Left = 104
+    Top = 120
+  end
+  object dlgAddFile: TOpenDialog[5]
+    Options = [ofNoChangeDir, ofAllowMultiSelect, ofPathMustExist, ofFileMustExist, ofEnableSizing, ofViewDetail]
+    Left = 24
+    Top = 296
+  end
+  object dlgAddFolder: TSelectDirectoryDialog[6]
+    Options = [ofNoChangeDir, ofPathMustExist, ofEnableSizing, ofViewDetail]
+    Left = 120
+    Top = 296
+  end
+end

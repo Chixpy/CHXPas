@@ -9,8 +9,7 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
     Align = alClient
     ClientHeight = 296
     ClientWidth = 396
-    Color = clFuchsia
-    ParentColor = False
+    PopupMenu = pmImgViewer
     TabOrder = 0
     OnResize = sbxImageResize
     object pbxImage: TPaintBox
@@ -21,6 +20,52 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
       Width = 0
       ParentColor = False
       OnPaint = pbxImagePaint
+    end
+  end
+  object alImgViewer: TActionList[1]
+    Images = ilImgViewer
+    Left = 32
+    Top = 24
+    object actZoomIn: TAction
+      Category = 'View'
+      Caption = 'Zoom In'
+      OnExecute = actZoomInExecute
+    end
+    object actZoomOut: TAction
+      Category = 'View'
+      Caption = 'Zoom Out'
+      OnExecute = actZoomOutExecute
+    end
+    object actAutoZoom: TAction
+      Category = 'View'
+      Caption = 'Auto Zoom'
+      OnExecute = actAutoZoomExecute
+    end
+    object actOriginalSize: TAction
+      Category = 'View'
+      Caption = 'Original Size'
+      OnExecute = actOriginalSizeExecute
+    end
+  end
+  object ilImgViewer: TImageList[2]
+    Left = 136
+    Top = 24
+  end
+  object pmImgViewer: TPopupMenu[3]
+    Images = ilImgViewer
+    Left = 32
+    Top = 112
+    object mipmOriginalSize: TMenuItem
+      Action = actOriginalSize
+    end
+    object mipmAutoZoom: TMenuItem
+      Action = actAutoZoom
+    end
+    object mipmZoomIn: TMenuItem
+      Action = actZoomIn
+    end
+    object mipmZoomOut: TMenuItem
+      Action = actZoomOut
     end
   end
 end

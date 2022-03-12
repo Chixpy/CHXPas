@@ -1,0 +1,6 @@
+{"version":1,"strings":[
+{"hash":23458974,"name":"tfmchxbgraimgviewer.actzoomin.caption","sourcebytes":[90,111,111,109,32,73,110],"value":"Zoom In"},
+{"hash":106909908,"name":"tfmchxbgraimgviewer.actzoomout.caption","sourcebytes":[90,111,111,109,32,79,117,116],"value":"Zoom Out"},
+{"hash":186015389,"name":"tfmchxbgraimgviewer.actautozoom.caption","sourcebytes":[65,117,116,111,32,90,111,111,109],"value":"Auto Zoom"},
+{"hash":23757077,"name":"tfmchxbgraimgviewer.actoriginalsize.caption","sourcebytes":[79,114,105,103,105,110,97,108,32,83,105,122,101],"value":"Original Size"}
+]}

@@ -1,4 +1,5 @@
 unit uCHXConst;
+
 {< Copyright (C) 2011-2020 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
@@ -24,10 +25,29 @@ const
   kLinuxDirSeparator = '/';
   kWinDirSeparator = '\';
 
-  // WordDelimiters except utf8 bit mask (Dirty way ^_^)
   kCUUTF8Delimiters: set of char =
     [#0..#127] - ['a'..'z', 'A'..'Z', '1'..'9', '0'];
+  {< WordDelimiters except utf8 bit mask (Dirty way ^_^) }
 
+  krsFmtApplicationTitle = '%0:s %1:s';
+  {< Application title used in forms.
+
+     @param(%0:s Application name).
+     @param(%1:s Version).
+  }
+
+  krsFmtWindowCaption = '%0:s: %1:s';
+  {< Window caption format
+    %0:s = Application.Title (derived from krsFmtApplicationTitle).
+    %1:s = Window caption.
+  }
+
+  krsLocaleFolder = 'locale';
+
+
+type
+
+  TCHXStrObjCB = procedure(aString: string) of object;
 
 implementation
 

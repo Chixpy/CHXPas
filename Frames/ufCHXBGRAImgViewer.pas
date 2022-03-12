@@ -2,7 +2,7 @@ unit ufCHXBGRAImgViewer;
 
 {< TfmCHXBGRAImgViewer frame unit.
 
-  Copyright (C) 2020 Chixpy
+  Copyright (C) 2020-2022 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -24,8 +24,8 @@ unit ufCHXBGRAImgViewer;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Math,
-  BGRABitmapTypes, BGRABitmap,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ActnList,
+  Menus, Math, BGRABitmapTypes, BGRABitmap,
   // CHX frames
   ufCHXFrame;
 
@@ -34,8 +34,23 @@ type
   { TfmCHXBGRAImgViewer }
 
   TfmCHXBGRAImgViewer = class(TfmCHXFrame)
+    actAutoZoom: TAction;
+    actOriginalSize: TAction;
+    actZoomOut: TAction;
+    actZoomIn: TAction;
+    alImgViewer: TActionList;
+    ilImgViewer: TImageList;
+    mipmZoomOut: TMenuItem;
+    mipmZoomIn: TMenuItem;
+    mipmOriginalSize: TMenuItem;
+    mipmAutoZoom: TMenuItem;
     pbxImage: TPaintBox;
+    pmImgViewer: TPopupMenu;
     sbxImage: TScrollBox;
+    procedure actAutoZoomExecute(Sender: TObject);
+    procedure actOriginalSizeExecute(Sender: TObject);
+    procedure actZoomInExecute(Sender: TObject);
+    procedure actZoomOutExecute(Sender: TObject);
     procedure pbxImagePaint(Sender: TObject);
     procedure pbxImageResize(Sender: TObject);
     procedure sbxImageResize(Sender: TObject);
@@ -102,6 +117,26 @@ begin
   VisibleImage.Draw(pbxImage.Canvas, 0, 0, False);
 end;
 
+procedure TfmCHXBGRAImgViewer.actZoomInExecute(Sender: TObject);
+begin
+  ZoomIn;
+end;
+
+procedure TfmCHXBGRAImgViewer.actAutoZoomExecute(Sender: TObject);
+begin
+  AutoZoom;
+end;
+
+procedure TfmCHXBGRAImgViewer.actOriginalSizeExecute(Sender: TObject);
+begin
+  Zoom := 100;
+end;
+
+procedure TfmCHXBGRAImgViewer.actZoomOutExecute(Sender: TObject);
+begin
+  ZoomOut;
+end;
+
 procedure TfmCHXBGRAImgViewer.pbxImageResize(Sender: TObject);
 begin
   FreeAndNil(FVisibleImage);
@@ -109,12 +144,12 @@ end;
 
 procedure TfmCHXBGRAImgViewer.sbxImageResize(Sender: TObject);
 begin
-  //FreeAndNil(FVisibleImage);
-  //
-  //if AutoZoomOnLoad then
-  //  AutoZoom
-  //else
-  //  DrawImage;
+  FreeAndNil(FVisibleImage);
+
+  if AutoZoomOnLoad then
+    AutoZoom
+  else
+    DrawImage;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetActualImage(AValue: TBGRABitmap);
@@ -160,7 +195,7 @@ begin
 
   if not Assigned(ActualImage) then
   begin
-    // FZoom := 100;
+    FZoom := AValue;
     // lZoomInput.Caption := Format('%dx', [ZoomInput]);
     Exit;
   end;

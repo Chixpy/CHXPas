@@ -2,7 +2,7 @@ unit ufCHXBGRAImgViewerEx;
 
 {< TfmCHXBGRAImgViewerEx frame unit.
 
-  Copyright (C) 2021 Chixpy
+  Copyright (C) 2021-2022 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -28,6 +28,12 @@ uses
   Math, BGRABitmapTypes, BGRABitmap,
   // CHX frames
   ufCHXBGRAImgViewer;
+
+const
+  kFmtZoom = '%d%%';
+  kFmtPoint = '%d:%d';
+  kFmtColor = '%3d, %3d, %3d, %3d';
+  kFmtRectSize = '%d x %d';
 
 type
 
@@ -76,7 +82,6 @@ type
 
   public
     SelectionRect: TRect;
-
 
     property MouseActionMode: TMouseActionMode
       read FMouseActionMode write SetMouseActionMode;
@@ -127,13 +132,13 @@ begin
       case Button of
         mbLeft:
         begin
-          SelectionRect.Create(Point(ImgX, ImgY), 0, 0);
+          SelectionRect.Create(ImgX, ImgY, ImgX, ImgY);
 
           StatusBar.Panels[1].Text :=
-            Format('%5d x %5d', [SelectionRect.Width, SelectionRect.Height]);
+            Format(kFmtRectSize, [SelectionRect.Width, SelectionRect.Height]);
 
           StatusBar.Panels[2].Text :=
-            Format('%5d:%5d', [SelectionRect.Left, SelectionRect.Top]);
+            Format(kFmtPoint, [SelectionRect.Left, SelectionRect.Top]);
 
           MouseActionMode := maiMouseSelectingRect;
         end;
@@ -176,13 +181,14 @@ begin
         -sbxImage.VertScrollBar.Position);
       pbxImage.Canvas.DrawFocusRect(CurrSelection);
 
-      SelectionRect.BottomRight := Point(ImgX + 1, ImgY + 1);
+      SelectionRect.Right := ImgX + 1;
+      SelectionRect.Bottom := ImgY + 1;
 
       StatusBar.Panels[1].Text :=
-        Format('%5d, %5d', [SelectionRect.Width, SelectionRect.Height]);
+        Format(kFmtRectSize, [SelectionRect.Width, SelectionRect.Height]);
 
       StatusBar.Panels[2].Text :=
-        Format('%5d, %5d', [SelectionRect.Left, SelectionRect.Top]);
+        Format(kFmtPoint, [SelectionRect.Left, SelectionRect.Top]);
 
       CurrSelection := ZoomedRect;
       CurrSelection.Offset(-sbxImage.HorzScrollBar.Position,
@@ -202,10 +208,10 @@ begin
     begin
       aPixel := ActualImage.ScanLine[ImgY] + ImgX;
       StatusBar.Panels[1].Text :=
-        Format('%3d, %3d, %3d, %3d', [aPixel^.red, aPixel^.green,
+        Format(kFmtColor, [aPixel^.red, aPixel^.green,
         aPixel^.blue, aPixel^.alpha]);
 
-      StatusBar.Panels[2].Text := Format('%5d, %5d', [ImgX, ImgY]);
+      StatusBar.Panels[2].Text := Format(kFmtPoint, [ImgX, ImgY]);
     end;
   end;
 end;
@@ -295,14 +301,14 @@ procedure TfmCHXBGRAImgViewerEx.SetActualImage(AValue: TBGRABitmap);
 begin
   inherited SetActualImage(AValue);
 
-  SelectionRect := Default(TRect);
+  SelectionRect := TRect.Empty;
 end;
 
 procedure TfmCHXBGRAImgViewerEx.OnZoomChange;
 begin
   inherited OnZoomChange;
 
-  StatusBar.Panels[0].Text := Format('%d%%', [Zoom]);
+  StatusBar.Panels[0].Text := Format(kFmtZoom, [Zoom]);
 end;
 
 procedure TfmCHXBGRAImgViewerEx.AfterDrawImage;
