@@ -46,8 +46,10 @@ type
   private
     FFileMask: string;
     FOnFileSelect: TCHXStrObjCB;
+    FSelectNextOnRemove: Boolean;
     procedure SetFileMask(AValue: string);
     procedure SetOnFileSelect(AValue: TCHXStrObjCB);
+    procedure SetSelectNextOnRemove(AValue: Boolean);
 
   protected
     procedure DoClearFrame;
@@ -55,6 +57,8 @@ type
   public
     property OnFileSelect: TCHXStrObjCB
       read FOnFileSelect write SetOnFileSelect;
+
+    property SelectNextOnRemove: Boolean read FSelectNextOnRemove write SetSelectNextOnRemove;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -124,8 +128,20 @@ begin
 end;
 
 procedure TfmCHXFileList.actRemoveItemExecute(Sender: TObject);
+var
+  i: Integer;
 begin
+  i := FileList.ItemIndex;
   FileList.DeleteSelected;
+  FileList.ItemIndex := -1;
+
+  if SelectNextOnRemove and (FileList.Count > 0) then
+  begin
+    if i < FileList.Count then
+      FileList.ItemIndex := i
+    else
+      FileList.ItemIndex := FileList.Count - 1;
+  end;
 end;
 
 procedure TfmCHXFileList.FileListSelectionChange(Sender: TObject;
@@ -145,6 +161,12 @@ procedure TfmCHXFileList.SetOnFileSelect(AValue: TCHXStrObjCB);
 begin
   if FOnFileSelect = AValue then Exit;
   FOnFileSelect := AValue;
+end;
+
+procedure TfmCHXFileList.SetSelectNextOnRemove(AValue: Boolean);
+begin
+  if FSelectNextOnRemove = AValue then Exit;
+  FSelectNextOnRemove := AValue;
 end;
 
 procedure TfmCHXFileList.DoClearFrame;
