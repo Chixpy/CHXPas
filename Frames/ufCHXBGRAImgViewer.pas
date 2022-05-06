@@ -59,10 +59,12 @@ type
     FActualImage: TBGRABitmap;
     FAutoCenterOnLoad: boolean;
     FAutoZoomOnLoad: boolean;
+    FPopUpMenuEnabled: boolean;
     FVisibleImage: TBGRABitmap;
     FZoom: integer;
     procedure SetAutoCenterOnLoad(AValue: boolean);
     procedure SetAutoZoomOnLoad(AValue: boolean);
+    procedure SetPopUpMenuEnabled(AValue: boolean);
     procedure SetVisibleImage(AValue: TBGRABitmap);
     procedure SetZoom(AValue: integer);
 
@@ -94,6 +96,7 @@ type
     {< Center image when loaded. }
     property Zoom: integer read FZoom write SetZoom;
     {< Percentaje Zoom * 100. }
+    property PopUpMenuEnabled: boolean read FPopUpMenuEnabled write SetPopUpMenuEnabled;
 
     procedure ZoomIn;
     procedure ZoomOut;
@@ -173,6 +176,17 @@ begin
     AutoZoom
   else
     DrawImage;
+end;
+
+procedure TfmCHXBGRAImgViewer.SetPopUpMenuEnabled(AValue: boolean);
+begin
+  if FPopUpMenuEnabled = AValue then Exit;
+  FPopUpMenuEnabled := AValue;
+
+  if PopUpMenuEnabled then
+     sbxImage.PopupMenu := pmImgViewer
+  else
+     sbxImage.PopupMenu := nil;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetAutoCenterOnLoad(AValue: boolean);
@@ -345,6 +359,7 @@ begin
 
   Zoom := 100;
   AutoCenterOnLoad := True;
+  PopUpMenuEnabled := True;
 
   OnLoadFrameData := @DoLoadFrameData;
   OnClearFrameData := @DoClearFrameData;

@@ -30,6 +30,7 @@ uses
   ufCHXBGRAImgViewer;
 
 const
+  kFmtSize = '%dx%d';
   kFmtZoom = '%d%%';
   kFmtPoint = '%d:%d';
   kFmtColor = '%3d, %3d, %3d, %3d';
@@ -105,7 +106,7 @@ implementation
 
 procedure TfmCHXBGRAImgViewerEx.pbxImageMouseLeave(Sender: TObject);
 begin
-  StatusBar.Panels[1].Text := '';
+  StatusBar.Panels[2].Text := '';
 end;
 
 procedure TfmCHXBGRAImgViewerEx.pbxImageMouseDown(Sender: TObject;
@@ -134,10 +135,10 @@ begin
         begin
           SelectionRect.Create(ImgX, ImgY, ImgX, ImgY);
 
-          StatusBar.Panels[1].Text :=
+          StatusBar.Panels[2].Text :=
             Format(kFmtRectSize, [SelectionRect.Width, SelectionRect.Height]);
 
-          StatusBar.Panels[2].Text :=
+          StatusBar.Panels[3].Text :=
             Format(kFmtPoint, [SelectionRect.Left, SelectionRect.Top]);
 
           MouseActionMode := maiMouseSelectingRect;
@@ -184,10 +185,10 @@ begin
       SelectionRect.Right := ImgX + 1;
       SelectionRect.Bottom := ImgY + 1;
 
-      StatusBar.Panels[1].Text :=
+      StatusBar.Panels[2].Text :=
         Format(kFmtRectSize, [SelectionRect.Width, SelectionRect.Height]);
 
-      StatusBar.Panels[2].Text :=
+      StatusBar.Panels[3].Text :=
         Format(kFmtPoint, [SelectionRect.Left, SelectionRect.Top]);
 
       CurrSelection := ZoomedRect;
@@ -207,11 +208,11 @@ begin
       InRange(ImgY, 0, ActualImage.Height - 1) then
     begin
       aPixel := ActualImage.ScanLine[ImgY] + ImgX;
-      StatusBar.Panels[1].Text :=
+      StatusBar.Panels[2].Text :=
         Format(kFmtColor, [aPixel^.red, aPixel^.green,
         aPixel^.blue, aPixel^.alpha]);
 
-      StatusBar.Panels[2].Text := Format(kFmtPoint, [ImgX, ImgY]);
+      StatusBar.Panels[3].Text := Format(kFmtPoint, [ImgX, ImgY]);
     end;
   end;
 end;
@@ -242,8 +243,8 @@ begin
 
         if SelectionRect.isEmpty then
         begin
-          StatusBar.Panels[1].Text := '';
           StatusBar.Panels[2].Text := '';
+          StatusBar.Panels[3].Text := '';
         end;
 
         DrawImage;
@@ -301,6 +302,11 @@ procedure TfmCHXBGRAImgViewerEx.SetActualImage(AValue: TBGRABitmap);
 begin
   inherited SetActualImage(AValue);
 
+  if Assigned(AValue) then
+    StatusBar.Panels[0].Text := Format(kFmtSize, [AValue.Width, AValue.Height])
+  else
+    StatusBar.Panels[0].Text := '';
+
   SelectionRect := TRect.Empty;
 end;
 
@@ -308,7 +314,7 @@ procedure TfmCHXBGRAImgViewerEx.OnZoomChange;
 begin
   inherited OnZoomChange;
 
-  StatusBar.Panels[0].Text := Format(kFmtZoom, [Zoom]);
+  StatusBar.Panels[1].Text := Format(kFmtZoom, [Zoom]);
 end;
 
 procedure TfmCHXBGRAImgViewerEx.AfterDrawImage;

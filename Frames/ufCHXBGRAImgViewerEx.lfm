@@ -19,6 +19,10 @@ inherited fmCHXBGRAImgViewerEx: TfmCHXBGRAImgViewerEx
     Panels = <    
       item
         Alignment = taCenter
+        Width = 120
+      end    
+      item
+        Alignment = taCenter
         Width = 70
       end    
       item

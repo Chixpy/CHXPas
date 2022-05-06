@@ -60,6 +60,12 @@ type
 
     property SelectNextOnRemove: Boolean read FSelectNextOnRemove write SetSelectNextOnRemove;
 
+    function NextFile: string;
+    {< Returns next item after selected one, without changing current selection.
+
+      @returns(The filename of the next item, empty string if last item
+       is selected.)}
+
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
 
@@ -172,6 +178,14 @@ end;
 procedure TfmCHXFileList.DoClearFrame;
 begin
   FileList.Clear;
+end;
+
+function TfmCHXFileList.NextFile: string;
+begin
+  Result := '';
+
+  if (FileList.ItemIndex + 1) < FileList.Count then
+    Result := FileList.Items[FileList.ItemIndex + 1];
 end;
 
 constructor TfmCHXFileList.Create(TheOwner: TComponent);
