@@ -340,7 +340,7 @@ begin
 
       frmCHXProgressBar.FormStyle := fsStayOnTop;
       frmCHXProgressBar.Visible := False;
-      frmCHXProgressBar.Position := poDesktopCenter;
+      frmCHXProgressBar.Position := poScreenCenter;
       frmCHXProgressBar.BorderIcons := [biSystemMenu, biMinimize];
       frmCHXProgressBar.ShowInTaskBar := stAlways;
 
