@@ -1,8 +1,8 @@
 object frmCHXForm: TfrmCHXForm
-  Left = 279
-  Height = 768
-  Top = 107
-  Width = 1024
+  Left = 542
+  Height = 305
+  Top = 430
+  Width = 549
   HorzScrollBar.Page = 1
   VertScrollBar.Page = 1
   Caption = 'frmCHXForm'
