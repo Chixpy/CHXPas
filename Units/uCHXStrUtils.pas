@@ -55,9 +55,10 @@ function SetAsFolder(const aValue: string): string;
     we don't need test @code (@(aFolder=''@) or @(aFolder=PathDelim@))
 
   In the other hand, paths are converted to Linux one as Windows AND
-    MS-DOS (+2.0) can recognize them without problem.
+    MS-DOS @(+2.0@) can recognize them without problem.
 }
 function SysPath(const aPath: string): string;
+{< Changes path delimiters to system ones... Some Lazarus function don't work}
 function WinPath(const aPath: string): string;
 function UnixPath(const aPath: string): string;
 
@@ -69,7 +70,7 @@ function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
 
   @param(DoTrim Trim spaces at beggining and end, preventing filenames beginning
     with space.)
-    @param(PathAware Keep paths)
+  @param(PathAware Keep paths)
 }
 function SetAsRelativeFile(const aFileName, BaseDir: string): string;
 function SetAsAbsoluteFile(const aFileName, BaseDir: string): string;
@@ -433,7 +434,7 @@ begin
   if (length(Result) > 1) and (Result[2] = ':') and (PathAware) then
   begin
     // C:\...
-    Result := UTF8TextReplace(Result, ':', '*'); // '*' allready replaced
+    Result := UTF8TextReplace(Result, ':', '*'); // '*' already replaced
     Result[2] := ':';
     Result := UTF8TextReplace(Result, '*', ' - ');
   end
@@ -444,7 +445,7 @@ begin
   begin
     while UTF8Pos('  ', Result) <> 0 do
       Result := UTF8TextReplace(Result, '  ', ' ');
-    Result := Trim(Result);
+
     if PathAware then
     begin
       while UTF8Pos(' \', Result) <> 0 do
@@ -456,6 +457,8 @@ begin
       while UTF8Pos('/ ', Result) <> 0 do
         Result := UTF8TextReplace(Result, '/ ', '/');
     end;
+
+    Result := Trim(Result);
   end;
 end;
 

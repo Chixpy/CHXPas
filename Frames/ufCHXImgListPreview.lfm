@@ -1,12 +1,4 @@
 inherited fmCHXImgListPreview: TfmCHXImgListPreview
-  inherited tbPreviewList: TToolBar
-    inherited tbSepNavButtons: TToolButton
-      Height = 29
-    end
-    inherited tbSepOpenFile: TToolButton
-      Height = 29
-    end
-  end
   object iImage: TImage[1]
     Left = 0
     Height = 242
@@ -32,9 +24,6 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
   inherited ilPreviewList: TImageList[3]
   end
   inherited alPreviewList: TActionList[4]
-    inherited actOpenWithDefApp: TAction
-      Hint = 'Open file with default system application.'
-    end
     inherited actOpenFileFolder: TAction
       Hint = 'Opens file''s folder.'
     end
@@ -46,6 +35,5 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
   inherited pmNextItems: TPopupMenu[7]
   end
   inherited pmOpenFile: TPopupMenu[8]
-    Left = 136
   end
 end
