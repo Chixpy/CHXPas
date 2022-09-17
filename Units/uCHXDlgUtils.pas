@@ -1,4 +1,5 @@
 unit uCHXDlgUtils;
+
 {< Copyright (C) 2011-2020 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
@@ -25,6 +26,8 @@ uses
   // CHX units
   uCHXStrUtils;
 
+
+// TODO: These are a mess, InitialDir needs '\' except las one
 procedure SetDlgInitialDir(aDialog: TFileDialog; BaseDir: string);
 procedure SetDirEditInitialDir(aDirectoryEdit: TDirectoryEdit;
   BaseDir: string);
@@ -45,7 +48,7 @@ begin
   if FilenameIsAbsolute(aDialog.FileName) then
   begin
     aDialog.InitialDir :=
-      ExtractFilePath(CleanAndExpandFilename(aDialog.FileName));
+      ExtractFileDir(CleanAndExpandFilename(aDialog.FileName));
   end
   else
   begin
@@ -54,10 +57,13 @@ begin
 
     if not FilenameIsAbsolute(BaseDir) then
       BaseDir := CleanAndExpandFilename(
-        SysPath(SetAsFolder(GetCurrentDirUTF8)) + BaseDir);
+        SysPath(SetAsFolder(SetAsFolder(GetCurrentDirUTF8) + BaseDir)));
 
-    aDialog.InitialDir :=
-      ExtractFilePath(CleanAndExpandFilename(BaseDir + aDialog.FileName));
+    if aDialog.FileName = '' then
+      aDialog.InitialDir := ExcludeTrailingPathDelimiter(BaseDir)
+    else
+      aDialog.InitialDir :=
+        ExtractFilePath(CleanAndExpandFilename(BaseDir + aDialog.FileName));
   end;
 end;
 
@@ -101,7 +107,7 @@ begin
   if FilenameIsAbsolute(aFileEdit.FileName) then
   begin
     aFileEdit.InitialDir :=
-      ExtractFilePath(CleanAndExpandFilename(aFileEdit.FileName));
+      ExtractFileDir(CleanAndExpandFilename(aFileEdit.FileName));
   end
   else
   begin
@@ -113,7 +119,7 @@ begin
         SysPath(SetAsFolder(GetCurrentDirUTF8)) + BaseDir);
 
     aFileEdit.InitialDir :=
-      ExtractFilePath(CleanAndExpandFilename(BaseDir + aFileEdit.FileName));
+      ExtractFileDir(CleanAndExpandFilename(BaseDir + aFileEdit.FileName));
   end;
 end;
 

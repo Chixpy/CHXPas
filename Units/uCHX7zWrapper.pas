@@ -1,4 +1,5 @@
-{ 7z.exe and 7zG.exe Wrapper.
+unit uCHX7zWrapper;
+{< 7z.exe and 7zG.exe Wrapper.
 
   Copyright (C) 2011-2017 Chixpy
 
@@ -29,7 +30,6 @@
     @item(7z.exe, 7zG.exe and 7z.dll have their own licenses.)
   )
 }
-unit uCHX7zWrapper;
 
 {$mode objfpc}{$H+}
 

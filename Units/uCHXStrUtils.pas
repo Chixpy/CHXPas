@@ -31,7 +31,8 @@ uses Classes, SysUtils, LazFileUtils, LazUTF8,
 // ------------
 function UTF8TextReplace(const S, OldPattern, NewPattern: string;
   const ALanguage: string = ''): string;
-{< Until it is not in LazUTF8...}
+{< A little shortcut of UTF8StringReplace, replacing all ocurrences and
+     case-insesitive. }
 
 function RemoveFromBrackets(const aString: string): string;
 {< Removes text from the first ' (' o ' [' found in the aString. }

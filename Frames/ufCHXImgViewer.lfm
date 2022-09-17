@@ -15,12 +15,14 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
     inherited tbSepNavButtons: TToolButton
       Left = 252
+      Height = 29
     end
     inherited tbOpenFile: TToolButton
       Left = 257
     end
     inherited tbSepOpenFile: TToolButton
       Left = 314
+      Height = 29
     end
     object tbTogleFileList: TToolButton[7]
       Left = 96
@@ -62,11 +64,11 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     Panels = <    
       item
         Alignment = taCenter
-        Width = 75
+        Width = 100
       end    
       item
         Alignment = taCenter
-        Width = 75
+        Width = 100
       end    
       item
         Width = 50
@@ -307,6 +309,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
     object actToggleFileList: TAction[9]
       Category = 'Window'
+      AutoCheck = True
       Caption = 'actToggleFileList'
       Hint = 'Show/Hide file list.'
       ImageIndex = 5
@@ -330,5 +333,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
   inherited pmOpenFile: TPopupMenu[10]
     Left = 216
     Top = 200
+  end
+  inherited SaveDialog1: TSaveDialog[11]
   end
 end

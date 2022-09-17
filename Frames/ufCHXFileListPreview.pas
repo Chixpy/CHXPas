@@ -93,7 +93,7 @@ begin
 
   if not FileExistsUTF8(aFilename) then
   begin
-    ShowMessageFmt(rsFileDontExists, [aFilename]);
+    ShowMessageFmt(rsFileNotFound, [aFilename]);
     Exit;
   end;
 
@@ -135,7 +135,7 @@ begin
 
   if not DirectoryExistsUTF8(aFolder) then
   begin
-    ShowMessageFmt(rsFileDontExists, [aFolder]);
+    ShowMessageFmt(rsFileNotFound, [aFolder]);
     Exit;
   end;
 

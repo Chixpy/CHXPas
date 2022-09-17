@@ -48,10 +48,12 @@ resourcestring
      @param(%0:s Suported files extension mask "*.png;*.jpg")
   }
 
-  rsFileDontExists = '%0:s' + LineEnding +
-    'Don''t exists.';
+  rsFileNotFound = '%0:s' + LineEnding +
+    'not found.';
   rsCorfirmDeleteFile = '%0:s' + LineEnding +
     'Do you want to delete this file?';
+  rsErrorCreatingFile = 'Error creating:' + LineEnding +
+    '%0:s';
   rsErrorDeletingFile = 'Error deleting:' + LineEnding +
     '%0:s';
   rsErrorRenamingFile = 'Error renaming:' + LineEnding +

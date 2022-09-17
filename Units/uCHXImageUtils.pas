@@ -98,6 +98,7 @@ function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 }
 
 // Font related
+// ------------
 procedure SaveFontToIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
 procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
 
@@ -397,6 +398,5 @@ begin
       FontProps.Free;
   end;
 end;
-
 
 end.

@@ -30,7 +30,7 @@ uses
 function ExecuteCMDSL(aWorkFolder, aExeFile: string;
   aParams: TStrings; oStdOut, oStdErr: TCustomMemoryStream;
   out oExitCode: integer): boolean;
-{ Executes a external program. Waits to exit, if you don't want to wait maybe
+{< Executes a external program. Waits to exit, if you don't want to wait maybe
     want to create it in a thread.
 
     @param(aWorkFolder Folder from command will be executed,

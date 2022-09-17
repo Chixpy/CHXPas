@@ -37,9 +37,9 @@ const
   }
 
   krsFmtWindowCaption = '%0:s: %1:s';
-  {< Window caption format
-    %0:s = Application.Title (derived from krsFmtApplicationTitle).
-    %1:s = Window caption.
+  {< Window caption format.
+    @param(%0:s Application.Title @(derived from krsFmtApplicationTitle@).)
+    @param(%1:s Window caption.)
   }
 
   krsLocaleFolder = 'locale';
