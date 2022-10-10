@@ -1,4 +1,5 @@
 unit uCHX7zWrapper;
+
 {< 7z.exe and 7zG.exe Wrapper.
 
   Copyright (C) 2011-2017 Chixpy
@@ -268,17 +269,9 @@ begin
     aFunction, aError]));
 end;
 
-procedure w7zErrorAddStdErr(aStdErr: TMemoryStream);
-var
-  TempSL: TStringList;
+procedure w7zErrorAddStdErr(aStdErrSL: TStrings);
 begin
-  TempSL := TStringList.Create;
-  try
-    TempSL.LoadFromStream(aStdErr);
-    w7zErrorList.AddStrings(TempSL);
-  finally
-    TempSL.Free;
-  end;
+  w7zErrorList.AddStrings(aStdErrSL);
 end;
 
 procedure w7zErrorOK;
@@ -606,8 +599,8 @@ var
   aPos, i: integer;
   slLine, slOutput: TStringList;
   aParam, aValue: string;
+  sOutput, sStdErr: string;
   aPath, Size, PSize, aDate, aCRC, aSHA1: string;
-  msOutput, msStdErr: TMemoryStream;
 
 begin
   // Clearing PackedFiles file list
@@ -661,33 +654,35 @@ begin
   if Password <> '' then;
   aParam := '-p' + Password;
 
-  msOutput := TMemoryStream.Create;
-  msStdErr := TMemoryStream.Create;
-  try
-    ExecuteCMDArray('', w7zGetPathTo7zexe,
-      ['l', '-slt', '-scsUTF-8', '-sccUTF-8', aParam, '--',
-      SysPath(a7zArchive)],
-      msOutput, msStdErr, i);
+  i := 0;
+  ExecuteCMDArray('', w7zGetPathTo7zexe,
+    ['l', '-slt', '-scsUTF-8', '-sccUTF-8', aParam, '--',
+    SysPath(a7zArchive)],
+    sOutput, sStdErr, i);
 
-    msOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' + FileSHA1 +
-      kw7zCacheFileExt));
+  slOutput := TStringList.Create;
+  try
+    slOutput.Text := sOutput;
+    slOutput.SaveToFile(UTF8ToSys(w7zGetCacheDir + 'w' +
+      FileSHA1 + kw7zCacheFileExt));
 
     // Checking errors
     if i > 1 then
     begin
+      slOutput.Text := sStdErr;
       w7zErrorAdd('w7zListFiles', Format(rsw7zExeError, [a7zArchive, i]));
-      w7zErrorAddStdErr(msStdErr);
+      w7zErrorAddStdErr(slOutput);
     end;
 
     if i = 1 then // Warning
     begin
+      slOutput.Text := sStdErr;
       w7zErrorAdd('w7zListFiles', Format(rsw7zExeWarning, [a7zArchive, i]));
-      w7zErrorAddStdErr(msStdErr);
+      w7zErrorAddStdErr(slOutput);
     end;
 
   finally
-    msOutput.Free;
-    msStdErr.Free;
+    FreeAndNil(slOutput);
   end;
 
   w7zErrorOK;
@@ -869,11 +864,10 @@ function w7zExtractFile(a7zArchive: string; const aFileMask: string;
   const Password: string): integer;
 var
   aExeString: string;
-  Params: TStringList;
-  msStdErr: TMemoryStream;
+  Params, slOutput: TStringList;
+  sStdOut, sStdErr: string;
 begin
   Result := -1;
-  msStdErr := nil;
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
@@ -908,7 +902,6 @@ begin
       Exit;
 
     aExeString := w7zGetPathTo7zexe;
-    msStdErr := TMemoryStream.Create; // To hide console and catch errors
   end;
 
   // Parameters
@@ -935,26 +928,35 @@ begin
     Params.Add(a7zArchive);
     Params.Add(aFileMask);
 
-    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
 
-    // Checking errors
-    if Result > 1 then
+    if Result > 0 then
     begin
-      w7zErrorAdd('w7zExtractFile', Format(rsw7zExeError,
-        [a7zArchive, Result]));
-      w7zErrorAddStdErr(msStdErr);
-    end;
+      slOutput := TStringList.Create;
+      try
+        // Checking errors
+        if Result > 1 then
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zExtractFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
 
-    if Result = 1 then // Warning
-    begin
-      w7zErrorAdd('w7zExtractFile', Format(rsw7zExeWarning,
-        [a7zArchive, Result]));
-      w7zErrorAddStdErr(msStdErr);
+        if Result = 1 then // Warning
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zExtractFile', Format(rsw7zExeWarning,
+            [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
+
+      finally
+        FreeAndNil(slOutput);
+      end;
     end;
 
   finally
     Params.Free;
-    msStdErr.Free;
   end;
 
   RemoveReadOnlyFolderRecursive(aFolder);
@@ -967,8 +969,8 @@ function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
 var
   aExeString: string;
   i: integer;
-  msStdErr: TMemoryStream;
-  Params: TStringList;
+  sStdOut, sStdErr: string;
+  Params, slOutput: TStringList;
 begin
   Result := -1;
 
@@ -995,7 +997,6 @@ begin
       Exit;
 
     aExeString := w7zGetPathTo7zexe;
-    msStdErr := TMemoryStream.Create; // To hide console and catch errors
   end;
 
   // Parameters
@@ -1026,26 +1027,35 @@ begin
     for i := 0 to aFileList.Count - 1 do
       Params.Add(aFileList[i]);
 
-    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
 
-    // Checking errors
-    if Result > 1 then
+    if Result > 0 then
     begin
-      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
-        [a7zArchive, Result]));
-      w7zErrorAddStdErr(msStdErr);
-    end;
+      slOutput := TStringList.Create;
+      try
+        // Checking errors
+        if Result > 1 then
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
 
-    if Result = 1 then // Warning
-    begin
-      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
-        [a7zArchive, Result]));
-      w7zErrorAddStdErr(msStdErr);
+        if Result = 1 then // Warning
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
+            [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
+
+      finally
+        FreeAndNil(slOutput);
+      end;
     end;
 
   finally
     Params.Free;
-    msStdErr.Free;
   end;
 
   w7zErrorOK;
@@ -1056,11 +1066,10 @@ function w7zCompressFolder(a7zArchive, aFolder: string;
   const CompType: string): integer;
 var
   aExeString: string;
-  msStdErr: TMemoryStream;
-  Params: TStringList;
+  sStdOut, sStdErr: string;
+  Params, slOutput: TStringList;
 begin
   Result := -1;
-  msStdErr := nil;
 
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
@@ -1086,7 +1095,6 @@ begin
       Exit;
 
     aExeString := w7zGetPathTo7zexe;
-    msStdErr := TMemoryStream.Create; // To hide console and catch errors
   end;
 
   // Parameters
@@ -1119,29 +1127,35 @@ begin
     else
       Params.Add(aFolder + '*');
 
-    ExecuteCMDSL('', aExeString, Params, nil, msStdErr, Result);
+      ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
 
-    // Checking errors
-    if Result > 1 then
+    if Result > 0 then
     begin
-      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
-        [a7zArchive, Result]));
-      if Assigned(msStdErr) then
-        w7zErrorAddStdErr(msStdErr);
-    end;
+      slOutput := TStringList.Create;
+      try
+        // Checking errors
+        if Result > 1 then
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
 
-    if Result = 1 then // Warning
-    begin
-      w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
-        [a7zArchive, Result]));
-      if Assigned(msStdErr) then
-      w7zErrorAddStdErr(msStdErr);
+        if Result = 1 then // Warning
+        begin
+          slOutput.Text := sStdErr;
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeWarning,
+            [a7zArchive, Result]));
+          w7zErrorAddStdErr(slOutput);
+        end;
+
+      finally
+        FreeAndNil(slOutput);
+      end;
     end;
 
   finally
     Params.Free;
-    if Assigned(msStdErr) then
-      msStdErr.Free;
   end;
 
   w7zErrorOK;

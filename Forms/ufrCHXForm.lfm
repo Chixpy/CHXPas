@@ -3,9 +3,6 @@ object frmCHXForm: TfrmCHXForm
   Height = 600
   Top = 137
   Width = 800
-  HorzScrollBar.Page = 1
-  VertScrollBar.Page = 1
-  AutoSize = True
   Caption = 'frmCHXForm'
   ChildSizing.LeftRightSpacing = 4
   ChildSizing.TopBottomSpacing = 4

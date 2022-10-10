@@ -1,11 +1,15 @@
 inherited fmCHXAbout: TfmCHXAbout
-  DesignLeft = 673
-  DesignTop = 392
+  Height = 400
+  Width = 600
+  ClientHeight = 400
+  ClientWidth = 600
+  DesignLeft = 541
+  DesignTop = 232
   object lTitle: TLabel[0]
     Left = 0
     Height = 32
     Top = 0
-    Width = 400
+    Width = 600
     Align = alTop
     Alignment = taCenter
     Caption = 'Title'
@@ -18,7 +22,7 @@ inherited fmCHXAbout: TfmCHXAbout
     Left = 0
     Height = 20
     Top = 36
-    Width = 400
+    Width = 600
     Align = alTop
     Alignment = taCenter
     Caption = 'Version'
@@ -30,19 +34,19 @@ inherited fmCHXAbout: TfmCHXAbout
     Left = 0
     Height = 45
     Top = 60
-    Width = 400
+    Width = 600
     Align = alTop
     AutoSize = True
     Caption = 'Compilation info'
     ClientHeight = 20
-    ClientWidth = 396
+    ClientWidth = 596
     ParentFont = False
     TabOrder = 0
     object lCompilation: TLabel
       Left = 0
       Height = 20
       Top = 0
-      Width = 396
+      Width = 596
       Align = alTop
       Alignment = taCenter
       Caption = 'Compilation'
@@ -55,19 +59,19 @@ inherited fmCHXAbout: TfmCHXAbout
     Left = 0
     Height = 45
     Top = 109
-    Width = 400
+    Width = 600
     Align = alTop
     AutoSize = True
     Caption = 'Supported image extensions'
     ClientHeight = 20
-    ClientWidth = 396
+    ClientWidth = 596
     ParentFont = False
     TabOrder = 1
     object lImageExt: TLabel
       Left = 0
       Height = 20
       Top = 0
-      Width = 396
+      Width = 596
       Align = alClient
       Alignment = taCenter
       Caption = 'ImageExt'
@@ -78,9 +82,9 @@ inherited fmCHXAbout: TfmCHXAbout
   end
   object mAditional: TMemo[4]
     Left = 0
-    Height = 142
+    Height = 242
     Top = 158
-    Width = 400
+    Width = 600
     Align = alClient
     ParentFont = False
     ReadOnly = True
