@@ -50,6 +50,8 @@ resourcestring
 
   rsFileNotFound = '%0:s' + LineEnding +
     'not found.';
+  rsRenameFile = 'Rename this file:';
+  rsRenameFileCaption = 'Renaming file';
   rsCorfirmDeleteFile = '%0:s' + LineEnding +
     'Do you want to delete this file?';
   rsErrorCreatingFile = 'Error creating:' + LineEnding +
@@ -60,6 +62,8 @@ resourcestring
     '%0:s' + LineEnding +
     'to:' + LineEnding +
     '%1:s';
+
+  rsFmtItemCount = '%0:d / %0:d';
 
 implementation
 
