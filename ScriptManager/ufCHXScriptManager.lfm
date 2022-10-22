@@ -736,13 +736,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object pagOutput: TTabSheet
       Caption = 'Output'
-      ClientHeight = 261
-      ClientWidth = 636
+      ClientHeight = 226
+      ClientWidth = 637
       object mOutPut: TMemo
         Left = 0
-        Height = 235
+        Height = 200
         Top = 26
-        Width = 636
+        Width = 637
         Align = alClient
         Font.CharSet = ANSI_CHARSET
         Font.Height = -13
@@ -759,7 +759,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Left = 0
         Height = 26
         Top = 0
-        Width = 636
+        Width = 637
         Caption = 'tbOutput'
         Images = ilActions
         TabOrder = 1
@@ -769,19 +769,19 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Action = actOutputClear
         end
         object ToolButton2: TToolButton
-          Left = 47
-          Height = 8
+          Left = 59
+          Height = 28
           Top = 2
           Caption = 'ToolButton2'
           Style = tbsSeparator
         end
         object tbFontEdit: TToolButton
-          Left = 55
+          Left = 67
           Top = 2
           Action = actOutputFontEdit
         end
         object tbSaveOutput: TToolButton
-          Left = 24
+          Left = 30
           Top = 2
           Action = actOutputSaveAs
         end
@@ -972,6 +972,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
+    TypeHelpers = False
     Left = 32
     Top = 112
   end

@@ -115,7 +115,9 @@ begin
   end;
 
   if chkCloseOnSave.Checked <> ButtonClose then
+  begin
     chkCloseOnSave.Checked := ButtonClose;
+  end;
 end;
 
 procedure TfmCHXPropEditor.SetOnSaveFrameData(AValue: TCHXFrameDataUpdate);

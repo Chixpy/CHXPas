@@ -8,42 +8,42 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
     ClientWidth = 600
     TabOrder = 1
     inherited chkCloseOnSave: TCheckBox
-      Left = 102
+      Left = 96
     end
     inherited bSave: TBitBtn
-      Left = 253
+      Left = 252
       Default = True
     end
     inherited bCancel: TBitBtn
-      Left = 417
+      Left = 414
     end
   end
   object gbxSelectFiles: TGroupBox[1]
     Left = 0
-    Height = 213
+    Height = 266
     Top = 0
     Width = 600
     Align = alClient
     AutoSize = True
     Caption = 'Select file(s)'
-    ClientHeight = 193
+    ClientHeight = 241
     ClientWidth = 596
     TabOrder = 0
     object lbxFiles: TListBox
       Left = 0
-      Height = 193
+      Height = 241
       Top = 0
-      Width = 572
+      Width = 566
       Align = alClient
       ItemHeight = 0
       MultiSelect = True
       TabOrder = 0
     end
     object ToolBar1: TToolBar
-      Left = 572
-      Height = 193
+      Left = 566
+      Height = 241
       Top = 0
-      Width = 24
+      Width = 30
       Align = alRight
       AutoSize = True
       Caption = 'ToolBar1'
@@ -51,7 +51,7 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
       TabOrder = 1
       object tbRemoveFiles: TToolButton
         Left = 1
-        Top = 100
+        Top = 124
         Action = actRemoveFiles
       end
       object tbAddFiles: TToolButton
@@ -61,31 +61,31 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
       end
       object ToolButton1: TToolButton
         Left = 1
-        Top = 24
-        Width = 23
+        Top = 30
+        Width = 29
         Caption = 'ToolButton1'
         Style = tbsDivider
       end
       object tbMoveFileUp: TToolButton
         Left = 1
-        Top = 29
+        Top = 35
         Action = actMoveFileUp
       end
       object ToolButton3: TToolButton
         Left = 1
-        Top = 95
-        Width = 23
+        Top = 119
+        Width = 29
         Caption = 'ToolButton3'
         Style = tbsDivider
       end
       object tbSortFileList: TToolButton
         Left = 1
-        Top = 51
+        Top = 63
         Action = actSortFileList
       end
       object tbMoveFileDown: TToolButton
         Left = 1
-        Top = 73
+        Top = 91
         Action = actMoveFileDown
       end
     end
@@ -122,7 +122,7 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
   end
   object OpenDialog1: TOpenDialog[4]
     Options = [ofNoChangeDir, ofAllowMultiSelect, ofEnableSizing, ofViewDetail]
-    left = 219
-    top = 102
+    Left = 219
+    Top = 102
   end
 end

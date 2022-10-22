@@ -72,7 +72,7 @@ type
   public
     property OutFileList: TStrings read FOutFileList write SetOutFileList;
 
-    // Creates a form with AddSoft frame.
+    // Creates a form with AskMultiFile frame.
     class function SimpleForm(aFileList: TStrings; const aTitle: string;
       const aExtFilter: string; const DefFolder: string; aGUIIconsIni: string;
       aGUIConfigIni: string): integer;

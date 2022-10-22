@@ -1,0 +1,52 @@
+inherited fmSMAskOption: TfmSMAskOption
+  Height = 275
+  Width = 700
+  ClientHeight = 275
+  ClientWidth = 700
+  DesignLeft = 640
+  DesignTop = 428
+  inherited pButtons: TPanel
+    Top = 245
+    Width = 700
+    ClientWidth = 700
+    inherited chkCloseOnSave: TCheckBox
+      Left = 121
+    end
+    inherited bSave: TBitBtn
+      Left = 302
+    end
+    inherited bCancel: TBitBtn
+      Left = 489
+    end
+  end
+  object lQuestion: TLabel[1]
+    Left = 0
+    Height = 20
+    Top = 0
+    Width = 700
+    Align = alTop
+    Caption = ' '
+    ParentColor = False
+  end
+  object rgbAnswer: TRadioGroup[2]
+    Left = 0
+    Height = 217
+    Top = 24
+    Width = 700
+    Align = alClient
+    AutoFill = True
+    Caption = 'Choose'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 1
+    TabOrder = 1
+  end
+  inherited alPropEditor: TActionList[3]
+  end
+  inherited ilPropEditor: TImageList[4]
+  end
+end

@@ -79,6 +79,8 @@ type
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
     object;
+  TCHXSEAskOptionCB = function(const aCaption, aQuestion: string;
+    aOptionList: TStrings): integer of object;
 
   { cCHXScriptEngine }
 
@@ -88,6 +90,7 @@ type
     FOnAskFile: TCHXSEAskFileCB;
     FOnAskFolder: TCHXSEAskFolderCB;
     FOnAskMultiFile: TCHXSEAskMultiFileCB;
+    FOnAskOption: TCHXSEAskOptionCB;
     FOnLine: TNotifyEvent;
     FOnReadLn: TCHXSEReadLnCB;
     FOnWriteLn: TCHXSEWriteLnCB;
@@ -99,6 +102,7 @@ type
     procedure SetOnAskFile(AValue: TCHXSEAskFileCB);
     procedure SetOnAskFolder(AValue: TCHXSEAskFolderCB);
     procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
+    procedure SetOnAskOption(AValue: TCHXSEAskOptionCB);
     procedure SetOnLine(AValue: TNotifyEvent);
     procedure SetOnReadLn(AValue: TCHXSEReadLnCB);
     procedure SetOnWriteLn(AValue: TCHXSEWriteLnCB);
@@ -134,6 +138,8 @@ type
     procedure CHXAskMultiFile(aFileList: TStrings;
       const aCaption, aExtFilter, DefFolder: string);
     function CHXAskFolder(const aCaption, DefFolder: string): string;
+    function CHXAskOption(const aCaption, aQuestion: string;
+      aOptionList: TStrings): integer;
 
     // HACK: We can't create Stringlists!!!
     // TODO: Make a generic constructor?
@@ -153,10 +159,9 @@ type
     property OnWriteLn: TCHXSEWriteLnCB read FOnWriteLn write SetOnWriteLn;
     property OnReadLn: TCHXSEReadLnCB read FOnReadLn write SetOnReadLn;
     property OnAskFile: TCHXSEAskFileCB read FOnAskFile write SetOnAskFile;
-    property OnAskMultiFile: TCHXSEAskMultiFileCB
-      read FOnAskMultiFile write SetOnAskMultiFile;
-    property OnAskFolder: TCHXSEAskFolderCB
-      read FOnAskFolder write SetOnAskFolder;
+    property OnAskMultiFile: TCHXSEAskMultiFileCB read FOnAskMultiFile write SetOnAskMultiFile;
+    property OnAskFolder: TCHXSEAskFolderCB read FOnAskFolder write SetOnAskFolder;
+    property OnAskOption: TCHXSEAskOptionCB read FOnAskOption write SetOnAskOption;
 
     function RunScript: boolean;
     procedure Stop;
@@ -205,6 +210,12 @@ begin
   if FOnAskMultiFile = AValue then
     Exit;
   FOnAskMultiFile := AValue;
+end;
+
+procedure cCHXScriptEngine.SetOnAskOption(AValue: TCHXSEAskOptionCB);
+begin
+  if FOnAskOption = AValue then Exit;
+  FOnAskOption := AValue;
 end;
 
 procedure cCHXScriptEngine.SetOnLine(AValue: TNotifyEvent);
@@ -269,6 +280,9 @@ begin
     ' const aExtFilter: string; const DefFolder: string)');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFolder,
     'function AskFolder(const aTitle, DefFolder: String): String;');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskOption,
+    'function AskOption(const aCaption, aQuestion: string;' +
+    ' aOptionList: TStrings): integer');
 
   // HACK: We can't create Stringlist!!!
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCreateStringList,
@@ -412,6 +426,17 @@ begin
     Result := OnAskFolder(aCaption, DefFolder)
   else
     raise ENotImplemented.Create('OnAskFolder not assigned.');
+end;
+
+function cCHXScriptEngine.CHXAskOption(const aCaption, aQuestion: string;
+  aOptionList: TStrings): integer;
+begin
+  Result := -1;
+
+  if Assigned(OnAskOption) then
+    Result := OnAskOption(aCaption, aQuestion, aOptionList)
+  else
+    raise ENotImplemented.Create('OnAskOption not assigned.');
 end;
 
 function cCHXScriptEngine.CHXCreateStringList: TStringList;

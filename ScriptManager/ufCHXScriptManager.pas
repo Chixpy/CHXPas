@@ -37,7 +37,7 @@ uses
   // CHX frames
   ufCHXFrame,
   // CHX Script Engine frames
-  ufSMAskMultiFile;
+  ufSMAskMultiFile, ufSMAskOption;
 
 const
   kFSMScriptFileExt = '.pas';
@@ -188,6 +188,8 @@ type
     procedure DoAskMultiFile(aFileList: TStrings;
       const aCaption, aExtFilter, DefFolder: string); virtual;
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
+    function DoAskOption(const aCaption, aQuestion: string;
+      aOptionList: TStrings): integer; virtual;
 
     procedure DoOnline(Sender: TObject); virtual;
 
@@ -458,7 +460,7 @@ begin
   // if not assigned(ScriptEngine.ScriptError) then
   //   ScriptEngine.ScriptError := lbxInfo.Items;
 
-  // Asks
+  // Basic I/O and Dialogs
   if not assigned(ScriptEngine.OnWriteLn) then
     ScriptEngine.OnWriteLn := @DoWriteLn;
   if not assigned(ScriptEngine.OnReadLn) then
@@ -469,7 +471,10 @@ begin
     ScriptEngine.OnAskMultiFile := @DoAskMultiFile;
   if not assigned(ScriptEngine.OnAskFolder) then
     ScriptEngine.OnAskFolder := @DoAskFolder;
+  if not assigned(ScriptEngine.OnAskOption) then
+    ScriptEngine.OnAskOption := @DoAskOption;
 
+  // Debug
   if not assigned(ScriptEngine.OnLine) then
     ScriptEngine.OnLine := @DoOnline;
 end;
@@ -628,14 +633,24 @@ begin
     DefFolder, GUIIconsIni, GUIConfigIni);
 end;
 
-function TfmCHXScriptManager.DoAskFolder(
-  const aCaption, DefFolder: string): string;
+function TfmCHXScriptManager.DoAskFolder(const aCaption,
+  DefFolder: string): string;
 begin
   Result := '';
   SelectDirectoryDialog1.Title := aCaption;
   SetDlgInitialDir(SelectDirectoryDialog1, DefFolder);
   if SelectDirectoryDialog1.Execute then
     Result := IncludeTrailingPathDelimiter(SelectDirectoryDialog1.FileName);
+end;
+
+function TfmCHXScriptManager.DoAskOption(const aCaption, aQuestion: string;
+  aOptionList: TStrings): integer;
+
+begin
+  Result := -1;
+  if TfmSMAskOption.SimpleForm(aCaption, aQuestion, aOptionList,
+    Result, GUIIconsIni, GUIConfigIni) <> mrOK then
+    Result := -1;
 end;
 
 procedure TfmCHXScriptManager.DoOnline(Sender: TObject);
