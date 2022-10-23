@@ -451,6 +451,9 @@ begin
   RegisterDll_Compiletime(x);
   SIRegister_Std(x);
   SIRegister_Classes(x, True);
+  // HACK: Adding TStrings.AddDelimitedText
+  x.FindClass('TStrings').RegisterMethod('procedure AddDelimitedText(' +
+    'const S: String; ADelimiter: char; AStrictDelimiter: Boolean);');
   SIRegister_Graphics(x, True);
   SIRegister_Controls(x);
   SIRegister_StdCtrls(x);
@@ -482,6 +485,9 @@ begin
   RegisterDLLRuntime(se);
   RIRegister_Std(x);
   RIRegister_Classes(x, True);
+  // HACK: Adding TStrings.AddDelimitedText
+  x.FindClass('TStrings').RegisterMethod(@TStrings.AddDelimitedText,
+    'AddDelimitedText');
   RIRegister_Graphics(x, True);
   RIRegister_Controls(x);
   RIRegister_stdctrls(x);
