@@ -236,7 +236,7 @@ end;
 procedure TfmCHXScriptManager.SynEditSpecialLineColors(Sender: TObject;
   Line: integer; var Special: boolean; var FG, BG: TColor);
 begin
-{  if ce.HasBreakPoint(ce.MainFileName, Line) then
+  {if ce.HasBreakPoint(ce.MainFileName, Line) then
   begin
     Special := True;
     if Line = FActiveLine then
@@ -256,7 +256,7 @@ begin
     bg := clBlue;
   end
   else }
-  Special := False;
+    Special := False;
 end;
 
 procedure TfmCHXScriptManager.SynEditStatusChange(Sender: TObject;

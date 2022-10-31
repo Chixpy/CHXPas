@@ -42,7 +42,7 @@ begin
   FindAllFiles(AList, SysPath(SearchPath), SearchMask, SearchSubDirs);
 end;
 
-procedure CHXFindAllDirectories(AList: TStrings; const SearchPath: string; SearchMask: string; SearchSubDirs: Boolean);
+procedure CHXFindAllDirectories(AList: TStrings; const SearchPath: string; SearchSubDirs: Boolean);
 begin
   FindAllDirectories(AList, SysPath(SearchPath), SearchSubDirs);
 end;

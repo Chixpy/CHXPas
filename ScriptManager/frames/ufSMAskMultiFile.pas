@@ -26,7 +26,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  StdCtrls, Buttons, ActnList, EditBtn, ComCtrls,
+  StdCtrls, Buttons, ActnList, ComCtrls,
   // CHX units
   uCHXDlgUtils,
   // CHX frames

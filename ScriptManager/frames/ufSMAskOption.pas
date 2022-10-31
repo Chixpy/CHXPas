@@ -110,6 +110,7 @@ begin
     aFrame.ButtonClose := True;
     aFrame.Align := alClient;
 
+    aFrame.lQuestion.Caption := aQuestion;
     aFrame.OptionList := aOptionList;
     if aOption in [0..aFrame.rgbAnswer.Items.Count-1] then
       aFrame.rgbAnswer.ItemIndex := aOption;
