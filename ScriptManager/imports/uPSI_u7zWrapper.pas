@@ -24,16 +24,12 @@ uses
   SysUtils, Classes, uPSComponent, uPSRuntime, uPSCompiler,
   uCHX7zWrapper;
 
-{ compile-time registration functions }
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 
-{ run-time registration functions }
 procedure RIRegister_u7zWrapper_Routines(S: TPSExec);
 
 implementation
 
-(* === compile-time registration functions === *)
-(*----------------------------------------------------------------------------*)
 procedure SIRegister_u7zWrapper(CL: TPSPascalCompiler);
 begin
   // Resource Strings

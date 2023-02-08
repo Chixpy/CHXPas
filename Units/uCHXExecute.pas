@@ -1,7 +1,7 @@
 unit uCHXExecute;
 {< Unit with some executing process procedures.
 
-  Copyright (C) 2011-2021 Chixpy
+  Copyright (C) 2011-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -37,10 +37,8 @@ function ExecuteCMDSL(aWorkFolder, aExeFile: string;
       empty = Current Folder)
     @param(aExeFile Executable filename)
     @Param(aParams List of parameters to pass to executable, one by line)
-    @param(oStdOut String where normal output will be stored, if not nil
-      it will activate the use of pipes.)
-    @param(oStdErr String where error output will be stored, if not nil
-      it will activate the use of pipes.)
+    @param(oStdOut String where normal output will be stored.)
+    @param(oStdErr String where error output will be stored.)
     @param(oExitCode Exit code of command.)
     @return(@true on success calling command, @false otherwise (wich is
       different from command exit code))
@@ -61,11 +59,31 @@ function ExecuteCMDSL(aWorkFolder, aExeFile: string; aParams: TStrings;
 var
   aProcess: TProcessUTF8;
   aOptions: TProcessOptions;
+  TempStr: string;
 begin
   Result := False;
   oExitCode := -1;
+
   aWorkFolder := SysPath(aWorkFolder);
   aExeFile := SysPath(aExeFile);
+
+  // Testing WorkFolder existence (if not empty)
+  if aWorkFolder <> '' then
+  begin
+    if FilenameIsAbsolute(aExeFile) then
+    begin
+      if not DirectoryExistsUTF8(aWorkFolder) then
+         Exit;
+    end
+    else
+    begin
+      // Try to search aWorkFolder from CurrentDir
+      aWorkFolder := TrimAndExpandDirectory(aWorkFolder, GetCurrentDirUTF8);
+
+      if not DirectoryExistsUTF8(aWorkFolder) then
+         Exit;
+    end;
+  end;
 
   // Testing executable existence
   if FilenameIsAbsolute(aExeFile) then
@@ -75,8 +93,28 @@ begin
   end
   else
   begin
-    if not FileExistsUTF8(TrimAndExpandFilename(aExeFile, aWorkFolder)) then
-      Exit;
+    // Try to search relative path from aWorkFolder
+    TempStr := TrimAndExpandFilename(aExeFile, aWorkFolder);
+
+    if FileExistsUTF8(TempStr) then
+    begin
+      aExeFile := TempStr;
+    end
+    else
+    begin
+     // Try to search relative path from CurrentDir
+     TempStr := TrimAndExpandFilename(aExeFile, GetCurrentDirUTF8);
+
+     if FileExistsUTF8(TempStr) then
+     begin
+       aExeFile := TempStr;
+     end
+     else
+     begin
+       // Not found
+       Exit
+     end;
+    end;
   end;
 
   aProcess := TProcessUTF8.Create(nil);

@@ -25,10 +25,8 @@ interface
 uses
   Classes, SysUtils, LazUTF8, uPSRuntime, uPSCompiler;
 
-{ compile-time registration functions }
 procedure SIRegister_FPCLazUTF8(CL: TPSPascalCompiler);
 
-{ run-time registration functions }
 procedure RIRegister_FPCLazUTF8_Routines(S: TPSExec);
 
 implementation
@@ -36,7 +34,7 @@ implementation
 procedure SIRegister_FPCLazUTF8(CL: TPSPascalCompiler);
 begin
 
-//   // AnsiToUTF8 and UTF8ToAnsi need a widestring manager under Linux, BSD, MacOSX
+//// AnsiToUTF8 and UTF8ToAnsi need a widestring manager under Linux, BSD, MacOSX
 //// but normally these OS use UTF-8 as system encoding so the widestringmanager
 //// is not needed.
 //function NeedRTLAnsi: boolean;// true if system encoding is not UTF-8

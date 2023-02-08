@@ -1,8 +1,9 @@
 unit uPSI_uaCHXStorable;
+
 {< caCHXStorable, caCHXStorableIni and caCHXStorableTxt import for
     Pascal Script.
 
-  Copyright (C) 2019-2019 Chixpy
+  Copyright (C) 2019-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -80,7 +81,7 @@ begin
   // with RegClassS(CL,'caCHXStorable', 'caCHXStorableTxt') do
   with CL.AddClassN(CL.FindClass('caCHXStorable'), 'caCHXStorableTxt') do
   begin
-
+    RegisterProperty('CommaText', 'string', iptrw);
   end;
 end;
 
@@ -91,11 +92,22 @@ begin
   SIRegister_caCHXStorableTxt(CL);
 end;
 
+procedure caCHXStorableDefaultFileName_R(Self: caCHXStorable; var T: string);
+begin
+  T := Self.DefaultFileName;
+end;
+
+procedure caCHXStorableDefaultFileName_W(Self: caCHXStorable; const T: string);
+begin
+  Self.DefaultFileName := T;
+end;
+
 procedure RIRegister_caCHXStorable(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(caCHXStorable) do
   begin
-
+    RegisterPropertyHelper(@caCHXStorableDefaultFileName_R,
+      @caCHXStorableDefaultFileName_W, 'DefaultFileName');
   end;
 end;
 
@@ -107,11 +119,22 @@ begin
   end;
 end;
 
+procedure caCHXStorableTxtCommaText_R(Self: caCHXStorableTxt; var T: string);
+begin
+  T := Self.CommaText;
+end;
+
+procedure caCHXStorableTxtCommaText_W(Self: caCHXStorableTxt; const T: string);
+begin
+  Self.CommaText := T;
+end;
+
 procedure RIRegister_caCHXStorableTxt(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(caCHXStorableTxt) do
   begin
-
+    RegisterPropertyHelper(@caCHXStorableTxtCommaText_R,
+      @caCHXStorableTxtCommaText_W, 'CommaText');
   end;
 end;
 
@@ -129,10 +152,10 @@ begin
   SIRegister_uaCHXStorable(CompExec.comp);
 end;
 
-procedure TPSImport_uaCHXStorable.ExecImport1(CompExec: TPSScript; const ri: TPSRuntimeClassImporter);
+procedure TPSImport_uaCHXStorable.ExecImport1(CompExec: TPSScript;
+  const ri: TPSRuntimeClassImporter);
 begin
   RIRegister_uaCHXStorable(ri);
 end;
 
 end.
-

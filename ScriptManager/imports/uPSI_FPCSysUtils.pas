@@ -35,7 +35,7 @@ procedure RIRegister_FPCSysUtils_Routines(S: TPSExec);
 implementation
 
 // Helper functions
-function CHXBoolToStr(B: Boolean): string;
+function CHXBoolToStr(B: boolean): string;
 begin
   Result := BoolToStr(B, True);
 end;

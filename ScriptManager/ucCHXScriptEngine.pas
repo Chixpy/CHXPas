@@ -1,7 +1,8 @@
 unit ucCHXScriptEngine;
+
 {< cCHXScriptEngine class unit.
 
-  Copyright (C) 2006-2020 Chixpy
+  Copyright (C) 2006-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -38,9 +39,10 @@ uses
   // CHX
   uCHXStrUtils, uCHX7zWrapper,
   // CHX Imported units
-  uPSI_CHXBasic, uPSI_FPCSysUtils, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
-  uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
-  uPSI_u7zWrapper;
+  uPSI_FPCSysUtils, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
+  uPSI_u7zWrapper,
+  uPSI_CHXBasic, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
+  uPSI_uaCHXStorable;
 
 resourcestring
   // Error levels
@@ -66,7 +68,6 @@ resourcestring
         @item(Actual message test)
     )
   }
-
 
 
 type
@@ -159,9 +160,12 @@ type
     property OnWriteLn: TCHXSEWriteLnCB read FOnWriteLn write SetOnWriteLn;
     property OnReadLn: TCHXSEReadLnCB read FOnReadLn write SetOnReadLn;
     property OnAskFile: TCHXSEAskFileCB read FOnAskFile write SetOnAskFile;
-    property OnAskMultiFile: TCHXSEAskMultiFileCB read FOnAskMultiFile write SetOnAskMultiFile;
-    property OnAskFolder: TCHXSEAskFolderCB read FOnAskFolder write SetOnAskFolder;
-    property OnAskOption: TCHXSEAskOptionCB read FOnAskOption write SetOnAskOption;
+    property OnAskMultiFile: TCHXSEAskMultiFileCB
+      read FOnAskMultiFile write SetOnAskMultiFile;
+    property OnAskFolder: TCHXSEAskFolderCB
+      read FOnAskFolder write SetOnAskFolder;
+    property OnAskOption: TCHXSEAskOptionCB
+      read FOnAskOption write SetOnAskOption;
 
     function RunScript: boolean;
     procedure Stop;
@@ -299,7 +303,7 @@ function cCHXScriptEngine.PasScriptOnFindUnknownFile(Sender: TObject;
   const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
-  f: TFileStream;
+  fStream: TFileStream;
 begin
 
   // TODO: Remove this info... or make a error level filter...
@@ -312,6 +316,7 @@ begin
   end;
 
   Result := False;
+
   FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) +
     FileName + '.pas';
   if not FileExistsUTF8(FullFileName) then
@@ -322,15 +327,16 @@ begin
   end;
 
   try
-    f := TFileStream.Create(FullFileName, fmOpenRead or fmShareDenyWrite);
+    fStream := TFileStream.Create(FullFileName, fmOpenRead or
+      fmShareDenyWrite);
   except
     Exit;
   end;
   try
-    SetLength(Output, f.Size);
-    f.Read(Output[1], Length(Output));
+    SetLength(Output, fStream.Size);
+    fStream.Read(Output[1], Length(Output));
   finally
-    f.Free;
+    fStream.Free;
   end;
   Result := True;
 end;
@@ -339,7 +345,7 @@ function cCHXScriptEngine.PasScriptOnNeedFile(Sender: TObject;
   const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
-  F: TFileStream;
+  fStream: TFileStream;
 begin
   FileName := AnsiDequotedStr(FileName, '''');
   FileName := AnsiDequotedStr(FileName, '"');
@@ -367,15 +373,16 @@ begin
   end;
 
   try
-    F := TFileStream.Create(FullFileName, fmOpenRead or fmShareDenyWrite);
+    fStream := TFileStream.Create(FullFileName, fmOpenRead or
+      fmShareDenyWrite);
   except
     Exit;
   end;
   try
-    SetLength(Output, f.Size);
-    f.Read(Output[1], Length(Output));
+    SetLength(Output, fStream.Size);
+    fStream.Read(Output[1], Length(Output));
   finally
-    f.Free;
+    fStream.Free;
   end;
   Result := True;
 end;
@@ -464,6 +471,7 @@ begin
   SIRegister_DB(x);
   SIRegister_ComObj(x);
 
+  // CHX Basic
   SIRegister_CHXBasic(x);
 
   // FPC
@@ -472,10 +480,13 @@ begin
   SIRegister_FPCLazUTF8(x);
   SIRegister_FPCFileUtil(x);
 
-  // CHX
+  // CHX units
   SIRegister_u7zWrapper(x);
   SIRegister_uCHXStrUtils(x);
   SIRegister_uCHXFileUtils(x);
+
+  // CHX abstracts
+  SIRegister_uaCHXStorable(x);
 end;
 
 procedure cCHXScriptEngine.PasScriptOnExecImport(Sender: TObject;
@@ -498,6 +509,7 @@ begin
   RIRegister_DB(x);
   RIRegister_ComObj(se);
 
+  // CHX Basic
   RIRegister_CHXBasic_Routines(se);
 
   // FPC units
@@ -510,6 +522,9 @@ begin
   RIRegister_u7zWrapper_Routines(se);
   RIRegister_uCHXStrUtils_Routines(se);
   RIRegister_uCHXFileUtils_Routines(se);
+
+  // CHX abstracts
+  RIRegister_uaCHXStorable(x);
 end;
 
 function cCHXScriptEngine.RunScript: boolean;

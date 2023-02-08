@@ -30,10 +30,8 @@ uses
 // TODO: Fix AnsiString parameters, a helper function must be created.
 //   See CHXRPos in implementation.
 
-{ compile-time registration functions }
 procedure SIRegister_FPCStrUtils(CL: TPSPascalCompiler);
 
-{ run-time registration functions }
 procedure RIRegister_FPCStrUtils_Routines(S: TPSExec);
 
 implementation
@@ -356,7 +354,7 @@ begin
   CL.AddDelphiFunction(
     'function RomanToInt(const S: string; Strictness: TRomanConversionStrictness): Longint;');
   CL.AddDelphiFunction(
-    'function RomanToIntDef(Const S : String; const ADefault: Longint; Strictness: TRomanConversionStrictness): Longint;');
+    'function RomanToIntDef(const S : String; const ADefault: Longint; Strictness: TRomanConversionStrictness): Longint;');
   //CL.AddDelphiFunction(
   //  'procedure BinToHex(BinValue, HexValue: PChar; BinBufSize: Integer);');
   //CL.AddDelphiFunction(
@@ -405,8 +403,7 @@ begin
   //CL.AddDelphiFunction(
   //  'procedure FindMatchesBoyerMooreCaseInSensitive(const S, OldPattern: String; out aMatches: SizeIntArray; const aMatchAll: Boolean);');
 
-  CL.AddTypeS('TStringReplaceAlgorithm',
-    '(sraDefault, sraManySmall, sraBoyerMoore)');
+  CL.AddTypeS('TStringReplaceAlgorithm', '(sraDefault, sraManySmall, sraBoyerMoore)');
 
   //CL.AddDelphiFunction(
   //  'function StringReplace(const S, OldPattern, NewPattern: string; Flags: TReplaceFlags; Algorithm : TStringReplaceAlgorithm): string;');

@@ -27,16 +27,12 @@ uses
   LazFileUtils, LazUTF8,
   uCHXStrUtils;
 
-{ compile-time registration functions }
 procedure SIRegister_uCHXStrUtils(CL: TPSPascalCompiler);
 
-{ run-time registration functions }
 procedure RIRegister_uCHXStrUtils_Routines(S: TPSExec);
 
 implementation
 
-(* === compile-time registration functions === *)
-(*----------------------------------------------------------------------------*)
 procedure SIRegister_uCHXStrUtils(CL: TPSPascalCompiler);
 begin
   // Resource Strings

@@ -23,19 +23,16 @@ interface
 uses
   SysUtils, Classes, uPSRuntime, uPSCompiler,
   FileUtil, LazFileUtils, LazUTF8,
+  // CHX units
   uCHX7zWrapper, uCHXFileUtils;
 
-{ compile-time registration functions }
 procedure SIRegister_uCHXFileUtils(CL: TPSPascalCompiler);
 
-{ run-time registration functions }
 procedure RIRegister_uCHXFileUtils_Routines(S: TPSExec);
 
 
 implementation
 
-(* === compile-time registration functions === *)
-(*----------------------------------------------------------------------------*)
 procedure SIRegister_uCHXFileUtils(CL: TPSPascalCompiler);
 begin
   // Resource Strings
