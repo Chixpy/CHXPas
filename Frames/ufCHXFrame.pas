@@ -1,5 +1,4 @@
 unit ufCHXFrame;
-
 {< TfmCHXFrame frame unit.
 
   Copyright (C) 2006-2019 Chixpy

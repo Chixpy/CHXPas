@@ -77,7 +77,8 @@ begin
     fmCHXAbout := TfmCHXAbout.Create(aForm);
     fmCHXAbout.Align := alClient;
 
-    fmCHXAbout.mAditional.Assign(aInfo);
+    if Assigned(aInfo) then
+      fmCHXAbout.mAditional.Assign(aInfo);
 
     aForm.LoadGUIConfig(aGUIConfigIni);
     aForm.LoadGUIIcons(aGUIIconsIni);
