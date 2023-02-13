@@ -31,6 +31,8 @@ uses
 
 type
 
+  TCHXBGRAIVBackground = (bkTransparent, bkColor, bkChecker);
+
   { TfmCHXBGRAImgViewer }
 
   TfmCHXBGRAImgViewer = class(TfmCHXFrame)
@@ -59,11 +61,17 @@ type
     FActualImage: TBGRABitmap;
     FAutoCenterOnLoad: boolean;
     FAutoZoomOnLoad: boolean;
+    FBackgroundChecker: TBGRAPixel;
+    FBackgroundColor: TBGRAPixel;
+    FBackgroundType: TCHXBGRAIVBackground;
     FPopUpMenuEnabled: boolean;
     FVisibleImage: TBGRABitmap;
     FZoom: integer;
     procedure SetAutoCenterOnLoad(AValue: boolean);
     procedure SetAutoZoomOnLoad(AValue: boolean);
+    procedure SetBackgroundChecker(AValue: TBGRAPixel);
+    procedure SetBackgroundColor(AValue: TBGRAPixel);
+    procedure SetBackgroundType(AValue: TCHXBGRAIVBackground);
     procedure SetPopUpMenuEnabled(AValue: boolean);
     procedure SetVisibleImage(AValue: TBGRABitmap);
     procedure SetZoom(AValue: integer);
@@ -88,6 +96,13 @@ type
     property ActualImage: TBGRABitmap read FActualImage write SetActualImage;
     {< Actual image. }
 
+    property BackgroundType: TCHXBGRAIVBackground
+      read FBackgroundType write SetBackgroundType;
+    property BackgroundColor: TBGRAPixel
+      read FBackgroundColor write SetBackgroundColor;
+    property BackgroundChecker: TBGRAPixel
+      read FBackgroundChecker write SetBackgroundChecker;
+
     property AutoZoomOnLoad: boolean read FAutoZoomOnLoad
       write SetAutoZoomOnLoad;
     {< Change Zoom on load image. }
@@ -96,7 +111,8 @@ type
     {< Center image when loaded. }
     property Zoom: integer read FZoom write SetZoom;
     {< Percentaje Zoom * 100. }
-    property PopUpMenuEnabled: boolean read FPopUpMenuEnabled write SetPopUpMenuEnabled;
+    property PopUpMenuEnabled: boolean
+      read FPopUpMenuEnabled write SetPopUpMenuEnabled;
 
     procedure ZoomIn;
     procedure ZoomOut;
@@ -178,15 +194,33 @@ begin
     DrawImage;
 end;
 
+procedure TfmCHXBGRAImgViewer.SetBackgroundChecker(AValue: TBGRAPixel);
+begin
+  if FBackgroundChecker = AValue then Exit;
+  FBackgroundChecker := AValue;
+end;
+
+procedure TfmCHXBGRAImgViewer.SetBackgroundColor(AValue: TBGRAPixel);
+begin
+  if FBackgroundColor = AValue then Exit;
+  FBackgroundColor := AValue;
+end;
+
+procedure TfmCHXBGRAImgViewer.SetBackgroundType(AValue: TCHXBGRAIVBackground);
+begin
+  if FBackgroundType = AValue then Exit;
+  FBackgroundType := AValue;
+end;
+
 procedure TfmCHXBGRAImgViewer.SetPopUpMenuEnabled(AValue: boolean);
 begin
   if FPopUpMenuEnabled = AValue then Exit;
   FPopUpMenuEnabled := AValue;
 
   if PopUpMenuEnabled then
-     sbxImage.PopupMenu := pmImgViewer
+    sbxImage.PopupMenu := pmImgViewer
   else
-     sbxImage.PopupMenu := nil;
+    sbxImage.PopupMenu := nil;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetAutoCenterOnLoad(AValue: boolean);
@@ -254,6 +288,7 @@ procedure TfmCHXBGRAImgViewer.DrawImage;
 var
   Temp: TBGRABitmap;
   ZWidth, ZHeight: integer;
+
 begin
   FreeAndNil(FVisibleImage);
 
@@ -291,15 +326,13 @@ begin
 
   FVisibleImage := TBGRABitmap.Create(ZWidth, ZHeight);
 
-  //  case rgbBackGround.ItemIndex of
-  //    1: ; // Transparent
-  //    2: // Color
-  //      VisibleImage.Fill(ColorToBGRA(cbxColorBackground.Selected));
-  //    else
-  //      // Checker
-  VisibleImage.DrawCheckers(Rect(0, 0, ZWidth, ZHeight),
-    BGRA(224, 224, 224), BGRA(192, 192, 192));
-  //  end;
+  case BackgroundType of
+    bkColor: VisibleImage.Fill(BackgroundColor);
+    bkChecker: VisibleImage.DrawCheckers(Rect(0, 0, ZWidth, ZHeight),
+        BackgroundColor, BackgroundChecker);
+    else //bkTransparent
+      ;
+  end;
 
   Temp := ActualImage.Resample(ZWidth, ZHeight, rmSimpleStretch);
 
@@ -360,6 +393,10 @@ begin
   Zoom := 100;
   AutoCenterOnLoad := True;
   PopUpMenuEnabled := True;
+
+  BackgroundType := bkTransparent;
+  BackgroundColor := BGRA(0, 0, 0, 0);
+  BackgroundChecker := BGRA(128, 128, 128, 0);
 
   OnLoadFrameData := @DoLoadFrameData;
   OnClearFrameData := @DoClearFrameData;
