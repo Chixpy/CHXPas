@@ -287,6 +287,7 @@ begin
   pbProgress.Position := aValue;
   Cancelable := IsCancelable;
 
+  Application.ProcessMessages;
 
   if aValue <> 0 then
   begin

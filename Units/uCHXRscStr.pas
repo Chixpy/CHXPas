@@ -29,9 +29,11 @@ resourcestring
   rsCUExcNilParameter = '%0:s: %1:s parameter (%2:s) = nil';
   {< A required parameter is nil.
     @param(%0:s Method name) }
-
   rsCUExcAlreadyExists = '"%0:s" already exists.';
   {< Something unique already exists.
+    @param(%0:s Item)}
+  rsCUExcAlreadyExistsAsk = '"%0:s" already exists.' + LineEnding + 'Replace it?';
+  {< Something unique already exists and ask if replace it.
     @param(%0:s Item)}
   rsCUExcCardRange = '"%0:d" is not in cardinal range.';
   {< "10000000000000000" is not in cardinal range.}
@@ -50,6 +52,8 @@ resourcestring
 
   rsFileNotFound = '%0:s' + LineEnding +
     'not found.';
+  rsErrorLoadingFile = 'Error loading:' + LineEnding +
+    '%0:s';
   rsRenameFile = 'Rename this file:';
   rsRenameFileCaption = 'Renaming file';
   rsCorfirmDeleteFile = '%0:s' + LineEnding +
