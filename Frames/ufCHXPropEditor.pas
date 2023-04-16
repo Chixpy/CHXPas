@@ -33,7 +33,6 @@ uses
   ufCHXFrame;
 
 type
-
   { TfmCHXPropEditor }
 
   TfmCHXPropEditor = class(TfmCHXFrame)

@@ -39,9 +39,10 @@ uses
   // CHX
   uCHXStrUtils, uCHX7zWrapper,
   // CHX Imported units
+  uPSI_CHXBasic, uPSI_FPCDateUtils,
   uPSI_FPCSysUtils, uPSI_FPCStrUtils, uPSI_FPCLazUTF8, uPSI_FPCFileUtil,
+  uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
   uPSI_u7zWrapper,
-  uPSI_CHXBasic, uPSI_uCHXStrUtils, uPSI_uCHXFileUtils,
   uPSI_uaCHXStorable;
 
 resourcestring
@@ -52,8 +53,9 @@ resourcestring
   rsSEELOK = 'OK';
 
   // Compilation / Execute messajes
-  rsSEECompilationMsg = 'Compiling.';
-  rsSEEExecutionMsg = 'Executing.';
+  rsSEECompilationMsg = 'Compiling script.';
+  rsSEEExecutionMsg = 'Executing script.';
+  rsSEEFinishedMsg = 'Script finished.';
 
   rsSEMsgFormat = '[%0:s](%1:.4d:%2:.4d): %3:s';
   {< Default format for messages.
@@ -74,8 +76,8 @@ type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(
-    const aCaption, aExtFilter, DefFile: string): string of object;
+  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
+    string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
@@ -288,6 +290,8 @@ begin
     'function AskOption(const aCaption, aQuestion: string;' +
     ' aOptionList: TStrings): integer');
 
+  // Things not imported
+
   // HACK: We can't create Stringlist!!!
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXCreateStringList,
     'function CreateStringList: TStringList;');
@@ -479,6 +483,7 @@ begin
   SIRegister_FPCStrUtils(x);
   SIRegister_FPCLazUTF8(x);
   SIRegister_FPCFileUtil(x);
+  SIRegister_FPCDateUtils(x);
 
   // CHX units
   SIRegister_u7zWrapper(x);
@@ -517,6 +522,7 @@ begin
   RIRegister_FPCStrUtils_Routines(se);
   RIRegister_FPCLazUTF8_Routines(se);
   RIRegister_FPCFileUtil_Routines(se);
+  RIRegister_FPCDateUtils_Routines(se);
 
   // CHX units
   RIRegister_u7zWrapper_Routines(se);
@@ -533,13 +539,16 @@ begin
   if not CompileScript then
     Exit;
 
+  if Assigned(ScriptError) then
+    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEEExecutionMsg]));
+
   Result := PasScript.Execute;
 
   if Result then
   begin
     if Assigned(ScriptError) then
       ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
-        rsSEEExecutionMsg]));
+        rsSEEFinishedMsg]));
     Exit;
   end;
 
@@ -570,15 +579,13 @@ begin
   if Assigned(ScriptError) then
     ScriptError.Clear;
 
+  if Assigned(ScriptError) then
+    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEECompilationMsg]));
+
   Result := PaSScript.Compile;
 
   if Result then
-  begin
-    if Assigned(ScriptError) then
-      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
-        rsSEECompilationMsg]));
     Exit;
-  end;
 
   if not Assigned(ScriptError) then
     Exit;

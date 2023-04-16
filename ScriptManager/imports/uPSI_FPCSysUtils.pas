@@ -1,6 +1,6 @@
 unit uPSI_FPCSysUtils;
 
-{< SysUtils for Pascal Script.
+{< SysUtils unit for Pascal Script.
 
   Copyright (C) 2020-2020 Chixpy
 

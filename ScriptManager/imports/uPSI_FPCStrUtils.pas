@@ -1,5 +1,5 @@
 unit uPSI_FPCStrUtils;
-{< StrUtils for Pascal Script.
+{< StrUtils unit for Pascal Script.
 
   Copyright (C) 2019-2020 Chixpy
 
