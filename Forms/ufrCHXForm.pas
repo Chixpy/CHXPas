@@ -1,4 +1,5 @@
 unit ufrCHXForm;
+
 {< TfrmCHXForm form unit.
 
   Copyright (C) 2017-2022 Chixpy
@@ -135,7 +136,7 @@ begin
 
     if CompareText(aValue, 'wsMaximized') = 0 then
     begin
-      WindowState := wsMaximized
+      WindowState := wsMaximized;
     end
     else if CompareText(aValue, 'wsNormal') = 0 then
     begin
@@ -156,7 +157,9 @@ begin
 end;
 
 procedure TfrmCHXForm.LoadGUIIcons(aIconsIni: string);
-  procedure LoadGUIIconsChildren(aComponent: TComponent; aGUIIconsIni: TIniFile; aBaseFolder: string);
+
+  procedure LoadGUIIconsChildren(aComponent: TComponent;
+    aGUIIconsIni: TIniFile; aBaseFolder: string);
   var
     i: integer;
   begin
@@ -171,7 +174,8 @@ procedure TfrmCHXForm.LoadGUIIcons(aIconsIni: string);
       while i < aComponent.ComponentCount do
       begin
         // Searching in aComponent childrens
-        LoadGUIIconsChildren(aComponent.Components[i], aGUIIconsIni, aBaseFolder);
+        LoadGUIIconsChildren(aComponent.Components[i], aGUIIconsIni,
+          aBaseFolder);
         Inc(i);
       end;
     end;
