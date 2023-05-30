@@ -130,7 +130,7 @@ begin
     aOptions := aProcess.Options;
     Exclude(aOptions, poRunSuspended);
     Include(aOptions, poNoConsole);
-    //Include(aOptions, poWaitOnExit);
+    Include(aOptions, poWaitOnExit); // Sometimes the process hangs...
     aProcess.Options := aOptions;
 
     aProcess.RunCommandLoop(oStdOut, oStdErr, oExitCode);
