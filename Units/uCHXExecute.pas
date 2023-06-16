@@ -29,7 +29,7 @@ uses
 
 function ExecuteCMDSL(aWorkFolder, aExeFile: string;
   aParams: TStrings; out oStdOut, oStdErr: string;
-  out oExitCode: integer): boolean;
+  out oExitCode: integer; const UseWOE: boolean = True): boolean;
 {< Executes a external program. Waits to exit, if you don't want to wait maybe
     want to create it in a thread.
 
@@ -40,22 +40,28 @@ function ExecuteCMDSL(aWorkFolder, aExeFile: string;
     @param(oStdOut String where normal output will be stored.)
     @param(oStdErr String where error output will be stored.)
     @param(oExitCode Exit code of command.)
+    @param(UseWOE Actually adds the option poWaitOnExit to the proccess.
+      Actually, the program waits for proccess finish anyway, but
+      using the option poWaitOnExit it will cosume less resources.
+      But using this option sometimes hangs the proccess, especially
+      if many calls are made very quickly.)
     @return(@true on success calling command, @false otherwise (wich is
-      different from command exit code))
+      different from actual command exit code))
 }
 
 function ExecuteCMDArray(const aWorkFolder, aExeFile: string;
   aParams: array of string; out oStdOut, oStdErr: string;
-  out oExitCode: integer): boolean;
+  out oExitCode: integer; const UseWOE: boolean = True): boolean;
 
 function ExecuteCMDString(const aWorkFolder, aExeFile: string;
   aParams: string; out oStdOut, oStdErr: string;
-  out oExitCode: integer): boolean;
+  out oExitCode: integer; const UseWOE: boolean = True): boolean;
 
 implementation
 
 function ExecuteCMDSL(aWorkFolder, aExeFile: string; aParams: TStrings;
-  out oStdOut, oStdErr: string; out oExitCode: integer): boolean;
+  out oStdOut, oStdErr: string; out oExitCode: integer;
+  const UseWOE: boolean): boolean;
 var
   aProcess: TProcessUTF8;
   aOptions: TProcessOptions;
@@ -130,7 +136,8 @@ begin
     aOptions := aProcess.Options;
     Exclude(aOptions, poRunSuspended);
     Include(aOptions, poNoConsole);
-    Include(aOptions, poWaitOnExit); // Sometimes the process hangs...
+    if UseWOE then
+      Include(aOptions, poWaitOnExit); // Sometimes the process hangs...
     aProcess.Options := aOptions;
 
     aProcess.RunCommandLoop(oStdOut, oStdErr, oExitCode);
@@ -144,7 +151,7 @@ end;
 
 function ExecuteCMDArray(const aWorkFolder, aExeFile: string;
   aParams: array of string; out oStdOut, oStdErr: string;
-  out oExitCode: integer): boolean;
+  out oExitCode: integer; const UseWOE: boolean): boolean;
 var
   Params: TStringList;
   i: integer;
@@ -162,7 +169,7 @@ begin
     end;
 
     Result := ExecuteCMDSL(aWorkFolder, aExeFile, Params, oStdOut,
-      oStdErr, oExitCode);
+      oStdErr, oExitCode, UseWOE);
 
   finally
     Params.Free;
@@ -171,7 +178,7 @@ end;
 
 function ExecuteCMDString(const aWorkFolder, aExeFile: string;
   aParams: string; out oStdOut, oStdErr: string;
-  out oExitCode: integer): boolean;
+  out oExitCode: integer; const UseWOE: boolean): boolean;
 var
   Params: TStringList;
 begin
@@ -180,7 +187,7 @@ begin
     SplitCmdLineParams(aParams, Params, False);
 
     Result := ExecuteCMDSL(aWorkFolder, aExeFile, Params, oStdOut,
-      oStdErr, oExitCode);
+      oStdErr, oExitCode, UseWOE);
 
   finally
     Params.Free;

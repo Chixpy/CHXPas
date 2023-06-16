@@ -658,7 +658,7 @@ begin
   ExecuteCMDArray('', w7zGetPathTo7zexe,
     ['l', '-slt', '-scsUTF-8', '-sccUTF-8', aParam, '--',
     SysPath(a7zArchive)],
-    sOutput, sStdErr, i);
+    sOutput, sStdErr, i, False);
 
   slOutput := TStringList.Create;
   try
@@ -928,7 +928,7 @@ begin
     Params.Add(a7zArchive);
     Params.Add(aFileMask);
 
-    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result, False);
 
     if Result > 0 then
     begin
@@ -938,7 +938,8 @@ begin
         if Result > 1 then
         begin
           slOutput.Text := sStdErr;
-          w7zErrorAdd('w7zExtractFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAdd('w7zExtractFile', Format(rsw7zExeError,
+            [a7zArchive, Result]));
           w7zErrorAddStdErr(slOutput);
         end;
 
@@ -1027,7 +1028,7 @@ begin
     for i := 0 to aFileList.Count - 1 do
       Params.Add(aFileList[i]);
 
-    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result, False);
 
     if Result > 0 then
     begin
@@ -1037,7 +1038,8 @@ begin
         if Result > 1 then
         begin
           slOutput.Text := sStdErr;
-          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
+            [a7zArchive, Result]));
           w7zErrorAddStdErr(slOutput);
         end;
 
@@ -1127,7 +1129,7 @@ begin
     else
       Params.Add(aFolder + '*');
 
-      ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result);
+    ExecuteCMDSL('', aExeString, Params, sStdOut, sStdErr, Result, False);
 
     if Result > 0 then
     begin
@@ -1137,7 +1139,8 @@ begin
         if Result > 1 then
         begin
           slOutput.Text := sStdErr;
-          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError, [a7zArchive, Result]));
+          w7zErrorAdd('w7zCompressFile', Format(rsw7zExeError,
+            [a7zArchive, Result]));
           w7zErrorAddStdErr(slOutput);
         end;
 
