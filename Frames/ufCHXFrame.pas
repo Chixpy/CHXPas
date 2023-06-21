@@ -1,4 +1,5 @@
 unit ufCHXFrame;
+
 {< TfmCHXFrame frame unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -28,45 +29,33 @@ uses
   uCHXImageUtils;
 
 type
-  TCHXUseGUIConfigIni = procedure(aIniFile: TIniFile) of object;
-  TCHXUseIconsConfigIni = procedure(aIniFile: TIniFile;
-    const aBaseFolder: string) of object;
-  TCHXFrameDataUpdate = procedure of object;
-
   { TfmCHXFrame }
   TfmCHXFrame = class(TFrame)
   private
-    FOnClearFrameData: TCHXFrameDataUpdate;
-    FOnLoadFrameData: TCHXFrameDataUpdate;
-    FOnLoadGUIConfig: TCHXUseGUIConfigIni;
-    FOnLoadGUIIcons: TCHXUseIconsConfigIni;
-    FOnSaveGUIConfig: TCHXUseGUIConfigIni;
-    procedure SetOnClearFrameData(AValue: TCHXFrameDataUpdate);
-    procedure SetOnLoadFrameData(AValue: TCHXFrameDataUpdate);
-    procedure SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
-    procedure SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
-    procedure SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
 
   protected
-    property OnLoadGUIConfig: TCHXUseGUIConfigIni
-      read FOnLoadGUIConfig write SetOnLoadGUIConfig;
-    property OnSaveGUIConfig: TCHXUseGUIConfigIni
-      read FOnSaveGUIConfig write SetOnSaveGUIConfig;
+    procedure DoLoadGUIConfig(aIniFile: TIniFile); virtual;
+    procedure DoSaveGUIConfig(aIniFile: TIniFile); virtual;
 
-    property OnLoadGUIIcons: TCHXUseIconsConfigIni
-      read FOnLoadGUIIcons write SetOnLoadGUIIcons;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile;
+      const aBaseFolder: string); virtual;
 
-    property OnClearFrameData: TCHXFrameDataUpdate
-      read FOnClearFrameData write SetOnClearFrameData;
-    property OnLoadFrameData: TCHXFrameDataUpdate
-      read FOnLoadFrameData write SetOnLoadFrameData;
+    class function GenSimpleModalFormDontFree(aCHXFrame: TfmCHXFrame;
+      const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni:
+      string): integer;
+    {< Generic function to create a Modal Form from a frame,
+      without freeing the frame at Form Close; so we can read any value
+      from it and return it.
+    }
 
     class function GenSimpleModalForm(aCHXFrame: TfmCHXFrame;
       const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni:
       string): integer;
+    {< Generic function to create a Modal Form from a frame. }
 
     class procedure GenSimpleForm(aCHXFrame: TfmCHXFrame;
       const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni: string);
+    {< Generic procedure to create a Normal Form from a frame. }
 
   public
     procedure LoadGUIConfig(aIniFile: TIniFile);
@@ -76,9 +65,6 @@ type
 
     procedure LoadGUIIcons(aIconsIni: TIniFile; aBaseFolder: string);
     //< Load GUI icons.
-
-    procedure ClearFrameData;
-    procedure LoadFrameData;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -94,40 +80,65 @@ uses
 {$R *.lfm}
 
 { TfmCHXFrame }
-
-procedure TfmCHXFrame.SetOnClearFrameData(AValue: TCHXFrameDataUpdate);
+procedure TfmCHXFrame.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
-  if FOnClearFrameData = AValue then
-    Exit;
-  FOnClearFrameData := AValue;
+
 end;
 
-procedure TfmCHXFrame.SetOnLoadFrameData(AValue: TCHXFrameDataUpdate);
+procedure TfmCHXFrame.DoSaveGUIConfig(aIniFile: TIniFile);
 begin
-  if FOnLoadFrameData = AValue then
-    Exit;
-  FOnLoadFrameData := AValue;
+
 end;
 
-procedure TfmCHXFrame.SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
+procedure TfmCHXFrame.DoLoadGUIIcons(aIniFile: TIniFile;
+  const aBaseFolder: string);
 begin
-  if FOnLoadGUIConfig = AValue then
-    Exit;
-  FOnLoadGUIConfig := AValue;
+
 end;
 
-procedure TfmCHXFrame.SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
+class function TfmCHXFrame.GenSimpleModalFormDontFree(aCHXFrame: TfmCHXFrame;
+  const aFormName, aFormTitle, aGUIConfigIni, aGUIIconsIni: string): integer;
+var
+  aForm: TfrmCHXForm;
+  aOwner: TComponent;
 begin
-  if FOnLoadGUIIcons = AValue then
+  Result := mrNone;
+  if not Assigned(aCHXFrame) then
     Exit;
-  FOnLoadGUIIcons := AValue;
-end;
+  if aFormName = '' then
+    Exit;
+  if aFormTitle = '' then
+    Exit;
 
-procedure TfmCHXFrame.SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
-begin
-  if FOnSaveGUIConfig = AValue then
-    Exit;
-  FOnSaveGUIConfig := AValue;
+  Application.CreateForm(TfrmCHXForm, aForm);
+  try
+    aForm.Name := aFormName;
+    aForm.Caption := aFormTitle;
+
+    // Removing from previous owner...
+    aOwner := aCHXFrame.Owner;
+    if Assigned(aOwner) then
+      aCHXFrame.Owner.RemoveComponent(aCHXFrame);
+
+    // ...assigning to aForm...
+    aForm.InsertComponent(aCHXFrame);
+
+    aCHXFrame.Align := alClient;
+    aCHXFrame.Parent := aForm;
+
+    // ...so, we can read GUI config and icons
+    aForm.LoadGUIConfig(aGUIConfigIni);
+    aForm.LoadGUIIcons(aGUIIconsIni);
+
+    // Restoring previous Owner
+    aForm.RemoveComponent(aCHXFrame);
+    if Assigned(aOwner) then
+      aOwner.InsertComponent(aCHXFrame);
+
+    Result := aForm.ShowModal;
+  finally
+    aForm.Free;
+  end;
 end;
 
 class function TfmCHXFrame.GenSimpleModalForm(aCHXFrame: TfmCHXFrame;
@@ -226,8 +237,7 @@ begin
   if not Assigned(aIniFile) then
     Exit;
 
-  if Assigned(OnLoadGUIConfig) then
-    OnLoadGUIConfig(aIniFile);
+  DoLoadGUIConfig(aIniFile);
 
   // Updating all TfmCHXFrame components
   i := 0;
@@ -267,8 +277,7 @@ var
 begin
   if not Assigned(aIniFile) then
     Exit;
-  if Assigned(OnSaveGUIConfig) then
-    OnSaveGUIConfig(aIniFile);
+  DoSaveGUIConfig(aIniFile);
 
   // Updating all TfmCHXFrame components
   i := 0;
@@ -309,8 +318,7 @@ begin
   if not assigned(aIconsIni) then
     Exit;
 
-  if Assigned(OnLoadGUIIcons) then
-    OnLoadGUIIcons(aIconsIni, aBaseFolder);
+  DoLoadGUIIcons(aIconsIni, aBaseFolder);
 
   // Updating all TfmCHXFrame components
   i := 0;
@@ -321,18 +329,6 @@ begin
   end;
 
   FixComponentImagesFromActions(Self);
-end;
-
-procedure TfmCHXFrame.ClearFrameData;
-begin
-  if Assigned(OnClearFrameData) then
-    OnClearFrameData;
-end;
-
-procedure TfmCHXFrame.LoadFrameData;
-begin
-  if Assigned(OnLoadFrameData) then
-    OnLoadFrameData;
 end;
 
 constructor TfmCHXFrame.Create(TheOwner: TComponent);

@@ -271,12 +271,25 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     }
   end
   inherited alPreviewList: TActionList[6]
+    inherited actPreviousItem: TAction
+      ShortCut = 37
+    end
+    inherited actNextItem: TAction
+      ShortCut = 39
+    end
+    inherited actFirstItem: TAction
+      ShortCut = 36
+    end
+    inherited actLastItem: TAction
+      ShortCut = 35
+    end
     object actOriginalSize: TAction[4]
       Category = 'Image'
       Caption = 'Original size'
       Hint = 'Resize image to original size.'
       ImageIndex = 10
       OnExecute = actOriginalSizeExecute
+      ShortCut = 106
     end
     object actZoomIn: TAction[5]
       Category = 'Image'
@@ -284,6 +297,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
       Hint = 'Zoom image in.'
       ImageIndex = 9
       OnExecute = actZoomInExecute
+      ShortCut = 107
     end
     object actZoomOut: TAction[6]
       Category = 'Image'
@@ -291,6 +305,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
       Hint = 'Zoom image out.'
       ImageIndex = 11
       OnExecute = actZoomOutExecute
+      ShortCut = 109
     end
     object actStretch: TAction[7]
       Category = 'Image'
@@ -300,6 +315,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
       Hint = 'Stretch image to window.'
       ImageIndex = 12
       OnExecute = actStretchExecute
+      ShortCut = 111
     end
     object actClose: TAction[8]
       Category = 'Window'
@@ -320,6 +336,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     inherited actOpenFileFolder: TAction[11]
     end
     inherited actDeleteFile: TAction[12]
+      ShortCut = 46
     end
     inherited actRenameFile: TAction[13]
     end

@@ -120,9 +120,6 @@ type
     function AddFile(const aFile: string;
       aRootNode: PVirtualNode): PVirtualNode;
 
-    procedure DoClearFrameData;
-    procedure DoLoadFrameData;
-
   public
     property TagsFolder: string read FTagsFolder write SetTagsFolder;
     property TagsFileMask: string read FTagsFileMask write SetTagsFileMask;
@@ -369,16 +366,6 @@ begin
   VST.CheckState[Result] := csUncheckedNormal;
 end;
 
-procedure TfmCHXTagTree.DoClearFrameData;
-begin
-
-end;
-
-procedure TfmCHXTagTree.DoLoadFrameData;
-begin
-
-end;
-
 procedure TfmCHXTagTree.UpdateTree;
 begin
   VST.Clear;
@@ -392,10 +379,6 @@ end;
 constructor TfmCHXTagTree.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnClearFrameData := @DoClearFrameData;
-  OnLoadFrameData := @DoLoadFrameData;
-  // OnSaveFrameData := @DoSaveFrameData;
 
   TagsFileMask := krsCHXTagTreeFileMask;
   VST.NodeDataSize := SizeOf(TCHXTagTreeData);

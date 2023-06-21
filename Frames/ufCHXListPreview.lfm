@@ -125,6 +125,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Hint = 'Go to previous item.'
       ImageIndex = 1
       OnExecute = actPreviousItemExecute
+      ShortCut = 37
     end
     object actNextItem: TAction
       Category = 'List'
@@ -133,6 +134,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Hint = 'Go to next item.'
       ImageIndex = 2
       OnExecute = actNextItemExecute
+      ShortCut = 39
     end
     object actFirstItem: TAction
       Category = 'List'
@@ -141,6 +143,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Hint = 'Go to first item'
       ImageIndex = 0
       OnExecute = actFirstItemExecute
+      ShortCut = 36
     end
     object actLastItem: TAction
       Category = 'List'
@@ -149,6 +152,7 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Hint = 'Go to last item.'
       ImageIndex = 3
       OnExecute = actLastItemExecute
+      ShortCut = 35
     end
   end
   object pmPreviewList: TPopupMenu[3]

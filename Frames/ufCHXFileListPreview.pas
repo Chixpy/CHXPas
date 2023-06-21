@@ -25,7 +25,7 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ActnList, LCLIntf, Menus, ExtCtrls, LazFileUtils,
+  ActnList, LCLIntf, Menus, ExtCtrls, LazFileUtils,
   // CHX units
   uCHXRscStr, uCHXStrUtils,
   // CHX frames
@@ -62,7 +62,7 @@ type
     procedure SetFileList(AValue: TStrings);
 
   protected
-    procedure DoLoadFrameData; override;
+    procedure LoadFrameData;
 
   public
     property FileList: TStrings read FFileList write SetFileList;
@@ -179,12 +179,10 @@ begin
     ItemCount := 0;
 end;
 
-procedure TfmCHXFileListPreview.DoLoadFrameData;
+procedure TfmCHXFileListPreview.LoadFrameData;
 var
   aEnabled: boolean;
 begin
-  inherited DoLoadFrameData;
-
   aEnabled := ItemCount > 0;
   actOpenWithDefApp.Enabled := aEnabled;
   actOpenFileFolder.Enabled := aEnabled;

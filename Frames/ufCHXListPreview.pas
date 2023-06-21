@@ -1,4 +1,5 @@
 unit ufCHXListPreview;
+
 {< TfmCHXListPreview frame unit.
 
   Copyright (C) 2017-2022 Chixpy
@@ -77,11 +78,11 @@ type
   protected
     procedure OnCurrItemChange; virtual; abstract;
 
-    procedure DoClearFrameData; virtual;
-    procedure DoLoadFrameData; virtual;
+    procedure ClearFrameData;
+    procedure LoadFrameData;
 
     procedure DoLoadGUIIcons(aIniFile: TIniFile;
-      const aBaseFolder: string); virtual;
+      const aBaseFolder: string); override;
 
   public
     property ItemCount: integer read FItemCount write SetItemCount;
@@ -111,6 +112,8 @@ end;
 procedure TfmCHXListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
   const aBaseFolder: string);
 begin
+  inherited;
+
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList,
     alPreviewList);
 end;
@@ -120,10 +123,6 @@ begin
   inherited Create(TheOwner);
 
   ItemIndex := -1;
-
-  OnClearFrameData := @DoClearFrameData;
-  OnLoadFrameData := @DoLoadFrameData;
-  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXListPreview.Destroy;
@@ -163,7 +162,7 @@ end;
 
 procedure TfmCHXListPreview.actPreviousItemExecute(Sender: TObject);
 begin
-    // If there is only 1 item, do nothing.
+  // If there is only 1 item, do nothing.
   if ItemCount < 2 then
     Exit;
 
@@ -208,18 +207,22 @@ begin
   OnCurrItemChange;
 end;
 
-procedure TfmCHXListPreview.DoClearFrameData;
+procedure TfmCHXListPreview.ClearFrameData;
 begin
+  inherited;
+
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
   cbxCurrItem.Clear;
   ItemIndex := -1;
 end;
 
-procedure TfmCHXListPreview.DoLoadFrameData;
+procedure TfmCHXListPreview.LoadFrameData;
 var
   i: integer;
   ButtonEnabled: boolean;
 begin
+  inherited;
+
   Enabled := ItemCount > 0;
 
   if not Enabled then

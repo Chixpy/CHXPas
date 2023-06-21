@@ -37,24 +37,15 @@ type
   TfrmCHXForm = class(TForm)
   private
     FFormGUIConfig: string;
-    FOnLoadGUIConfig: TCHXUseGUIConfigIni;
-    FOnLoadGUIIcons: TCHXUseIconsConfigIni;
-    FOnSaveGUIConfig: TCHXUseGUIConfigIni;
     procedure SetFormGUIConfig(const aFormGUIConfig: string);
-    procedure SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
-    procedure SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
-    procedure SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
 
   protected
     property FormGUIConfig: string read FFormGUIConfig write SetFormGUIConfig;
 
-    property OnLoadGUIConfig: TCHXUseGUIConfigIni
-      read FOnLoadGUIConfig write SetOnLoadGUIConfig;
-    property OnSaveGUIConfig: TCHXUseGUIConfigIni
-      read FOnSaveGUIConfig write SetOnSaveGUIConfig;
+    procedure DoLoadGUIConfig (aIniFile: TIniFile); virtual;
+    procedure DoSaveGUIConfig (aIniFile: TIniFile); virtual;
 
-    property OnLoadGUIIcons: TCHXUseIconsConfigIni
-      read FOnLoadGUIIcons write SetOnLoadGUIIcons;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string); virtual;
 
   public
     procedure LoadGUIConfig(const aGUIConfigIni: string);
@@ -70,30 +61,25 @@ implementation
 {$R *.lfm}
 
 { TfrmCHXForm }
-procedure TfrmCHXForm.SetOnLoadGUIConfig(AValue: TCHXUseGUIConfigIni);
-begin
-  if FOnLoadGUIConfig = AValue then
-    Exit;
-  FOnLoadGUIConfig := AValue;
-end;
-
 procedure TfrmCHXForm.SetFormGUIConfig(const aFormGUIConfig: string);
 begin
   FFormGUIConfig := SetAsFile(aFormGUIConfig);
 end;
 
-procedure TfrmCHXForm.SetOnLoadGUIIcons(AValue: TCHXUseIconsConfigIni);
+procedure TfrmCHXForm.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
-  if FOnLoadGUIIcons = AValue then
-    Exit;
-  FOnLoadGUIIcons := AValue;
+
 end;
 
-procedure TfrmCHXForm.SetOnSaveGUIConfig(AValue: TCHXUseGUIConfigIni);
+procedure TfrmCHXForm.DoSaveGUIConfig(aIniFile: TIniFile);
 begin
-  if FOnSaveGUIConfig = AValue then
-    Exit;
-  FOnSaveGUIConfig := AValue;
+
+end;
+
+procedure TfrmCHXForm.DoLoadGUIIcons(aIniFile: TIniFile;
+  const aBaseFolder: string);
+begin
+
 end;
 
 procedure TfrmCHXForm.LoadGUIConfig(const aGUIConfigIni: string);
@@ -146,8 +132,7 @@ begin
     end;
 
 
-    if Assigned(OnLoadGUIConfig) then
-      OnLoadGUIConfig(aIniFile);
+    DoLoadGUIConfig(aIniFile);
 
     // Updating all TfmCHXFrame components
     LoadGUIConfigChildren(Self, aIniFile);
@@ -191,8 +176,7 @@ begin
 
   aIniFile := TMemIniFile.Create(aIconsIni);
   try
-    if Assigned(OnLoadGUIIcons) then
-      OnLoadGUIIcons(aIniFile, ExtractFilePath(aIconsIni));
+    DoLoadGUIIcons(aIniFile, ExtractFilePath(aIconsIni));
 
     // Updating all TfmCHXFrame components
     LoadGUIIconsChildren(Self, aIniFile, ExtractFilePath(aIconsIni));
@@ -252,8 +236,7 @@ begin
         aIniFile.WriteInteger('Forms', Name + '_Height', Height);
       end;
 
-      if Assigned(OnSaveGUIConfig) then
-        OnSaveGUIConfig(aIniFile);
+      DoSaveGUIConfig(aIniFile);
 
       SaveGUIConfigChildren(Self, aIniFile);
       aIniFile.UpdateFile;
