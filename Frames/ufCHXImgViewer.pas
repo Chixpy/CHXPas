@@ -399,33 +399,16 @@ class function TfmCHXImgViewer.SimpleFormIL(aImageList: TStrings;
   aSHA1Folder: string; aCurrItem: integer; aGUIIconsIni: string;
   aGUIConfigIni: string): integer;
 var
-  aForm: TfrmCHXForm;
   fmCHXImageViewer: TfmCHXImgViewer;
 begin
-  Result := mrNone;
+  fmCHXImageViewer := TfmCHXImgViewer.Create(nil);
 
-  Application.CreateForm(TfrmCHXForm, aForm);
-  try
-    // TODO. Use inherited GenSimpleModalForm
-    aForm.Name := 'frmCHXImgViewer';
-    aForm.Caption := Application.Title + ': Image Viewer';
-    aForm.AutoSize := False;
-    fmCHXImageViewer := TfmCHXImgViewer.Create(aForm);
-    fmCHXImageViewer.Align := alClient;
+  fmCHXImageViewer.SHA1Folder := aSHA1Folder;
+  fmCHXImageViewer.FileList := aImageList;
+  fmCHXImageViewer.ItemIndex := aCurrItem;
 
-    fmCHXImageViewer.SHA1Folder := aSHA1Folder;
-    fmCHXImageViewer.FileList := aImageList;
-    fmCHXImageViewer.ItemIndex := aCurrItem;
-
-    aForm.LoadGUIConfig(aGUIConfigIni);
-    aForm.LoadGUIIcons(aGUIIconsIni);
-    fmCHXImageViewer.Parent := aForm;
-
-    Result := aForm.ShowModal;
-  finally
-    fmCHXImageViewer.Free;
-    aForm.Free;
-  end;
+  Result := GenSimpleModalForm(fmCHXImageViewer, 'frmCHXImgViewer',
+    Application.Title + ': Image Viewer', aGUIConfigIni, aGUIIconsIni);
 end;
 
 class function TfmCHXImgViewer.SimpleFormI(aImage: string;
@@ -460,4 +443,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXImgViewer);
+
+finalization
+  UnRegisterClass(TfmCHXImgViewer);
 end.

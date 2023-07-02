@@ -2,7 +2,7 @@ unit ufCHXFileListPreview;
 
 {< TfmCHXFileListPreview frame unit.
 
-  Copyright (C) 2017-2022 Chixpy
+  Copyright (C) 2017-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -62,11 +62,12 @@ type
     procedure SetFileList(AValue: TStrings);
 
   protected
-    procedure LoadFrameData;
 
   public
     property FileList: TStrings read FFileList write SetFileList;
     {< File list. }
+
+    procedure LoadFrameData; override;
 
     procedure FPOObservedChanged(ASender: TObject;
       Operation: TFPObservedOperation; Data: Pointer);
@@ -132,7 +133,6 @@ begin
 
   aFolder := ExtractFileDir(FileList[ItemIndex]);
 
-
   if not DirectoryExistsUTF8(aFolder) then
   begin
     ShowMessageFmt(rsFileNotFound, [aFolder]);
@@ -183,6 +183,8 @@ procedure TfmCHXFileListPreview.LoadFrameData;
 var
   aEnabled: boolean;
 begin
+  inherited LoadFrameData;
+
   aEnabled := ItemCount > 0;
   actOpenWithDefApp.Enabled := aEnabled;
   actOpenFileFolder.Enabled := aEnabled;
@@ -215,4 +217,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXFileListPreview);
+
+finalization
+  UnRegisterClass(TfmCHXFileListPreview);
 end.

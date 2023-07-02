@@ -1,7 +1,7 @@
 unit ufCHXImgListPreview;
 {< TfmCHXImgListPreview frame unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -59,12 +59,12 @@ type
 
     procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string);
       override;
-    procedure DoLoadGUIConfig(aIniFile: TIniFile);
-
-    procedure DoClearFrameData; override;
+    procedure DoLoadGUIConfig(aIniFile: TIniFile); override;
 
   public
     property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
+
+    procedure ClearFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -125,12 +125,14 @@ end;
 
 procedure TfmCHXImgListPreview.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
+  Inherited DoLoadGUIConfig(aIniFile);
+
   GUIConfigIni := aIniFile.FileName;
 end;
 
-procedure TfmCHXImgListPreview.DoClearFrameData;
+procedure TfmCHXImgListPreview.ClearFrameData;
 begin
-  inherited DoClearFrameData;
+  inherited ClearFrameData;
 
   iImage.Picture.Clear;
 end;
@@ -138,8 +140,6 @@ end;
 constructor TfmCHXImgListPreview.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnLoadGUIConfig := @DoLoadGUIConfig;
 end;
 
 destructor TfmCHXImgListPreview.Destroy;
@@ -147,4 +147,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXImgListPreview);
+
+finalization
+  UnRegisterClass(TfmCHXImgListPreview);
 end.

@@ -248,4 +248,10 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfrmCHXForm);
+
+finalization
+  UnRegisterClass(TfrmCHXForm);
+
 end.

@@ -50,6 +50,7 @@ type
     procedure actPlayExecute(Sender: TObject);
     procedure actStopExecute(Sender: TObject);
     procedure tbrVolumeClick(Sender: TObject);
+
   private
     FMPlayerPath: string;
     FVolume: integer;
@@ -141,4 +142,9 @@ begin
   MPlayerControl.Filename := FileList[ItemIndex];
 end;
 
+initialization
+  RegisterClass(TfmCHXVideoListPreview);
+
+finalization
+  UnRegisterClass(TfmCHXVideoListPreview);
 end.

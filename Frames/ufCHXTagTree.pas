@@ -2,7 +2,7 @@ unit ufCHXTagTree;
 
 {< TfmCHXTagTree frame unit.
 
-  Copyright (C) 2017-2019 Chixpy
+  Copyright (C) 2017-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -27,7 +27,10 @@ uses
   Classes, SysUtils, FileUtil, VirtualTrees, VTHeaderPopup, Forms, Controls,
   Graphics, Dialogs, Menus, ActnList, ExtCtrls, ComCtrls, LCLIntf,
   LazFileUtils, LazUTF8,
-  uCHXStrUtils, ufCHXFrame;
+  // CHX units
+  uCHXStrUtils,
+  // CHX frames
+  ufCHXFrame;
 
 const
   krsCHXTagTreeFileMask = '*.ini';
@@ -393,4 +396,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXTagTree);
+
+finalization
+  UnRegisterClass(TfmCHXTagTree);
 end.

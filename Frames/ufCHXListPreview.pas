@@ -2,7 +2,7 @@ unit ufCHXListPreview;
 
 {< TfmCHXListPreview frame unit.
 
-  Copyright (C) 2017-2022 Chixpy
+  Copyright (C) 2017-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -78,9 +78,6 @@ type
   protected
     procedure OnCurrItemChange; virtual; abstract;
 
-    procedure ClearFrameData;
-    procedure LoadFrameData;
-
     procedure DoLoadGUIIcons(aIniFile: TIniFile;
       const aBaseFolder: string); override;
 
@@ -89,6 +86,9 @@ type
     {< Total number of items. }
     property ItemIndex: integer read FItemIndex write SetItemIndex;
     {< Current selected item position. }
+
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -112,7 +112,7 @@ end;
 procedure TfmCHXListPreview.DoLoadGUIIcons(aIniFile: TIniFile;
   const aBaseFolder: string);
 begin
-  inherited;
+  inherited DoLoadGUIIcons(aIniFile, aBaseFolder);
 
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPreviewList,
     alPreviewList);
@@ -209,7 +209,7 @@ end;
 
 procedure TfmCHXListPreview.ClearFrameData;
 begin
-  inherited;
+  inherited ClearFrameData;
 
   lMaxItems.Caption := format(rsTotalItemsCount, [ItemCount]);
   cbxCurrItem.Clear;
@@ -221,7 +221,7 @@ var
   i: integer;
   ButtonEnabled: boolean;
 begin
-  inherited;
+  inherited LoadFrameData;
 
   Enabled := ItemCount > 0;
 
@@ -254,4 +254,9 @@ begin
   ItemIndex := 0;
 end;
 
+initialization
+  RegisterClass(TfmCHXListPreview);
+
+finalization
+  UnRegisterClass(TfmCHXListPreview);
 end.

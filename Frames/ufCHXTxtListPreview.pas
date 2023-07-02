@@ -40,9 +40,9 @@ type
   protected
     procedure OnCurrItemChange; override;
 
-    procedure DoClearFrameData; override;
-
   public
+    procedure ClearFrameData; override;
+
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
   end;
@@ -65,9 +65,9 @@ begin
   mText.Lines.LoadFromFile(FileList[ItemIndex]);
 end;
 
-procedure TfmCHXTxtListPreview.DoClearFrameData;
+procedure TfmCHXTxtListPreview.ClearFrameData;
 begin
-  inherited DoClearFrameData;
+  inherited ClearFrameData;
 
   mText.Clear;
 end;
@@ -82,4 +82,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXTxtListPreview);
+
+finalization
+  UnRegisterClass(TfmCHXTxtListPreview);
 end.

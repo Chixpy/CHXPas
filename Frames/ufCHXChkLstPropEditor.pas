@@ -1,4 +1,5 @@
 unit ufCHXChkLstPropEditor;
+
 {< TfmCHXChkLstPropEditor frame unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -81,13 +82,13 @@ type
     procedure AddItemToList; virtual; abstract;
     procedure DeleteItemFromList; virtual; abstract;
 
-    procedure OnListClick(aObject: TObject);  virtual; abstract;
-    procedure OnListClickCheck(aObject: TObject; aBool: Boolean);  virtual; abstract;
-    procedure SetCheckedAll(aBool: Boolean); virtual; abstract;
-
-    procedure DoClearFrameData; virtual;
+    procedure OnListClick(aObject: TObject); virtual; abstract;
+    procedure OnListClickCheck(aObject: TObject; aBool: boolean);
+      virtual; abstract;
+    procedure SetCheckedAll(aBool: boolean); virtual; abstract;
 
   public
+    procedure ClearFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -117,15 +118,17 @@ end;
 
 procedure TfmCHXChkLstPropEditor.clbPropItemsClickCheck(Sender: TObject);
 begin
-   if clbPropItems.ItemIndex = -1 then
+  if clbPropItems.ItemIndex = -1 then
     OnListClickCheck(nil, False)
   else
     OnListClickCheck(clbPropItems.Items.Objects[clbPropItems.ItemIndex],
       clbPropItems.Checked[clbPropItems.ItemIndex]);
 end;
 
-procedure TfmCHXChkLstPropEditor.DoClearFrameData;
+procedure TfmCHXChkLstPropEditor.ClearFrameData;
 begin
+  inherited ClearFrameData;
+
   clbPropItems.Clear;
 end;
 
@@ -147,7 +150,7 @@ end;
 
 procedure TfmCHXChkLstPropEditor.actImportListExecute(Sender: TObject);
 begin
-   ImportList;
+  ImportList;
 end;
 
 procedure TfmCHXChkLstPropEditor.actAddItemExecute(Sender: TObject);
@@ -158,8 +161,6 @@ end;
 constructor TfmCHXChkLstPropEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnClearFrameData := @DoClearFrameData;
 end;
 
 destructor TfmCHXChkLstPropEditor.Destroy;
@@ -167,4 +168,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXChkLstPropEditor);
+
+finalization
+  UnRegisterClass(TfmCHXChkLstPropEditor);
 end.

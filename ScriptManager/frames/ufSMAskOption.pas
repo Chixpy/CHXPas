@@ -1,5 +1,24 @@
 unit ufSMAskOption;
 
+{< TfmSMAskOption frame unit for Pascal Script.
+
+  Copyright (C) 2017-2023 Chixpy
+
+  This source is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 3 of the License, or (at your option)
+  any later version.
+
+  This code is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  A copy of the GNU General Public License is available on the World Wide Web
+  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+  MA 02111-1307, USA.
+}
 {$mode ObjFPC}{$H+}
 
 interface
@@ -18,20 +37,19 @@ type
   TfmSMAskOption = class(TfmCHXPropEditor)
     lQuestion: TLabel;
     rgbAnswer: TRadioGroup;
+
   private
     FOptionList: TStrings;
-    FPOption: PInteger;
     procedure SetOptionList(AValue: TStrings);
-    procedure SetPOption(AValue: PInteger);
 
-   protected
-    procedure DoClearFrameData;
-    procedure DoLoadFrameData;
-    procedure DoSaveFrameData;
+  protected
 
   public
     property OptionList: TStrings read FOptionList write SetOptionList;
-    property POption: PInteger read FPOption write SetPOption;
+
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
+    procedure SaveFrameData; override;
 
     // Creates a form with AskOption frame.
     class function SimpleForm(const aTitle, aQuestion: string;
@@ -56,19 +74,17 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmSMAskOption.SetPOption(AValue: PInteger);
+procedure TfmSMAskOption.ClearFrameData;
 begin
-  if FPOption = AValue then Exit;
-  FPOption := AValue;
-end;
+  inherited ClearFrameData;
 
-procedure TfmSMAskOption.DoClearFrameData;
-begin
   rgbAnswer.Items.Clear;
 end;
 
-procedure TfmSMAskOption.DoLoadFrameData;
+procedure TfmSMAskOption.LoadFrameData;
 begin
+  inherited LoadFrameData;
+
   Enabled := Assigned(OptionList);
   if not Enabled then
   begin
@@ -82,10 +98,9 @@ begin
     rgbAnswer.ItemIndex := 0;
 end;
 
-procedure TfmSMAskOption.DoSaveFrameData;
+procedure TfmSMAskOption.SaveFrameData;
 begin
-  if Assigned(POption) then
-    POption^ := rgbAnswer.ItemIndex;
+  inherited SaveFrameData;
 end;
 
 class function TfmSMAskOption.SimpleForm(const aTitle, aQuestion: string;
@@ -95,16 +110,8 @@ var
   aForm: TfrmCHXForm;
   aFrame: TfmSMAskOption;
 begin
-  Result := mrNone;
-  aOption := -1;
-
-  Application.CreateForm(TfrmCHXForm, aForm);
+  aFrame := TfmSMAskOption.Create(nil);
   try
-    aForm.Name := 'frmSMAskOption';
-    aForm.Caption := aTitle;
-
-    aFrame := TfmSMAskOption.Create(aForm);
-    aFrame.POption := @aOption;
     aFrame.SaveButtons := True;
     aFrame.chkCloseOnSave.Visible := False;
     aFrame.ButtonClose := True;
@@ -112,32 +119,25 @@ begin
 
     aFrame.lQuestion.Caption := aQuestion;
     aFrame.OptionList := aOptionList;
-    if aOption in [0..aFrame.rgbAnswer.Items.Count-1] then
+    if aOption in [0..aFrame.rgbAnswer.Items.Count - 1] then
       aFrame.rgbAnswer.ItemIndex := aOption;
 
-    aForm.LoadGUIConfig(aGUIConfigIni);
-    aForm.LoadGUIIcons(aGUIIconsIni);
-    aFrame.Parent := aForm;
+    Result := GenSimpleModalFormDontFree(aFrame, 'frmSMAskOption',
+      aTitle, aGUIIconsIni, aGUIConfigIni);
 
-    Result := aForm.ShowModal;
-
-    if Result <> mrOK then
-      aOption := -1;
+    if Result <> mrOk then
+      aOption := -1
+    else
+      aOption := aFrame.rgbAnswer.ItemIndex;
 
   finally
-    aForm.Free;
+    aFrame.Free;
   end;
 end;
 
 constructor TfmSMAskOption.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  POption := nil;
-
-    OnClearFrameData := @DoClearFrameData;
-    OnLoadFrameData := @DoLoadFrameData;
-    OnSaveFrameData := @DoSaveFrameData;
 end;
 
 destructor TfmSMAskOption.Destroy;
@@ -145,5 +145,9 @@ begin
   inherited Destroy;
 end;
 
-end.
+initialization
+  RegisterClass(TfmSMAskOption);
 
+finalization
+  UnRegisterClass(TfmSMAskOption);
+end.

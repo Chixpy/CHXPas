@@ -2,7 +2,7 @@ unit ufCHXMultiFolderEditor;
 
 {< TfmCHXMultiFolderEditor frame unit.
 
-  Copyright (C) 2017-2019 Chixpy
+  Copyright (C) 2017-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -62,6 +62,7 @@ type
     procedure eFolderButtonClick(Sender: TObject);
     procedure lbxFolderCaptionsSelectionChange(Sender: TObject; User: boolean);
     procedure lbxFoldersPathsSelectionChange(Sender: TObject; User: boolean);
+
   private
     FCaptionList: TStrings;
     FFolderList: TStrings;
@@ -71,17 +72,17 @@ type
     procedure SetInitialFolder(AValue: string);
 
   protected
-
     procedure UpdateFolderData;
 
-    procedure DoClearFrameData;
-    procedure DoLoadFrameData;
-    procedure DoSaveFrameData;
-
   public
+
     property FolderList: TStrings read FFolderList write SetFolderList;
     property CaptionList: TStrings read FCaptionList write SetCaptionList;
     property InitialFolder: string read FInitialFolder write SetInitialFolder;
+
+    procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
+    procedure SaveFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -252,10 +253,6 @@ end;
 constructor TfmCHXMultiFolderEditor.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnClearFrameData := @DoClearFrameData;
-  OnLoadFrameData := @DoLoadFrameData;
-  OnSaveFrameData := @DoSaveFrameData;
 end;
 
 destructor TfmCHXMultiFolderEditor.Destroy;
@@ -263,16 +260,20 @@ begin
   inherited Destroy;
 end;
 
-procedure TfmCHXMultiFolderEditor.DoClearFrameData;
+procedure TfmCHXMultiFolderEditor.ClearFrameData;
 begin
+  inherited ClearFrameData;
+
   lbxFoldersPaths.Clear;
   lbxFolderCaptions.Clear;
   eFolder.Clear;
   eCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.DoLoadFrameData;
+procedure TfmCHXMultiFolderEditor.LoadFrameData;
 begin
+  inherited LoadFrameData;
+
   Enabled := (Assigned(FolderList)) and (Assigned(CaptionList));
 
   if not Enabled then
@@ -287,13 +288,20 @@ begin
   eCaption.Clear;
 end;
 
-procedure TfmCHXMultiFolderEditor.DoSaveFrameData;
+procedure TfmCHXMultiFolderEditor.SaveFrameData;
 begin
+  inherited SaveFrameData;
+
   if not Enabled then
     Exit;
 
   FolderList.AddStrings(lbxFoldersPaths.Items, True);
   CaptionList.AddStrings(lbxFolderCaptions.Items, True);
 end;
+ 
+initialization
+  RegisterClass(TfmCHXMultiFolderEditor);
 
+finalization
+  UnRegisterClass(TfmCHXMultiFolderEditor);
 end.

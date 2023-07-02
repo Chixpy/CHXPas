@@ -1,4 +1,5 @@
 unit ufCHXProgressBar;
+
 {< TfmCHXProgressBar frame unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -81,7 +82,7 @@ type
     FLog: TStringList;
     FLogFileName: string;
     FNextTime: TDateTime;
-    FSaveLog: Boolean;
+    FSaveLog: boolean;
     FStartTime: TDateTime;
     FUpdateInterval: TDateTime;
     procedure SetCancelable(AValue: boolean);
@@ -89,7 +90,7 @@ type
     procedure SetLog(AValue: TStringList);
     procedure SetLogFileName(AValue: string);
     procedure SetNextTime(AValue: TDateTime);
-    procedure SetSaveLog(AValue: Boolean);
+    procedure SetSaveLog(AValue: boolean);
     procedure SetStartTime(AValue: TDateTime);
     procedure SetUpdateInterval(AValue: TDateTime);
 
@@ -99,8 +100,8 @@ type
 
     property Log: TStringList read FLog write SetLog;
 
-    procedure DoLoadGUIConfig(aIniFile: TIniFile); virtual;
-    procedure DoSaveGUIConfig(aIniFile: TIniFile); virtual;
+    procedure DoLoadGUIConfig(aIniFile: TIniFile); override;
+    procedure DoSaveGUIConfig(aIniFile: TIniFile); override;
 
   public
     property Cancelable: boolean read FCancelable write SetCancelable;
@@ -122,7 +123,7 @@ type
   published
     property UpdateInterval: TDateTime read FUpdateInterval
       write SetUpdateInterval;
-    property SaveLog: Boolean read FSaveLog write SetSaveLog;
+    property SaveLog: boolean read FSaveLog write SetSaveLog;
     property LogFileName: string read FLogFileName write SetLogFileName;
 
   end;
@@ -161,14 +162,14 @@ end;
 
 procedure TfmCHXProgressBar.SetLog(AValue: TStringList);
 begin
-  if FLog=AValue then Exit;
-  FLog:=AValue;
+  if FLog = AValue then Exit;
+  FLog := AValue;
 end;
 
 procedure TfmCHXProgressBar.SetLogFileName(AValue: string);
 begin
-  if FLogFileName=AValue then Exit;
-  FLogFileName:=AValue;
+  if FLogFileName = AValue then Exit;
+  FLogFileName := AValue;
 end;
 
 procedure TfmCHXProgressBar.SetNextTime(AValue: TDateTime);
@@ -178,10 +179,10 @@ begin
   FNextTime := AValue;
 end;
 
-procedure TfmCHXProgressBar.SetSaveLog(AValue: Boolean);
+procedure TfmCHXProgressBar.SetSaveLog(AValue: boolean);
 begin
-  if FSaveLog=AValue then Exit;
-  FSaveLog:=AValue;
+  if FSaveLog = AValue then Exit;
+  FSaveLog := AValue;
 end;
 
 procedure TfmCHXProgressBar.SetStartTime(AValue: TDateTime);
@@ -200,14 +201,15 @@ end;
 
 procedure TfmCHXProgressBar.DoLoadGUIConfig(aIniFile: TIniFile);
 var
-  Msec: Int64;
+  Msec: int64;
 begin
-  Msec := aIniFile.ReadInt64(krsIniProgressBar,
-    krsIniProgressBarInterval,
+  inherited DoLoadGUIConfig(aIniFile);
+
+  Msec := aIniFile.ReadInt64(krsIniProgressBar, krsIniProgressBarInterval,
     MilliSecondOfTheMinute(UpdateInterval));
 
   // Converting Milliseconds to TDateTime
-  UpdateInterval:=TDateTime(MSec)/MSecsPerDay;
+  UpdateInterval := TDateTime(MSec) / MSecsPerDay;
 
   // Updating action checks (aprox. if hand-changed)
   if Msec < 200 then
@@ -219,16 +221,22 @@ begin
   else
     actUpdate1000.Checked := True;
 
-  SaveLog:=aIniFile.ReadBool(krsIniProgressBar, krsIniProgressBarSaveLog, SaveLog);
-  LogFileName:=aIniFile.ReadString(krsIniProgressBar, krsIniProgressBarLogFile, LogFileName);
+  SaveLog := aIniFile.ReadBool(krsIniProgressBar,
+    krsIniProgressBarSaveLog, SaveLog);
+  LogFileName := aIniFile.ReadString(krsIniProgressBar,
+    krsIniProgressBarLogFile, LogFileName);
 end;
 
 procedure TfmCHXProgressBar.DoSaveGUIConfig(aIniFile: TIniFile);
 begin
+  inherited DoSaveGUIConfig(aIniFile);
+
   // A minute is a giant update interval...
-  aIniFile.WriteInt64(krsIniProgressBar, krsIniProgressBarInterval, MilliSecondOfTheMinute(UpdateInterval));
+  aIniFile.WriteInt64(krsIniProgressBar, krsIniProgressBarInterval,
+    MilliSecondOfTheMinute(UpdateInterval));
   aIniFile.WriteBool(krsIniProgressBar, krsIniProgressBarSaveLog, SaveLog);
-  aIniFile.WriteString(krsIniProgressBar, krsIniProgressBarLogFile, LogFileName);
+  aIniFile.WriteString(krsIniProgressBar, krsIniProgressBarLogFile,
+    LogFileName);
 end;
 
 procedure TfmCHXProgressBar.actUpdate100Execute(Sender: TObject);
@@ -293,7 +301,8 @@ begin
   begin
     TimeDiff := Now - StartTime;
     lTime.Caption := Format(rsEstimatedTime,
-      [TimeToStr(TimeDiff), TimeToStr((aMaxValue - aValue) * TimeDiff / aValue)]);
+      [TimeToStr(TimeDiff), TimeToStr((aMaxValue - aValue) *
+      TimeDiff / aValue)]);
   end
   else
     lTime.Caption := rsEstimatedTime0;
@@ -316,7 +325,8 @@ procedure TfmCHXProgressBar.Finish;
 begin
   // (StartTime > 0) becuase it can be finished before it start.
   if SaveLog and (StartTime > 0) then
-    Log.Add(Format(rsCHXPbarLogLine, [DateTimeToStr(StartTime, True), TimeToStr(Now - StartTime), lAction.Caption]));
+    Log.Add(Format(rsCHXPbarLogLine, [DateTimeToStr(StartTime, True),
+      TimeToStr(Now - StartTime), lAction.Caption]));
 
   Continue := False;
   StartTime := 0;
@@ -327,7 +337,8 @@ begin
   Application.ProcessMessages;
 end;
 
-class function TfmCHXProgressBar.SimpleForm(aGUIConfigIni: string): TfmCHXProgressBar;
+class function TfmCHXProgressBar.SimpleForm(aGUIConfigIni: string):
+TfmCHXProgressBar;
 begin
 
   // Singleton check
@@ -376,24 +387,27 @@ begin
   NextTime := 0;
 
   UpdateInterval := EncodeTime(0, 0, 0, 300);
-  LogFileName:=krsProgressBarFile;
-  SaveLog:=False;
+  LogFileName := krsProgressBarFile;
+  SaveLog := False;
 
   FLog := TStringList.Create;
-
-  OnLoadGUIConfig:= @DoLoadGUIConfig;
-  OnSaveGUIConfig:= @DoSaveGUIConfig;
 end;
 
 destructor TfmCHXProgressBar.Destroy;
 begin
   try
-  if SaveLog then
-     Log.SaveToFile(LogFileName);
+    if SaveLog then
+      Log.SaveToFile(LogFileName);
   finally
     Log.Free;
   end;
   inherited Destroy;
 end;
+
+initialization
+  RegisterClass(TfmCHXProgressBar);
+
+finalization
+  UnRegisterClass(TfmCHXProgressBar);
 
 end.

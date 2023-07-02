@@ -50,18 +50,13 @@ type
 
   private
     FButtonClose: boolean;
-    FOnSaveFrameData: TCHXFrameDataUpdate;
     FSaveButtons: boolean;
     procedure SetButtonClose(AValue: boolean);
-    procedure SetOnSaveFrameData(AValue: TCHXFrameDataUpdate);
     procedure SetSaveButtons(AValue: boolean);
 
   protected
-    property OnSaveFrameData: TCHXFrameDataUpdate
-      read FOnSaveFrameData write SetOnSaveFrameData;
-
-    procedure DoLoadGUIIcons(aIniFile: TIniFile;
-      const aBaseFolder: string); virtual;
+    procedure DoLoadGUIIcons(aIniFile: TIniFile; const aBaseFolder: string);
+      override;
 
   public
     property SaveButtons: boolean read FSaveButtons write SetSaveButtons;
@@ -69,8 +64,7 @@ type
     property ButtonClose: boolean read FButtonClose write SetButtonClose;
     //< Close window on button click?
 
-    procedure SaveFrameData;
-    // Saves changed data in the frame
+    procedure SaveFrameData; virtual;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -119,13 +113,6 @@ begin
   end;
 end;
 
-procedure TfmCHXPropEditor.SetOnSaveFrameData(AValue: TCHXFrameDataUpdate);
-begin
-  if FOnSaveFrameData = AValue then
-    Exit;
-  FOnSaveFrameData := AValue;
-end;
-
 procedure TfmCHXPropEditor.SetSaveButtons(AValue: boolean);
 begin
   if FSaveButtons = AValue then
@@ -138,13 +125,14 @@ end;
 procedure TfmCHXPropEditor.DoLoadGUIIcons(aIniFile: TIniFile;
   const aBaseFolder: string);
 begin
+  inherited DoLoadGUIIcons(aIniFile, aBaseFolder);
+
   ReadActionsIconsIni(aIniFile, aBaseFolder, Name, ilPropEditor, alPropEditor);
 end;
 
 procedure TfmCHXPropEditor.SaveFrameData;
 begin
-  if Assigned(OnSaveFrameData) then
-    OnSaveFrameData;
+  // To override, called when OK button is clicked
 end;
 
 constructor TfmCHXPropEditor.Create(TheOwner: TComponent);
@@ -164,8 +152,6 @@ begin
     ButtonClose := False;
     chkCloseOnSave.Visible := False;
   end;
-
-  OnLoadGUIIcons := @DoLoadGUIIcons;
 end;
 
 destructor TfmCHXPropEditor.Destroy;

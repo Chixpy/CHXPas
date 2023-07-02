@@ -2,7 +2,7 @@ unit ufCHXAbout;
 
 {< TfmCHXAbout form unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -46,9 +46,9 @@ type
   private
 
   public
-   class function SimpleFormAbout(aInfo: TStrings; aGUIIconsIni: string;
+    class function SimpleFormAbout(aInfo: TStrings; aGUIIconsIni: string;
       aGUIConfigIni: string): integer;
-   //< Creates a form with About Box.
+    //< Creates a form with About Box.
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -63,32 +63,15 @@ implementation
 class function TfmCHXAbout.SimpleFormAbout(aInfo: TStrings;
   aGUIIconsIni: string; aGUIConfigIni: string): integer;
 var
-  aForm: TfrmCHXForm;
   fmCHXAbout: TfmCHXAbout;
 begin
-  Result := mrNone;
+  fmCHXAbout := TfmCHXAbout.Create(nil);
 
-  Application.CreateForm(TfrmCHXForm, aForm);
-  try
-    // TODO. Use inherited GenSimpleModalForm
-    aForm.Name := 'frmCHXAbout';
-    aForm.Caption := Application.Title + ': About...';
-    aForm.AutoSize := False;
-    fmCHXAbout := TfmCHXAbout.Create(aForm);
-    fmCHXAbout.Align := alClient;
+  if Assigned(aInfo) then
+    fmCHXAbout.mAditional.Assign(aInfo);
 
-    if Assigned(aInfo) then
-      fmCHXAbout.mAditional.Assign(aInfo);
-
-    aForm.LoadGUIConfig(aGUIConfigIni);
-    aForm.LoadGUIIcons(aGUIIconsIni);
-    fmCHXAbout.Parent := aForm;
-
-    Result := aForm.ShowModal;
-  finally
-    fmCHXAbout.Free;
-    aForm.Free;
-  end;
+  Result := GenSimpleModalForm(fmCHXAbout, 'frmCHXAbout',
+    Application.Title + ': About...', aGUIConfigIni, aGUIIconsIni);
 end;
 
 constructor TfmCHXAbout.Create(TheOwner: TComponent);
@@ -117,4 +100,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXAbout);
+
+finalization
+  UnRegisterClass(TfmCHXAbout);
 end.

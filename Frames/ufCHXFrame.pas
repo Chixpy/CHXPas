@@ -2,7 +2,7 @@ unit ufCHXFrame;
 
 {< TfmCHXFrame frame unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2023 Chixpy
 
   This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
@@ -58,6 +58,9 @@ type
     {< Generic procedure to create a Normal Form from a frame. }
 
   public
+    procedure ClearFrameData; virtual;
+    procedure LoadFrameData; virtual;
+
     procedure LoadGUIConfig(aIniFile: TIniFile);
     //< Load GUI config.
     procedure SaveGUIConfig(aIniFile: TIniFile);
@@ -80,20 +83,30 @@ uses
 {$R *.lfm}
 
 { TfmCHXFrame }
+procedure TfmCHXFrame.ClearFrameData;
+begin
+  // To override if needed
+end;
+
+procedure TfmCHXFrame.LoadFrameData;
+begin
+  // To override if needed
+end;
+
 procedure TfmCHXFrame.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
-
+  // To override if needed
 end;
 
 procedure TfmCHXFrame.DoSaveGUIConfig(aIniFile: TIniFile);
 begin
-
+  // To override if needed
 end;
 
 procedure TfmCHXFrame.DoLoadGUIIcons(aIniFile: TIniFile;
   const aBaseFolder: string);
 begin
-
+  // To override if needed
 end;
 
 class function TfmCHXFrame.GenSimpleModalFormDontFree(aCHXFrame: TfmCHXFrame;

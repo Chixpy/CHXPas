@@ -41,15 +41,6 @@ resourcestring
   rsENotFilename = '%0:s: Not defined filename';
   {< We want read/write to file ''.}
 
-  // File Dialogs
-  rsFileDlgMaskDef = 'All files|*.*';
-  {< All files dialogs mask}
-  rsFileDlgMaskFmt = 'Supported files|%0:s|All files|*.*';
-  {< Generic suported file extensions mask
-
-     @param(%0:s Suported files extension mask "*.png;*.jpg")
-  }
-
   rsFileNotFound = '%0:s' + LineEnding +
     'not found.';
   rsErrorLoadingFile = 'Error loading:' + LineEnding +
@@ -66,6 +57,20 @@ resourcestring
     '%0:s' + LineEnding +
     'to:' + LineEnding +
     '%1:s';
+
+  // Dialogs
+  // -------
+
+  rsSaveChangesCaption = 'Save changes';
+  rsSaveChanges = 'Do you want to save current changes?';
+
+  rsFileDlgMaskDef = 'All files|*.*';
+  {< All files dialogs mask}
+  rsFileDlgMaskFmt = 'Supported files|%0:s|All files|*.*';
+  {< Generic suported file extensions mask
+
+     @param(%0:s Suported files extension mask "*.png;*.jpg")
+  }
 
   rsFmtItemCount = '%0:d / %0:d';
 

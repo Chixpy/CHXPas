@@ -1,5 +1,5 @@
 unit ufSMAskMultiFile;
-{ TfmSMAskMultiFile frame unit for Pascal Script.
+{< TfmSMAskMultiFile frame unit for Pascal Script.
 
   Copyright (C) 2017-2019 Chixpy
 
@@ -65,12 +65,13 @@ type
     procedure SetOutFileList(AValue: TStrings);
 
   protected
-    procedure DoClearFrameData;
-    procedure DoLoadFrameData;
-    procedure DoSaveFrameData;
+    procedure LoadFrameData; override;
 
   public
     property OutFileList: TStrings read FOutFileList write SetOutFileList;
+
+    procedure ClearFrameData; override;
+    procedure SaveFrameData; override;
 
     // Creates a form with AskMultiFile frame.
     class function SimpleForm(aFileList: TStrings; const aTitle: string;
@@ -144,14 +145,19 @@ begin
   LoadFrameData;
 end;
 
-procedure TfmSMAskMultiFile.DoClearFrameData;
+procedure TfmSMAskMultiFile.ClearFrameData;
 begin
+  inherited ClearFrameData;
+
   lbxFiles.Clear;
 end;
 
-procedure TfmSMAskMultiFile.DoLoadFrameData;
+procedure TfmSMAskMultiFile.LoadFrameData;
 begin
+  inherited LoadFrameData;
+
   Enabled := Assigned(OutFileList);
+
   if not Enabled then
   begin
     ClearFrameData;
@@ -161,8 +167,10 @@ begin
   lbxFiles.Items.Assign(OutFileList);
 end;
 
-procedure TfmSMAskMultiFile.DoSaveFrameData;
+procedure TfmSMAskMultiFile.SaveFrameData;
 begin
+  inherited SaveFrameData;
+
   if assigned(OutFileList) then
     OutFileList.Assign(lbxFiles.Items);
 end;
@@ -171,43 +179,25 @@ class function TfmSMAskMultiFile.SimpleForm(aFileList: TStrings;
   const aTitle: string; const aExtFilter: string; const DefFolder: string;
   aGUIIconsIni: string; aGUIConfigIni: string): integer;
 var
-  aForm: TfrmCHXForm;
   aFrame: TfmSMAskMultiFile;
 begin
-  Result := mrNone;
+  aFrame := TfmSMAskMultiFile.Create(nil);
+  aFrame.SaveButtons := True;
+  aFrame.ButtonClose := True;
+  aFrame.Align := alClient;
 
-  Application.CreateForm(TfrmCHXForm, aForm);
-  try
-    aForm.Name := 'frmSMAskMultiFile';
-    aForm.Caption := aTitle;
+  aFrame.OpenDialog1.Title := aTitle;
+  aFrame.OpenDialog1.Filter := aExtFilter;
+  SetDlgInitialDir(aFrame.OpenDialog1, DefFolder);
+  aFrame.OutFileList := aFileList;
 
-    aFrame := TfmSMAskMultiFile.Create(aForm);
-    aFrame.SaveButtons := True;
-    aFrame.ButtonClose := True;
-    aFrame.Align := alClient;
-
-    aFrame.OpenDialog1.Title := aTitle;
-    aFrame.OpenDialog1.Filter := aExtFilter;
-    SetDlgInitialDir(aFrame.OpenDialog1, DefFolder);
-    aFrame.OutFileList := aFileList;
-
-    aForm.LoadGUIConfig(aGUIConfigIni);
-    aForm.LoadGUIIcons(aGUIIconsIni);
-    aFrame.Parent := aForm;
-
-    Result := aForm.ShowModal;
-  finally
-    aForm.Free;
-  end;
+  Result := GenSimpleModalForm(aFrame, 'frmSMAskMultiFile', aTitle,
+    aGUIConfigIni, aGUIIconsIni);
 end;
 
 constructor TfmSMAskMultiFile.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnClearFrameData := @DoClearFrameData;
-  OnLoadFrameData := @DoLoadFrameData;
-  OnSaveFrameData := @DoSaveFrameData;
 end;
 
 destructor TfmSMAskMultiFile.Destroy;
@@ -215,4 +205,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmSMAskMultiFile);
+
+finalization
+  UnRegisterClass(TfmSMAskMultiFile);
 end.

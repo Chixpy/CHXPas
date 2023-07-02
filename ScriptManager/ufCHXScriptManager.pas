@@ -193,11 +193,9 @@ type
 
     procedure DoOnline(Sender: TObject); virtual;
 
-    procedure DoClearFrameData;
-    procedure DoLoadFrameData;
-    procedure DoLoadGUIConfig(aIniFile: TIniFile);
-    procedure DoSaveGUIConfig(aIniFile: TIniFile);
-    procedure DoLoadGUIIcons(aIconsIni: TIniFile; const aBaseFolder: string);
+    procedure DoLoadGUIConfig(aIniFile: TIniFile); override;
+    procedure DoSaveGUIConfig(aIniFile: TIniFile); override;
+    procedure DoLoadGUIIcons(aIconsIni: TIniFile; const aBaseFolder: string); override;
 
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
@@ -414,18 +412,10 @@ begin
   FScriptEngine := AValue;
 end;
 
-procedure TfmCHXScriptManager.DoClearFrameData;
-begin
-
-end;
-
-procedure TfmCHXScriptManager.DoLoadFrameData;
-begin
-
-end;
-
 procedure TfmCHXScriptManager.DoLoadGUIConfig(aIniFile: TIniFile);
 begin
+  inherited DoLoadGUIConfig(aIniFile);
+
   GUIConfigIni := aIniFile.FileName;
 
   LoadFontFromIni(aIniFile, krsIniScriptMngSection,
@@ -436,6 +426,8 @@ end;
 
 procedure TfmCHXScriptManager.DoSaveGUIConfig(aIniFile: TIniFile);
 begin
+  inherited DoSaveGUIConfig(aIniFile);
+
   SaveFontToIni(aIniFile, krsIniScriptMngSection,
     krsIniScriptMngSourceFont, SynEdit.Font);
   SaveFontToIni(aIniFile, krsIniScriptMngSection,
@@ -445,6 +437,8 @@ end;
 procedure TfmCHXScriptManager.DoLoadGUIIcons(aIconsIni: TIniFile;
   const aBaseFolder: string);
 begin
+  inherited DoLoadGUIIcons(aIconsIni, aBaseFolder);
+
   GUIIconsIni := aIconsIni.FileName;
   ReadActionsIconsIni(aIconsIni, aBaseFolder, Name, ilActions, ActionList);
 end;
@@ -601,29 +595,13 @@ end;
 class function TfmCHXScriptManager.SimpleForm(aBaseFolder: string;
   aGUIIconsIni: string; aGUIConfigIni: string): integer;
 var
-  aForm: TfrmCHXForm;
   aFrame: TfmCHXScriptManager;
 begin
-  Result := mrNone;
+  aFrame := TfmCHXScriptManager.Create(nil);
+  aFrame.SetBaseFolder(aBaseFolder);
 
-  Application.CreateForm(TfrmCHXForm, aForm);
-  try
-    aForm.Name := 'frmCHXScriptManager';
-    aForm.Caption := 'CHX Script Manager';
-
-    aFrame := TfmCHXScriptManager.Create(aForm);
-    aFrame.Align := alClient;
-
-    aFrame.SetBaseFolder(aBaseFolder);
-
-    aForm.LoadGUIConfig(aGUIConfigIni);
-    aForm.LoadGUIIcons(aGUIIconsIni);
-    aFrame.Parent := aForm;
-
-    Result := aForm.ShowModal;
-  finally
-    aForm.Free;
-  end;
+  Result := GenSimpleModalForm(aFrame, 'frmCHXScriptManager',
+    'CHX Script Manager', aGUIIconsIni, aGUIConfigIni);
 end;
 
 procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;
@@ -665,12 +643,6 @@ begin
   PageControl.ActivePage := pagScriptList;
 
   CreateCustomEngine;
-
-  OnClearFrameData := @DoClearFrameData;
-  OnLoadFrameData := @DoLoadFrameData;
-  OnLoadGUIConfig := @DoLoadGUIConfig;
-  OnSaveGUIConfig := @DoSaveGUIConfig;
-  OnLoadGUIIcons := @DoLoadGUIIcons;
 
   Enabled := assigned(ScriptEngine);
 end;
