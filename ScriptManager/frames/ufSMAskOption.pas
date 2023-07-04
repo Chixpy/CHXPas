@@ -54,7 +54,7 @@ type
     // Creates a form with AskOption frame.
     class function SimpleForm(const aTitle, aQuestion: string;
       aOptionList: TStrings; var aOption: integer;
-      aGUIIconsIni: string; aGUIConfigIni: string): integer;
+      aGUIConfigIni: string; aGUIIconsIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -104,14 +104,14 @@ begin
 end;
 
 class function TfmSMAskOption.SimpleForm(const aTitle, aQuestion: string;
-  aOptionList: TStrings; var aOption: integer; aGUIIconsIni: string;
-  aGUIConfigIni: string): integer;
+  aOptionList: TStrings; var aOption: integer; aGUIConfigIni: string;
+  aGUIIconsIni: string): integer;
 var
   aForm: TfrmCHXForm;
   aFrame: TfmSMAskOption;
 begin
   aFrame := TfmSMAskOption.Create(nil);
-  try
+
     aFrame.SaveButtons := True;
     aFrame.chkCloseOnSave.Visible := False;
     aFrame.ButtonClose := True;
@@ -129,10 +129,6 @@ begin
       aOption := -1
     else
       aOption := aFrame.rgbAnswer.ItemIndex;
-
-  finally
-    aFrame.Free;
-  end;
 end;
 
 constructor TfmSMAskOption.Create(TheOwner: TComponent);

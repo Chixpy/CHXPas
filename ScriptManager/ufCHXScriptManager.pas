@@ -195,15 +195,15 @@ type
 
     procedure DoLoadGUIConfig(aIniFile: TIniFile); override;
     procedure DoSaveGUIConfig(aIniFile: TIniFile); override;
-    procedure DoLoadGUIIcons(aIconsIni: TIniFile; const aBaseFolder: string); override;
+    procedure DoLoadGUIIcons(aIconsIni: TIniFile;
+      const aBaseFolder: string); override;
 
   public
     procedure SetBaseFolder(const aFolder: string); virtual;
 
-
     // Creates a form with Script Manager.
-    class function SimpleForm(aBaseFolder: string; aGUIIconsIni: string;
-      aGUIConfigIni: string): integer;
+    class function SimpleForm(aBaseFolder: string; aGUIConfigIni: string;
+      aGUIIconsIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -254,7 +254,7 @@ begin
     bg := clBlue;
   end
   else }
-    Special := False;
+  Special := False;
 end;
 
 procedure TfmCHXScriptManager.SynEditStatusChange(Sender: TObject;
@@ -593,7 +593,7 @@ begin
 end;
 
 class function TfmCHXScriptManager.SimpleForm(aBaseFolder: string;
-  aGUIIconsIni: string; aGUIConfigIni: string): integer;
+  aGUIConfigIni: string; aGUIIconsIni: string): integer;
 var
   aFrame: TfmCHXScriptManager;
 begin
@@ -601,18 +601,18 @@ begin
   aFrame.SetBaseFolder(aBaseFolder);
 
   Result := GenSimpleModalForm(aFrame, 'frmCHXScriptManager',
-    'CHX Script Manager', aGUIIconsIni, aGUIConfigIni);
+    'CHX Script Manager', aGUIConfigIni, aGUIIconsIni);
 end;
 
 procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;
   const aCaption, aExtFilter, DefFolder: string);
 begin
   TfmSMAskMultiFile.SimpleForm(aFileList, aCaption, aExtFilter,
-    DefFolder, GUIIconsIni, GUIConfigIni);
+    DefFolder, GUIConfigIni, GUIIconsIni);
 end;
 
-function TfmCHXScriptManager.DoAskFolder(const aCaption,
-  DefFolder: string): string;
+function TfmCHXScriptManager.DoAskFolder(
+  const aCaption, DefFolder: string): string;
 begin
   Result := '';
   SelectDirectoryDialog1.Title := aCaption;
@@ -627,7 +627,7 @@ function TfmCHXScriptManager.DoAskOption(const aCaption, aQuestion: string;
 begin
   Result := -1;
   if TfmSMAskOption.SimpleForm(aCaption, aQuestion, aOptionList,
-    Result, GUIIconsIni, GUIConfigIni) <> mrOK then
+    Result, GUIConfigIni, GUIIconsIni) <> mrOk then
     Result := -1;
 end;
 
@@ -654,4 +654,9 @@ begin
   inherited Destroy;
 end;
 
+initialization
+  RegisterClass(TfmCHXScriptManager);
+
+finalization
+  UnRegisterClass(TfmCHXScriptManager);
 end.

@@ -75,8 +75,8 @@ type
 
     // Creates a form with AskMultiFile frame.
     class function SimpleForm(aFileList: TStrings; const aTitle: string;
-      const aExtFilter: string; const DefFolder: string; aGUIIconsIni: string;
-      aGUIConfigIni: string): integer;
+      const aExtFilter: string; const DefFolder: string;
+      aGUIConfigIni: string; aGUIIconsIni: string): integer;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -177,7 +177,7 @@ end;
 
 class function TfmSMAskMultiFile.SimpleForm(aFileList: TStrings;
   const aTitle: string; const aExtFilter: string; const DefFolder: string;
-  aGUIIconsIni: string; aGUIConfigIni: string): integer;
+  aGUIConfigIni: string; aGUIIconsIni: string): integer;
 var
   aFrame: TfmSMAskMultiFile;
 begin
