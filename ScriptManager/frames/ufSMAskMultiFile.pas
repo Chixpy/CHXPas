@@ -65,12 +65,12 @@ type
     procedure SetOutFileList(AValue: TStrings);
 
   protected
-    procedure LoadFrameData; override;
 
   public
     property OutFileList: TStrings read FOutFileList write SetOutFileList;
 
     procedure ClearFrameData; override;
+    procedure LoadFrameData; override;
     procedure SaveFrameData; override;
 
     // Creates a form with AskMultiFile frame.

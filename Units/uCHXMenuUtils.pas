@@ -34,10 +34,13 @@ function CloneMenuItem(Src: TMenuItem): TMenuItem;
 var
   i: integer;
 begin
-  if Src = nil then
+  Result := nil;
+
+  if not Assigned(Src) then
     Exit;
 
   Result := TMenuItem.Create(Src.Owner);
+
   if Assigned(Src.Action) then
   begin
     Result.Action := Src.Action;
@@ -71,7 +74,6 @@ var
   i: integer;
 begin
   Dst.Items.Clear;
-
 
   i := 0;
   while i < Src.Items.Count do

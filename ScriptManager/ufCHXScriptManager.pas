@@ -45,7 +45,7 @@ const
   kFSMInfoSection = 'Info';
 
   krsIniScriptMngSection = 'Script Manager';
-  {< Config file section name. }
+  { Config file section name. }
   krsIniScriptMngSourceFont = 'SourceFont';
   krsIniScriptMngOutputFont = 'OutputFont';
 
@@ -159,7 +159,6 @@ type
     procedure SetGUIConfigIni(AValue: string);
     procedure SetGUIIconsIni(AValue: string);
     procedure SetScriptEngine(AValue: cCHXScriptEngine);
-
 
   protected
     property CurrentFile: string read FCurrentFile write SetCurrentFile;
