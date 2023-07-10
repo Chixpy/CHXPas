@@ -123,7 +123,7 @@ begin
       aFrame.rgbAnswer.ItemIndex := aOption;
 
     Result := GenSimpleModalFormDontFree(aFrame, 'frmSMAskOption',
-      aTitle, aGUIIconsIni, aGUIConfigIni);
+      aTitle, aGUIConfigIni, aGUIIconsIni);
 
     if Result <> mrOk then
       aOption := -1
