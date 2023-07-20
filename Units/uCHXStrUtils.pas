@@ -1,4 +1,5 @@
 unit uCHXStrUtils;
+
 {< Unit with some string related functions.
 
   Copyright (C) 2011-2020 Chixpy
@@ -32,12 +33,15 @@ uses Classes, SysUtils, LazFileUtils, LazUTF8,
 function UTF8TextReplace(const S, OldPattern, NewPattern: string;
   const ALanguage: string = ''): string;
 {< A little shortcut of UTF8StringReplace, replacing all ocurrences and
-     case-insesitive. }
+     case-insesitive.
+}
 
-function RemoveFromBrackets(const aString: string): string;
-{< Removes text from the first ' (' o ' [' found in the aString. }
-function CopyFromBrackets(const aString: string): string;
-{< Copy text from the first ' (' o ' [' found in the aString. }
+function SimpleStringSplit(const aString, aDelimiter: string;
+  out aStr1, aStr2: string): integer;
+{< Splits a string into aStr1 and aStr2; aDelimiter is deleted.
+
+  Returns the position where aDelimiter is found.
+}
 
 function TextSimilarity(const aString1, aString2: string): byte;
 {< Returns the similarity between 2 strings.
@@ -91,7 +95,8 @@ function SupportedExtSL(aFilename: string; aExt: TStrings): boolean;
 // TSTRINGLIST UTILS
 // ----------------------
 
-procedure CleanStringList(aStringList: TStrings; const CommentChar: string = ';');
+procedure CleanStringList(aStringList: TStrings;
+  const CommentChar: string = ';');
 {< Removes comments and empty lines from a TStringList.
 }
 
@@ -122,10 +127,10 @@ procedure StandardFormatSettings;
 
    Using local settings can cause errors reading data from a file generated
    with a computer with different local settings
-
 }
 
-function StrCount(aString, ToSearch: string; const CaseSensitve: boolean = False): cardinal;
+function StrCount(aString, ToSearch: string;
+  const CaseSensitve: boolean = False): cardinal;
 {< Counts the times that a substring is in a string.
 
   NOTE: StrCount('ooo', 'oo') = 2 .
@@ -148,46 +153,25 @@ begin
     [rfReplaceAll, rfIgnoreCase], ALanguage);
 end;
 
+function SimpleStringSplit(const aString, aDelimiter: string;
+  out aStr1, aStr2: string): integer;
+begin
+  aStr1 := '';
+  aStr2 := '';
+  Result := Pos(aDelimiter, aString);
+
+  if Result < 1 then
+  begin
+    aStr1 := aString;
+    Exit;
+  end;
+
+  aStr1 := Copy(aString, 1, Result);
+  aStr2 := Copy(aString, Result + Length(aDelimiter), MaxInt);
+end;
+
 // STRING UTILS
 // ------------
-function RemoveFromBrackets(const aString: string): string;
-var
-  Pos1, Pos2: integer;
-begin
-  Pos1 := UTF8Pos(' (', aString);
-  Pos2 := UTF8Pos(' [', aString);
-
-  // if not found...
-  if Pos1 < 1 then
-    Pos1 := MaxInt;
-  if Pos2 < 1 then
-    Pos2 := MaxInt;
-
-  if Pos1 < Pos2 then
-    Result := UTF8Trim(UTF8Copy(aString, 1, Pos1 - 1))
-  else
-    Result := UTF8Trim(UTF8Copy(aString, 1, Pos2 - 1));
-end;
-
-function CopyFromBrackets(const aString: string): string;
-var
-  Pos1, Pos2: integer;
-begin
-  Pos1 := UTF8Pos(' (', aString);
-  Pos2 := UTF8Pos(' [', aString);
-
-  // if not found...
-  if Pos1 < 1 then
-    Pos1 := MaxInt;
-  if Pos2 < 1 then
-    Pos2 := MaxInt;
-
-  if Pos1 < Pos2 then
-    Result := UTF8Trim(UTF8Copy(aString, Pos1, MaxInt))
-  else
-    Result := UTF8Trim(UTF8Copy(aString, Pos2, MaxInt));
-end;
-
 function TextSimilarity(const aString1, aString2: string): byte;
 
   procedure LetterPairs(aStrList: TStrings; const aString: string);
@@ -356,7 +340,7 @@ begin
   // Extract extension, remove dot.
   TempExt := ExtractFileExt(aFilename);
   if Length(TempExt) > 1 then
-    aFilename := copy(TempExt, 2, MaxInt)
+    aFilename := Copy(TempExt, 2, MaxInt)
   else
     Exit;
 
@@ -500,7 +484,7 @@ procedure StringToFile(const aString, aFilename: string);
 var
   slOutput: TStringList;
 begin
-    slOutput := TStringList.Create;
+  slOutput := TStringList.Create;
   try
     slOutput.Text := aString;
     slOutput.SaveToFile(UTF8ToSys(aFilename));
@@ -553,8 +537,8 @@ begin
   DefaultFormatSettings.ListSeparator := ';';
 end;
 
-function StrCount(aString, ToSearch: string; const CaseSensitve: boolean
-  ): cardinal;
+function StrCount(aString, ToSearch: string;
+  const CaseSensitve: boolean): cardinal;
 var
   Cont: cardinal;
   TempCadena: string;

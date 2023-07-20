@@ -107,7 +107,6 @@ class function TfmSMAskOption.SimpleForm(const aTitle, aQuestion: string;
   aOptionList: TStrings; var aOption: integer; aGUIConfigIni: string;
   aGUIIconsIni: string): integer;
 var
-  aForm: TfrmCHXForm;
   aFrame: TfmSMAskOption;
 begin
   aFrame := TfmSMAskOption.Create(nil);
