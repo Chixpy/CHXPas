@@ -37,7 +37,7 @@ function UTF8TextReplace(const S, OldPattern, NewPattern: string;
 }
 
 function SimpleStringSplit(const aString, aDelimiter: string;
-  out aStr1, aStr2: string): integer;
+  var aStr1, aStr2: string): integer;
 {< Splits a string into aStr1 and aStr2; aDelimiter is deleted.
 
   Returns the position where aDelimiter is found.
@@ -154,15 +154,14 @@ begin
 end;
 
 function SimpleStringSplit(const aString, aDelimiter: string;
-  out aStr1, aStr2: string): integer;
+  var aStr1, aStr2: string): integer;
 begin
-  aStr1 := '';
-  aStr2 := '';
   Result := Pos(aDelimiter, aString);
 
   if Result < 1 then
   begin
     aStr1 := aString;
+    aStr2 := '';
     Exit;
   end;
 
