@@ -45,6 +45,8 @@ begin
   // Methods
   CL.AddDelphiFunction('function UTF8TextReplace(const S, OldPattern, NewPattern: string; ALanguage: string): string');
   CL.AddDelphiFunction('function SimpleStringSplit(const aString, aDelimiter: string; out aStr1, aStr2: string): integer');
+  CL.AddDelphiFunction('function RemoveFromBrackets(const aString: string): string');
+  CL.AddDelphiFunction('function CopyFromBrackets(const aString: string): string');
   CL.AddDelphiFunction('function TextSimilarity(const aString1, aString2: string): byte');
 
   CL.AddDelphiFunction('function SetAsFolder(const aValue: string): string');
@@ -75,6 +77,8 @@ procedure RIRegister_uCHXStrUtils_Routines(S: TPSExec);
 begin
   S.RegisterDelphiFunction(@UTF8TextReplace, 'UTF8TextReplace', cdRegister);
   S.RegisterDelphiFunction(@SimpleStringSplit, 'SimpleStringSplit', cdRegister);
+  S.RegisterDelphiFunction(@RemoveFromBrackets, 'RemoveFromBrackets', cdRegister);
+  S.RegisterDelphiFunction(@CopyFromBrackets, 'CopyFromBrackets', cdRegister);
   S.RegisterDelphiFunction(@TextSimilarity, 'TextSimilarity', cdRegister);
 
   S.RegisterDelphiFunction(@SetAsFolder, 'SetAsFolder', cdRegister);
