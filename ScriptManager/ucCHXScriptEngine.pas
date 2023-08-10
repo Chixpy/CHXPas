@@ -45,6 +45,21 @@ uses
   uPSI_u7zWrapper,
   uPSI_uaCHXStorable;
 
+const
+  rsSEMsgFormat = '[%0:s](%1:.4d:%2:.4d): %3:s';
+  {< Format for messages.
+
+    @definitionList(
+      @itemLabel(0)
+        @item(String of error level: rsSEELError, rsSEELWarning, rsSEELInfo,
+          rsSEELOK)
+      @itemLabel(1, 2)
+        @item(Integers of row and col of the message.)
+      @itemLabel(3)
+        @item(String of actual message test.)
+    )
+  }
+
 resourcestring
   // Error levels
   rsSEELError = 'Error';
@@ -57,33 +72,20 @@ resourcestring
   rsSEEExecutionMsg = 'Executing script.';
   rsSEEFinishedMsg = 'Script finished.';
 
-  rsSEMsgFormat = '[%0:s](%1:.4d:%2:.4d): %3:s';
-  {< Default format for messages.
-
-    @definitionList(
-      @itemLabel(0)
-        @item(Error level. Usually: rsSEELError, rsSEELWarning, rsSEELInfo,
-          rsSEELOK)
-      @itemLabel(1, 2)
-        @item(Row and col of the message)
-      @itemLabel(3)
-        @item(Actual message test)
-    )
-  }
-
-
 type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
-    string of object;
+  TCHXSEAskFileCB = function(
+    const aCaption, aExtFilter, DefFile: string): string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
     object;
   TCHXSEAskOptionCB = function(const aCaption, aQuestion: string;
     aOptionList: TStrings): integer of object;
+  TCHXSEAskYesNoCancelCB = function(
+    const aCaption, aQuestion: string): integer of object;
 
   { cCHXScriptEngine }
 
@@ -94,6 +96,7 @@ type
     FOnAskFolder: TCHXSEAskFolderCB;
     FOnAskMultiFile: TCHXSEAskMultiFileCB;
     FOnAskOption: TCHXSEAskOptionCB;
+    FOnAskYesNoCancel: TCHXSEAskYesNoCancelCB;
     FOnLine: TNotifyEvent;
     FOnReadLn: TCHXSEReadLnCB;
     FOnWriteLn: TCHXSEWriteLnCB;
@@ -106,6 +109,7 @@ type
     procedure SetOnAskFolder(AValue: TCHXSEAskFolderCB);
     procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
     procedure SetOnAskOption(AValue: TCHXSEAskOptionCB);
+    procedure SetOnAskYesNoCancel(AValue: TCHXSEAskYesNoCancelCB);
     procedure SetOnLine(AValue: TNotifyEvent);
     procedure SetOnReadLn(AValue: TCHXSEReadLnCB);
     procedure SetOnWriteLn(AValue: TCHXSEWriteLnCB);
@@ -143,6 +147,7 @@ type
     function CHXAskFolder(const aCaption, DefFolder: string): string;
     function CHXAskOption(const aCaption, aQuestion: string;
       aOptionList: TStrings): integer;
+    function CHXAskYesNoCancel(const aCaption, aQuestion: string): integer;
 
     // HACK: We can't create Stringlists!!!
     // TODO: Make a generic constructor?
@@ -168,6 +173,8 @@ type
       read FOnAskFolder write SetOnAskFolder;
     property OnAskOption: TCHXSEAskOptionCB
       read FOnAskOption write SetOnAskOption;
+    property OnAskYesNoCancel: TCHXSEAskYesNoCancelCB
+      read FOnAskYesNoCancel write SetOnAskYesNoCancel;
 
     function RunScript: boolean;
     procedure Stop;
@@ -222,6 +229,12 @@ procedure cCHXScriptEngine.SetOnAskOption(AValue: TCHXSEAskOptionCB);
 begin
   if FOnAskOption = AValue then Exit;
   FOnAskOption := AValue;
+end;
+
+procedure cCHXScriptEngine.SetOnAskYesNoCancel(AValue: TCHXSEAskYesNoCancelCB);
+begin
+  if FOnAskYesNoCancel = AValue then Exit;
+  FOnAskYesNoCancel := AValue;
 end;
 
 procedure cCHXScriptEngine.SetOnLine(AValue: TNotifyEvent);
@@ -289,6 +302,8 @@ begin
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskOption,
     'function AskOption(const aCaption, aQuestion: string;' +
     ' aOptionList: TStrings): integer');
+  Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskYesNoCancel,
+    'function AskYesNoCancel(const aCaption, aQuestion: string): integer');
 
   // Things not imported
 
@@ -450,6 +465,17 @@ begin
     raise ENotImplemented.Create('OnAskOption not assigned.');
 end;
 
+function cCHXScriptEngine.CHXAskYesNoCancel(
+  const aCaption, aQuestion: string): integer;
+begin
+  Result := mrCancel;
+
+  if Assigned(OnAskYesNoCancel) then
+    Result := OnAskYesNoCancel(aCaption, aQuestion)
+  else
+    raise ENotImplemented.Create('OnAskYesNoCancel not assigned.');
+end;
+
 function cCHXScriptEngine.CHXCreateStringList: TStringList;
 begin
   Result := TStringList.Create;
@@ -540,7 +566,8 @@ begin
     Exit;
 
   if Assigned(ScriptError) then
-    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEEExecutionMsg]));
+    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
+      rsSEEExecutionMsg]));
 
   Result := PasScript.Execute;
 
@@ -580,7 +607,8 @@ begin
     ScriptError.Clear;
 
   if Assigned(ScriptError) then
-    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0, rsSEECompilationMsg]));
+    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELOK, 0, 0,
+      rsSEECompilationMsg]));
 
   Result := PaSScript.Compile;
 

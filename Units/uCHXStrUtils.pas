@@ -79,8 +79,8 @@ function CleanFileName(const AFileName: string; const DoTrim: boolean = True;
 {< Changes some invalid characters in filenames.
 
   @param(DoTrim Trim spaces at beggining and end, preventing filenames beginning
-    with space.)
-  @param(PathAware Keep paths)
+    with space. Contiguous space)
+  @param(PathAware Keep special characters of paths (:\/))
 }
 function SetAsRelativeFile(const aFileName, BaseDir: string): string;
 function SetAsAbsoluteFile(const aFileName, BaseDir: string): string;

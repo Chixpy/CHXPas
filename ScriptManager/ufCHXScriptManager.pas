@@ -189,6 +189,7 @@ type
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
     function DoAskOption(const aCaption, aQuestion: string;
       aOptionList: TStrings): integer; virtual;
+    function DoAskYesNoCancel(const aCaption, aQuestion: string): integer; virtual;
 
     procedure DoOnline(Sender: TObject); virtual;
 
@@ -466,6 +467,8 @@ begin
     ScriptEngine.OnAskFolder := @DoAskFolder;
   if not assigned(ScriptEngine.OnAskOption) then
     ScriptEngine.OnAskOption := @DoAskOption;
+  if not assigned(ScriptEngine.OnAskYesNoCancel) then
+    ScriptEngine.OnAskYesNoCancel := @DoAskYesNoCancel;
 
   // Debug
   if not assigned(ScriptEngine.OnLine) then
@@ -628,6 +631,12 @@ begin
   if TfmSMAskOption.SimpleForm(aCaption, aQuestion, aOptionList,
     Result, GUIConfigIni, GUIIconsIni) <> mrOk then
     Result := -1;
+end;
+
+function TfmCHXScriptManager.DoAskYesNoCancel(const aCaption, aQuestion: string
+  ): integer;
+begin
+   Result := MessageDlg(aCaption, aQuestion, mtConfirmation, mbYesNoCancel,0);
 end;
 
 procedure TfmCHXScriptManager.DoOnline(Sender: TObject);
