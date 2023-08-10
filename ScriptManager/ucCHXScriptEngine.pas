@@ -20,6 +20,7 @@ unit ucCHXScriptEngine;
   MA 02111-1307, USA.
 }
 {$mode objfpc}{$H+}
+{$DEFINE PS_USESSUPPORT}
 
 interface
 
