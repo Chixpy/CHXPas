@@ -26,7 +26,7 @@ interface
 uses
   Classes, SysUtils, FileUtil, LazFileUtils, SynEdit,
   SynHighlighterPas, SynMacroRecorder, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, ShellCtrls, EditBtn,
+  Dialogs, ExtCtrls, StdCtrls, ComCtrls, ShellCtrls,
   Buttons, ActnList, StdActns, IniFiles, SynEditTypes, LCLIntf, Menus,
   // CHX units
   uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
@@ -72,11 +72,13 @@ type
     actFileSave: TAction;
     actFileOpenFolder: TAction;
     actFolderOpen: TAction;
+    actChangeBaseFolder: TAction;
     actStop: TAction;
     actOutputClear: TAction;
     ActionList: TActionList;
     actSearchFind: TSearchFind;
     actSearchReplace: TSearchReplace;
+    bChangeRootFolder: TButton;
     bCompile: TToolButton;
     bEditCopy: TToolButton;
     bEditCut: TToolButton;
@@ -94,13 +96,13 @@ type
     bSeparator4: TToolButton;
     bSeparator5: TToolButton;
     bStop: TBitBtn;
-    eRootFolder: TDirectoryEdit;
     actOutputSaveAs: TFileSaveAs;
     actOutputFontEdit: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lCurrentFile: TLabel;
     lbxInfo: TListBox;
+    miChangeBaseFolder: TMenuItem;
     miFileOpenFolder: TMenuItem;
     mOutPut: TMemo;
     mScriptInfo: TMemo;
@@ -130,6 +132,7 @@ type
     ToolButton2: TToolButton;
     tbFontEdit: TToolButton;
     bSave: TToolButton;
+    procedure actChangeBaseFolderExecute(Sender: TObject);
     procedure actCompileExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
@@ -269,6 +272,14 @@ begin
   Compile;
 end;
 
+procedure TfmCHXScriptManager.actChangeBaseFolderExecute(Sender: TObject);
+begin
+  SetDlgInitialDir(SelectDirectoryDialog1, stvFolders.Root);
+
+  if SelectDirectoryDialog1.Execute then
+    SetBaseFolder(SelectDirectoryDialog1.FileName);
+end;
+
 procedure TfmCHXScriptManager.actExecuteExecute(Sender: TObject);
 begin
   Execute;
@@ -317,7 +328,7 @@ end;
 
 procedure TfmCHXScriptManager.actFolderOpenExecute(Sender: TObject);
 begin
-  OpenDocument(eRootFolder.Directory);
+  OpenDocument(stvFolders.Root);
 end;
 
 procedure TfmCHXScriptManager.actOutputClearExecute(Sender: TObject);
@@ -589,8 +600,13 @@ end;
 
 procedure TfmCHXScriptManager.SetBaseFolder(const aFolder: string);
 begin
-  eRootFolder.Directory := SysPath(aFolder);
+  // Fixing SIGENV error on create frame (1/2)
+  slvFiles.ShellTreeView := nil;
+
+  // Fixing SIGENV error on create frame (2/2)
   stvFolders.Root := SysPath(aFolder);
+
+  slvFiles.ShellTreeView := stvFolders;
   ScriptEngine.CommonUnitFolder := aFolder;
 end;
 
@@ -600,6 +616,7 @@ var
   aFrame: TfmCHXScriptManager;
 begin
   aFrame := TfmCHXScriptManager.Create(nil);
+
   aFrame.SetBaseFolder(aBaseFolder);
 
   Result := GenSimpleModalForm(aFrame, 'frmCHXScriptManager',

@@ -1,0 +1,42 @@
+inherited CHXForm: TCHXForm
+  Left = 631
+  Height = 211
+  Top = 417
+  Width = 540
+  Caption = 'CHXForm'
+  ClientHeight = 211
+  ClientWidth = 540
+  OnCreate = FormCreate
+  object bSM: TButton[0]
+    Left = 176
+    Height = 30
+    Top = 104
+    Width = 163
+    AutoSize = True
+    Caption = 'Open ScriptManager'
+    OnClick = bSMClick
+    TabOrder = 0
+  end
+  object lScriptsFolder: TLabel[1]
+    Left = 4
+    Height = 20
+    Top = 4
+    Width = 532
+    Align = alTop
+    Caption = 'Scripts Folder'
+    ParentColor = False
+  end
+  object eScriptsFolder: TDirectoryEdit[2]
+    Left = 4
+    Height = 28
+    Top = 28
+    Width = 532
+    DialogOptions = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
+    ShowHidden = False
+    ButtonWidth = 29
+    NumGlyphs = 1
+    Align = alTop
+    MaxLength = 0
+    TabOrder = 1
+  end
+end

@@ -27,7 +27,9 @@ uses
   uCHXStrUtils;
 
 
-// TODO: These are a mess, InitialDir needs '\' except las one
+// TODO: These are a mess, InitialDir in dialogs needs SysPath except las one.
+//   Sometimes last used dir is remembered
+
 procedure SetDlgInitialDir(aDialog: TFileDialog; BaseDir: string);
 procedure SetDirEditInitialDir(aDirectoryEdit: TDirectoryEdit;
   BaseDir: string);

@@ -26,6 +26,7 @@ interface
 
 uses
   Classes, SysUtils, uPSComponent, uPSRuntime, uPSCompiler,
+  // CHX abstracts
   uaCHXStorable;
 
 type

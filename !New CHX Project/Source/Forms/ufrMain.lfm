@@ -1,0 +1,8 @@
+inherited CHXForm: TCHXForm
+  Left = 621
+  Height = 240
+  Top = 236
+  Width = 320
+  Caption = 'CHXForm'
+  OnCreate = FormCreate
+end

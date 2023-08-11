@@ -1,5 +1,13 @@
 Unit uVersionSupport;
 
+
+
+
+// Use Units/uCHXVerInfo.pas
+
+
+
+
 {$mode objfpc}
 
 Interface

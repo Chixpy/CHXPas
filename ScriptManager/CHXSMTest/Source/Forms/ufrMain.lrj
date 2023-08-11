@@ -1,0 +1,5 @@
+{"version":1,"strings":[
+{"hash":131913421,"name":"tchxform.caption","sourcebytes":[67,72,88,70,111,114,109],"value":"CHXForm"},
+{"hash":265009698,"name":"tchxform.bsm.caption","sourcebytes":[79,112,101,110,32,83,99,114,105,112,116,77,97,110,97,103,101,114],"value":"Open ScriptManager"},
+{"hash":241587202,"name":"tchxform.lscriptsfolder.caption","sourcebytes":[83,99,114,105,112,116,115,32,70,111,108,100,101,114],"value":"Scripts Folder"}
+]}
