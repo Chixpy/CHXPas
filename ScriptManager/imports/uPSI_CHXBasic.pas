@@ -1,4 +1,5 @@
 unit uPSI_CHXBasic;
+
 {< Basic types and functions for Pascal Script.
 
   Copyright (C) 2011-2023 Chixpy
@@ -145,14 +146,14 @@ end;
 // systemh.inc
 // -----------
 
-function CHXRandom: Extended;
+function CHXRandom: extended;
 begin
   Result := Random;
 end;
 
-function CHXRandomInt(l, h: Int64): Int64;
+function CHXRandomInt(l, h: int64): int64;
 var
-  Temp: Int64;
+  Temp: int64;
 begin
   if l = h then
   begin
@@ -175,6 +176,9 @@ procedure SIRegister_CHXBasic(CL: TPSPascalCompiler);
 begin
   // CL.AddDelphiFunction('function XXX;');
 
+  // System
+  // ======
+
   // Basic types
   // -----------
   {$ifdef CPU64}
@@ -195,108 +199,108 @@ begin
   // ---------------
   CL.AddConstantN('LineEnding', 'string').SetString(LineEnding);
 
-  // finah.inc
-  // ---------
-  // System Utilities For Free Pascal
+  // Random functions
+  // ----------------
+  CL.AddDelphiFunction('Procedure Randomize;');
+  CL.AddDelphiFunction('function Random: Extended;');
+  // This includes BOTH numbers
+  CL.AddDelphiFunction('function RandomInt(l, h: Int64): Int64;');
+
+  // SysUtils
+  // ========
 
   CL.AddDelphiFunction(
     'function ChangeFileExt(const FileName, Extension: string): string;');
   CL.AddDelphiFunction(
-    'function ConcatPaths(const Paths: array of string): string;');
+    'function ExtractFilePath(const FileName: string): string;');
   CL.AddDelphiFunction(
-    'function ExcludeLeadingPathDelimiter(const Path: string): string;');
+    'function ExtractFileDrive(const FileName: string): string;');
+  CL.AddDelphiFunction(
+    'function ExtractFileName(const FileName: string): string;');
+  CL.AddDelphiFunction(
+    'function ExtractFileExt(const FileName: string): string;');
+  CL.AddDelphiFunction(
+    'function ExtractFileDir(const FileName : string): string;');
+  CL.AddDelphiFunction(
+    'function ExtractShortPathName(const FileName : string) : string;');
+  CL.AddDelphiFunction(
+    'function ExpandFileName(const FileName : string): string;');
+  // CL.AddDelphiFunction('function ExpandFileNameCase (const FileName: string; out MatchFound: TFilenameCaseMatch): string;
+  CL.AddDelphiFunction(
+    'function ExpandUNCFileName(const FileName : string): string;');
+  CL.AddDelphiFunction(
+    'function ExtractRelativepath (const BaseName,DestNAme : string): string;');
+  CL.AddDelphiFunction(
+    'function IncludeTrailingPathDelimiter(const Path : string) : string;');
+  CL.AddDelphiFunction(
+    'function IncludeTrailingBackslash(const Path : string) : string;');
   CL.AddDelphiFunction(
     'function ExcludeTrailingBackslash(const Path: string): string;');
   CL.AddDelphiFunction(
     'function ExcludeTrailingPathDelimiter(const Path: string): string;');
   CL.AddDelphiFunction(
-    'function ExpandFileName (const FileName : string): string;');
+    'function IncludeLeadingPathDelimiter(const Path: string): string;');
   CL.AddDelphiFunction(
-    'function ExpandUNCFileName (const FileName : string): string;');
-  // CL.AddDelphiFunction('function ExpandFileNameCase (const FileName: string; out MatchFound: TFilenameCaseMatch): string;
-  CL.AddDelphiFunction(
-    'function ExtractFileDir(const FileName : string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractFileDrive(const FileName: string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractFileExt(const FileName: string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractFileName(const FileName: string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractFilePath(const FileName: string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractRelativepath (const BaseName,DestNAme : string): string;');
-  CL.AddDelphiFunction(
-    'function ExtractShortPathName(const FileName : string) : string;');
-  // CL.AddDelphiFunction('function GetDirs (Var DirName : PathStr; Var Dirs : Array of PathPChar) : Longint;'); // {$ifdef FPC_HAS_CPSTRING}rtlproc;{$endif}
-  CL.AddDelphiFunction(
-    'function IncludeLeadingPathDelimiter(const Path : string) : string;');
-  CL.AddDelphiFunction(
-    'function IncludeTrailingBackslash(const Path : string) : string;');
-  CL.AddDelphiFunction(
-    'function IncludeTrailingPathDelimiter(const Path : string) : string;');
+    'function ExcludeLeadingPathDelimiter(const Path: string): string;');
   CL.AddDelphiFunction(
     'function IsPathDelimiter(const Path: string; Index: Integer): Boolean;');
   CL.AddDelphiFunction(
+    'procedure DoDirSeparators (var FileName : string);');
+  CL.AddDelphiFunction(
     'function SetDirSeparators (const FileName : string) : string;');
-  CL.AddDelphiFunction('procedure DoDirSeparators (var FileName : string);');
+  // CL.AddDelphiFunction('function GetDirs (Var DirName : PathStr; Var Dirs : Array of PathPChar) : Longint;'); // {$ifdef FPC_HAS_CPSTRING}rtlproc;{$endif}
+  CL.AddDelphiFunction(
+    'function ConcatPaths(const Paths: array of string): string;');
 
-  // systemh.inc
-  // -----------
-  CL.AddDelphiFunction('Procedure Randomize;');
-  CL.AddDelphiFunction('function Random: Extended;');
-  // This includes BOTH numbers
-  CL.AddDelphiFunction('function RandomInt(l, h: Int64): Int64;');
 end;
 
 procedure RIRegister_CHXBasic_Routines(S: TPSExec);
 begin
   // S.RegisterDelphiFunction(@XXX, 'XXX', cdRegister);
 
-  // finah.inc
-  // ---------
-  // System Utilities For Free Pascal
-
-  S.RegisterDelphiFunction(@CHXChangeFileExt, 'ChangeFileExt', cdRegister);
-  S.RegisterDelphiFunction(@CHXConcatPaths, 'ConcatPaths', cdRegister);
-  S.RegisterDelphiFunction(@CHXExcludeLeadingPathDelimiter,
-    'ExcludeLeadingPathDelimiter', cdRegister);
-  S.RegisterDelphiFunction(@CHXExcludeTrailingBackslash,
-    'ExcludeTrailingBackslash', cdRegister);
-  S.RegisterDelphiFunction(@CHXExcludeTrailingPathDelimiter,
-    'ExcludeTrailingPathDelimiter', cdRegister);
-  S.RegisterDelphiFunction(@CHXExpandFileName, 'ExpandFileName', cdRegister);
-  S.RegisterDelphiFunction(@CHXExpandUNCFileName, 'ExpandUNCFileName',
-    cdRegister);
-  // S.RegisterDelphiFunction(@CHXExpandFileNameCase, 'ExpandFileNameCase', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractFileDir, 'ExtractFileDir', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractFileDrive, 'ExtractFileDrive',
-    cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractFileExt, 'ExtractFileExt', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractFileName, 'ExtractFileName', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractFilePath, 'ExtractFilePath', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractRelativepath,
-    'ExtractRelativepath', cdRegister);
-  S.RegisterDelphiFunction(@CHXExtractShortPathName,
-    'ExtractShortPathName', cdRegister);
-  // S.RegisterDelphiFunction(@CHXGetDirs, 'GetDirs', cdRegister);
-  S.RegisterDelphiFunction(@CHXIncludeLeadingPathDelimiter,
-    'IncludeLeadingPathDelimiter', cdRegister);
-  S.RegisterDelphiFunction(@CHXIncludeTrailingBackslash,
-    'IncludeTrailingBackslash', cdRegister);
-  S.RegisterDelphiFunction(@CHXIncludeTrailingPathDelimiter,
-    'IncludeTrailingPathDelimiter', cdRegister);
-  S.RegisterDelphiFunction(@CHXIsPathDelimiter, 'IsPathDelimiter', cdRegister);
-  S.RegisterDelphiFunction(@CHXSetDirSeparators, 'SetDirSeparators',
-    cdRegister);
-  S.RegisterDelphiFunction(@CHXDoDirSeparators, 'DoDirSeparators', cdRegister);
-
-
   // systemh.inc
   // -----------
   S.RegisterDelphiFunction(@Randomize, 'Randomize', cdRegister);
   S.RegisterDelphiFunction(@CHXRandom, 'Random', cdRegister);
   S.RegisterDelphiFunction(@CHXRandomInt, 'RandomInt', cdRegister);
+
+  // finah.inc
+  // ---------
+  // System Utilities For Free Pascal
+
+  S.RegisterDelphiFunction(@CHXChangeFileExt, 'ChangeFileExt', cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractFilePath, 'ExtractFilePath', cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractFileDrive, 'ExtractFileDrive',
+    cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractFileName, 'ExtractFileName', cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractFileExt, 'ExtractFileExt', cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractFileDir, 'ExtractFileDir', cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractShortPathName,
+    'ExtractShortPathName', cdRegister);
+  S.RegisterDelphiFunction(@CHXExpandFileName, 'ExpandFileName', cdRegister);
+  // S.RegisterDelphiFunction(@CHXExpandFileNameCase, 'ExpandFileNameCase', cdRegister);
+  S.RegisterDelphiFunction(@CHXExpandUNCFileName, 'ExpandUNCFileName',
+    cdRegister);
+  S.RegisterDelphiFunction(@CHXExtractRelativepath,
+    'ExtractRelativepath', cdRegister);
+  S.RegisterDelphiFunction(@CHXIncludeTrailingPathDelimiter,
+    'IncludeTrailingPathDelimiter', cdRegister);
+  S.RegisterDelphiFunction(@CHXIncludeTrailingBackslash,
+    'IncludeTrailingBackslash', cdRegister);
+  S.RegisterDelphiFunction(@CHXExcludeTrailingBackslash,
+    'ExcludeTrailingBackslash', cdRegister);
+  S.RegisterDelphiFunction(@CHXExcludeTrailingPathDelimiter,
+    'ExcludeTrailingPathDelimiter', cdRegister);
+  S.RegisterDelphiFunction(@CHXIncludeLeadingPathDelimiter,
+    'IncludeLeadingPathDelimiter', cdRegister);
+  S.RegisterDelphiFunction(@CHXExcludeLeadingPathDelimiter,
+    'ExcludeLeadingPathDelimiter', cdRegister);
+  S.RegisterDelphiFunction(@CHXIsPathDelimiter, 'IsPathDelimiter', cdRegister);
+  S.RegisterDelphiFunction(@CHXDoDirSeparators, 'DoDirSeparators', cdRegister);
+  S.RegisterDelphiFunction(@CHXSetDirSeparators, 'SetDirSeparators',
+    cdRegister);
+  // S.RegisterDelphiFunction(@CHXGetDirs, 'GetDirs', cdRegister);
+  S.RegisterDelphiFunction(@CHXConcatPaths, 'ConcatPaths', cdRegister);
 end;
 
 end.

@@ -7,6 +7,7 @@
 {"hash":45,"name":"tfmchxscriptmanager.bseparator3.caption","sourcebytes":[45],"value":"-"},
 {"hash":149899828,"name":"tfmchxscriptmanager.bseparator4.caption","sourcebytes":[98,83,101,112,97,114,97,116,111,114,52],"value":"bSeparator4"},
 {"hash":149899829,"name":"tfmchxscriptmanager.bseparator5.caption","sourcebytes":[98,83,101,112,97,114,97,116,111,114,53],"value":"bSeparator5"},
+{"hash":149899830,"name":"tfmchxscriptmanager.bseparator6.caption","sourcebytes":[98,83,101,112,97,114,97,116,111,114,54],"value":"bSeparator6"},
 {"hash":91011012,"name":"tfmchxscriptmanager.pagoutput.caption","sourcebytes":[79,117,116,112,117,116],"value":"Output"},
 {"hash":124563556,"name":"tfmchxscriptmanager.tboutput.caption","sourcebytes":[116,98,79,117,116,112,117,116],"value":"tbOutput"},
 {"hash":160486418,"name":"tfmchxscriptmanager.toolbutton2.caption","sourcebytes":[84,111,111,108,66,117,116,116,111,110,50],"value":"ToolButton2"},
@@ -40,5 +41,7 @@
 {"hash":230632130,"name":"tfmchxscriptmanager.actfileopenfolder.caption","sourcebytes":[79,112,101,110,32,102,111,108,100,101,114,32,105,110,32,69,120,112,108,111,114,101,114],"value":"Open folder in Explorer"},
 {"hash":126377230,"name":"tfmchxscriptmanager.actfileopenfolder.hint","sourcebytes":[79,112,101,110,32,102,111,108,100,101,114,32,111,102,32,116,104,101,32,102,105,108,101,32,119,105,116,104,32,101,120,112,108,111,114,101,114,46],"value":"Open folder of the file with explorer."},
 {"hash":111429314,"name":"tfmchxscriptmanager.actfolderopen.caption","sourcebytes":[79,112,101,110,32,102,111,108,100,101,114],"value":"Open folder"},
-{"hash":119809890,"name":"tfmchxscriptmanager.actchangebasefolder.caption","sourcebytes":[67,104,97,110,103,101,32,66,97,115,101,32,70,111,108,100,101,114],"value":"Change Base Folder"}
+{"hash":119809890,"name":"tfmchxscriptmanager.actchangebasefolder.caption","sourcebytes":[67,104,97,110,103,101,32,66,97,115,101,32,70,111,108,100,101,114],"value":"Change Base Folder"},
+{"hash":126907086,"name":"tfmchxscriptmanager.acteditfonteditor.caption","sourcebytes":[83,101,108,101,99,99,105,111,110,97,114,32,38,70,117,101,110,116,101,32,100,101,108,32,101,100,105,116,111,114,46,46,46],"value":"Seleccionar &Fuente del editor..."},
+{"hash":103023717,"name":"tfmchxscriptmanager.acteditfonteditor.hint","sourcebytes":[83,101,108,101,99,116,111,114,32,100,101,32,102,117,101,110,116,101],"value":"Selector de fuente"}
 ]}

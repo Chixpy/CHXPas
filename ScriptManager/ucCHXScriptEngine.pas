@@ -77,22 +77,21 @@ type
   TCHXSEWriteLnCB = procedure(const aStr: string) of object;
   TCHXSEReadLnCB = function(const aQuestion, DefAnswer: string): string of
     object;
-  TCHXSEAskFileCB = function(
-    const aCaption, aExtFilter, DefFile: string): string of object;
+  TCHXSEAskFileCB = function(const aCaption, aExtFilter, DefFile: string):
+    string of object;
   TCHXSEAskMultiFileCB = procedure(aFileList: TStrings;
     const aCaption, aExtFilter, DefFolder: string) of object;
   TCHXSEAskFolderCB = function(const aCaption, DefFolder: string): string of
     object;
   TCHXSEAskOptionCB = function(const aCaption, aQuestion: string;
     aOptionList: TStrings): integer of object;
-  TCHXSEAskYesNoCancelCB = function(
-    const aCaption, aQuestion: string): integer of object;
+  TCHXSEAskYesNoCancelCB = function(const aCaption, aQuestion: string):
+    integer of object;
 
   { cCHXScriptEngine }
 
   cCHXScriptEngine = class(TObject)
   private
-    FCommonUnitFolder: string;
     FOnAskFile: TCHXSEAskFileCB;
     FOnAskFolder: TCHXSEAskFolderCB;
     FOnAskMultiFile: TCHXSEAskMultiFileCB;
@@ -105,7 +104,6 @@ type
     FScriptError: TStrings;
     function getScriptFile: string;
     function getScriptText: TStrings;
-    procedure SetCommonUnitFolder(AValue: string);
     procedure SetOnAskFile(AValue: TCHXSEAskFileCB);
     procedure SetOnAskFolder(AValue: TCHXSEAskFolderCB);
     procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
@@ -156,8 +154,6 @@ type
 
   public
     property ScriptFile: string read getScriptFile write setScriptFile;
-    property CommonUnitFolder: string
-      read FCommonUnitFolder write SetCommonUnitFolder;
 
     property ScriptText: TStrings read getScriptText write setScriptText;
 
@@ -198,11 +194,6 @@ end;
 function cCHXScriptEngine.getScriptText: TStrings;
 begin
   Result := PasScript.Script;
-end;
-
-procedure cCHXScriptEngine.SetCommonUnitFolder(AValue: string);
-begin
-  FCommonUnitFolder := SetAsFolder(AValue);
 end;
 
 procedure cCHXScriptEngine.SetOnAskFile(AValue: TCHXSEAskFileCB);
@@ -288,18 +279,18 @@ procedure cCHXScriptEngine.PasScriptOnCompile(Sender: TPSScript);
 begin
   // Input and Output
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXWriteLn,
-    'procedure WriteLn(const s: String);');
+    'procedure WriteLn(const s: string);');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXReadLn,
-    'function ReadLn(const aQuestion, DefAnswer: String): String;');
+    'function ReadLn(const aQuestion, DefAnswer: string): string;');
 
   // Dialogs
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFile,
-    'function AskFile(const aTitle, aExt, DefFile: String): String;');
+    'function AskFile(const aTitle, aExt, DefFile: string): string;');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskMultiFile,
     'procedure AskMultiFile(aFileList: TStrings; const aTitle: string;' +
     ' const aExtFilter: string; const DefFolder: string)');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskFolder,
-    'function AskFolder(const aTitle, DefFolder: String): String;');
+    'function AskFolder(const aTitle, DefFolder: string): string;');
   Sender.AddMethod(Self, @cCHXScriptEngine.CHXAskOption,
     'function AskOption(const aCaption, aQuestion: string;' +
     ' aOptionList: TStrings): integer');
@@ -323,41 +314,39 @@ function cCHXScriptEngine.PasScriptOnFindUnknownFile(Sender: TObject;
   const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
-  fStream: TFileStream;
+  slFile: TStringList;
 begin
-
-  // TODO: Remove this info... or make a error level filter...
-  if Assigned(ScriptError) then
-  begin
-    ScriptError.Add(Format(rsSEMsgFormat, [rsSEELInfo, 0, 0,
-      'PasScriptOnFindUnknownFile']));
-    ScriptError.Add('- OriginFileName: ' + OriginFileName);
-    ScriptError.Add('- FileName: ' + FileName);
-  end;
-
   Result := False;
 
-  FullFileName := SetAsFolder(ExtractFilePath(OriginFileName)) +
-    FileName + '.pas';
-  if not FileExistsUTF8(FullFileName) then
+  FullFileName := FileSearch(FileName + '.pas',
+    ExtractFileDir(OriginFileName) + ';' + ExtractFilePath(OriginFileName) +
+    'Units' + ';' + ExtractFilePath(ExtractFileDir(OriginFileName)) +
+    'Units' + ';' + ExtractFileDir(ScriptFile) + ';' +
+    ExtractFilePath(ScriptFile) + 'Units' + ';' +
+    ExtractFilePath(ExtractFileDir(ScriptFile)) + 'Units');
+
+  if FullFileName = '' then
   begin
-    FullFileName := SetAsFolder(CommonUnitFolder) + FileName + '.pas';
-    if not FileExistsUTF8(FullFileName) then
-      Exit;
+    if Assigned(ScriptError) then
+    begin
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0,
+        'PasScriptOnFindUnknownFile file not found:']));
+      ScriptError.Add('  - OriginFileName: ' + OriginFileName);
+      ScriptError.Add('  - FileName: ' + FileName + '.pas');
+    end;
+    Exit;
+  end
+  else
+  begin
+    if Assigned(ScriptError) then
+      ScriptError.add('Adding unit: ' + FullFileName);
   end;
 
-  try
-    fStream := TFileStream.Create(FullFileName, fmOpenRead or
-      fmShareDenyWrite);
-  except
-    Exit;
-  end;
-  try
-    SetLength(Output, fStream.Size);
-    fStream.Read(Output[1], Length(Output));
-  finally
-    fStream.Free;
-  end;
+  slFile := TStringList.Create;
+  slFile.LoadFromFile(FullFileName);
+  Output := slFile.Text;
+  slFile.Free;
+
   Result := True;
 end;
 
@@ -365,45 +354,39 @@ function cCHXScriptEngine.PasScriptOnNeedFile(Sender: TObject;
   const OriginFileName: tbtstring; var FileName, Output: tbtstring): boolean;
 var
   FullFileName: string;
-  fStream: TFileStream;
+  slFile: TStringList;
 begin
-  FileName := AnsiDequotedStr(FileName, '''');
-  FileName := AnsiDequotedStr(FileName, '"');
-
   Result := False;
-  FullFileName := CleanAndExpandFilename(
-    SetAsFolder(ExtractFilePath(OriginFileName)) + FileName);
-  if not FileExistsUTF8(FullFileName) then
+
+  FullFileName := FileSearch(FileName,
+    ExtractFileDir(OriginFileName) + ';' + ExtractFilePath(OriginFileName) +
+    'Units' + ';' + ExtractFilePath(ExtractFileDir(OriginFileName)) +
+    'Units' + ';' + ExtractFileDir(ScriptFile) + ';' +
+    ExtractFilePath(ScriptFile) + 'Units' + ';' +
+    ExtractFilePath(ExtractFileDir(ScriptFile)) + 'Units');
+
+  if FullFileName = '' then
   begin
-    FullFileName := CleanAndExpandFilename(SetAsFolder(CommonUnitFolder) +
-      FileName);
-    if not FileExistsUTF8(FullFileName) then
+    if Assigned(ScriptError) then
     begin
-      if Assigned(ScriptError) then
-      begin
-        Result := True; // Don't halt or create an exception.
-
-        ScriptError.Add(Format(rsSEMsgFormat,
-          [rsSEELWarning, 0, 0, 'PasScriptOnFindUnknownFile']));
-        ScriptError.Add('- $I file not found: ' + FileName +
-          ' (' + OriginFileName + ')');
-      end;
-      Exit;
+      ScriptError.Add(Format(rsSEMsgFormat, [rsSEELError, 0, 0,
+        'PasScriptOnNeedFile file not found:']));
+      ScriptError.Add('  - OriginFileName: ' + OriginFileName);
+      ScriptError.Add('  - FileName: ' + FileName);
     end;
+    Exit;
+  end
+  else
+  begin
+    if Assigned(ScriptError) then
+      ScriptError.add('Adding file: ' + FullFileName);
   end;
 
-  try
-    fStream := TFileStream.Create(FullFileName, fmOpenRead or
-      fmShareDenyWrite);
-  except
-    Exit;
-  end;
-  try
-    SetLength(Output, fStream.Size);
-    fStream.Read(Output[1], Length(Output));
-  finally
-    fStream.Free;
-  end;
+  slFile := TStringList.Create;
+  slFile.LoadFromFile(FullFileName);
+  Output := slFile.Text;
+  slFile.Free;
+
   Result := True;
 end;
 
@@ -638,6 +621,9 @@ begin
 
   FPasScript := TPSScriptDebugger.Create(nil);
   PasScript.UsePreProcessor := True;
+  // All active
+  PasScript.CompilerOptions := [icAllowNoBegin, icAllowUnit, icAllowNoEnd,
+    icBooleanShortCircuit];
   PasScript.OnCompImport := @PasScriptOnCompImport;
   PasScript.OnCompile := @PasScriptOnCompile;
   PasScript.OnExecImport := @PasScriptOnExecImport;

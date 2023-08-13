@@ -3,8 +3,8 @@ inherited fmSMAskOption: TfmSMAskOption
   Width = 700
   ClientHeight = 275
   ClientWidth = 700
-  DesignLeft = 640
-  DesignTop = 428
+  DesignLeft = 401
+  DesignTop = 290
   inherited pButtons: TPanel
     Top = 245
     Width = 700

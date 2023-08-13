@@ -18,9 +18,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 504
     Top = 0
     Width = 1096
-    ActivePage = pagScriptList
+    ActivePage = pagSourceCode
     Align = alClient
-    TabIndex = 0
+    TabIndex = 1
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -188,7 +188,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Action = actFileSaveAs
         end
         object bSeparator5: TToolButton
-          Left = 294
+          Left = 360
           Height = 28
           Top = 0
           Caption = 'bSeparator5'
@@ -208,6 +208,18 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 236
           Top = 0
           Action = actFileSave
+        end
+        object bSeparator6: TToolButton
+          Left = 294
+          Height = 28
+          Top = 0
+          Caption = 'bSeparator6'
+          Style = tbsSeparator
+        end
+        object bEditorFont: TToolButton
+          Left = 368
+          Top = 0
+          Action = actEditFontEditor
         end
       end
       inline SynEdit: TSynEdit
@@ -819,6 +831,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Top = 0
         Width = 88
         Action = actStop
+        Images = ilActions
+        ImageIndex = 6
         TabOrder = 1
       end
       object bExecute2: TBitBtn
@@ -828,6 +842,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Width = 88
         Action = actExecute
         AutoSize = True
+        Images = ilActions
+        ImageIndex = 17
         TabOrder = 0
       end
     end
@@ -1203,9 +1219,19 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       ImageIndex = 12
       OnExecute = actChangeBaseFolderExecute
     end
+    object actEditFontEditor: TFontEdit
+      Category = 'Edit'
+      Caption = 'Seleccionar &Fuente del editor...'
+      Dialog.MinFontSize = 0
+      Dialog.MaxFontSize = 0
+      Dialog.Options = [fdFixedPitchOnly]
+      Hint = 'Selector de fuente'
+      ImageIndex = 15
+      BeforeExecute = actEditFontEditorBeforeExecute
+      OnAccept = actEditFontEditorAccept
+    end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[5]
-    Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
     TypeHelpers = False
@@ -1217,7 +1243,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     PlaybackShortCut = 24656
     Editor = SynEdit
     Left = 64
-    Top = 64
+    Top = 72
   end
   object OpenDialog1: TOpenDialog[7]
     Options = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
@@ -1242,5 +1268,20 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
   object pmFolderList: TPopupMenu[10]
     Left = 320
     Top = 224
+  end
+  object SynCompletion: TSynCompletion[11]
+    Position = 0
+    LinesInWindow = 6
+    SelectedColor = clHighlight
+    CaseSensitive = False
+    Width = 262
+    AutoUseSingleIdent = True
+    ShortCut = 16416
+    EndOfTokenChr = '()[].'
+    ExecCommandID = ecSynCompletionExecute
+    Editor = SynEdit
+    ToggleReplaceWhole = False
+    Left = 160
+    Top = 72
   end
 end

@@ -12,7 +12,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="Forms\ufrMain.pas"/>
@@ -20,12 +20,10 @@
         <ComponentName Value="CHXForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="79"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="27"/>
         <CursorPos X="53" Y="105"/>
-        <UsageCount Value="25"/>
-        <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Forms\ufrCHXForm.pas"/>
@@ -36,7 +34,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="34"/>
         <CursorPos X="5" Y="46"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Frames\ufCHXFrame.pas"/>
@@ -45,37 +43,37 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXConst.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXImageUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXRscStr.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXVerInfo.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="25"/>
+        <UsageCount Value="48"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\ufCHXScriptManager.pas"/>
@@ -83,78 +81,86 @@
         <ComponentName Value="fmCHXScriptManager"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="572"/>
-        <CursorPos X="33" Y="686"/>
-        <UsageCount Value="24"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="266"/>
+        <CursorPos X="52" Y="284"/>
+        <UsageCount Value="47"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\ucCHXScriptEngine.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="28"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="606"/>
+        <CursorPos X="27" Y="614"/>
+        <UsageCount Value="47"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_CHXBasic.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="227"/>
+        <CursorPos X="44" Y="242"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_FPCDateUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_FPCFileUtil.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="33"/>
+        <CursorPos Y="51"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_FPCLazUTF8.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_FPCStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_FPCSysUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_u7zWrapper.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_uaCHXStorable.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="19" Y="29"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_uCHXFileUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\imports\uPSI_uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Abstract\uaCHXStorable.pas"/>
@@ -163,33 +169,34 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXDlgUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\frames\ufSMAskMultiFile.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fmSMAskMultiFile"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <TopLine Value="-1"/>
-        <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="24"/>
+        <CursorPos X="3" Y="107"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\frames\ufSMAskOption.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="fmSMAskOption"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="71"/>
-        <UsageCount Value="24"/>
+        <TopLine Value="102"/>
+        <CursorPos X="59" Y="121"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHX7zWrapper.pas"/>
@@ -197,19 +204,19 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="36"/>
         <CursorPos X="35" Y="44"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXExecute.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXFileUtils.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="24"/>
+        <UsageCount Value="47"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Forms\ufrCHXForm.pas"/>
@@ -218,7 +225,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="15" Y="46"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Misc\uVersionSupport.pas"/>
@@ -226,7 +233,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Units\uCHXConst.pas"/>
@@ -234,14 +241,14 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Units\uCHXStrUtils.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="281"/>
         <CursorPos X="14" Y="28"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Units\uCHXRscStr.pas"/>
@@ -249,7 +256,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Units\uCHXImageUtils.pas"/>
@@ -257,7 +264,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\CHXPas\Frames\ufCHXFrame.pas"/>
@@ -266,26 +273,26 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="20"/>
         <CursorPos X="31" Y="38"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Misc\uVersionSupport.pas"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="14" Y="6"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="19"/>
       </Unit>
       <Unit>
         <Filename Value="D:\Programas\Inst\Lazarus\lcl\interfacebase.pp"/>
         <UnitName Value="InterfaceBase"/>
         <EditorIndex Value="-1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit>
       <Unit>
         <Filename Value="D:\Programas\Inst\Lazarus\lcl\include\wincontrol.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="7527"/>
         <CursorPos Y="7544"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit>
       <Unit>
         <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\packages\fcl-base\src\inifiles.pp"/>
@@ -293,13 +300,13 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="232"/>
         <CursorPos X="3" Y="215"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit>
       <Unit>
         <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\classes\classesh.inc"/>
         <EditorIndex Value="-1"/>
-        <TopLine Value="701"/>
-        <CursorPos X="15" Y="717"/>
+        <TopLine Value="1008"/>
+        <CursorPos X="16" Y="1020"/>
         <UsageCount Value="10"/>
       </Unit>
       <Unit>
@@ -307,45 +314,267 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="1150"/>
         <CursorPos X="3" Y="1156"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\scripts\Tests\TestCHXBasic.pas"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="19"/>
+        <UsageCount Value="25"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\win\syswinh.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="2" Y="17"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\finah.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="9"/>
+        <CursorPos X="10" Y="39"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\inc\systemh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="666"/>
+        <CursorPos X="11" Y="846"/>
+        <UsageCount Value="9"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\sysstrh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="176"/>
+        <CursorPos X="20" Y="184"/>
         <UsageCount Value="10"/>
       </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\fina.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="485"/>
+        <CursorPos X="3" Y="505"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSComponent.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="281"/>
+        <CursorPos X="29" Y="284"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\filutilh.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="201"/>
+        <CursorPos X="10" Y="219"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\sysutils\filutil.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="329"/>
+        <CursorPos X="10" Y="363"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\objpas\classes\streams.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="507"/>
+        <CursorPos X="3" Y="510"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\win\sysutils.pp"/>
+        <UnitName Value="SysUtils"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="322"/>
+        <CursorPos X="3" Y="326"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\fpc\3.2.2\source\rtl\win\wininc\redef.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="754"/>
+        <CursorPos X="10" Y="772"/>
+        <UsageCount Value="10"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSCompiler.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="11287"/>
+        <CursorPos X="29" Y="11290"/>
+        <UsageCount Value="13"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\PascalScript.inc"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos Y="15"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\eDefines.inc"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="386"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\PascalScriptFPC.inc"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSPreProcessor.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="386"/>
+        <CursorPos Y="508"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSRuntime.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="2019"/>
+        <CursorPos X="3" Y="2022"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSUtils.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="916"/>
+        <CursorPos Y="938"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\PascalScript\Source\uPSC_dll.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="123"/>
+        <CursorPos Y="153"/>
+        <UsageCount Value="11"/>
+      </Unit>
+      <Unit>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\synedit\synhighlighterpas.pp"/>
+        <UnitName Value="SynHighlighterPas"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="884"/>
+        <CursorPos X="14" Y="929"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="8">
+    <OtherDefines Count="1">
+      <Define0 Value="PS_USESSUPPORT"/>
+    </OtherDefines>
+    <JumpHistory HistoryIndex="27">
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="13" Column="3"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="358" TopLine="341"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="92" Column="54" TopLine="75"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="647" Column="6" TopLine="630"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="93" Column="54" TopLine="76"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="391" Column="35" TopLine="147"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="92" Column="54" TopLine="75"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="94" Column="17" TopLine="77"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="93" Column="54" TopLine="76"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="157" Column="73" TopLine="141"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="83" Column="66" TopLine="14"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="199" Column="25" TopLine="185"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="37" Column="58" TopLine="14"/>
+        <Filename Value="..\..\ucCHXScriptEngine.pas"/>
+        <Caret Line="106" Column="39" TopLine="89"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="91" Column="39" TopLine="61"/>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="160" Column="5" TopLine="421"/>
       </Position>
       <Position>
-        <Filename Value="Forms\ufrMain.pas"/>
-        <Caret Line="63" Column="22" TopLine="39"/>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="161" Column="5" TopLine="161"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="162" Column="5" TopLine="162"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="164" Column="5" TopLine="164"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="281" Column="3" TopLine="328"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="280" Column="3" TopLine="280"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="283" Column="3" TopLine="276"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="24" Column="25"/>
+      </Position>
+      <Position>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\synedit\synhighlighterpas.pp"/>
+      </Position>
+      <Position>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\synedit\synhighlighterpas.pp"/>
+        <Caret Line="630" Column="14" TopLine="615"/>
+      </Position>
+      <Position>
+        <Filename Value="D:\Programas\Inst\Lazarus\components\synedit\synhighlighterpas.pp"/>
+        <Caret Line="365" Column="15" TopLine="348"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="24" Column="25"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="379" Column="3" TopLine="379"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="386" Column="3" TopLine="386"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="285" TopLine="274"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="284" Column="47" TopLine="266"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="283" Column="47" TopLine="265"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="282" Column="47" TopLine="264"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="284" Column="47" TopLine="266"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="295" Column="3" TopLine="267"/>
+      </Position>
+      <Position>
+        <Filename Value="..\..\ufCHXScriptManager.pas"/>
+        <Caret Line="291" TopLine="266"/>
       </Position>
     </JumpHistory>
     <RunParams>

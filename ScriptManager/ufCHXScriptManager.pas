@@ -24,10 +24,10 @@ unit ufCHXScriptManager;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, LazFileUtils, SynEdit,
-  SynHighlighterPas, SynMacroRecorder, Forms, Controls, Graphics,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, ShellCtrls,
-  Buttons, ActnList, StdActns, IniFiles, SynEditTypes, LCLIntf, Menus,
+  Classes, SysUtils, FileUtil, LazFileUtils, SynEdit, SynHighlighterPas,
+  SynMacroRecorder, Forms, Controls, Graphics, Dialogs, ExtCtrls, StdCtrls,
+  ComCtrls, ShellCtrls, Buttons, ActnList, StdActns, IniFiles, SynEditTypes,
+  SynCompletion, LCLIntf, Menus,
   // CHX units
   uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
   // CHX classes
@@ -98,6 +98,7 @@ type
     bStop: TBitBtn;
     actOutputSaveAs: TFileSaveAs;
     actOutputFontEdit: TFontEdit;
+    actEditFontEditor: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lCurrentFile: TLabel;
@@ -122,6 +123,7 @@ type
     slvFiles: TShellListView;
     Splitter1: TSplitter;
     Splitter2: TSplitter;
+    SynCompletion: TSynCompletion;
     SynEdit: TSynEdit;
     SynFreePascalSyn: TSynFreePascalSyn;
     SynMacroRecorder: TSynMacroRecorder;
@@ -129,11 +131,15 @@ type
     tbOutput: TToolBar;
     tbOutputClear: TToolButton;
     tbSaveOutput: TToolButton;
+    bSeparator6: TToolButton;
     ToolButton2: TToolButton;
     tbFontEdit: TToolButton;
     bSave: TToolButton;
+    bEditorFont: TToolButton;
     procedure actChangeBaseFolderExecute(Sender: TObject);
     procedure actCompileExecute(Sender: TObject);
+    procedure actEditFontEditorAccept(Sender: TObject);
+    procedure actEditFontEditorBeforeExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
@@ -192,7 +198,8 @@ type
     function DoAskFolder(const aCaption, DefFolder: string): string; virtual;
     function DoAskOption(const aCaption, aQuestion: string;
       aOptionList: TStrings): integer; virtual;
-    function DoAskYesNoCancel(const aCaption, aQuestion: string): integer; virtual;
+    function DoAskYesNoCancel(const aCaption, aQuestion: string): integer;
+      virtual;
 
     procedure DoOnline(Sender: TObject); virtual;
 
@@ -270,6 +277,16 @@ end;
 procedure TfmCHXScriptManager.actCompileExecute(Sender: TObject);
 begin
   Compile;
+end;
+
+procedure TfmCHXScriptManager.actEditFontEditorAccept(Sender: TObject);
+begin
+  SynEdit.Font.Assign(actEditFontEditor.Dialog.Font);
+end;
+
+procedure TfmCHXScriptManager.actEditFontEditorBeforeExecute(Sender: TObject);
+begin
+  actEditFontEditor.Dialog.Font.Assign(SynEdit.Font);
 end;
 
 procedure TfmCHXScriptManager.actChangeBaseFolderExecute(Sender: TObject);
@@ -607,7 +624,6 @@ begin
   stvFolders.Root := SysPath(aFolder);
 
   slvFiles.ShellTreeView := stvFolders;
-  ScriptEngine.CommonUnitFolder := aFolder;
 end;
 
 class function TfmCHXScriptManager.SimpleForm(aBaseFolder: string;
@@ -650,10 +666,10 @@ begin
     Result := -1;
 end;
 
-function TfmCHXScriptManager.DoAskYesNoCancel(const aCaption, aQuestion: string
-  ): integer;
+function TfmCHXScriptManager.DoAskYesNoCancel(
+  const aCaption, aQuestion: string): integer;
 begin
-   Result := MessageDlg(aCaption, aQuestion, mtConfirmation, mbYesNoCancel,0);
+  Result := MessageDlg(aCaption, aQuestion, mtConfirmation, mbYesNoCancel, 0);
 end;
 
 procedure TfmCHXScriptManager.DoOnline(Sender: TObject);

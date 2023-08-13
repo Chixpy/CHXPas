@@ -111,23 +111,25 @@ var
 begin
   aFrame := TfmSMAskOption.Create(nil);
 
-    aFrame.SaveButtons := True;
-    aFrame.chkCloseOnSave.Visible := False;
-    aFrame.ButtonClose := True;
-    aFrame.Align := alClient;
+  aFrame.SaveButtons := True;
+  aFrame.chkCloseOnSave.Visible := False;
+  aFrame.ButtonClose := True;
+  aFrame.Align := alClient;
 
-    aFrame.lQuestion.Caption := aQuestion;
-    aFrame.OptionList := aOptionList;
-    if aOption in [0..aFrame.rgbAnswer.Items.Count - 1] then
-      aFrame.rgbAnswer.ItemIndex := aOption;
+  aFrame.lQuestion.Caption := aQuestion;
+  aFrame.OptionList := aOptionList;
+  if aOption in [0..aFrame.rgbAnswer.Items.Count - 1] then
+    aFrame.rgbAnswer.ItemIndex := aOption;
 
-    Result := GenSimpleModalFormDontFree(aFrame, 'frmSMAskOption',
-      aTitle, aGUIConfigIni, aGUIIconsIni);
+  Result := GenSimpleModalFormDontFree(aFrame, 'frmSMAskOption',
+    aTitle, aGUIConfigIni, aGUIIconsIni);
 
-    if Result <> mrOk then
-      aOption := -1
-    else
-      aOption := aFrame.rgbAnswer.ItemIndex;
+  if Result <> mrOk then
+    aOption := -1
+  else
+    aOption := aFrame.rgbAnswer.ItemIndex;
+
+  aFrame.Free;
 end;
 
 constructor TfmSMAskOption.Create(TheOwner: TComponent);
