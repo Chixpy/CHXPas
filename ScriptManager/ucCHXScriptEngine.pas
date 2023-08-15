@@ -318,6 +318,9 @@ var
 begin
   Result := False;
 
+  FileName := AnsiDequotedStr(FileName, '''');
+  FileName := AnsiDequotedStr(FileName, '"');
+
   FullFileName := FileSearch(FileName + '.pas',
     ExtractFileDir(OriginFileName) + ';' + ExtractFilePath(OriginFileName) +
     'Units' + ';' + ExtractFilePath(ExtractFileDir(OriginFileName)) +
@@ -357,6 +360,9 @@ var
   slFile: TStringList;
 begin
   Result := False;
+
+  FileName := AnsiDequotedStr(FileName, '''');
+  FileName := AnsiDequotedStr(FileName, '"');
 
   FullFileName := FileSearch(FileName,
     ExtractFileDir(OriginFileName) + ';' + ExtractFilePath(OriginFileName) +

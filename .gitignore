@@ -2,3 +2,4 @@ Servisoft/
 ScriptManager/CHXSMTest/Lib/
 ScriptManager/CHXSMTest/Bin/GUI.ini
 *.dbg
+*.lps

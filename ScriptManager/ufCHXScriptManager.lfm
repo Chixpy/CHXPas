@@ -18,9 +18,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 504
     Top = 0
     Width = 1096
-    ActivePage = pagSourceCode
+    ActivePage = pagScriptList
     Align = alClient
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -101,6 +101,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Top = 381
         Width = 1088
         Align = alBottom
+        ReadOnly = True
         ScrollBars = ssAutoBoth
         TabOrder = 4
       end
@@ -1232,6 +1233,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[5]
+    Enabled = False
     CompilerMode = pcmObjFPC
     NestedComments = False
     TypeHelpers = False
