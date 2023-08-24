@@ -353,7 +353,7 @@ begin
       frmCHXProgressBar.FormStyle := fsStayOnTop;
       frmCHXProgressBar.Visible := False;
       frmCHXProgressBar.Position := poScreenCenter;
-      frmCHXProgressBar.BorderIcons := [biSystemMenu, biMinimize];
+      frmCHXProgressBar.BorderIcons := [];
       frmCHXProgressBar.ShowInTaskBar := stAlways;
 
       // Some default values, overriden with aGUIConfigIni

@@ -1272,7 +1272,7 @@ begin
   Result := '';
 
   // Sometime are stored as directories
-  a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
+  a7zArchive := ExcludeTrailingPathDelimiter(SysPath(a7zArchive));
   aInnerFile := SysPath(aInnerFile);
 
   aFileList := TStringList.Create;

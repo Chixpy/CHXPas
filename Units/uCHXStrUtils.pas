@@ -570,13 +570,34 @@ procedure StandardFormatSettings;
 begin
   // Standard format setting (for .ini and other conversions)
   // This overrides user local settings that can cause errors
+
+  DefaultFormatSettings.CurrencyFormat := 1;  // 1€
+  DefaultFormatSettings.NegCurrFormat := 5;   // -1€
   DefaultFormatSettings.ThousandSeparator := ',';
   DefaultFormatSettings.DecimalSeparator := '.';
+  DefaultFormatSettings.CurrencyDecimals := 2;
   DefaultFormatSettings.DateSeparator := '/';
   DefaultFormatSettings.TimeSeparator := ':';
-  DefaultFormatSettings.ShortDateFormat := 'yyyy/mm/dd';
-  DefaultFormatSettings.ShortTimeFormat := 'hh:nn:ss';
   DefaultFormatSettings.ListSeparator := ';';
+  DefaultFormatSettings.CurrencyString := '$';
+  DefaultFormatSettings.ShortDateFormat := 'yyyy/mm/dd';
+  DefaultFormatSettings.LongDateFormat := 'yyyy" "mmmm" "dd';
+  DefaultFormatSettings.TimeAMString := 'AM';
+  DefaultFormatSettings.TimePMString := 'PM';
+  DefaultFormatSettings.ShortTimeFormat := 'hh:nn';
+  DefaultFormatSettings.LongTimeFormat := 'hh:nn:ss';
+  //DefaultFormatSettings.ShortMonthNames :=
+  //  ('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+  //  'Oct', 'Nov', 'Dec');
+  //DefaultFormatSettings.LongMonthNames :=
+  //  ('January', 'February', 'March', 'April', 'May', 'June',
+  //  'July', 'August', 'September', 'October', 'November', 'December');
+  //DefaultFormatSettings.ShortDayNames :=
+  //  ('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+  //DefaultFormatSettings.LongDayNames :=
+  //  ('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+  //  'Friday', 'Saturday');
+  DefaultFormatSettings.TwoDigitYearCenturyWindow := 50;
 end;
 
 function StrCount(aString, ToSearch: string;

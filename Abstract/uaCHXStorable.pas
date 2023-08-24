@@ -1,4 +1,5 @@
 unit uaCHXStorable;
+
 {< caCHXStorable, caCHXStorableIni and caCHXStorableTxt abstract classes unit.
 
   Copyright (C) 2006-2019 Chixpy
@@ -43,7 +44,7 @@ type
 
       DefaultFileName property is not updated with aFilename parameter.
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); virtual;
+    procedure SaveToFile(const aFilename: string; ClearFile: boolean); virtual;
       abstract;
     {< Saves data to file.
 
@@ -69,7 +70,8 @@ type
 
   caCHXStorableIni = class(caCHXStorable)
   protected
-    type CBIniProc = procedure(aIniFile: TMemIniFile) of object;
+  type CBIniProc =
+    procedure(aIniFile: TMemIniFile) of object;
 
     procedure DoFileOpen(aFilename: string; aCBProc: CBIniProc;
       FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
@@ -85,7 +87,8 @@ type
 
       @param(aIniFile Inifile to read from.)
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
+    procedure SaveToFile(const aFilename: string; ClearFile: boolean);
+      override;
      {< Saves data to opened .ini file.
 
       @param(IniFile aFilename to write to.)
@@ -109,7 +112,8 @@ type
     procedure SetCommaText(AValue: string);
 
   protected
-    type CBTxtProc = procedure(aIniFile: TStrings) of object;
+  type CBTxtProc =
+    procedure(aIniFile: TStrings) of object;
 
     procedure DoFileOpen(aFilename: string; aCBProc: CBTxtProc;
       FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
@@ -123,7 +127,8 @@ type
 
       @param(aTxtFile Text file to read from.)
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: Boolean); override;
+    procedure SaveToFile(const aFilename: string; ClearFile: boolean);
+      override;
     procedure SaveToStrLst(aTxtFile: TStrings); virtual; abstract;
     {< Saves data to file.
 
@@ -156,8 +161,9 @@ end;
 
 { caCHXStorableIni }
 
-procedure caCHXStorableIni.DoFileOpen(aFilename: string; aCBProc: CBIniProc;
-  FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
+procedure caCHXStorableIni.DoFileOpen(aFilename: string;
+  aCBProc: CBIniProc; FileMustExists: boolean; ClearFile: boolean;
+  SaveAfter: boolean);
 var
   aIniFile: TMemIniFile;
   IniFileOps: TIniFileOptions;
@@ -204,7 +210,8 @@ begin
   DoFileOpen(aFilename, @LoadFromIni, True, False, False);
 end;
 
-procedure caCHXStorableIni.SaveToFile(const aFilename: string; ClearFile: Boolean);
+procedure caCHXStorableIni.SaveToFile(const aFilename: string;
+  ClearFile: boolean);
 begin
   DoFileOpen(aFilename, @SaveToIni, False, ClearFile, True);
 end;
@@ -246,11 +253,13 @@ begin
   end;
 end;
 
-procedure caCHXStorableTxt.DoFileOpen(aFilename: string; aCBProc: CBTxtProc;
-  FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
+procedure caCHXStorableTxt.DoFileOpen(aFilename: string;
+  aCBProc: CBTxtProc; FileMustExists: boolean; ClearFile: boolean;
+  SaveAfter: boolean);
 var
   aTxtFile: TStringList;
 begin
+
   if not Assigned(aCBProc) then
     Exit; // Nothing to do, so we don't waste time
 
@@ -264,8 +273,8 @@ begin
 
   // Testing if file exists
   if FileMustExists then
-   if not FileExistsUTF8(aFilename) then
-    Exit;
+    if not FileExistsUTF8(aFilename) then
+      Exit;
 
   aTxtFile := TStringList.Create;
   try
@@ -289,7 +298,8 @@ begin
   DoFileOpen(aFilename, @LoadFromStrLst, True, False, False);
 end;
 
-procedure caCHXStorableTxt.SaveToFile(const aFilename: string; ClearFile: Boolean);
+procedure caCHXStorableTxt.SaveToFile(const aFilename: string;
+  ClearFile: boolean);
 begin
   DoFileOpen(aFilename, @SaveToStrLst, False, ClearFile, True);
 end;

@@ -29,7 +29,7 @@ uses
   // CHX forms
   ufCHXFrame, ufrCHXForm,
   // Misc
-  uVersionSupport;
+  uCHXVerInfo;
 
 type
 
