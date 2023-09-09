@@ -52,7 +52,6 @@ type
     procedure SetSelectNextOnRemove(AValue: Boolean);
 
   protected
-    procedure DoClearFrame;
 
   public
     property OnFileSelect: TCHXStrObjCB
@@ -65,6 +64,8 @@ type
 
       @returns(The filename of the next item, empty string if last item
        is selected.)}
+
+    procedure ClearFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -175,8 +176,10 @@ begin
   FSelectNextOnRemove := AValue;
 end;
 
-procedure TfmCHXFileList.DoClearFrame;
+procedure TfmCHXFileList.ClearFrameData;
 begin
+  inherited;
+
   FileList.Clear;
 end;
 
@@ -191,8 +194,6 @@ end;
 constructor TfmCHXFileList.Create(TheOwner: TComponent);
 begin
   inherited Create(TheOwner);
-
-  OnClearFrameData := @DoClearFrame;
 
   Enabled := True;
 end;

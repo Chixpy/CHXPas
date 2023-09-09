@@ -301,6 +301,7 @@ begin
     Result := Round(Intersection / Union * 100);
 end;
 
+
 // DIRECTORY NAME UTILS
 // --------------------
 function SetAsFolder(const aValue: string): string;

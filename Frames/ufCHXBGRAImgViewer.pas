@@ -83,9 +83,6 @@ type
 
     procedure SetActualImage(AValue: TBGRABitmap); virtual;
 
-    procedure DoLoadFrameData;
-    procedure DoClearFrameData;
-
     procedure DrawImage;
 
     procedure AfterDrawImage; virtual;
@@ -117,6 +114,9 @@ type
     procedure ZoomIn;
     procedure ZoomOut;
     procedure AutoZoom;
+
+    procedure LoadFrameData; override;
+    procedure ClearFrameData; override;
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
@@ -263,8 +263,10 @@ begin
   DrawImage;
 end;
 
-procedure TfmCHXBGRAImgViewer.DoLoadFrameData;
+procedure TfmCHXBGRAImgViewer.LoadFrameData;
 begin
+  inherited;
+
   // Updating Zoom, if it's to high for new image.
   if AutoZoomOnLoad then
     AutoZoom
@@ -276,8 +278,10 @@ begin
   Enabled := Assigned(ActualImage);
 end;
 
-procedure TfmCHXBGRAImgViewer.DoClearFrameData;
+procedure TfmCHXBGRAImgViewer.ClearFrameData;
 begin
+  inherited;
+
   FreeAndNil(FVisibleImage);
   Zoom := 100;
   ActualImage := nil;
@@ -397,9 +401,6 @@ begin
   BackgroundType := bkTransparent;
   BackgroundColor := BGRA(0, 0, 0, 0);
   BackgroundChecker := BGRA(128, 128, 128, 0);
-
-  OnLoadFrameData := @DoLoadFrameData;
-  OnClearFrameData := @DoClearFrameData;
 end;
 
 destructor TfmCHXBGRAImgViewer.Destroy;
