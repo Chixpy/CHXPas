@@ -1,21 +1,8 @@
 unit uCHXMenuUtils;
 
-{< Copyright (C) 2019-2020 Chixpy
+{< Some utils to handle menus.
 
-  This source is free software; you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 3 of the License, or (at your option)
-  any later version.
-
-  This code is distributed in the hope that it will be useful, but WITHOUT ANY
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-  details.
-
-  A copy of the GNU General Public License is available on the World Wide Web
-  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
-  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-  MA 02111-1307, USA.
+  Copyright (C) 2019-2020 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -25,8 +12,17 @@ uses
   Classes, SysUtils, Menus;
 
 function CloneMenuItem(Src: TMenuItem): TMenuItem;
+{< Create a copy a menu item. It must be freed by they owner.
+
+  Not all properties are copied, but they are added as needed.
+}
 procedure CopyMenu(Src, Dst: TMenu);
+{< Copy all items from one menu to another.
+}
 procedure AddSubMenu(Src: TMenu; Dst: TMenuItem);
+{< Adds a menu as a submenu of a TMenuItem
+}
+
 
 implementation
 
@@ -96,3 +92,19 @@ begin
 end;
 
 end.
+{
+This source is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3 of the License, or (at your option)
+any later version.
+
+This code is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+
+A copy of the GNU General Public License is available on the World Wide Web
+at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+MA 02111-1307, USA.
+}

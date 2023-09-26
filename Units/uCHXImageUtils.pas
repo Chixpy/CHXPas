@@ -1,22 +1,8 @@
 unit uCHXImageUtils;
+
 {< Custom image utils.
 
   Copyright (C) 2006-2019 Chixpy
-
-  This source is free software; you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free
-  Software Foundation; either version 3 of the License, or (at your option)
-  any later version.
-
-  This code is distributed in the hope that it will be useful, but WITHOUT ANY
-  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-  details.
-
-  A copy of the GNU General Public License is available on the World Wide Web
-  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
-  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
-  MA 02111-1307, USA.
 }
 {$mode objfpc}{$H+}
 
@@ -99,8 +85,10 @@ function CorrectAspectRatio(OrigRect: TRect; aImage: TPicture): TRect;
 
 // Font related
 // ------------
-procedure SaveFontToIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
-procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+procedure SaveFontToIni(FStream: TIniFile; Section, Key: string;
+  smFont: TFont);
+procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string;
+  smFont: TFont);
 
 implementation
 
@@ -109,7 +97,7 @@ procedure ReadActionsIconsIni(aIniFile: TIniFile; aBaseFolder: string;
   aActionList: TCustomActionList);
 var
   Cont: integer;
-  IconFile: String;
+  IconFile: string;
 begin
   if aSection = '' then
     Exit;
@@ -208,32 +196,32 @@ procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
     Cont := 0;
     while Cont < aMenu.Count do
     begin
-      ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont], aSection, aBaseDir);
+      ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont],
+        aSection, aBaseDir);
       Inc(Cont);
     end;
   end;
 
-//procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
-//  const aSection: string; aImageList: TImageList; aMenu: TMenu);
+  //procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
+  //  const aSection: string; aImageList: TImageList; aMenu: TMenu);
 var
   Cont: integer;
 begin
-  if (not Assigned(aIniFile)) or
-  (aSection = '') or
-  (not Assigned(aImageList)) or
-  (not Assigned(aMenu)) then
+  if (not Assigned(aIniFile)) or (aSection = '') or
+    (not Assigned(aImageList)) or (not Assigned(aMenu)) then
     Exit;
 
   // To be sure that aImageList is assigned to aMenu
   aMenu.Images := aImageList;
   aBaseFolder := SetAsFolder(aBaseFolder);
 
-    Cont := 0;
-    while Cont < aMenu.Items.Count do
-    begin
-      ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont], aSection, aBaseFolder);
-      Inc(Cont);
-    end;
+  Cont := 0;
+  while Cont < aMenu.Items.Count do
+  begin
+    ReadMenuItemIcon(aIniFile, aImageList, aMenu.Items[Cont],
+      aSection, aBaseFolder);
+    Inc(Cont);
+  end;
 end;
 
 procedure FixComponentImagesFromActions(aComponent: TComponent);
@@ -348,7 +336,8 @@ begin
   end;
 end;
 
-procedure SaveFontToIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+procedure SaveFontToIni(FStream: TIniFile; Section, Key: string;
+  smFont: TFont);
 var
   FontProps: TStringList;
 begin
@@ -362,41 +351,60 @@ begin
     FontProps.Add(IntToStr(smFont.Color));
     FontProps.Add(IntToStr(smFont.Size));
 
-    FontProps.Add(SetToString(GetPropInfo(smFont, 'Style'), LongInt(smFont.Style),True));
+    FontProps.Add(SetToString(GetPropInfo(smFont, 'Style'),
+      longint(smFont.Style), True));
 
 
     FStream.WriteString(Section, Key, FontProps.CommaText);
-finally
+  finally
     FontProps.Free;
   end;
 end;
 
-procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string; smFont: TFont);
+procedure LoadFontFromIni(FStream: TIniFile; Section, Key: string;
+  smFont: TFont);
 var
   FontProps: TStringList;
 begin
   if not Assigned(FStream) then Exit;
   if not Assigned(smFont) then Exit;
-    FontProps := TStringList.Create;
+  FontProps := TStringList.Create;
   try
-    FontProps.CommaText := FStream.ReadString(Section, Key, ',,,,');
+    FontProps.CommaText := FStream.ReadString(Section, Key, '');
     while FontProps.Count < 5 do
       FontProps.Add('');
 
     if FontProps[0] <> '' then
-        smFont.Name := FontProps[0];
+      smFont.Name := FontProps[0];
     if FontProps[1] <> '' then
-    smFont.Charset := TFontCharSet(StrToIntDef(FontProps[1], smFont.Charset));
+      smFont.Charset := TFontCharSet(StrToIntDef(FontProps[1], smFont.Charset));
     if FontProps[2] <> '' then
-     smFont.Color := TColor(StrToIntDef(FontProps[2], smFont.Color));
+      smFont.Color := TColor(StrToIntDef(FontProps[2], smFont.Color));
     if FontProps[3] <> '' then
-        smFont.Size := StrToIntDef(FontProps[3], smFont.Size);
+      smFont.Size := StrToIntDef(FontProps[3], smFont.Size);
     if FontProps[4] <> '' then
-        smFont.Style := TFontStyles(StringToSet(GetPropInfo(smFont, 'Style'), FontProps[4]));
+      smFont.Style := TFontStyles(StringToSet(GetPropInfo(smFont, 'Style'),
+        FontProps[4]));
 
   finally
-      FontProps.Free;
+    FontProps.Free;
   end;
 end;
 
 end.
+{
+This source is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 3 of the License, or (at your option)
+any later version.
+
+This code is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+
+A copy of the GNU General Public License is available on the World Wide Web
+at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+MA 02111-1307, USA.
+}
