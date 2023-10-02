@@ -71,7 +71,7 @@ type
  DES: Cambia la coordenada X del objeto.
  ******************************************************************************
 }
-           Procedure PonerX (X : real);
+           Procedure PonerX (aX : real);
 
 
 {
@@ -82,7 +82,7 @@ type
  DES: Cambia la coordenada Y del objeto.
  ******************************************************************************
 }
-           Procedure PonerY (Y : real);
+           Procedure PonerY (aY : real);
 
 
 {
@@ -172,7 +172,7 @@ type
  DES: Translada el punto a paralelo al eje horizontal
  ******************************************************************************
 }
-           Procedure Trasladarhorizontal (X: real);
+           Procedure Trasladarhorizontal (aX: real);
 
 
 {
@@ -183,7 +183,7 @@ type
  DES: Translada el punto a paralelo al eje vertical
  ******************************************************************************
 }
-           Procedure TrasladarVertical (Y: real);
+           Procedure TrasladarVertical (aY: real);
 
 
 {
@@ -240,11 +240,11 @@ begin
 
         IF x < 0 THEN
 
-           GetAngulo := ArcTan(X/Y) + Pi
+           GetAngulo := ArcTan(Y/X) + Pi
 
         ELSE
 
-           GetAngulo := ArcTan(X/Y);
+           GetAngulo := ArcTan(Y/X);
 
 end;
 
@@ -301,15 +301,15 @@ Begin
 end;
 
 
-Procedure cpunto.PonerX (X : real);
+Procedure cpunto.PonerX (aX : real);
 begin
-     self.X := X;
+     self.X := aX;
 end;
 
 
-Procedure cPunto.PonerY (y : real);
+Procedure cPunto.PonerY (ay : real);
 begin
-     self.Y := Y;
+     self.Y := aY;
 end;
 
 
@@ -368,15 +368,15 @@ begin
 end;
 
 
-Procedure cPunto.TrasladarHorizontal (X :Real);
+Procedure cPunto.TrasladarHorizontal (aX :Real);
 Begin
-     Self.X := self.X + X;
+     Self.X := self.X + aX;
 End;
 
 
-Procedure cPunto.TrasladarVertical (Y :Real);
+Procedure cPunto.TrasladarVertical (aY :Real);
 Begin
-     Self.Y := self.Y + Y;
+     Self.Y := self.Y + aY;
 End;
 
 
@@ -389,15 +389,15 @@ end;
 
 Function cPunto.ACadena : string;
 Var
-   X,Y,Dis,Ang: String;
+   aX,aY,Dis,Ang: String;
 Begin
-     Str(Self.X:0:2, X);
-     Str(Self.Y:0:2, Y);
+     Str(Self.X:0:2, aX);
+     Str(Self.Y:0:2, aY);
 
      Str(GetAngulo(self.X, Self.Y):0:2, Ang);
      Str(GetModulo(self.X, self.Y):0:2, Dis);
 
-     ACadena := '(' + X + ',' + Y + ') [' + Dis + '-' + ang +']';
+     ACadena := '(' + aX + '; ' + aY + ') [' + Dis + '; ' + ang +']';
 End;
 
 

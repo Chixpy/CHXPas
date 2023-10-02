@@ -56,7 +56,7 @@ Type
 
  ******************************************************************************
 }
-                   FUNCTION Perimetro : Real; override
+                   FUNCTION Perimetro : Real; override;
 
     End;
 
@@ -67,7 +67,7 @@ Type
 Constructor cCuadrado.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
@@ -77,7 +77,7 @@ END;
 Constructor cCuadrado.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
@@ -86,12 +86,12 @@ end;
 Constructor cCuadrado.Copiar(Figura: cCuadrado);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 
 
-FUNCTION cRectangulo.Perimetro : Real; override;
+FUNCTION cCuadrado.Perimetro : Real;
 VAR
    Lado1, Lado2 : Real;
 

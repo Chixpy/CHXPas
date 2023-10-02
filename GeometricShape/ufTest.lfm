@@ -1,0 +1,271 @@
+object Form1: TForm1
+  Left = 352
+  Height = 569
+  Top = 250
+  Width = 997
+  Caption = 'Form1'
+  ClientHeight = 569
+  ClientWidth = 997
+  DesignTimePPI = 120
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  object pbGraph: TPaintBox
+    Left = 340
+    Height = 569
+    Top = 0
+    Width = 657
+    Align = alClient
+    Color = clWhite
+    ParentColor = False
+    OnPaint = pbGraphPaint
+  end
+  object pData: TPanel
+    Left = 0
+    Height = 569
+    Top = 0
+    Width = 334
+    Align = alLeft
+    BevelOuter = bvNone
+    ChildSizing.LeftRightSpacing = 4
+    ChildSizing.TopBottomSpacing = 4
+    ChildSizing.HorizontalSpacing = 4
+    ChildSizing.VerticalSpacing = 4
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+    ChildSizing.ControlsPerLine = 2
+    ClientHeight = 569
+    ClientWidth = 334
+    TabOrder = 0
+    object gbxGrid: TGroupBox
+      Left = 4
+      Height = 93
+      Top = 4
+      Width = 326
+      Align = alTop
+      AutoSize = True
+      Caption = 'Grid'
+      ChildSizing.LeftRightSpacing = 4
+      ChildSizing.TopBottomSpacing = 4
+      ChildSizing.HorizontalSpacing = 4
+      ChildSizing.VerticalSpacing = 4
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 2
+      ClientHeight = 68
+      ClientWidth = 322
+      TabOrder = 0
+      object lGridSize: TLabel
+        Left = 4
+        Height = 28
+        Top = 4
+        Width = 156
+        Alignment = taRightJustify
+        Caption = 'Grid Size'
+        FocusControl = seGridSize
+        Layout = tlCenter
+        ParentColor = False
+      end
+      object seGridSize: TSpinEdit
+        Left = 164
+        Height = 28
+        Top = 4
+        Width = 154
+        Alignment = taRightJustify
+        AutoSize = False
+        MaxValue = 1000
+        MinValue = 1
+        OnEditingDone = seGridSizeEditingDone
+        TabOrder = 0
+        Value = 100
+      end
+      object lPSize: TLabel
+        Left = 4
+        Height = 28
+        Top = 36
+        Width = 156
+        Caption = 'Point Size'
+        ParentColor = False
+      end
+      object sePSize: TSpinEdit
+        Left = 164
+        Height = 28
+        Top = 36
+        Width = 154
+        MaxValue = 100
+        MinValue = 1
+        OnEditingDone = sePSizeEditingDone
+        TabOrder = 1
+        Value = 5
+      end
+    end
+    object gbxShape: TGroupBox
+      Left = 4
+      Height = 195
+      Top = 101
+      Width = 326
+      Align = alTop
+      AutoSize = True
+      Caption = 'Shape'
+      ChildSizing.LeftRightSpacing = 4
+      ChildSizing.TopBottomSpacing = 4
+      ChildSizing.HorizontalSpacing = 4
+      ChildSizing.VerticalSpacing = 4
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 2
+      ClientHeight = 170
+      ClientWidth = 322
+      TabOrder = 1
+      object cbx2DShape: TComboBox
+        Left = 4
+        Height = 28
+        Top = 4
+        Width = 168
+        AutoSize = False
+        ItemHeight = 20
+        ItemIndex = 0
+        Items.Strings = (
+          'Polyline'
+        )
+        TabOrder = 3
+        Text = 'Polyline'
+      end
+      object bAddShape: TButton
+        Left = 176
+        Height = 30
+        Top = 4
+        Width = 142
+        AutoSize = True
+        Caption = 'Add Shape'
+        OnClick = bAddShapeClick
+        TabOrder = 2
+      end
+      object clbShapes: TCheckListBox
+        Left = 4
+        Height = 100
+        Top = 38
+        Width = 168
+        ItemHeight = 0
+        OnClick = clbShapesClick
+        OnClickCheck = clbShapesClickCheck
+        TabOrder = 1
+      end
+      object pShapes: TPanel
+        Left = 176
+        Height = 100
+        Top = 38
+        Width = 142
+        BevelOuter = bvNone
+        TabOrder = 4
+      end
+      object chkClosedShape: TCheckBox
+        Left = 4
+        Height = 24
+        Top = 142
+        Width = 168
+        Caption = 'Closed shape'
+        OnChange = chkClosedShapeChange
+        TabOrder = 0
+      end
+    end
+    object gbxPoints: TGroupBox
+      Left = 4
+      Height = 265
+      Top = 300
+      Width = 326
+      Align = alClient
+      Caption = 'Points'
+      ChildSizing.LeftRightSpacing = 4
+      ChildSizing.TopBottomSpacing = 4
+      ChildSizing.HorizontalSpacing = 4
+      ChildSizing.VerticalSpacing = 4
+      ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+      ChildSizing.ShrinkHorizontal = crsHomogenousChildResize
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 2
+      ClientHeight = 240
+      ClientWidth = 322
+      TabOrder = 2
+      object lblX: TLabel
+        Left = 4
+        Height = 28
+        Top = 4
+        Width = 172
+        Alignment = taRightJustify
+        Caption = 'X'
+        FocusControl = fseX
+        Layout = tlCenter
+        ParentColor = False
+      end
+      object fseX: TFloatSpinEdit
+        AnchorSideTop.Side = asrBottom
+        Left = 180
+        Height = 28
+        Top = 4
+        Width = 138
+        Alignment = taRightJustify
+        AutoSize = False
+        TabOrder = 2
+      end
+      object lblY: TLabel
+        Left = 4
+        Height = 28
+        Top = 36
+        Width = 172
+        Alignment = taRightJustify
+        Caption = 'Y'
+        FocusControl = fseY
+        Layout = tlCenter
+        ParentColor = False
+      end
+      object fseY: TFloatSpinEdit
+        AnchorSideTop.Side = asrBottom
+        Left = 180
+        Height = 28
+        Top = 36
+        Width = 138
+        Alignment = taRightJustify
+        AutoSize = False
+        TabOrder = 0
+      end
+      object lbxPoints: TListBox
+        Left = 4
+        Height = 100
+        Top = 68
+        Width = 172
+        ItemHeight = 0
+        OnClick = lbxPointsClick
+        TabOrder = 1
+      end
+      object pPoints: TPanel
+        Left = 180
+        Height = 100
+        Top = 68
+        Width = 138
+        BevelOuter = bvNone
+        ClientHeight = 100
+        ClientWidth = 138
+        TabOrder = 3
+        object bAddPoint: TButton
+          Left = 0
+          Height = 30
+          Top = 0
+          Width = 138
+          Align = alTop
+          AutoSize = True
+          Caption = 'Add Point'
+          OnClick = bAddPointClick
+          TabOrder = 0
+        end
+      end
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 334
+    Height = 569
+    Top = 0
+    Width = 6
+  end
+end

@@ -1,14 +1,14 @@
-unit uElipse;
+unit uSegmento;
                                INTERFACE
 Uses
-  uFCerrada;
+  uFAbierta;
 
 CONST
-     FIGURASTR = 'ELIPSE';
+     FIGURASTR = 'SEGMENTO';
 
 Type
 
-    cElipse = Class (cFCerrada)
+    cSegmento = Class (cFAbierta)
 
              Public
 
@@ -16,8 +16,8 @@ Type
  ******************************************************************************
  constructor crear;
  PRE: Ninguna
- POS: Objeto cElipse creado
- DES: Crea un obj. cElipse sin ningun vertice
+ POS: Objeto cSegmento creado
+ DES: Crea un obj. cSegmento sin ningun vertice
  ******************************************************************************
 }
                    Constructor Crear;
@@ -26,22 +26,22 @@ Type
 {
  ******************************************************************************
  constructor copiar;
- PRE: objeto cElipse creado
- POS: Copia del Objeto cElipse pasado por parametro
- DES: Hace una copia un obj. cElipse en otro nuevo
+ PRE: objeto cSegmento creado
+ POS: Copia del Objeto cSegmento pasado por parametro
+ DES: Hace una copia un obj. cSegmento en otro nuevo
  ******************************************************************************
 }
-                   Constructor Copiar (Figura: cElipse);
+                   Constructor Copiar (Figura: cSegmento);
 
 {
  ******************************************************************************
  constructor DeCadena;
  PRE: Cadena con el tipo figura entre corchetes '[' ']' y una serie de puntos
       entre parentesis '(' ')'.
- POS: Un objeto cElipse con los puntos que hay en la Cadena de caracteres
- DES: Crea un obj. cElipse a Partir de una cadena de caracteres que tiene la
+ POS: Un objeto cSegmento con los puntos que hay en la Cadena de caracteres
+ DES: Crea un obj. cSegmento a Partir de una cadena de caracteres que tiene la
       siguiente sintaxis:
-                [ELIPSE],(x1, y1), (x2, y2), (x3, y3), ....
+                [SEGMENTO],(x1, y1), (x2, y2), (x3, y3), ....
  ******************************************************************************
 }
                    Constructor DeCadena (Cadena : String);
@@ -52,29 +52,29 @@ Type
                              IMPLEMENTATION
 
 
-Constructor cElipse.Crear;
+Constructor cSegmento.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
 
 
 
-Constructor cElipse.DeCadena (Cadena : String);
+Constructor cSegmento.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
 
 
-Constructor cElipse.Copiar(Figura: cElipse);
+Constructor cSegmento.Copiar(Figura: cSegmento);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 

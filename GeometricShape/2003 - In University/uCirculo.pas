@@ -57,7 +57,7 @@ Type
 
  ******************************************************************************
 }
-                   FUNCTION Perimetro : Real; override
+                   FUNCTION Perimetro : Real; override;
 
 
     End;
@@ -69,7 +69,7 @@ Type
 Constructor cCirculo.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
@@ -79,7 +79,7 @@ END;
 Constructor cCirculo.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
@@ -88,11 +88,11 @@ end;
 Constructor cCirculo.Copiar(Figura: cCirculo);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 
-FUNCTION cCirculo.Perimetro : Real; override;
+FUNCTION cCirculo.Perimetro : Real;
 VAR
    Radio : Real;
 

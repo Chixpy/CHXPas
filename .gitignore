@@ -1,2 +1,4 @@
 *.dbg
 *.lps
+GeometricShape/lib/
+GeometricShape/*.exe

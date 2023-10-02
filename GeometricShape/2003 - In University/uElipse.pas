@@ -1,14 +1,14 @@
-unit uTriangulo;
+unit uElipse;
                                INTERFACE
 Uses
-  uPoligono;
+  uFCerrada;
 
 CONST
-     FIGURASTR = 'TRIANGULO';
+     FIGURASTR = 'ELIPSE';
 
 Type
 
-    cTriangulo = Class (cPoligono)
+    cElipse = Class (cFCerrada)
 
              Public
 
@@ -16,8 +16,8 @@ Type
  ******************************************************************************
  constructor crear;
  PRE: Ninguna
- POS: Objeto cTriangulo creado
- DES: Crea un obj. cTriangulo sin ningun vertice
+ POS: Objeto cElipse creado
+ DES: Crea un obj. cElipse sin ningun vertice
  ******************************************************************************
 }
                    Constructor Crear;
@@ -26,22 +26,22 @@ Type
 {
  ******************************************************************************
  constructor copiar;
- PRE: objeto cTriangulo creado
- POS: Copia del Objeto cTriangulo pasado por parametro
- DES: Hace una copia un obj. cTriangulo en otro nuevo
+ PRE: objeto cElipse creado
+ POS: Copia del Objeto cElipse pasado por parametro
+ DES: Hace una copia un obj. cElipse en otro nuevo
  ******************************************************************************
 }
-                   Constructor Copiar (Figura: cTriangulo);
+                   Constructor Copiar (Figura: cElipse);
 
 {
  ******************************************************************************
  constructor DeCadena;
  PRE: Cadena con el tipo figura entre corchetes '[' ']' y una serie de puntos
       entre parentesis '(' ')'.
- POS: Un objeto cTriangulo con los puntos que hay en la Cadena de caracteres
- DES: Crea un obj. cTriangulo a Partir de una cadena de caracteres que tiene la
+ POS: Un objeto cElipse con los puntos que hay en la Cadena de caracteres
+ DES: Crea un obj. cElipse a Partir de una cadena de caracteres que tiene la
       siguiente sintaxis:
-                [TRIANGULO],(x1, y1), (x2, y2), (x3, y3), ....
+                [ELIPSE],(x1, y1), (x2, y2), (x3, y3), ....
  ******************************************************************************
 }
                    Constructor DeCadena (Cadena : String);
@@ -52,29 +52,29 @@ Type
                              IMPLEMENTATION
 
 
-Constructor cTriangulo.Crear;
+Constructor cElipse.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
 
 
 
-Constructor cTriangulo.DeCadena (Cadena : String);
+Constructor cElipse.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
 
 
-Constructor cTriangulo.Copiar(Figura: cTriangulo);
+Constructor cElipse.Copiar(Figura: cElipse);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 

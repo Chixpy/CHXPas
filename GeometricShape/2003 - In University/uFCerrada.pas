@@ -1,7 +1,7 @@
 unit uFCerrada;
                                INTERFACE
 Uses
-  uFigura;
+  uFigura, uPunto;
 
 CONST
      FIGURASTR = 'FCERRADA';
@@ -67,7 +67,7 @@ Type
 Constructor cFCerrada.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
@@ -77,7 +77,7 @@ END;
 Constructor cFCerrada.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
@@ -86,13 +86,13 @@ end;
 Constructor cFCerrada.Copiar(Figura: cFCerrada);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 
 
 
-Function cFCerrada.Perimetro : real; Virtual;
+Function cFCerrada.Perimetro : real;
 Var
    Temp : real;
    Contador: Integer;

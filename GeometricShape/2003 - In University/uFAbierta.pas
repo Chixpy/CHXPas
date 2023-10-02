@@ -1,7 +1,7 @@
 unit uFAbierta;
                                INTERFACE
 Uses
-  uFigura;
+  uFigura, uPunto;
 
 CONST
      FIGURASTR = 'FABIERTA';
@@ -65,35 +65,35 @@ Type
                              IMPLEMENTATION
 
 
-Constructor cAbierta.Crear;
+Constructor cFAbierta.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
 
 
 
-Constructor cAbierta.DeCadena (Cadena : String);
+Constructor cFAbierta.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
 
 
-Constructor cAbierta.Copiar(Figura: cFAbierta);
+Constructor cFAbierta.Copiar(Figura: cFAbierta);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 
 
 
-Function cAbierta.longitud : real;
+Function cFAbierta.longitud : real;
 Var
    Temp : real;
    Contador: Integer;

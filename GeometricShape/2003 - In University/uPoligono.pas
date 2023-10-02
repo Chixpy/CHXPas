@@ -1,14 +1,14 @@
-unit uSegmento;
+unit uPoligono;
                                INTERFACE
 Uses
-  uFAbierta;
+  uFCerrada;
 
 CONST
-     FIGURASTR = 'SEGMENTO';
+     FIGURASTR = 'POLIGONO';
 
 Type
 
-    cSegmento = Class (cFAbierta)
+    cPoligono = Class (cFCerrada)
 
              Public
 
@@ -16,8 +16,8 @@ Type
  ******************************************************************************
  constructor crear;
  PRE: Ninguna
- POS: Objeto cSegmento creado
- DES: Crea un obj. cSegmento sin ningun vertice
+ POS: Objeto cPoligono creado
+ DES: Crea un obj. cPoligono sin ningun vertice
  ******************************************************************************
 }
                    Constructor Crear;
@@ -26,22 +26,22 @@ Type
 {
  ******************************************************************************
  constructor copiar;
- PRE: objeto cSegmento creado
- POS: Copia del Objeto cSegmento pasado por parametro
- DES: Hace una copia un obj. cSegmento en otro nuevo
+ PRE: objeto cPoligono creado
+ POS: Copia del Objeto cPoligono pasado por parametro
+ DES: Hace una copia un obj. cPoligono en otro nuevo
  ******************************************************************************
 }
-                   Constructor Copiar (Figura: cSegmento);
+                   Constructor Copiar (Figura: cPoligono);
 
 {
  ******************************************************************************
  constructor DeCadena;
  PRE: Cadena con el tipo figura entre corchetes '[' ']' y una serie de puntos
       entre parentesis '(' ')'.
- POS: Un objeto cSegmento con los puntos que hay en la Cadena de caracteres
- DES: Crea un obj. cSegmento a Partir de una cadena de caracteres que tiene la
+ POS: Un objeto cPoligono con los puntos que hay en la Cadena de caracteres
+ DES: Crea un obj. cPoligono a Partir de una cadena de caracteres que tiene la
       siguiente sintaxis:
-                [SEGMENTO],(x1, y1), (x2, y2), (x3, y3), ....
+                [POLIGONO],(x1, y1), (x2, y2), (x3, y3), ....
  ******************************************************************************
 }
                    Constructor DeCadena (Cadena : String);
@@ -52,29 +52,29 @@ Type
                              IMPLEMENTATION
 
 
-Constructor cSegmento.Crear;
+Constructor cPoligono.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
 
 
 
-Constructor cSegmento.DeCadena (Cadena : String);
+Constructor cPoligono.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
 
 
-Constructor cSegmento.Copiar(Figura: cSegmento);
+Constructor cPoligono.Copiar(Figura: cPoligono);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 

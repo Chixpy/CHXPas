@@ -1,6 +1,8 @@
 unit uCHXRscStr;
 {<  Localizable strings unit for CHX utils.
 
+  Not all strings are actually used by CHXPas units,
+
   Copyright (C) 2017-2022 Chixpy
 }
 {$mode objfpc}{$H+}
@@ -8,32 +10,46 @@ unit uCHXRscStr;
 interface
 
 resourcestring
-  // Common error messages.
-  // ----------------------
+
+  { TODO : This is a little mess... }
+
+  // Common error messages
+  // ---------------------
 
   rsCUExcNilParameter = '%0:s: %1:s parameter (%2:s) = nil';
-  {< A required parameter is nil.
-    @param(%0:s Method name) }
+  {< A required parameter is not assigned.
+    @param(%0:s Method name.)
+    @param(%1:s Parameter name.)
+    @param(%1:s Parameter type.)
+    }
   rsCUExcAlreadyExists = '"%0:s" already exists.';
-  {< Something unique already exists.
+  {< Something unique already exists. Valid for filenames too.
     @param(%0:s Item)}
   rsCUExcAlreadyExistsAsk = '"%0:s" already exists.' + LineEnding + 'Replace it?';
   {< Something unique already exists and ask if replace it.
     @param(%0:s Item)}
   rsCUExcCardRange = '"%0:d" is not in cardinal range.';
-  {< "10000000000000000" is not in cardinal range.}
+  {< Some number is not in cardinal range.}
+
+
+  // File and folder questions
+  // -------------------------
+
 
   rsENotFilename = '%0:s: Not defined filename';
   {< We want read/write to file ''.}
-
   rsFileNotFound = '%0:s' + LineEnding +
     'not found.';
+  // rsCUExcAlreadyExists = '"%0:s" already exists.';
   rsErrorLoadingFile = 'Error loading:' + LineEnding +
     '%0:s';
-  rsRenameFile = 'Rename this file:';
+
   rsRenameFileCaption = 'Renaming file';
+  rsRenameFile = 'Rename this file:';
+
   rsCorfirmDeleteFile = '%0:s' + LineEnding +
     'Do you want to delete this file?';
+
   rsErrorCreatingFile = 'Error creating:' + LineEnding +
     '%0:s';
   rsErrorDeletingFile = 'Error deleting:' + LineEnding +

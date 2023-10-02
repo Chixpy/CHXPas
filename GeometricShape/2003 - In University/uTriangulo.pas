@@ -1,14 +1,14 @@
-unit uPolilinea;
+unit uTriangulo;
                                INTERFACE
 Uses
-  uFAbierta;
+  uPoligono;
 
 CONST
-     FIGURASTR = 'POLILINEA';
+     FIGURASTR = 'TRIANGULO';
 
 Type
 
-    cPolilinea = Class (cFAbierta)
+    cTriangulo = Class (cPoligono)
 
              Public
 
@@ -16,8 +16,8 @@ Type
  ******************************************************************************
  constructor crear;
  PRE: Ninguna
- POS: Objeto cPolilinea creado
- DES: Crea un obj. cPolilinea sin ningun vertice
+ POS: Objeto cTriangulo creado
+ DES: Crea un obj. cTriangulo sin ningun vertice
  ******************************************************************************
 }
                    Constructor Crear;
@@ -26,22 +26,22 @@ Type
 {
  ******************************************************************************
  constructor copiar;
- PRE: objeto cPolilinea creado
- POS: Copia del Objeto cPolilinea pasado por parametro
- DES: Hace una copia un obj. cPolilinea en otro nuevo
+ PRE: objeto cTriangulo creado
+ POS: Copia del Objeto cTriangulo pasado por parametro
+ DES: Hace una copia un obj. cTriangulo en otro nuevo
  ******************************************************************************
 }
-                   Constructor Copiar (Figura: cPolilinea);
+                   Constructor Copiar (Figura: cTriangulo);
 
 {
  ******************************************************************************
  constructor DeCadena;
  PRE: Cadena con el tipo figura entre corchetes '[' ']' y una serie de puntos
       entre parentesis '(' ')'.
- POS: Un objeto cPolilinea con los puntos que hay en la Cadena de caracteres
- DES: Crea un obj. cPolilinea a Partir de una cadena de caracteres que tiene la
+ POS: Un objeto cTriangulo con los puntos que hay en la Cadena de caracteres
+ DES: Crea un obj. cTriangulo a Partir de una cadena de caracteres que tiene la
       siguiente sintaxis:
-                [POLILINEA],(x1, y1), (x2, y2), (x3, y3), ....
+                [TRIANGULO],(x1, y1), (x2, y2), (x3, y3), ....
  ******************************************************************************
 }
                    Constructor DeCadena (Cadena : String);
@@ -52,29 +52,29 @@ Type
                              IMPLEMENTATION
 
 
-Constructor cPolilinea.Crear;
+Constructor cTriangulo.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
 
 
 
-Constructor cPolilinea.DeCadena (Cadena : String);
+Constructor cTriangulo.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
 
 
-Constructor cPolilinea.Copiar(Figura: cPolilinea);
+Constructor cTriangulo.Copiar(Figura: cTriangulo);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 

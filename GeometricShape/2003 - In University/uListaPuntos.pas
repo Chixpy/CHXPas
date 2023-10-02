@@ -1,4 +1,4 @@
-unit uListaFiguras;
+unit uListaPuntos;
                               INTERFACE
 uses
     uPunto;

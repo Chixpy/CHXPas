@@ -67,7 +67,7 @@ Type
 Constructor cCuadrilatero.Crear;
 BEGIN
 
-     Inherited.Crear;
+     Inherited Crear;
      TipoFigura := FIGURASTR;
 
 END;
@@ -77,7 +77,7 @@ END;
 Constructor cCuadrilatero.DeCadena (Cadena : String);
 Begin
 
-     Inherited.DeCadena (Cadena);
+     Inherited DeCadena (Cadena);
 
 end;
 
@@ -86,7 +86,7 @@ end;
 Constructor cCuadrilatero.Copiar(Figura: cCuadrilatero);
 BEGIN
 
-     Inherited.Copiar(Figura);
+     Inherited Copiar(Figura);
 
 END;
 

@@ -141,7 +141,7 @@ begin
 
      {Copio cada punto del array}
      FOR Cont := 0 TO (Figura.NPuntos - 1) DO
-         Self.Punto[Cont] := cPunto.Copiar(Figura.Punto[Cont]);
+         Self.Punto[Cont] := cPunto.crear(Figura.Punto[Cont]);
 
      Self.NPuntos := Figura.NPuntos;
      Self.TipoFigura := Figura.TipoFigura;
@@ -157,7 +157,7 @@ Begin
     {Guardo el TipoFigura}
     Inicio := Pos('[', cadena) + 1;
     Fin := Pos(']', cadena);
-    Copy(Self.Tipofigura, Inicio, Fin - Inicio);
+    Self.Tipofigura := Copy(Cadena, Inicio, Fin - Inicio);
 
 
     {Guardamos cada punto en el array}
