@@ -21,7 +21,7 @@ function UTF8TextReplace(const S, OldPattern, NewPattern: string;
      case-insesitive.
 }
 
-function SimpleStringSplit(const aString, aDelimiter: string;
+function SimpleStringSplit(aString, aDelimiter: string;
   var aStr1, aStr2: string): integer;
 {< Splits a string into aStr1 and aStr2; aDelimiter is deleted.
 
@@ -143,7 +143,7 @@ begin
     [rfReplaceAll, rfIgnoreCase], ALanguage);
 end;
 
-function SimpleStringSplit(const aString, aDelimiter: string;
+function SimpleStringSplit(aString, aDelimiter: string;
   var aStr1, aStr2: string): integer;
 begin
   Result := Pos(aDelimiter, aString);
@@ -155,7 +155,7 @@ begin
     Exit;
   end;
 
-  aStr1 := Copy(aString, 1, Result);
+  aStr1 := Copy(aString, 1, Result - 1);
   aStr2 := Copy(aString, Result + Length(aDelimiter), MaxInt);
 end;
 
