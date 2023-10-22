@@ -95,9 +95,11 @@ function AddToStringList(aList: TStrings; aString: string): integer;
 
   Don't add repeated or empty strings.
 
-  Remember that you can use:
-    aTStrings.Duplicates := dupIgnore
-    aTStrings.AddStrings(aTStrings)
+  Remember that you can use for TStringList:
+    aTStringList.Duplicates := dupIgnore
+    aTStringList.AddStrings(aTStrings)
+
+  But TStrings don't have TStrings.Duplicates;
 }
 
 procedure StringToFile(const aString, aFilename: string);
@@ -504,7 +506,7 @@ begin
   if (not Assigned(aList)) or (aString = '') then
     Exit;
   Result := aList.IndexOf(aString);
-  if Result = -1 then
+  if Result < 0 then
     Result := aList.Add(aString);
 end;
 
