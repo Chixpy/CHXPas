@@ -29,6 +29,7 @@ const
 
   krsLocaleFolder = 'locale';
 
+  krsIniFileExt = '.ini';
 
 type
 

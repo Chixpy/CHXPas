@@ -308,7 +308,7 @@ end;
 
 procedure TfmCHXProgressBar.Finish;
 begin
-  // (StartTime > 0) becuase it can be finished before it start.
+  // (StartTime > 0) because it can be finished before it start.
   if SaveLog and (StartTime > 0) then
     Log.Add(Format(rsCHXPbarLogLine, [DateTimeToStr(StartTime, True),
       TimeToStr(Now - StartTime), lAction.Caption]));
