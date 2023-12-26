@@ -2,7 +2,7 @@ unit uCHXStrUtils;
 
 {< Unit with some string related functions.
 
-  Copyright (C) 2011-2020 Chixpy
+  Copyright (C) 2011-2024 Chixpy
 }
 {$DEBUGINFO OFF}
 
@@ -434,35 +434,41 @@ begin
 
   // Windows (and Linux) invalid characters
   Result := UTF8TextReplace(AFileName, '?', '_');
-  Result := UTF8TextReplace(Result, '*', 'ª');
-  Result := UTF8TextReplace(Result, '"', '·');
+  Result := UTF8TextReplace(Result, '*', '·');
+  Result := UTF8TextReplace(Result, '"', '''');
   Result := UTF8TextReplace(Result, '|', '$');
   Result := UTF8TextReplace(Result, '<', '{');
   Result := UTF8TextReplace(Result, '>', '}');
 
-  if not PathAware then
+  if PathAware then
+  begin
+    // C:\, ftp://, etc.
+    Result := UTF8TextReplace(Result, ':\', '>'); // Temp '>' already replaced
+    Result := UTF8TextReplace(Result, ':/', '<'); // Temp '<' already replaced
+    Result := UTF8TextReplace(Result, ':', ' - ');
+    Result := UTF8TextReplace(Result, '>', ':\');
+    Result := UTF8TextReplace(Result, '<', ':/');
+  end
+  else
   begin
     Result := UTF8TextReplace(Result, '\', '&');
     Result := UTF8TextReplace(Result, '/', '%');
-  end;
-
-  if (length(Result) > 1) and (Result[2] = ':') and (PathAware) then
-  begin
-    // C:\...
-    Result := UTF8TextReplace(Result, ':', '*'); // '*' already replaced
-    Result[2] := ':';
-    Result := UTF8TextReplace(Result, '*', ' - ');
-  end
-  else
     Result := UTF8TextReplace(Result, ':', ' - ');
+  end;
 
   if DoTrim then
   begin
     while UTF8Pos('  ', Result) <> 0 do
       Result := UTF8TextReplace(Result, '  ', ' ');
 
-    if PathAware then
-    begin
+    while UTF8Pos(' .', Result) <> 0 do
+       Result := UTF8TextReplace(Result, ' .', '.');
+    // "A. file.ext" <- Keep this space...
+    // while UTF8Pos('. ', Result) <> 0 do
+    //   Result := UTF8TextReplace(Result, '. ', '.');
+
+   if PathAware then // Faster that replacing directly
+   begin
       while UTF8Pos(' \', Result) <> 0 do
         Result := UTF8TextReplace(Result, ' \', '\');
       while UTF8Pos('\ ', Result) <> 0 do
@@ -471,7 +477,7 @@ begin
         Result := UTF8TextReplace(Result, ' /', '/');
       while UTF8Pos('/ ', Result) <> 0 do
         Result := UTF8TextReplace(Result, '/ ', '/');
-    end;
+   end;
 
     Result := Trim(Result);
   end;
@@ -647,7 +653,6 @@ begin
     raise EConvertError.CreateFmt(rsCUExcCardRange, [h]);
   Result := h;
 end;
-
 
 end.
 {
