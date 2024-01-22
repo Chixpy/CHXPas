@@ -3,6 +3,13 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   DesignTop = 243
   inherited pButtons: TPanel
     TabOrder = 3
+    inherited chkCloseOnSave: TCheckBox
+      Left = 47
+      Width = 57
+    end
+    inherited bSave: TBitBtn
+      Left = 151
+    end
   end
   object pEditFolder: TPanel[1]
     Left = 0
@@ -74,8 +81,8 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
       Top = 4
       Width = 194
       ItemHeight = 0
-      OnSelectionChange = lbxFoldersPathsSelectionChange
       TabOrder = 0
+      OnSelectionChange = lbxFoldersPathsSelectionChange
     end
     object lbxFolderCaptions: TListBox
       Left = 202
@@ -83,8 +90,8 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
       Top = 4
       Width = 194
       ItemHeight = 0
-      OnSelectionChange = lbxFolderCaptionsSelectionChange
       TabOrder = 1
+      OnSelectionChange = lbxFolderCaptionsSelectionChange
     end
   end
   object tbImageFolderButtons: TToolBar[3]

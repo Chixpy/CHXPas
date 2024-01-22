@@ -2,7 +2,7 @@ unit uPSI_uCHXStrUtils;
 
 {< uCHXStrUtils for Pascal Script.
 
-  Copyright (C) 2011-2020 Chixpy
+  Copyright (C) 2011-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -32,7 +32,8 @@ begin
   CL.AddDelphiFunction('function SimpleStringSplit(const aString, aDelimiter: string; out aStr1, aStr2: string): integer');
   CL.AddDelphiFunction('function RemoveFromBrackets(const aString: string): string');
   CL.AddDelphiFunction('function CopyFromBrackets(const aString: string): string');
-  CL.AddDelphiFunction('function TextSimilarity(const aString1, aString2: string): byte');
+  CL.AddDelphiFunction('function TextSimilarityDice(const aString1, aString2: string): byte');
+  CL.AddDelphiFunction('function TextSimilarityCHX(const aString1, aString2: string): byte');
 
   CL.AddDelphiFunction('function SetAsFolder(const aValue: string): string');
   CL.AddDelphiFunction('function SysPath(const aPath: string): string');
@@ -64,7 +65,8 @@ begin
   S.RegisterDelphiFunction(@SimpleStringSplit, 'SimpleStringSplit', cdRegister);
   S.RegisterDelphiFunction(@RemoveFromBrackets, 'RemoveFromBrackets', cdRegister);
   S.RegisterDelphiFunction(@CopyFromBrackets, 'CopyFromBrackets', cdRegister);
-  S.RegisterDelphiFunction(@TextSimilarity, 'TextSimilarity', cdRegister);
+  S.RegisterDelphiFunction(@TextSimilarityDice, 'TextSimilarityDice', cdRegister);
+  S.RegisterDelphiFunction(@TextSimilarityCHX, 'TextSimilarityCHX', cdRegister);
 
   S.RegisterDelphiFunction(@SetAsFolder, 'SetAsFolder', cdRegister);
   S.RegisterDelphiFunction(@SysPath, 'SysPath', cdRegister);

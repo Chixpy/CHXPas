@@ -25,7 +25,7 @@ function SimpleStringSplit(aString, aDelimiter: string;
   var aStr1, aStr2: string): integer;
 {< Splits a string into aStr1 and aStr2; aDelimiter is deleted.
 
-  Returns the position where aDelimiter is found.
+  @returns(Returns the position where aDelimiter is found.)
 }
 
 function RemoveFromBrackets(const aString: string): string;
@@ -33,11 +33,18 @@ function RemoveFromBrackets(const aString: string): string;
 function CopyFromBrackets(const aString: string): string;
 {< Copy text from the first ' (' o ' [' found in the aString. }
 
-function TextSimilarity(const aString1, aString2: string): byte;
+function TextSimilarityDice(const aString1, aString2: string): byte;
 {< Returns the similarity between 2 strings.
 
-  Based on http://www.catalysoft.com/articles/StrikeAMatch.html method tweaked
-    a little.
+  Actually based on http://www.catalysoft.com/articles/StrikeAMatch.html method
+    tweaked a little. Wich is very similar to Dice's algorithm.
+
+  TODO. Must be tweaked a little more, don't work well with symbols.
+}
+function TextSimilarityCHX(const aString1, aString2: string): byte;
+{< Returns the similarity between 2 strings.
+
+   Improvised to make anything faster or better.
 }
 
 // DIRECTORY NAME UTILS
@@ -201,7 +208,7 @@ end;
 
 // STRING UTILS
 // ------------
-function TextSimilarity(const aString1, aString2: string): byte;
+function TextSimilarityDice(const aString1, aString2: string): byte;
 
   procedure LetterPairs(aStrList: TStrings; const aString: string);
   var
@@ -288,6 +295,10 @@ begin
     Result := Round(Intersection / Union * 100);
 end;
 
+function TextSimilarityCHX(const aString1, aString2 : string) : byte;
+begin
+
+end;
 
 // DIRECTORY NAME UTILS
 // --------------------

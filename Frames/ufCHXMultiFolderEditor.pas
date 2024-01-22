@@ -2,7 +2,7 @@ unit ufCHXMultiFolderEditor;
 
 {< TfmCHXMultiFolderEditor frame unit.
 
-  Copyright (C) 2017-2023 Chixpy
+  Copyright (C) 2017-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 

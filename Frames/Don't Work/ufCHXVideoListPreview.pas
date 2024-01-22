@@ -2,6 +2,10 @@ unit ufCHXVideoListPreview;
 {< TfmCHXVideoListPreview frame unit.
 
   Copyright (C) 2017-2019 Chixpy
+
+  NOTE: MPlayerCtrlLaz must be added in required packages.
+
+  BUG: MPlayerCtrlLaz don't work?
 }
 {$mode objfpc}{$H+}
 

@@ -1,9 +1,6 @@
 inherited fmCHXVideoListPreview: TfmCHXVideoListPreview
   ChildSizing.VerticalSpacing = 0
   inherited tbPreviewList: TToolBar
-    inherited tbSepNavButtons: TToolButton
-      Height = 29
-    end
     inherited tbSepOpenFile: TToolButton
       Height = 29
     end
@@ -250,6 +247,8 @@ inherited fmCHXVideoListPreview: TfmCHXVideoListPreview
     end
     inherited actOpenFileFolder: TAction[9]
     end
+    inherited actDeleteFile: TAction[10]
+    end
     inherited actRenameFile: TAction[11]
     end
   end
@@ -260,5 +259,7 @@ inherited fmCHXVideoListPreview: TfmCHXVideoListPreview
   inherited pmNextItems: TPopupMenu[7]
   end
   inherited pmOpenFile: TPopupMenu[8]
+  end
+  inherited SaveDialog1: TSaveDialog[9]
   end
 end
