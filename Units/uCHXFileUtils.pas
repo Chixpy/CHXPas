@@ -14,7 +14,10 @@ uses
 const
   kCHXSHA1Empty: TSHA1Digest =
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
+  krsRenameFileFmt = '%0:s (%1:.2d).%2:s';
+  {< Filename (00).ext }
+  krsCurrDirDot = '.';
+  krsPreviousDirDot = '..';
 
 type
   TItFolderObj = function(aFolder: string;
@@ -108,24 +111,24 @@ end;
 
 function CRC32FileStr(const aFileName: string): string;
 begin
-  Result := '';
+  Result := EmptyStr;
   if FileExistsUTF8(aFileName) then
     Result := IntToHex(CRC32FileInt(aFileName), 8);
 end;
 
 function SHA1FileStr(const aFileName: string): string;
 begin
-  Result := '';
+  Result := EmptyStr;
   if FileExistsUTF8(aFileName) then
-    Result := SHA1Print(SHA1File(aFileName, 32768));
+    Result := SHA1Print(SHA1File(aFileName, MaxSmallint));
 end;
 
 function StringToSHA1Digest(const aSHA1String: string): TSHA1Digest;
 begin
-  if Length(aSHA1String) < 20 then
+  if Length(aSHA1String) < Length(TSHA1Digest) then
     Result := kCHXSHA1Empty
   else
-    HexToBin(PChar(aSHA1String), @Result, 20);
+    HexToBin(PChar(aSHA1String), @Result, Length(TSHA1Digest));
 end;
 
 function CHXCheckFileRename(const aFile: string): string;
@@ -142,7 +145,7 @@ begin
   j := 1;
   while FileExists(Result) do
   begin
-    Result := aFilePath + aFilename + ' (' + IntToStr(j) + ')' + aFileExt;
+    Result := Format(krsRenameFileFmt, [aFilePath + aFilename, j, aFileExt]);
     Inc(j);
   end;
 end;
@@ -166,12 +169,12 @@ function SearchFirstFileInFolderByExtSL(aFolder: string;
 var
   Info: TSearchRec;
 begin
-  Result := '';
+  Result := EmptyStr;
   aFolder := SetAsFolder(aFolder);
 
   // We want to exit at first match found, so we use old method.
 
-  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
+  if (aFolder = EmptyStr) or (not DirectoryExistsUTF8(aFolder)) then
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
@@ -179,23 +182,23 @@ begin
       repeat
         if SupportedExtSL(Info.Name, Extensions) then
           Result := aFolder + Info.Name;
-      until (Result <> '') or (FindNextUTF8(Info) <> 0);
+      until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
     finally
       FindCloseUTF8(Info);
     end;
 
-  if Result <> '' then
+  if Result <> EmptyStr then
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
     try
       repeat
-        if (Info.Name <> '.') and (Info.Name <> '') and
-          (Info.Name <> '..') and
+        if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+          (Info.Name <> krsPreviousDirDot) and
           ((Info.Attr and faDirectory) <> 0) then
           Result := SearchFirstFileInFolderByExtSL(aFolder +
             Info.Name, Extensions);
-      until (Result <> '') or (FindNextUTF8(Info) <> 0);
+      until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
     finally
       FindCloseUTF8(Info);
     end;
@@ -208,7 +211,7 @@ var
 begin
   Result := True;
   aFolder := SetAsFolder(aFolder);
-  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
+  if (aFolder = EmptyStr) or (not DirectoryExistsUTF8(aFolder)) then
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
@@ -224,8 +227,8 @@ begin
     if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
       try
         repeat
-          if (Info.Name <> '.') and (Info.Name <> '') and
-            (Info.Name <> '..') and
+          if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+            (Info.Name <> krsPreviousDirDot) and
             ((Info.Attr and faDirectory) <> 0) then
             Result := IterateFolderObj(aFolder + Info.Name, aFunction, True);
         until (FindNextUTF8(Info) <> 0) or not Result;
@@ -242,9 +245,8 @@ begin
   Result := True;
   aFolder := SetAsFolder(aFolder);
 
-
   // '' ? if we want run in current directory?
-  if (aFolder = '') or (not DirectoryExistsUTF8(aFolder)) then
+  if (aFolder = EmptyStr) or (not DirectoryExistsUTF8(aFolder)) then
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
@@ -260,8 +262,8 @@ begin
     if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
       try
         repeat
-          if (Info.Name <> '.') and (Info.Name <> '') and
-            (Info.Name <> '..') and
+          if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+            (Info.Name <> krsPreviousDirDot) and
             ((Info.Attr and faDirectory) <> 0) then
             Result := IterateFolderFun(aFolder + Info.Name, aFunction, True);
         until (FindNextUTF8(Info) <> 0) or not Result;
@@ -277,7 +279,7 @@ begin
   // Podría usar IterateFolderObj pero no es plan de complicar la cosa
   Result := 0;
   aFolder := SetAsFolder(aFolder);
-  if aFileMask = '' then
+  if aFileMask = EmptyStr then
     aFileMask := AllFilesMask;
 
   if FindFirstUTF8(aFolder + aFileMask, 0, Info) = 0 then
@@ -295,7 +297,6 @@ begin
   Result := True;
   FileSetAttr(aFolder + FileInfo.Name, FileInfo.Attr and not faReadOnly);
 end;
-
 
 procedure RemoveReadOnlyFolderRecursive(const aFolder: string);
 begin

@@ -19,51 +19,54 @@ uses
   //CHX forms
   ufrCHXForm;
 
+const
+  krsSMAskMultiFileName = 'frmSMAskMultiFile';
+
 type
 
   { TfmSMAskMultiFile }
 
   TfmSMAskMultiFile = class(TfmCHXPropEditor)
-    actAddFiles: TAction;
-    actSortFileList: TAction;
-    actMoveFileDown: TAction;
-    actMoveFileUp: TAction;
-    actRemoveFiles: TAction;
-    gbxSelectFiles: TGroupBox;
-    lbxFiles: TListBox;
-    OpenDialog1: TOpenDialog;
-    ToolBar1: TToolBar;
-    tbRemoveFiles: TToolButton;
-    tbAddFiles: TToolButton;
-    ToolButton1: TToolButton;
-    tbMoveFileUp: TToolButton;
-    ToolButton3: TToolButton;
-    tbSortFileList: TToolButton;
-    tbMoveFileDown: TToolButton;
-    procedure actAddFilesExecute(Sender: TObject);
-    procedure actMoveFileDownExecute(Sender: TObject);
-    procedure actMoveFileUpExecute(Sender: TObject);
-    procedure actRemoveFilesExecute(Sender: TObject);
-    procedure actSortFileListExecute(Sender: TObject);
+    actAddFiles : TAction;
+    actSortFileList : TAction;
+    actMoveFileDown : TAction;
+    actMoveFileUp : TAction;
+    actRemoveFiles : TAction;
+    gbxSelectFiles : TGroupBox;
+    lbxFiles : TListBox;
+    OpenDialog1 : TOpenDialog;
+    ToolBar1 : TToolBar;
+    tbRemoveFiles : TToolButton;
+    tbAddFiles : TToolButton;
+    ToolButton1 : TToolButton;
+    tbMoveFileUp : TToolButton;
+    ToolButton3 : TToolButton;
+    tbSortFileList : TToolButton;
+    tbMoveFileDown : TToolButton;
+    procedure actAddFilesExecute(Sender : TObject);
+    procedure actMoveFileDownExecute(Sender : TObject);
+    procedure actMoveFileUpExecute(Sender : TObject);
+    procedure actRemoveFilesExecute(Sender : TObject);
+    procedure actSortFileListExecute(Sender : TObject);
   private
-    FOutFileList: TStrings;
-    procedure SetOutFileList(AValue: TStrings);
+    FOutFileList : TStrings;
+    procedure SetOutFileList(AValue : TStrings);
 
   protected
 
   public
-    property OutFileList: TStrings read FOutFileList write SetOutFileList;
+    property OutFileList : TStrings read FOutFileList write SetOutFileList;
 
     procedure ClearFrameData; override;
     procedure LoadFrameData; override;
     procedure SaveFrameData; override;
 
     // Creates a form with AskMultiFile frame.
-    class function SimpleForm(aFileList: TStrings; const aTitle: string;
-      const aExtFilter: string; const DefFolder: string;
-      aGUIConfigIni: string; aGUIIconsIni: string): integer;
+    class function SimpleForm(aFileList : TStrings; const aTitle : string;
+      const aExtFilter : string; const DefFolder : string;
+      aGUIConfigIni : string; aGUIIconsIni : string) : integer;
 
-    constructor Create(TheOwner: TComponent); override;
+    constructor Create(TheOwner : TComponent); override;
     destructor Destroy; override;
   end;
 
@@ -73,9 +76,9 @@ implementation
 
 { TfmSMAskMultiFile }
 
-procedure TfmSMAskMultiFile.actRemoveFilesExecute(Sender: TObject);
+procedure TfmSMAskMultiFile.actRemoveFilesExecute(Sender : TObject);
 var
-  i: Integer;
+  i : integer;
 begin
   i := lbxFiles.ItemIndex;
 
@@ -87,14 +90,14 @@ begin
     lbxFiles.ItemIndex := i;
 end;
 
-procedure TfmSMAskMultiFile.actSortFileListExecute(Sender: TObject);
+procedure TfmSMAskMultiFile.actSortFileListExecute(Sender : TObject);
 begin
   lbxFiles.Sorted := actSortFileList.Checked;
   actMoveFileDown.Enabled := not actSortFileList.Checked;
   actMoveFileUp.Enabled := not actSortFileList.Checked;
 end;
 
-procedure TfmSMAskMultiFile.actMoveFileUpExecute(Sender: TObject);
+procedure TfmSMAskMultiFile.actMoveFileUpExecute(Sender : TObject);
 begin
   if lbxFiles.Sorted or (lbxFiles.ItemIndex < 1) then Exit;
 
@@ -103,16 +106,17 @@ begin
   lbxFiles.ItemIndex := lbxFiles.ItemIndex - 1;
 end;
 
-procedure TfmSMAskMultiFile.actMoveFileDownExecute(Sender: TObject);
+procedure TfmSMAskMultiFile.actMoveFileDownExecute(Sender : TObject);
 begin
-  if lbxFiles.Sorted or (lbxFiles.ItemIndex = -1) or (lbxFiles.ItemIndex > (lbxFiles.Count - 2))then Exit;
+  if lbxFiles.Sorted or (lbxFiles.ItemIndex = -1) or
+    (lbxFiles.ItemIndex > (lbxFiles.Count - 2)) then Exit;
 
   lbxFiles.Items.Exchange(lbxFiles.ItemIndex, lbxFiles.ItemIndex + 1);
 
   lbxFiles.ItemIndex := lbxFiles.ItemIndex + 1;
 end;
 
-procedure TfmSMAskMultiFile.actAddFilesExecute(Sender: TObject);
+procedure TfmSMAskMultiFile.actAddFilesExecute(Sender : TObject);
 begin
   if not OpenDialog1.Execute then Exit;
 
@@ -122,7 +126,7 @@ begin
   lbxFiles.Items.AddStrings(OpenDialog1.Files);
 end;
 
-procedure TfmSMAskMultiFile.SetOutFileList(AValue: TStrings);
+procedure TfmSMAskMultiFile.SetOutFileList(AValue : TStrings);
 begin
   if FOutFileList = AValue then Exit;
   FOutFileList := AValue;
@@ -160,11 +164,12 @@ begin
     OutFileList.Assign(lbxFiles.Items);
 end;
 
-class function TfmSMAskMultiFile.SimpleForm(aFileList: TStrings;
-  const aTitle: string; const aExtFilter: string; const DefFolder: string;
-  aGUIConfigIni: string; aGUIIconsIni: string): integer;
+class function TfmSMAskMultiFile.SimpleForm(aFileList : TStrings;
+  const aTitle : string; const aExtFilter : string;
+  const DefFolder : string; aGUIConfigIni : string;
+  aGUIIconsIni : string) : integer;
 var
-  aFrame: TfmSMAskMultiFile;
+  aFrame : TfmSMAskMultiFile;
 begin
   aFrame := TfmSMAskMultiFile.Create(nil);
   aFrame.SaveButtons := True;
@@ -176,11 +181,11 @@ begin
   SetDlgInitialDir(aFrame.OpenDialog1, DefFolder);
   aFrame.OutFileList := aFileList;
 
-  Result := GenSimpleModalForm(aFrame, 'frmSMAskMultiFile', aTitle,
-    aGUIConfigIni, aGUIIconsIni);
+  Result := GenSimpleModalForm(aFrame, krsSMAskMultiFileName,
+    aTitle, aGUIConfigIni, aGUIIconsIni);
 end;
 
-constructor TfmSMAskMultiFile.Create(TheOwner: TComponent);
+constructor TfmSMAskMultiFile.Create(TheOwner : TComponent);
 begin
   inherited Create(TheOwner);
 end;

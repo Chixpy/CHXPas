@@ -9,7 +9,6 @@ inherited fmCHXListPreview: TfmCHXListPreview
     Width = 400
     ButtonHeight = 29
     ButtonWidth = 42
-    Caption = 'tbPreviewList'
     Images = ilPreviewList
     PopupMenu = pmPreviewList
     TabOrder = 0
@@ -32,10 +31,9 @@ inherited fmCHXListPreview: TfmCHXListPreview
     end
     object tbSepNavButtons: TToolButton
       Left = 210
-      Height = 29
+      Height = 5
       Top = 2
       AutoSize = True
-      Caption = 'tbSepNavButtons'
       Style = tbsDivider
     end
     object cbxCurrItem: TComboBox
@@ -47,9 +45,9 @@ inherited fmCHXListPreview: TfmCHXListPreview
       Align = alLeft
       Enabled = False
       ItemHeight = 20
-      OnSelect = cbxCurrItemSelect
       Style = csDropDownList
       TabOrder = 0
+      OnSelect = cbxCurrItemSelect
     end
     object lMaxItems: TLabel
       Left = 56

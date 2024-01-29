@@ -14,11 +14,11 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Left = 138
     end
     inherited bSave: TBitBtn
-      Left = 336
+      Left = 333
       Width = 103
     end
     inherited bCancel: TBitBtn
-      Left = 577
+      Left = 574
     end
   end
   object pPropChkList: TPanel[1]
@@ -36,7 +36,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Height = 26
       Top = 0
       Width = 200
-      Caption = 'tbPropChkList'
       Images = ilPropEditor
       TabOrder = 0
       object tbAddItem: TToolButton
@@ -46,9 +45,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       end
       object ToolButton3: TToolButton
         Left = 30
-        Height = 28
+        Height = 8
         Top = 2
-        Caption = 'ToolButton3'
         Style = tbsSeparator
       end
       object tbImportList: TToolButton
@@ -63,9 +61,8 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       end
       object ToolButton6: TToolButton
         Left = 96
-        Height = 28
+        Height = 8
         Top = 2
-        Caption = 'ToolButton6'
         Style = tbsSeparator
       end
       object tbDeleteItem: TToolButton
@@ -81,11 +78,11 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       Width = 200
       Align = alClient
       ItemHeight = 0
-      OnClick = clbPropItemsClick
-      OnClickCheck = clbPropItemsClickCheck
       PopupMenu = pmPropChkList
       Sorted = True
       TabOrder = 1
+      OnClick = clbPropItemsClick
+      OnClickCheck = clbPropItemsClickCheck
     end
     object sbPropChkList: TStatusBar
       Left = 0
@@ -106,7 +103,6 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
     Top = 48
     inherited actFrameOK: TAction
       Caption = 'Save List'
-      Hint = 'Accepts and saves the list.'
     end
     object actAddItem: TAction[2]
       Category = 'ChkLstProp'

@@ -1,5 +1,5 @@
 {"version":1,"strings":[
-{"hash":134688702,"name":"tfmchxpropeditor.chkcloseonsave.hint","sourcebytes":[67,108,111,115,101,115,32,119,105,110,100,111,119,115,32,97,102,116,101,114,32,97,99,99,101,112,116,105,110,103,32,111,114,32,99,97,110,99,101,108,105,110,103,46],"value":"Closes windows after accepting or canceling."},
+{"hash":2563582,"name":"tfmchxpropeditor.chkcloseonsave.hint","sourcebytes":[67,108,111,115,101,32,119,105,110,100,111,119,32,124,32,67,108,111,115,101,115,32,119,105,110,100,111,119,115,32,97,102,116,101,114,32,97,99,99,101,112,116,105,110,103,32,111,114,32,99,97,110,99,101,108,105,110,103,46],"value":"Close window | Closes windows after accepting or canceling."},
 {"hash":4863637,"name":"tfmchxpropeditor.chkcloseonsave.caption","sourcebytes":[67,108,111,115,101],"value":"Close"},
 {"hash":1339,"name":"tfmchxpropeditor.actframeok.caption","sourcebytes":[79,75],"value":"OK"},
 {"hash":100102350,"name":"tfmchxpropeditor.actframeok.hint","sourcebytes":[65,99,99,101,112,116,32,97,110,100,32,115,97,118,101,32,99,104,97,110,103,101,115,46],"value":"Accept and save changes."},

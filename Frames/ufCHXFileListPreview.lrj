@@ -1,8 +1,13 @@
 {"version":1,"strings":[
+{"hash":48927806,"name":"tfmchxfilelistpreview.cbxcurritem.hint","sourcebytes":[83,101,108,101,99,116,32,97,110,32,105,116,101,109,46],"value":"Select an item."},
+{"hash":122926574,"name":"tfmchxfilelistpreview.actfirstitem.hint","sourcebytes":[71,111,32,116,111,32,102,105,114,115,116,32,105,116,101,109,46],"value":"Go to first item."},
 {"hash":83531534,"name":"tfmchxfilelistpreview.actopenwithdefapp.caption","sourcebytes":[79,112,101,110,32,119,105,116,104,32,68,101,102,97,117,108,116,32,65,112,112,108,105,99,97,116,105,111,110],"value":"Open with Default Application"},
-{"hash":260167710,"name":"tfmchxfilelistpreview.actopenwithdefapp.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,32,119,105,116,104,32,100,101,102,97,117,108,116,32,115,121,115,116,101,109,32,97,112,112,108,105,99,97,116,105,111,110,46],"value":"Open file with default system application."},
+{"hash":139852366,"name":"tfmchxfilelistpreview.actopenwithdefapp.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,32,119,105,116,104,32,100,101,102,97,117,108,116,32,97,112,112,108,105,99,97,116,105,111,110,46],"value":"Open file with default application."},
 {"hash":77434482,"name":"tfmchxfilelistpreview.actopenfilefolder.caption","sourcebytes":[79,112,101,110,32,70,105,108,101,32,70,111,108,100,101,114],"value":"Open File Folder"},
-{"hash":120147902,"name":"tfmchxfilelistpreview.actopenfilefolder.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,39,115,32,102,111,108,100,101,114,46],"value":"Open file's folder."},
+{"hash":148868878,"name":"tfmchxfilelistpreview.actopenfilefolder.hint","sourcebytes":[79,112,101,110,32,102,105,108,101,39,115,32,102,111,108,100,101,114,32,105,110,32,69,120,112,108,111,114,101,114,46],"value":"Open file's folder in Explorer."},
 {"hash":171839205,"name":"tfmchxfilelistpreview.actdeletefile.caption","sourcebytes":[68,101,108,101,116,101,32,70,105,108,101],"value":"Delete File"},
-{"hash":71770117,"name":"tfmchxfilelistpreview.actrenamefile.caption","sourcebytes":[82,101,110,97,109,101,47,77,111,118,101,32,70,105,108,101],"value":"Rename/Move File"}
+{"hash":127172174,"name":"tfmchxfilelistpreview.actdeletefile.hint","sourcebytes":[68,101,108,101,116,101,115,32,102,105,108,101,32,102,114,111,109,32,100,105,115,99,46],"value":"Deletes file from disc."},
+{"hash":71770117,"name":"tfmchxfilelistpreview.actrenamefile.caption","sourcebytes":[82,101,110,97,109,101,47,77,111,118,101,32,70,105,108,101],"value":"Rename/Move File"},
+{"hash":224654926,"name":"tfmchxfilelistpreview.actrenamefile.hint","sourcebytes":[82,101,110,97,109,101,32,111,114,32,109,111,118,101,32,102,105,108,101,46],"value":"Rename or move file."},
+{"hash":186570926,"name":"tfmchxfilelistpreview.savedialog1.title","sourcebytes":[83,97,118,101,32,102,105,108,101,32,97,115,46,46,46],"value":"Save file as..."}
 ]}

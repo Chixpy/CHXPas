@@ -1,6 +1,4 @@
 {"version":1,"strings":[
-{"hash":96320532,"name":"tfmchxlistpreview.tbpreviewlist.caption","sourcebytes":[116,98,80,114,101,118,105,101,119,76,105,115,116],"value":"tbPreviewList"},
-{"hash":960643,"name":"tfmchxlistpreview.tbsepnavbuttons.caption","sourcebytes":[116,98,83,101,112,78,97,118,66,117,116,116,111,110,115],"value":"tbSepNavButtons"},
 {"hash":67928158,"name":"tfmchxlistpreview.cbxcurritem.hint","sourcebytes":[83,101,108,101,99,116,32,105,116,101,109,46],"value":"Select item."},
 {"hash":265031150,"name":"tfmchxlistpreview.lmaxitems.hint","sourcebytes":[78,117,109,98,101,114,32,111,102,32,105,116,101,109,115,46],"value":"Number of items."},
 {"hash":12592,"name":"tfmchxlistpreview.lmaxitems.caption","sourcebytes":[47,32,48],"value":"/ 0"},

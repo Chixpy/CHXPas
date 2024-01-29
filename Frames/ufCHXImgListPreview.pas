@@ -73,7 +73,7 @@ begin
   if DirectoryExistsUTF8(AValue) then
     FSHA1Folder := SetAsFolder(AValue)
   else
-    FSHA1Folder := '';
+    FSHA1Folder := EmptyStr;
 end;
 
 procedure TfmCHXImgListPreview.SetGUIConfigIni(const AValue: string);

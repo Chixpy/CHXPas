@@ -18,9 +18,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Height = 504
     Top = 0
     Width = 1096
-    ActivePage = pagScriptList
+    ActivePage = pagOutput
     Align = alClient
-    TabIndex = 0
+    TabIndex = 2
     TabOrder = 0
     object pagScriptList: TTabSheet
       Caption = 'Scripts'
@@ -115,7 +115,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Height = 26
         Top = 0
         Width = 1088
-        Caption = 'tbEditor'
         EdgeInner = esNone
         EdgeOuter = esNone
         Images = ilActions
@@ -144,14 +143,12 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 30
           Height = 28
           Top = 0
-          Caption = '-'
           Style = tbsSeparator
         end
         object bSeparator2: TToolButton
           Left = 125
           Height = 28
           Top = 0
-          Caption = '-'
           Style = tbsSeparator
         end
         object bEditUndo: TToolButton
@@ -163,7 +160,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 162
           Height = 28
           Top = 0
-          Caption = '-'
           Style = tbsSeparator
         end
         object bSearchFind: TToolButton
@@ -180,7 +176,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 228
           Height = 28
           Top = 0
-          Caption = 'bSeparator4'
           Style = tbsSeparator
         end
         object bSaveFileAs: TToolButton
@@ -192,7 +187,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 360
           Height = 28
           Top = 0
-          Caption = 'bSeparator5'
           Style = tbsSeparator
         end
         object bCompile: TToolButton
@@ -214,13 +208,12 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 294
           Height = 28
           Top = 0
-          Caption = 'bSeparator6'
           Style = tbsSeparator
         end
         object bEditorFont: TToolButton
           Left = 368
           Top = 0
-          Action = actEditFontEditor
+          Action = actSourceFontEdit
         end
       end
       inline SynEdit: TSynEdit
@@ -761,7 +754,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         ParentFont = False
         ReadOnly = True
         ScrollBars = ssAutoBoth
-        TabOrder = 0
+        TabOrder = 1
         TabStop = False
       end
       object tbOutput: TToolBar
@@ -769,9 +762,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Height = 26
         Top = 0
         Width = 1088
-        Caption = 'tbOutput'
         Images = ilActions
-        TabOrder = 1
+        TabOrder = 0
         object tbOutputClear: TToolButton
           Left = 1
           Top = 2
@@ -781,7 +773,6 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
           Left = 59
           Height = 28
           Top = 2
-          Caption = 'ToolButton2'
           Style = tbsSeparator
         end
         object tbFontEdit: TToolButton
@@ -834,7 +825,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         Action = actStop
         Images = ilActions
         ImageIndex = 6
-        TabOrder = 1
+        TabOrder = 0
       end
       object bExecute2: TBitBtn
         Left = 0
@@ -845,7 +836,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
         AutoSize = True
         Images = ilActions
         ImageIndex = 17
-        TabOrder = 0
+        TabOrder = 1
       end
     end
     object lbxInfo: TListBox
@@ -855,9 +846,9 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       Width = 996
       Align = alClient
       ItemHeight = 0
-      OnDblClick = lbxInfoDblClick
       TabOrder = 0
       TabStop = False
+      OnDblClick = lbxInfoDblClick
     end
     object lCurrentFile: TLabel
       Left = 0
@@ -1096,61 +1087,62 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Top = 232
     object actEditCut: TEditCut
       Category = 'Edit'
-      Caption = 'Cor&tar'
-      Hint = 'Cortar'
+      Caption = 'Cut'
+      Hint = 'Cut selection to Clipboard.'
       ImageIndex = 1
       ShortCut = 16472
     end
     object actEditCopy: TEditCopy
       Category = 'Edit'
-      Caption = '&Copiar'
-      Hint = 'Copiar'
+      Caption = 'Copy'
+      Hint = 'Copy selection to Clipboard.'
       ImageIndex = 0
       ShortCut = 16451
     end
     object actEditPaste: TEditPaste
       Category = 'Edit'
-      Caption = '&Pegar'
-      Hint = 'Pegar'
+      Caption = 'Paste'
+      Hint = 'Paste from Clipboard.'
       ImageIndex = 2
       ShortCut = 16470
     end
     object actEditUndo: TEditUndo
       Category = 'Edit'
-      Caption = '&Deshacer'
-      Hint = 'Deshacer'
+      Caption = 'Undo'
+      Hint = 'Undo last action.'
       ImageIndex = 5
       ShortCut = 16474
     end
     object actEditDelete: TEditDelete
       Category = 'Edit'
-      Caption = '&Suprimir'
-      Hint = 'Suprimir'
+      Caption = 'Delete'
+      Hint = 'Delete selection.'
       ImageIndex = 14
       ShortCut = 46
     end
     object actSearchFind: TSearchFind
       Category = 'Search'
-      Caption = '&Buscar...'
+      Caption = 'Find...'
       ImageIndex = 13
       ShortCut = 16454
     end
     object actSearchReplace: TSearchReplace
       Category = 'Search'
-      Caption = '&Reemplazar'
+      Caption = 'Replace...'
       Dialog.Options = [frDown, frReplace, frReplaceAll, frHidePromptOnReplace]
       ImageIndex = 16
     end
     object actCompile: TAction
       Category = 'Script'
       Caption = 'Syntax check'
-      Hint = 'Checks the script syntax (actually tries to compile)'
+      Hint = 'Check script syntax. | Checks script syntax, actually tries to compile.'
       ImageIndex = 7
       OnExecute = actCompileExecute
     end
     object actExecute: TAction
       Category = 'Script'
-      Caption = 'Execute'
+      Caption = 'Run'
+      Hint = 'Execute script.'
       ImageIndex = 17
       OnExecute = actExecuteExecute
     end
@@ -1165,16 +1157,16 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object actOutputClear: TAction
       Category = 'Output'
-      Caption = 'actOutputClear'
+      Caption = 'Clear Output'
       ImageIndex = 11
       OnExecute = actOutputClearExecute
     end
     object actOutputFontEdit: TFontEdit
       Category = 'Output'
-      Caption = 'Seleccionar &Fuente...'
+      Caption = 'Change Text Font...'
       Dialog.MinFontSize = 0
       Dialog.MaxFontSize = 0
-      Hint = 'Selector de fuente'
+      Hint = 'Change output text font.'
       ImageIndex = 15
       BeforeExecute = actOutputFontEditBeforeExecute
       OnAccept = actOutputFontEditAccept
@@ -1188,8 +1180,8 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     end
     object actOutputSaveAs: TFileSaveAs
       Category = 'Output'
-      Caption = 'Gu&ardar Como ...'
-      Hint = 'Guardar Como'
+      Caption = 'Save as...'
+      Hint = 'Save file with another name.'
       ImageIndex = 8
       BeforeExecute = actOutputSaveAsBeforeExecute
       OnAccept = actOutputSaveAsAccept
@@ -1201,18 +1193,18 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       ImageIndex = 6
       OnExecute = actStopExecute
     end
-    object actFileOpenFolder: TAction
+    object actOpenFileFolder: TAction
       Category = 'File'
       Caption = 'Open folder in Explorer'
       Hint = 'Open folder of the file with explorer.'
       ImageIndex = 10
-      OnExecute = actFileOpenFolderExecute
+      OnExecute = actOpenFileFolderExecute
     end
-    object actFolderOpen: TAction
+    object actOpenRootFolder: TAction
       Category = 'Folder'
-      Caption = 'Open folder'
+      Caption = 'Open Folder'
       ImageIndex = 10
-      OnExecute = actFolderOpenExecute
+      OnExecute = actOpenRootFolderExecute
     end
     object actChangeBaseFolder: TAction
       Category = 'Folder'
@@ -1220,16 +1212,16 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
       ImageIndex = 12
       OnExecute = actChangeBaseFolderExecute
     end
-    object actEditFontEditor: TFontEdit
+    object actSourceFontEdit: TFontEdit
       Category = 'Edit'
-      Caption = 'Seleccionar &Fuente del editor...'
+      Caption = 'Change text font...'
       Dialog.MinFontSize = 0
       Dialog.MaxFontSize = 0
       Dialog.Options = [fdFixedPitchOnly]
-      Hint = 'Selector de fuente'
+      Hint = 'Change source text font.'
       ImageIndex = 15
-      BeforeExecute = actEditFontEditorBeforeExecute
-      OnAccept = actEditFontEditorAccept
+      BeforeExecute = actSourceFontEditBeforeExecute
+      OnAccept = actSourceFontEditAccept
     end
   end
   object SynFreePascalSyn: TSynFreePascalSyn[5]
@@ -1237,6 +1229,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     CompilerMode = pcmObjFPC
     NestedComments = False
     TypeHelpers = False
+    StringMultilineMode = []
     Left = 64
     Top = 112
   end
@@ -1248,11 +1241,13 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Top = 72
   end
   object OpenDialog1: TOpenDialog[7]
+    Title = 'Select a File'
     Options = [ofNoChangeDir, ofEnableSizing, ofViewDetail]
     Left = 536
     Top = 72
   end
   object SelectDirectoryDialog1: TSelectDirectoryDialog[8]
+    Title = 'Select a Folder'
     Options = [ofNoChangeDir, ofPathMustExist, ofEnableSizing, ofViewDetail]
     Left = 540
     Top = 175
@@ -1261,7 +1256,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Left = 315
     Top = 124
     object miFileOpenFolder: TMenuItem
-      Action = actFileOpenFolder
+      Action = actOpenFileFolder
     end
     object miChangeBaseFolder: TMenuItem
       Action = actChangeBaseFolder
@@ -1272,7 +1267,7 @@ inherited fmCHXScriptManager: TfmCHXScriptManager
     Top = 224
   end
   object SynCompletion: TSynCompletion[11]
-    Position = 0
+    Position = -1
     LinesInWindow = 6
     SelectedColor = clHighlight
     CaseSensitive = False

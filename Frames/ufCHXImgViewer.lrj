@@ -1,14 +1,14 @@
 {"version":1,"strings":[
 {"hash":23626005,"name":"tfmchximgviewer.actoriginalsize.caption","sourcebytes":[79,114,105,103,105,110,97,108,32,115,105,122,101],"value":"Original size"},
-{"hash":52204990,"name":"tfmchximgviewer.actoriginalsize.hint","sourcebytes":[82,101,115,105,122,101,32,105,109,97,103,101,32,116,111,32,111,114,105,103,105,110,97,108,32,115,105,122,101,46],"value":"Resize image to original size."},
+{"hash":142748542,"name":"tfmchximgviewer.actoriginalsize.hint","sourcebytes":[86,105,101,119,32,105,109,97,103,101,32,105,110,32,111,114,105,103,105,110,97,108,32,115,105,122,101,46],"value":"View image in original size."},
 {"hash":23458974,"name":"tfmchximgviewer.actzoomin.caption","sourcebytes":[90,111,111,109,32,73,110],"value":"Zoom In"},
 {"hash":25691694,"name":"tfmchximgviewer.actzoomin.hint","sourcebytes":[90,111,111,109,32,105,109,97,103,101,32,105,110,46],"value":"Zoom image in."},
 {"hash":106909908,"name":"tfmchximgviewer.actzoomout.caption","sourcebytes":[90,111,111,109,32,79,117,116],"value":"Zoom Out"},
 {"hash":142724734,"name":"tfmchximgviewer.actzoomout.hint","sourcebytes":[90,111,111,109,32,105,109,97,103,101,32,111,117,116,46],"value":"Zoom image out."},
-{"hash":180269064,"name":"tfmchximgviewer.actstretch.caption","sourcebytes":[97,99,116,83,116,114,101,116,99,104],"value":"actStretch"},
+{"hash":179882696,"name":"tfmchximgviewer.actstretch.caption","sourcebytes":[83,116,114,101,116,99,104],"value":"Stretch"},
 {"hash":211724350,"name":"tfmchximgviewer.actstretch.hint","sourcebytes":[83,116,114,101,116,99,104,32,105,109,97,103,101,32,116,111,32,119,105,110,100,111,119,46],"value":"Stretch image to window."},
 {"hash":58532887,"name":"tfmchximgviewer.actclose.caption","sourcebytes":[67,108,111,115,101,32,119,105,110,100,111,119],"value":"Close window"},
 {"hash":181700478,"name":"tfmchximgviewer.actclose.hint","sourcebytes":[67,108,111,115,101,32,116,104,101,32,119,105,110,100,111,119,46],"value":"Close the window."},
-{"hash":194228436,"name":"tfmchximgviewer.acttogglefilelist.caption","sourcebytes":[97,99,116,84,111,103,103,108,101,70,105,108,101,76,105,115,116],"value":"actToggleFileList"},
+{"hash":63577908,"name":"tfmchximgviewer.acttogglefilelist.caption","sourcebytes":[84,111,103,103,108,101,32,70,105,108,101,108,105,115,116],"value":"Toggle Filelist"},
 {"hash":42991406,"name":"tfmchximgviewer.acttogglefilelist.hint","sourcebytes":[83,104,111,119,47,72,105,100,101,32,102,105,108,101,32,108,105,115,116,46],"value":"Show/Hide file list."}
 ]}

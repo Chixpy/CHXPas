@@ -3,13 +3,6 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
   DesignTop = 243
   inherited pButtons: TPanel
     TabOrder = 3
-    inherited chkCloseOnSave: TCheckBox
-      Left = 47
-      Width = 57
-    end
-    inherited bSave: TBitBtn
-      Left = 151
-    end
   end
   object pEditFolder: TPanel[1]
     Left = 0
@@ -100,7 +93,6 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     Top = 40
     Width = 400
     AutoSize = True
-    Caption = 'tbImageFolderButtons'
     Images = ilPropEditor
     TabOrder = 1
     object bAddFolder: TToolButton
@@ -133,16 +125,19 @@ inherited fmCHXMultiFolderEditor: TfmCHXMultiFolderEditor
     object actAddFolder: TAction[2]
       Category = 'FolderList'
       Caption = 'Add folder'
+      Hint = 'Add the folder and its caption to the list.'
       OnExecute = actAddFolderExecute
     end
     object actDeleteFolder: TAction[3]
       Category = 'FolderList'
       Caption = 'Delete folder'
+      Hint = 'Remove folder from the list.'
       OnExecute = actDeleteFolderExecute
     end
     object actUpdateFolder: TAction[4]
       Category = 'FolderList'
       Caption = 'Update folder'
+      Hint = 'Change selected folder and its caption.'
       OnExecute = actUpdateFolderExecute
     end
     object actFolderUp: TAction[5]

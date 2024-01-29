@@ -1,8 +1,10 @@
 {"version":1,"strings":[
-{"hash":95060995,"name":"tfmchxmultifoldereditor.tbimagefolderbuttons.caption","sourcebytes":[116,98,73,109,97,103,101,70,111,108,100,101,114,66,117,116,116,111,110,115],"value":"tbImageFolderButtons"},
 {"hash":114446498,"name":"tfmchxmultifoldereditor.actaddfolder.caption","sourcebytes":[65,100,100,32,102,111,108,100,101,114],"value":"Add folder"},
+{"hash":52387966,"name":"tfmchxmultifoldereditor.actaddfolder.hint","sourcebytes":[65,100,100,32,116,104,101,32,102,111,108,100,101,114,32,97,110,100,32,105,116,115,32,99,97,112,116,105,111,110,32,116,111,32,116,104,101,32,108,105,115,116,46],"value":"Add the folder and its caption to the list."},
 {"hash":202957042,"name":"tfmchxmultifoldereditor.actdeletefolder.caption","sourcebytes":[68,101,108,101,116,101,32,102,111,108,100,101,114],"value":"Delete folder"},
+{"hash":174380926,"name":"tfmchxmultifoldereditor.actdeletefolder.hint","sourcebytes":[82,101,109,111,118,101,32,102,111,108,100,101,114,32,102,114,111,109,32,116,104,101,32,108,105,115,116,46],"value":"Remove folder from the list."},
 {"hash":180396258,"name":"tfmchxmultifoldereditor.actupdatefolder.caption","sourcebytes":[85,112,100,97,116,101,32,102,111,108,100,101,114],"value":"Update folder"},
+{"hash":20718238,"name":"tfmchxmultifoldereditor.actupdatefolder.hint","sourcebytes":[67,104,97,110,103,101,32,115,101,108,101,99,116,101,100,32,102,111,108,100,101,114,32,97,110,100,32,105,116,115,32,99,97,112,116,105,111,110,46],"value":"Change selected folder and its caption."},
 {"hash":74132960,"name":"tfmchxmultifoldereditor.actfolderup.caption","sourcebytes":[77,111,118,101,32,102,111,108,100,101,114,32,117,112],"value":"Move folder up"},
 {"hash":187470526,"name":"tfmchxmultifoldereditor.actfolderdown.caption","sourcebytes":[77,111,118,101,32,102,111,108,100,101,114,32,100,111,119,110],"value":"Move folder down"}
 ]}

@@ -59,7 +59,7 @@ begin
   aExeFile := SysPath(aExeFile);
 
   // Testing WorkFolder existence (if not empty)
-  if aWorkFolder <> '' then
+  if aWorkFolder <> EmptyStr then
   begin
     if FilenameIsAbsolute(aExeFile) then
     begin
@@ -110,7 +110,7 @@ begin
 
   aProcess := TProcessUTF8.Create(nil);
   try
-    if aWorkFolder <> '' then
+    if aWorkFolder <> EmptyStr then
       aProcess.CurrentDirectory := aWorkFolder;
 
     aProcess.Executable := aExeFile;

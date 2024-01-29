@@ -38,14 +38,14 @@ begin
   end
   else
   begin
-    if BaseDir = '' then
+    if BaseDir = EmptyStr then
       BaseDir := SysPath(SetAsFolder(GetCurrentDirUTF8));
 
     if not FilenameIsAbsolute(BaseDir) then
       BaseDir := CleanAndExpandFilename(
         SysPath(SetAsFolder(SetAsFolder(GetCurrentDirUTF8) + BaseDir)));
 
-    if aDialog.FileName = '' then
+    if aDialog.FileName = EmptyStr then
       aDialog.InitialDir := ExcludeTrailingPathDelimiter(BaseDir)
     else
       aDialog.InitialDir :=
@@ -70,7 +70,7 @@ begin
   end
   else
   begin
-    if BaseDir = '' then
+    if BaseDir = EmptyStr then
       BaseDir := GetCurrentDirUTF8;
 
     if not FilenameIsAbsolute(BaseDir) then
@@ -97,7 +97,7 @@ begin
   end
   else
   begin
-    if BaseDir = '' then
+    if BaseDir = EmptyStr then
       BaseDir := GetCurrentDirUTF8;
 
     if not FilenameIsAbsolute(BaseDir) then

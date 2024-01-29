@@ -14,7 +14,7 @@ uses
   ComCtrls, ShellCtrls, Buttons, ActnList, StdActns, IniFiles, SynEditTypes,
   SynCompletion, LCLIntf, Menus,
   // CHX units
-  uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
+  uCHXRscStr, uCHXStrUtils, uCHXDlgUtils, uCHXImageUtils,
   // CHX classes
   ucCHXScriptEngine,
   // CHX frames
@@ -25,6 +25,9 @@ uses
   ufSMAskMultiFile, ufSMAskOption;
 
 const
+  krsFormCHXScriptMName = 'frmCHXScriptManager';
+  krsFormCHXScriptMTitle = 'CHX Script Manager';
+
   kFSMScriptFileExt = '.pas';
   kFSMScriptFileMask = '*' + kFSMScriptFileExt;
   kFSMInfoSection = 'Info';
@@ -37,7 +40,6 @@ const
 resourcestring
   rsFSMFileSaved = 'File saved: %s';
   rsFSMScriptFileMaskDesc = 'Pascal script file';
-  rsFSMAllFilesMaskDesc = 'All files';
   rsFSMAskSaveChanges = 'The sourcefile has changed.' + sLineBreak +
     'Save?' + sLineBreak + '%s';
 
@@ -55,8 +57,8 @@ type
     actExecute: TAction;
     actFileSaveAs: TFileSaveAs;
     actFileSave: TAction;
-    actFileOpenFolder: TAction;
-    actFolderOpen: TAction;
+    actOpenFileFolder: TAction;
+    actOpenRootFolder: TAction;
     actChangeBaseFolder: TAction;
     actStop: TAction;
     actOutputClear: TAction;
@@ -83,7 +85,7 @@ type
     bStop: TBitBtn;
     actOutputSaveAs: TFileSaveAs;
     actOutputFontEdit: TFontEdit;
-    actEditFontEditor: TFontEdit;
+    actSourceFontEdit: TFontEdit;
     gbxScript: TGroupBox;
     ilActions: TImageList;
     lCurrentFile: TLabel;
@@ -123,14 +125,14 @@ type
     bEditorFont: TToolButton;
     procedure actChangeBaseFolderExecute(Sender: TObject);
     procedure actCompileExecute(Sender: TObject);
-    procedure actEditFontEditorAccept(Sender: TObject);
-    procedure actEditFontEditorBeforeExecute(Sender: TObject);
+    procedure actSourceFontEditAccept(Sender: TObject);
+    procedure actSourceFontEditBeforeExecute(Sender: TObject);
     procedure actExecuteExecute(Sender: TObject);
     procedure actFileSaveAsAccept(Sender: TObject);
     procedure actFileSaveAsBeforeExecute(Sender: TObject);
     procedure actFileSaveExecute(Sender: TObject);
-    procedure actFileOpenFolderExecute(Sender: TObject);
-    procedure actFolderOpenExecute(Sender: TObject);
+    procedure actOpenFileFolderExecute(Sender: TObject);
+    procedure actOpenRootFolderExecute(Sender: TObject);
     procedure actOutputClearExecute(Sender: TObject);
     procedure actOutputFontEditAccept(Sender: TObject);
     procedure actOutputFontEditBeforeExecute(Sender: TObject);
@@ -223,7 +225,7 @@ begin
   if Selected then
     LoadScriptFile(SetAsFolder(aSLV.Root) + Item.Caption)
   else
-    LoadScriptFile('');
+    LoadScriptFile(EmptyStr);
 end;
 
 procedure TfmCHXScriptManager.SynEditSpecialLineColors(Sender: TObject;
@@ -264,14 +266,14 @@ begin
   Compile;
 end;
 
-procedure TfmCHXScriptManager.actEditFontEditorAccept(Sender: TObject);
+procedure TfmCHXScriptManager.actSourceFontEditAccept(Sender: TObject);
 begin
-  SynEdit.Font.Assign(actEditFontEditor.Dialog.Font);
+  SynEdit.Font.Assign(actSourceFontEdit.Dialog.Font);
 end;
 
-procedure TfmCHXScriptManager.actEditFontEditorBeforeExecute(Sender: TObject);
+procedure TfmCHXScriptManager.actSourceFontEditBeforeExecute(Sender: TObject);
 begin
-  actEditFontEditor.Dialog.Font.Assign(SynEdit.Font);
+  actSourceFontEdit.Dialog.Font.Assign(SynEdit.Font);
 end;
 
 procedure TfmCHXScriptManager.actChangeBaseFolderExecute(Sender: TObject);
@@ -306,8 +308,7 @@ begin
   SetDlgInitialDir(actFileSaveAs.Dialog, stvFolders.Path);
 
   actFileSaveAs.Dialog.Filter :=
-    rsFSMScriptFileMaskDesc + '|' + kFSMScriptFileMask + '|' +
-    rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
+    rsFSMScriptFileMaskDesc + '|' + kFSMScriptFileMask + '|' + rsFileDlgMaskDef;
   actFileSaveAs.Dialog.DefaultExt := kFSMScriptFileExt;
 end;
 
@@ -323,12 +324,12 @@ begin
     actFileSaveAs.Execute;
 end;
 
-procedure TfmCHXScriptManager.actFileOpenFolderExecute(Sender: TObject);
+procedure TfmCHXScriptManager.actOpenFileFolderExecute(Sender: TObject);
 begin
   OpenDocument(slvFiles.Root);
 end;
 
-procedure TfmCHXScriptManager.actFolderOpenExecute(Sender: TObject);
+procedure TfmCHXScriptManager.actOpenRootFolderExecute(Sender: TObject);
 begin
   OpenDocument(stvFolders.Root);
 end;
@@ -360,7 +361,7 @@ begin
   SetDlgInitialDir(actOutputSaveAs.Dialog, stvFolders.Path);
 
   actOutputSaveAs.Dialog.Filter :=
-    'Text file|*.txt|' + rsFSMAllFilesMaskDesc + '|' + AllFilesMask;
+    'Text file|*.txt|' + rsFileDlgMaskDef;
   actOutputSaveAs.Dialog.DefaultExt := '.txt';
 end;
 
@@ -620,8 +621,8 @@ begin
 
   aFrame.SetBaseFolder(aBaseFolder);
 
-  Result := GenSimpleModalForm(aFrame, 'frmCHXScriptManager',
-    'CHX Script Manager', aGUIConfigIni, aGUIIconsIni);
+  Result := GenSimpleModalForm(aFrame, krsFormCHXScriptMName,
+    krsFormCHXScriptMTitle, aGUIConfigIni, aGUIIconsIni);
 end;
 
 procedure TfmCHXScriptManager.DoAskMultiFile(aFileList: TStrings;
@@ -634,7 +635,7 @@ end;
 function TfmCHXScriptManager.DoAskFolder(
   const aCaption, DefFolder: string): string;
 begin
-  Result := '';
+  Result := EmptyStr;
   SelectDirectoryDialog1.Title := aCaption;
   SetDlgInitialDir(SelectDirectoryDialog1, DefFolder);
   if SelectDirectoryDialog1.Execute then

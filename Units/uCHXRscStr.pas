@@ -67,7 +67,7 @@ resourcestring
 
   rsFileDlgMaskDef = 'All files|*.*';
   {< All files dialogs mask}
-  rsFileDlgMaskFmt = 'Supported files|%0:s|All files|*.*';
+  rsFileDlgMaskFmt = 'Supported files (%0:s)|%0:s|All files|*.*';
   {< Generic suported file extensions mask
 
      @param(%0:s Suported files extension mask "*.png;*.jpg")

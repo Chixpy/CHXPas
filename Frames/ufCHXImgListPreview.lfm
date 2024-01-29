@@ -36,4 +36,6 @@ inherited fmCHXImgListPreview: TfmCHXImgListPreview
   end
   inherited pmOpenFile: TPopupMenu[8]
   end
+  inherited SaveDialog1: TSaveDialog[9]
+  end
 end

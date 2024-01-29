@@ -10,10 +10,11 @@ inherited fmSMAskOption: TfmSMAskOption
     Width = 700
     ClientWidth = 700
     inherited chkCloseOnSave: TCheckBox
-      Left = 121
+      Left = 122
+      Width = 57
     end
     inherited bSave: TBitBtn
-      Left = 302
+      Left = 301
     end
     inherited bCancel: TBitBtn
       Left = 489
@@ -21,21 +22,20 @@ inherited fmSMAskOption: TfmSMAskOption
   end
   object lQuestion: TLabel[1]
     Left = 0
-    Height = 20
+    Height = 1
     Top = 0
     Width = 700
     Align = alTop
-    Caption = ' '
     ParentColor = False
   end
   object rgbAnswer: TRadioGroup[2]
     Left = 0
-    Height = 217
-    Top = 24
+    Height = 236
+    Top = 5
     Width = 700
     Align = alClient
     AutoFill = True
-    Caption = 'Choose'
+    Caption = 'Choose an option'
     ChildSizing.LeftRightSpacing = 6
     ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
     ChildSizing.EnlargeVertical = crsHomogenousChildResize

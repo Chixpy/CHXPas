@@ -2,7 +2,7 @@ unit uaCHXStorable;
 
 {< caCHXStorable, caCHXStorableIni and caCHXStorableTxt abstract classes unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -14,6 +14,7 @@ uses
   uCHXStrUtils;
 
 type
+  { caCHXStorable }
 
   caCHXStorable = class(TComponent)
   private
@@ -156,11 +157,11 @@ begin
   if not Assigned(aCBProc) then
     Exit; // Nothing to do, so we don't waste time
 
-  if aFilename = '' then // Testing filename
+  if aFilename = EmptyStr then // Testing filename
   begin
     aFilename := DefaultFileName;
 
-    if aFilename = '' then
+    if aFilename = EmptyStr then
       Exit;
   end;
 
@@ -248,11 +249,11 @@ begin
   if not Assigned(aCBProc) then
     Exit; // Nothing to do, so we don't waste time
 
-  if aFilename = '' then // Testing filename
+  if aFilename = EmptyStr then // Testing filename
   begin
     aFilename := DefaultFileName;
 
-    if aFilename = '' then
+    if aFilename = EmptyStr then
       Exit;
   end;
 

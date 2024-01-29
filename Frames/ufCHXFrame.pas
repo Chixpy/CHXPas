@@ -103,9 +103,9 @@ begin
   Result := mrNone;
   if not Assigned(aCHXFrame) then
     Exit;
-  if aFormName = '' then
+  if aFormName = EmptyStr then
     Exit;
-  if aFormTitle = '' then
+  if aFormTitle = EmptyStr then
     Exit;
 
   Application.CreateForm(TfrmCHXForm, aForm);
@@ -147,9 +147,9 @@ begin
   Result := mrNone;
   if not Assigned(aCHXFrame) then
     Exit;
-  if aFormName = '' then
+  if aFormName = EmptyStr then
     Exit;
-  if aFormTitle = '' then
+  if aFormTitle = EmptyStr then
     Exit;
 
   Application.CreateForm(TfrmCHXForm, aForm);
@@ -181,9 +181,9 @@ var
 begin
   if not Assigned(aCHXFrame) then
     Exit;
-  if aFormName = '' then
+  if aFormName = EmptyStr then
     Exit;
-  if aFormTitle = '' then
+  if aFormTitle = EmptyStr then
     Exit;
 
   Application.CreateForm(TfrmCHXForm, aForm);

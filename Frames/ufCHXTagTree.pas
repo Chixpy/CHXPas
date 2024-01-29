@@ -136,9 +136,9 @@ begin
 
   if Assigned(Data) then
   begin
-    Data^.Title := '';
-    Data^.Folder := '';
-    Data^.FileName := '';
+    Data^.Title := EmptyStr;
+    Data^.Folder := EmptyStr;
+    Data^.FileName := EmptyStr;
   end;
 
   Finalize(Data^);
@@ -181,7 +181,7 @@ var
 begin
   Data := VST.GetNodeData(Node);
 
-  if Data^.FileName = '' then
+  if Data^.FileName = EmptyStr then
     Exit;
 
   // This is called after un/checked
@@ -336,7 +336,7 @@ begin
   Pdata := VST.GetNodeData(Result);
   Pdata^.Title := ExcludeTrailingPathDelimiter(ExtractFileName(aFolder));
   Pdata^.Folder := SetAsFolder(aFolder);
-  Pdata^.FileName := '';
+  Pdata^.FileName := EmptyStr;
 end;
 
 function TfmCHXTagTree.AddFile(const aFile: string;

@@ -8,14 +8,15 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
     ClientWidth = 600
     TabOrder = 1
     inherited chkCloseOnSave: TCheckBox
-      Left = 96
+      Left = 97
     end
     inherited bSave: TBitBtn
-      Left = 252
+      Left = 251
       Default = True
     end
     inherited bCancel: TBitBtn
       Left = 414
+      Cancel = False
     end
   end
   object gbxSelectFiles: TGroupBox[1]
@@ -46,7 +47,6 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
       Width = 30
       Align = alRight
       AutoSize = True
-      Caption = 'ToolBar1'
       Images = ilPropEditor
       TabOrder = 1
       object tbRemoveFiles: TToolButton
@@ -62,8 +62,7 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
       object ToolButton1: TToolButton
         Left = 1
         Top = 30
-        Width = 29
-        Caption = 'ToolButton1'
+        Width = 5
         Style = tbsDivider
       end
       object tbMoveFileUp: TToolButton
@@ -74,8 +73,7 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
       object ToolButton3: TToolButton
         Left = 1
         Top = 119
-        Width = 29
-        Caption = 'ToolButton3'
+        Width = 5
         Style = tbsDivider
       end
       object tbSortFileList: TToolButton
@@ -191,6 +189,7 @@ inherited fmSMAskMultiFile: TfmSMAskMultiFile
     }
   end
   object OpenDialog1: TOpenDialog[4]
+    Title = 'Select a File'
     Options = [ofNoChangeDir, ofAllowMultiSelect, ofEnableSizing, ofViewDetail]
     Left = 219
     Top = 102

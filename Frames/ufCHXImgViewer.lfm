@@ -15,7 +15,6 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
     inherited tbSepNavButtons: TToolButton
       Left = 252
-      Height = 29
     end
     inherited tbOpenFile: TToolButton
       Left = 257
@@ -82,10 +81,10 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     Width = 196
     Align = alLeft
     ItemHeight = 0
-    OnSelectionChange = lbxFilesSelectionChange
     ScrollWidth = 1000
     TabOrder = 2
     Visible = False
+    OnSelectionChange = lbxFilesSelectionChange
   end
   object splFileList: TSplitter[3]
     Left = 200
@@ -271,22 +270,10 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     }
   end
   inherited alPreviewList: TActionList[6]
-    inherited actPreviousItem: TAction
-      ShortCut = 37
-    end
-    inherited actNextItem: TAction
-      ShortCut = 39
-    end
-    inherited actFirstItem: TAction
-      ShortCut = 36
-    end
-    inherited actLastItem: TAction
-      ShortCut = 35
-    end
     object actOriginalSize: TAction[4]
       Category = 'Image'
       Caption = 'Original size'
-      Hint = 'Resize image to original size.'
+      Hint = 'View image in original size.'
       ImageIndex = 10
       OnExecute = actOriginalSizeExecute
       ShortCut = 106
@@ -310,7 +297,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     object actStretch: TAction[7]
       Category = 'Image'
       AutoCheck = True
-      Caption = 'actStretch'
+      Caption = 'Stretch'
       Checked = True
       Hint = 'Stretch image to window.'
       ImageIndex = 12
@@ -326,7 +313,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     object actToggleFileList: TAction[9]
       Category = 'Window'
       AutoCheck = True
-      Caption = 'actToggleFileList'
+      Caption = 'Toggle Filelist'
       Hint = 'Show/Hide file list.'
       ImageIndex = 5
       OnExecute = actToggleFileListExecute

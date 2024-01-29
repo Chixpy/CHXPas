@@ -3,6 +3,9 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
     inherited tbSepNavButtons: TToolButton
       Height = 29
     end
+    inherited cbxCurrItem: TComboBox
+      Hint = 'Select an item.'
+    end
     object tbOpenFile: TToolButton[5]
       Left = 215
       Top = 2
@@ -118,41 +121,34 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
     }
   end
   inherited alPreviewList: TActionList
-    inherited actPreviousItem: TAction
-      ShortCut = 37
-    end
-    inherited actNextItem: TAction
-      ShortCut = 39
-    end
     inherited actFirstItem: TAction
-      ShortCut = 36
-    end
-    inherited actLastItem: TAction
-      ShortCut = 35
+      Hint = 'Go to first item.'
     end
     object actOpenWithDefApp: TAction[4]
       Category = 'Item'
       Caption = 'Open with Default Application'
-      Hint = 'Open file with default system application.'
+      Hint = 'Open file with default application.'
       ImageIndex = 4
       OnExecute = actOpenWithDefAppExecute
     end
     object actOpenFileFolder: TAction[5]
       Category = 'Item'
       Caption = 'Open File Folder'
-      Hint = 'Open file''s folder.'
+      Hint = 'Open file''s folder in Explorer.'
       ImageIndex = 5
       OnExecute = actOpenFileFolderExecute
     end
     object actDeleteFile: TAction[6]
       Category = 'Item'
       Caption = 'Delete File'
+      Hint = 'Deletes file from disc.'
       ImageIndex = 6
       OnExecute = actDeleteFileExecute
     end
     object actRenameFile: TAction[7]
       Category = 'Item'
       Caption = 'Rename/Move File'
+      Hint = 'Rename or move file.'
       ImageIndex = 7
       OnExecute = actRenameFileExecute
     end
@@ -189,6 +185,7 @@ inherited fmCHXFileListPreview: TfmCHXFileListPreview
     end
   end
   object SaveDialog1: TSaveDialog[7]
+    Title = 'Save file as...'
     Options = [ofOverwritePrompt, ofNoChangeDir, ofExtensionDifferent, ofEnableSizing, ofViewDetail]
     Left = 136
     Top = 112

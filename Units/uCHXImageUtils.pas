@@ -99,7 +99,7 @@ var
   Cont: integer;
   IconFile: string;
 begin
-  if aSection = '' then
+  if aSection = EmptyStr then
     Exit;
   if not Assigned(aImageList) then
     Exit;
@@ -114,9 +114,9 @@ begin
   while Cont < aActionList.ActionCount do
   begin
     IconFile := aIniFile.ReadString(aSection,
-      aActionList.Actions[Cont].Name, '');
+      aActionList.Actions[Cont].Name, EmptyStr);
 
-    if IconFile = '' then
+    if IconFile = EmptyStr then
     begin
       IconFile := aActionList.Actions[Cont].Name + '.png';
       aIniFile.WriteString(aSection, aActionList.Actions[Cont].Name, IconFile);
@@ -159,7 +159,7 @@ var
   BaseDir: string;
   IniFile: TMemIniFile;
 begin
-  if aFileName = '' then
+  if aFileName = EmptyStr then
     Exit;
 
   BaseDir := ExtractFilePath(aFileName);
@@ -183,8 +183,8 @@ procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
   begin
     if not (aMenu.IsLine or Assigned(aMenu.Action)) then
     begin
-      IconFile := aIniFile.ReadString(aSection, aMenu.Name, '');
-      if IconFile = '' then
+      IconFile := aIniFile.ReadString(aSection, aMenu.Name, EmptyStr);
+      if IconFile = EmptyStr then
       begin
         IconFile := aMenu.Name + '.png';
         aIniFile.WriteString(aSection, aMenu.Name, IconFile);
@@ -207,7 +207,7 @@ procedure ReadMenuIconsIni(aIniFile: TIniFile; aBaseFolder: string;
 var
   Cont: integer;
 begin
-  if (not Assigned(aIniFile)) or (aSection = '') or
+  if (not Assigned(aIniFile)) or (aSection = EmptyStr) or
     (not Assigned(aImageList)) or (not Assigned(aMenu)) then
     Exit;
 
@@ -370,19 +370,19 @@ begin
   if not Assigned(smFont) then Exit;
   FontProps := TStringList.Create;
   try
-    FontProps.CommaText := FStream.ReadString(Section, Key, '');
+    FontProps.CommaText := FStream.ReadString(Section, Key, EmptyStr);
     while FontProps.Count < 5 do
-      FontProps.Add('');
+      FontProps.Add(EmptyStr);
 
-    if FontProps[0] <> '' then
+    if FontProps[0] <> EmptyStr then
       smFont.Name := FontProps[0];
-    if FontProps[1] <> '' then
+    if FontProps[1] <> EmptyStr then
       smFont.Charset := TFontCharSet(StrToIntDef(FontProps[1], smFont.Charset));
-    if FontProps[2] <> '' then
+    if FontProps[2] <> EmptyStr then
       smFont.Color := TColor(StrToIntDef(FontProps[2], smFont.Color));
-    if FontProps[3] <> '' then
+    if FontProps[3] <> EmptyStr then
       smFont.Size := StrToIntDef(FontProps[3], smFont.Size);
-    if FontProps[4] <> '' then
+    if FontProps[4] <> EmptyStr then
       smFont.Style := TFontStyles(StringToSet(GetPropInfo(smFont, 'Style'),
         FontProps[4]));
 

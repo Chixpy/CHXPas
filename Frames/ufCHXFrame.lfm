@@ -10,7 +10,6 @@ object fmCHXFrame: TfmCHXFrame
   ChildSizing.VerticalSpacing = 4
   DesignTimePPI = 120
   Enabled = False
-  LCLVersion = '2.0.0.3'
   ParentFont = False
   TabOrder = 0
   DesignLeft = 470

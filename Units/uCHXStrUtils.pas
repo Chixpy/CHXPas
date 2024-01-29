@@ -160,7 +160,7 @@ begin
   if Result < 1 then
   begin
     aStr1 := aString;
-    aStr2 := '';
+    aStr2 := EmptyStr;
     Exit;
   end;
 
@@ -258,7 +258,7 @@ var
   Union: integer;
 begin
   Result := 0;
-  if (aString1 = '') or (aString2 = '') then
+  if (aString1 = EmptyStr) or (aString2 = EmptyStr) then
     Exit;
 
   StrList1 := TStringList.Create;
@@ -314,7 +314,7 @@ begin
     Result[UTF8LengthFast(Result)] := '_';
 
   { Always with TrailingPathDelimiter, but only if it's not empty or root }
-  if Result <> '' then
+  if Result <> EmptyStr then
     Result := IncludeTrailingPathDelimiter(Result);
 
   // I like UNIX PathSep :-) (and it's better for cross-configuring)
@@ -375,7 +375,7 @@ begin
   Result := False;
   if (not assigned(aExt)) or (aExt.Count = 0) then
     Exit;
-  if aFilename = '' then
+  if aFilename = EmptyStr then
     Exit;
 
   // Extract extension, remove dot.
@@ -511,7 +511,7 @@ begin
         Copy(aStringList.Strings[Cont], 1, Pos(CommentChar,
         aStringList.Strings[Cont]) - 1);
     aStringList.Strings[Cont] := Trim(aStringList.Strings[Cont]);
-    if aStringList.Strings[Cont] = '' then
+    if aStringList.Strings[Cont] = EmptyStr then
       aStringList.Delete(Cont);
   end;
 end;
@@ -520,7 +520,7 @@ function AddToStringList(aList: TStrings; aString: string): integer;
 begin
   Result := -1;
   aString := Trim(aString);
-  if (not Assigned(aList)) or (aString = '') then
+  if (not Assigned(aList)) or (aString = EmptyStr) then
     Exit;
   Result := aList.IndexOf(aString);
   if Result < 0 then
@@ -542,7 +542,7 @@ end;
 
 function FileMaskFromStringList(aList: TStrings): string;
 begin
-  Result := '';
+  Result := EmptyStr;
   if not assigned(aList) then
     Exit;
 
@@ -552,12 +552,12 @@ end;
 
 function FileMaskFromCommaText(const aText: string): string;
 begin
-  Result := '';
-  if aText = '' then
+  Result := EmptyStr;
+  if aText = EmptyStr then
     Exit;
 
-  Result := UTF8TextReplace(aText, '"', '');
-  if Result = '' then
+  Result := UTF8TextReplace(aText, '"', EmptyStr);
+  if Result = EmptyStr then
     Exit;
 
   // Dots...

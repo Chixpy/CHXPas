@@ -28,7 +28,7 @@ const
   GetCompiledDate = {$I %DATE%} + ' at ' + {$I %TIME%};
 
 resourcestring
-  CHXVersionNoInfo = 'No build information available';
+  CHXVersionNoInfo = 'No build information available.';
 
 function GetWidgetSet: string;
 

@@ -3,7 +3,6 @@ object frmCHXForm: TfrmCHXForm
   Height = 600
   Top = 137
   Width = 800
-  Caption = 'frmCHXForm'
   ChildSizing.LeftRightSpacing = 4
   ChildSizing.TopBottomSpacing = 4
   ChildSizing.HorizontalSpacing = 4
@@ -11,5 +10,5 @@ object frmCHXForm: TfrmCHXForm
   DesignTimePPI = 120
   Position = poOwnerFormCenter
   ShowHint = True
-  LCLVersion = '2.2.2.0'
+  LCLVersion = '3.0.0.3'
 end
