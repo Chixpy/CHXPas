@@ -14,8 +14,12 @@ uses
 const
   kCHXSHA1Empty: TSHA1Digest =
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-  krsRenameFileFmt = '%0:s (%1:.2d).%2:s';
-  {< Filename (00).ext }
+  krsRenameFileFmt = '%0:s (%1:.2d)%2:s';
+  {< Filename (00).ext
+       %0:s = Filename
+       %1:d = Number
+       %2:s = Extension with dot
+  }
   krsCurrDirDot = '.';
   krsPreviousDirDot = '..';
 
