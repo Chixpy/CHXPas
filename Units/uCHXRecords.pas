@@ -4,7 +4,7 @@ unit uCHXRecords;
 
   // WARNING: Remember to remove ALL OPTIMIZATIONS (-O0) in debug mode.
 
-   Copyright (C) 2023 Chixpy https://github.com/Chixpy
+  Copyright (C) 2023-2024 Chixpy https://github.com/Chixpy
 }
 
 {$mode ObjFPC}{$H+}
@@ -15,6 +15,10 @@ interface
 uses
   Classes, SysUtils, Types;
 
+const
+  krsIntValueSep = ',';
+  krsFltValueSep = ';';
+
 resourcestring
   rseInvalidTPointStr = '"%s" is an invalid TPoint string.';
   rseInvalidTRectStr = '"%s" is an invalid TRect string.';
@@ -23,8 +27,8 @@ type
   { TPointString }
 
   TPointString = record helper for TPoint
-    function FromString(const S : string; const Delim : char = ';') : boolean;
-    function ToString(const Delim : char = ';') : string; inline;
+    function FromString(const S : string; const Delim : char = krsIntValueSep) : boolean;
+    function ToString(const Delim : char = krsIntValueSep) : string; inline;
     {< For storing it and to read it later with FromString. }
     function ToFmtString(const FmsStr : string) : string; inline;
     {< For pretty formating, but not to read later. }
@@ -37,8 +41,8 @@ type
   { TRectString }
 
   TRectString = record helper for TRect
-    function FromString(const S : string; const Delim : char = ';') : boolean;
-    function ToString(const Delim : char = ';') : string; inline;
+    function FromString(const S : string; const Delim : char = krsIntValueSep) : boolean;
+    function ToString(const Delim : char = krsIntValueSep) : string; inline;
     {< For storing it and to read it later with FromString. }
   end;
 
@@ -123,9 +127,9 @@ type
     {< Returns the vectorial product between two vectors. }
 
 
-    function FromString(const S : string; const Delim : char = ';') : boolean;
+    function FromString(const S : string; const Delim : char = krsFltValueSep) : boolean;
     {< Tryes to read point components from a string. }
-    function ToString(const Delim : char = ';') : string;
+    function ToString(const Delim : char = krsFltValueSep) : string;
     {< Writes point as string for storing it, and ready to read it later with
       FromString. }
 
