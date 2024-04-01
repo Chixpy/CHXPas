@@ -8,7 +8,7 @@ unit uCHXStrUtils;
 
 interface
 
-uses Classes, SysUtils, LazFileUtils, LazUTF8,
+uses Classes, SysUtils, LazFileUtils, LazUTF8, StrUtils,
   // CHX units
   uCHXConst, uCHXRscStr;
 
@@ -296,8 +296,36 @@ begin
 end;
 
 function TextSimilarityCHX(const aString1, aString2 : string) : byte;
+var
+  Diff : array[0..31] of LongInt = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+  aByte: Byte;
+  i, Sum : LongInt;
 begin
+  Result := 0;
 
+
+  for i := aString1.Length downto 1 do
+  begin
+    aByte := Byte(aString1[i]) and Byte(%00011111);
+    Diff[aByte] := Diff[aByte] + 1;
+  end;
+
+  for i := aString2.Length downto 1 do
+  begin
+    aByte := Byte(aString1[i]) and Byte(%00011111);
+    Diff[aByte] := Diff[aByte] - 1;
+  end;
+
+  i := Length(Diff) - 1;
+  Sum := 0;
+  while i >= 0 do
+  begin
+    Sum += Abs(Diff[i]);
+    Dec(i);
+  end;
+
+  Result := Round(100 - ((100 * Sum) / (aString1.Length + aString2.Length)));
 end;
 
 // DIRECTORY NAME UTILS
