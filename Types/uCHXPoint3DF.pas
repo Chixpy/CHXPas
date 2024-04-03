@@ -19,54 +19,61 @@ const
 
 type
   { TPoint3DF }
-  TFloat3ArrayType = Double;
+  TPoint3DFType = Double;
 
   TPoint3DF = {$ifndef FPC_REQUIRES_PROPER_ALIGNMENT}
     packed {$endif FPC_REQUIRES_PROPER_ALIGNMENT} record
-  type
-    TFloat3Array = array [0..2] of TFloat3ArrayType;
+  private
 
   public
+    X : TPoint3DFType;
+    Y : TPoint3DFType;
+    Z : TPoint3DFType;
+
+    procedure SetX(const AValue : TPoint3DFType);
+    procedure SetY(const AValue : TPoint3DFType);
+    procedure SetZ(const AValue : TPoint3DFType);
+
     {$ifdef VER3}
-      constructor Create(const aX, aY: TFloat3ArrayType; const aZ : TFloat3ArrayType = 0); overload;
+      constructor Create(const aX, aY: TPoint3DFType; const aZ : TPoint3DFType = 0); overload;
       {< Creates a TPoint3DF. }
       constructor Create(const aPoint3DF : TPoint3DF); overload;
       {< Creates a TPoint3DF cloning another TPoint3DF. }
     {$endif VER3}
 
-    procedure Init(const aX, aY : TFloat3ArrayType;
-      const aZ : TFloat3ArrayType = 0);
+    procedure Init(const aX, aY : TPoint3DFType;
+      const aZ : TPoint3DFType = 0);
     {< Set the components of the point or vector in single instruction. }
     procedure Clone(const aPoint3DF : TPoint3DF);
     {< Copy aPoint3DF data. }
 
-    function GetMagnitude : TFloat3ArrayType;
+    function GetMagnitude : TPoint3DFType;
     {< Magnitude, modulus or length of the vector. Returns the distance
        to the origin.
     }
-    procedure SetMagnitude(const aMag : TFloat3ArrayType);
+    procedure SetMagnitude(const aMag : TPoint3DFType);
     {< Changes the distance to the origin or the vector modulus or length. }
 
-    function Distance(const aPoint3DF : TPoint3DF) : TFloat3ArrayType;
+    function Distance(const aPoint3DF : TPoint3DF) : TPoint3DFType;
     {< Returns the distance between this point and another one. }
     function InSphere(const aCenter3DF : TPoint3DF;
-      const aRadius : TFloat3ArrayType) : boolean;
+      const aRadius : TPoint3DFType) : Boolean;
     {< The point is inside a sphere? }
 
     class function Zero : TPoint3DF; static;
     {< Returns a new TPoint3DF at (0, 0, 0). }
-    function IsZero : boolean;
+    function IsZero : Boolean;
     {< Checks if it's (0, 0, 0). }
 
-    function IsEqual(const aPoint3DF : TPoint3DF) : boolean;
-    class operator =(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : boolean;
+    function IsEqual(const aPoint3DF : TPoint3DF) : Boolean;
+    class operator =(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
     {< Check if two point or vectors are equal. }
-    class operator <>(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : boolean;
+    class operator <>(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
     {< Check if two point or vectors are different. }
 
     procedure Add(const aPoint3DF : TPoint3DF);
     {< Vector addition. Adds point components separately. }
-    procedure Move(const dX, dY, dZ : TFloat3ArrayType);
+    procedure Move(const dX, dY, dZ : TPoint3DFType);
     {< Moves the point from current position (actually is the same as Add
       but with components as parameters). }
     class operator +(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
@@ -78,19 +85,19 @@ type
     class operator -(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
     {< Subtracts two points. Subtracts vectors. }
 
-    procedure Scale(aScale : TFloat3ArrayType);
+    procedure Scale(aScale : TPoint3DFType);
     {< Scales the distance of the point from the origin or scales the vector length. }
     class operator *(const aPoint3DF : TPoint3DF;
-      const aFactor : TFloat3ArrayType) : TPoint3DF;
+      const aFactor : TPoint3DFType) : TPoint3DF;
     {< Scales the vector length by a factor (1). }
-    class operator *(const aFactor : TFloat3ArrayType;
+    class operator *(const aFactor : TPoint3DFType;
       const aPoint3DF : TPoint3DF) : TPoint3DF;
     {< Scales the vector length by a factor (2). }
 
-    procedure DivScale(const aScale : TFloat3ArrayType);
+    procedure DivScale(const aScale : TPoint3DFType);
     {< Divides the distance of the point from the origin or the vector length. }
     class operator /(const aPoint3DF : TPoint3DF;
-      const aFactor : TFloat3ArrayType) : TPoint3DF;
+      const aFactor : TPoint3DFType) : TPoint3DF;
     {< Divides the vector length by a factor. }
 
     procedure Invert;
@@ -101,13 +108,13 @@ type
     procedure Normalize;
     {< Makes the vector length equal 1, with same direction. }
 
-    class function VectProd(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
-      : TPoint3DF; static;
+    class function VectProd(
+      const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF; static;
     {< Returns the vectorial product between two vectors. }
 
-    function ScalProd(const aPoint3DF : TPoint3DF) : TFloat3ArrayType;
+    function ScalProd(const aPoint3DF : TPoint3DF) : TPoint3DFType;
     class operator *(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
-      : TFloat3ArrayType;
+      : TPoint3DFType;
     {< Scalar product. Multiplies components and returns the sum. }
 
     // class operator * (const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
@@ -115,33 +122,23 @@ type
 
 
     function FromString(const S : string;
-      const Delim : char = krsFltValueSep) : boolean;
+      const Delim : char = krsFltValueSep) : Boolean;
     {< Tryes to read point components from a string. }
     function ToString(const Delim : char = krsFltValueSep) : string;
     {< Writes point as string for storing it, and ready to read it later with
       FromString. }
-
-    case integer of
-      0 : (
-        Data : TFloat3Array;
-      );
-      1 : (
-        X : TFloat3ArrayType;
-        Y : TFloat3ArrayType;
-        Z : TFloat3ArrayType;
-      );
   end;
   {< Single precision 3D point or 3D vector (from the origin). }
 
   PPoint3DF = ^TPoint3DF;
   {< Pointer to a TPoint3DF. }
 
-function Point3DF(aX, aY, aZ : TFloat3ArrayType) : TPoint3DF;
+function Point3DF(aX, aY, aZ : TPoint3DFType) : TPoint3DF;
 {< Creates a new TPoint3DF. }
 
 implementation
 
-function Point3DF(aX, aY, aZ : TFloat3ArrayType) : TPoint3DF;
+function Point3DF(aX, aY, aZ : TPoint3DFType) : TPoint3DF;
 begin
   Result.X := aX;
   Result.Y := aY;
@@ -150,8 +147,24 @@ end;
 
 { TPoint3DF }
 {$ifdef VER3}
-constructor TPoint3DF.Create(const aX, aY : TFloat3ArrayType;
-  const aZ : TFloat3ArrayType);
+
+procedure TPoint3DF.SetX(const AValue : TPoint3DFType);
+begin
+  X := AValue;
+end;
+
+procedure TPoint3DF.SetY(const AValue : TPoint3DFType);
+begin
+  Y := AValue;
+end;
+
+procedure TPoint3DF.SetZ(const AValue : TPoint3DFType);
+begin
+  Z := AValue;
+end;
+
+constructor TPoint3DF.Create(const aX, aY : TPoint3DFType;
+  const aZ : TPoint3DFType);
 begin
   Self.X := aX;
   Self.Y := aY;
@@ -167,8 +180,8 @@ begin
 end;
 {$endif VER3}
 
-procedure TPoint3DF.Init(const aX, aY : TFloat3ArrayType;
-  const aZ : TFloat3ArrayType);
+procedure TPoint3DF.Init(const aX, aY : TPoint3DFType;
+  const aZ : TPoint3DFType);
 begin
   Self.X := aX;
   Self.Y := aY;
@@ -183,23 +196,25 @@ begin
   Self := aPoint3DF;
 end;
 
-function TPoint3DF.GetMagnitude : TFloat3ArrayType;
+function TPoint3DF.GetMagnitude : TPoint3DFType;
 begin
   Result := Sqrt(Sqr(Self.X) + Sqr(Self.Y) + Sqr(Self.Z));
 end;
 
-procedure TPoint3DF.SetMagnitude(const aMag : TFloat3ArrayType);
+procedure TPoint3DF.SetMagnitude(const aMag : TPoint3DFType);
 begin
   Self.Normalize;
   Self.Scale(aMag);
 end;
 
-function TPoint3DF.Distance(const aPoint3DF : TPoint3DF) : TFloat3ArrayType;
+function TPoint3DF.Distance(const aPoint3DF : TPoint3DF) : TPoint3DFType;
 begin
-  Result := Sqrt(Sqr(Self.X - aPoint3DF.X) + Sqr(Self.Y - aPoint3DF.Y) + Sqr(Self.Z - aPoint3DF.Z));
+  Result := Sqrt(Sqr(Self.X - aPoint3DF.X) + Sqr(Self.Y - aPoint3DF.Y) +
+    Sqr(Self.Z - aPoint3DF.Z));
 end;
 
-function TPoint3DF.InSphere(const aCenter3DF : TPoint3DF; const aRadius : TFloat3ArrayType) : boolean;
+function TPoint3DF.InSphere(const aCenter3DF : TPoint3DF;
+  const aRadius : TPoint3DFType) : Boolean;
 begin
   // Actually Sqrt is slow itself, so Distance call maybe doesn't have
   //   much impatc after all
@@ -213,25 +228,28 @@ begin
   Result.Z := 0;
 end;
 
-function TPoint3DF.IsZero : boolean;
+function TPoint3DF.IsZero : Boolean;
 begin
   Result := (Self.X = 0) and (Self.Y = 0) and (Self.Z = 0);
 end;
 
-function TPoint3DF.IsEqual(const aPoint3DF : TPoint3DF) : boolean;
+function TPoint3DF.IsEqual(const aPoint3DF : TPoint3DF) : Boolean;
 begin
-  Result := (Self.X = aPoint3DF.X) and (Self.Y = aPoint3DF.Y) and (Self.Z = aPoint3DF.Z);
+  Result := (Self.X = aPoint3DF.X) and (Self.Y = aPoint3DF.Y) and
+    (Self.Z = aPoint3DF.Z);
 end;
 
-class operator TPoint3DF.=(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : boolean;
+class operator TPoint3DF.=(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
 begin
-  Result := (aPoint3DF1.X = aPoint3DF2.X) and (aPoint3DF1.Y = aPoint3DF2.Y) and (aPoint3DF1.Z = aPoint3DF2.Z);
+  Result := (aPoint3DF1.X = aPoint3DF2.X) and (aPoint3DF1.Y = aPoint3DF2.Y) and
+    (aPoint3DF1.Z = aPoint3DF2.Z);
 end;
 
-class operator TPoint3DF.<>(
-  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : boolean;
+class operator TPoint3DF.<>(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+: Boolean;
 begin
-  Result := (aPoint3DF1.X <> aPoint3DF2.X) or (aPoint3DF1.Y <> aPoint3DF2.Y) or (aPoint3DF1.Z <> aPoint3DF2.Z);
+  Result := (aPoint3DF1.X <> aPoint3DF2.X) or (aPoint3DF1.Y <> aPoint3DF2.Y) or
+    (aPoint3DF1.Z <> aPoint3DF2.Z);
 end;
 
 procedure TPoint3DF.Add(const aPoint3DF : TPoint3DF);
@@ -241,14 +259,15 @@ begin
   Self.Z += aPoint3DF.Z;
 end;
 
-procedure TPoint3DF.Move(const dX, dY, dZ : TFloat3ArrayType);
+procedure TPoint3DF.Move(const dX, dY, dZ : TPoint3DFType);
 begin
   Self.X += dX;
   Self.Y += dY;
   Self.Z += dZ;
 end;
 
-class operator TPoint3DF.+(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
+class operator TPoint3DF.+(
+  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
 begin
   Result.X := aPoint3DF1.X + aPoint3DF2.X;
   Result.Y := aPoint3DF1.Y + aPoint3DF2.Y;
@@ -262,28 +281,30 @@ begin
   Self.Z -= aPoint3DF.Z;
 end;
 
-class operator TPoint3DF.-(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
+class operator TPoint3DF.-(
+  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
 begin
   Result.X := aPoint3DF1.X - aPoint3DF2.X;
   Result.Y := aPoint3DF1.Y - aPoint3DF2.Y;
   Result.Z := aPoint3DF1.Z - aPoint3DF2.Z;
 end;
 
-procedure TPoint3DF.Scale(aScale : TFloat3ArrayType);
+procedure TPoint3DF.Scale(aScale : TPoint3DFType);
 begin
   Self.X *= aScale;
   Self.Y *= aScale;
   Self.Z *= aScale;
 end;
 
-class operator TPoint3DF.*(const aPoint3DF : TPoint3DF; const aFactor : TFloat3ArrayType) : TPoint3DF;
+class operator TPoint3DF.*(const aPoint3DF : TPoint3DF;
+  const aFactor : TPoint3DFType) : TPoint3DF;
 begin
   Result.X := aPoint3DF.X * aFactor;
   Result.Y := aPoint3DF.Y * aFactor;
   Result.Z := aPoint3DF.Z * aFactor;
 end;
 
-class operator TPoint3DF.*(const aFactor : TFloat3ArrayType;
+class operator TPoint3DF.*(const aFactor : TPoint3DFType;
   const aPoint3DF : TPoint3DF) : TPoint3DF;
 begin
   Result.X := aPoint3DF.X * aFactor;
@@ -291,14 +312,15 @@ begin
   Result.Z := aPoint3DF.Z * aFactor;
 end;
 
-procedure TPoint3DF.DivScale(const aScale : TFloat3ArrayType);
+procedure TPoint3DF.DivScale(const aScale : TPoint3DFType);
 begin
   Self.X /= aScale;
   Self.Y /= aScale;
   Self.Z /= aScale;
 end;
 
-class operator TPoint3DF./(const aPoint3DF : TPoint3DF; const aFactor : TFloat3ArrayType) : TPoint3DF;
+class operator TPoint3DF./(const aPoint3DF : TPoint3DF;
+  const aFactor : TPoint3DFType) : TPoint3DF;
 begin
   Result.X := aPoint3DF.X / aFactor;
   Result.Y := aPoint3DF.Y / aFactor;
@@ -321,7 +343,7 @@ end;
 
 procedure TPoint3DF.Normalize;
 var
-  l : TFloat3ArrayType;
+  l : TPoint3DFType;
 begin
   l := Self.GetMagnitude;
 
@@ -331,28 +353,28 @@ begin
   Self.Z /= l;
 end;
 
-class function TPoint3DF.VectProd(
-  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
+class function TPoint3DF.VectProd(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+: TPoint3DF;
 begin
   Result.X := (aPoint3DF1.Y * aPoint3DF1.Z) - (aPoint3DF2.Y * aPoint3DF1.Z);
   Result.Y := (aPoint3DF1.Z * aPoint3DF1.X) - (aPoint3DF2.Z * aPoint3DF1.X);
   Result.Z := (aPoint3DF1.X * aPoint3DF1.Y) - (aPoint3DF2.X * aPoint3DF1.Y);
 end;
 
-function TPoint3DF.ScalProd(const aPoint3DF : TPoint3DF) : TFloat3ArrayType;
+function TPoint3DF.ScalProd(const aPoint3DF : TPoint3DF) : TPoint3DFType;
 begin
   Result := (Self.X * aPoint3DF.X) + (Self.Y * aPoint3DF.Y) +
     (Self.Z * aPoint3DF.Z);
 end;
 
-class operator TPoint3DF.*(
-  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TFloat3ArrayType;
+class operator TPoint3DF.*(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+: TPoint3DFType;
 begin
   Result := (aPoint3DF1.X * aPoint3DF2.X) + (aPoint3DF1.Y * aPoint3DF2.Y) +
     (aPoint3DF1.Z * aPoint3DF2.Z);
 end;
 
-function TPoint3DF.FromString(const S : string; const Delim : char) : boolean;
+function TPoint3DF.FromString(const S : string; const Delim : char) : Boolean;
 var
   StrLst : TStringList;
 begin

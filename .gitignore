@@ -2,3 +2,5 @@
 *.lps
 GeometricShape/lib/
 GeometricShape/*.exe
+SDL2/NOCT/lib/
+/SDL2/Test/lib

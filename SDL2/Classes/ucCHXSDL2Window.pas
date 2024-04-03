@@ -22,7 +22,6 @@ type
 
   cCHXSDL2Window = class
   private
-    FFullScreen : boolean;
     FHeight : CInt;
     FKeyboardFocus : boolean;
     FMinimized : boolean;
@@ -33,30 +32,26 @@ type
     FTitle : string;
     FWidth : CInt;
     FWindowID : CUInt32;
-    procedure SetFullScreen(const aValue : boolean);
-    procedure SetHeight(const aValue : CInt);
-    procedure SetKeyboardFocus(const aValue : boolean);
-    procedure SetMinimized(const aValue : boolean);
-    procedure SetMouseFocus(const aValue : boolean);
-    procedure SetShown(const aValue : boolean);
-    procedure SetTitle(const aValue : string);
-    procedure SetWidth(const aValue : CInt);
+    procedure SetHeight(const AValue : CInt);
+    procedure SetTitle(const AValue : string);
+    procedure SetWidth(const AValue : CInt);
 
   protected
 
     // Internal states
-    property FullScreen : boolean read FFullScreen write SetFullScreen;
+    {property} FullScreen : boolean;
 
     procedure InitWindow;
 
     function CreateWindow : boolean;
+
   public
     property Title : string read FTitle write SetTitle;
     property Width : CInt read FWidth write SetWidth;
     property Height : CInt read FHeight write SetHeight;
 
-    property PSDLWindow : PSDL_Window read FPSDLWindow;
-    property PSDLRenderer : PSDL_Renderer read FPSDLRenderer;
+    property PWindow : PSDL_Window read FPSDLWindow;
+    property PRenderer : PSDL_Renderer read FPSDLRenderer;
 
     property WindowID : CUInt32 read FWindowID;
 
@@ -66,8 +61,6 @@ type
     property KeyboardFocus : boolean read FKeyboardFocus;
 
     procedure Focus;
-
-    procedure Render;
 
     procedure HandleEvent(aEvent : TSDL_Event);
 
@@ -79,54 +72,28 @@ implementation
 
 { cCHXSDL2Window }
 
-procedure cCHXSDL2Window.SetHeight(const aValue : CInt);
-begin
-  if FHeight = aValue then Exit;
-  FHeight := aValue;
-end;
-
-procedure cCHXSDL2Window.SetFullScreen(const aValue : boolean);
-begin
-  if FFullScreen = aValue then Exit;
-  FFullScreen := aValue;
-end;
-
-procedure cCHXSDL2Window.SetKeyboardFocus(const aValue : boolean);
-begin
-  if FKeyboardFocus = aValue then Exit;
-  FKeyboardFocus := aValue;
-end;
-
-procedure cCHXSDL2Window.SetMinimized(const aValue : boolean);
-begin
-  if FMinimized = aValue then Exit;
-  FMinimized := aValue;
-end;
-
-procedure cCHXSDL2Window.SetMouseFocus(const aValue : boolean);
-begin
-  if FMouseFocus = aValue then Exit;
-  FMouseFocus := aValue;
-end;
-
-procedure cCHXSDL2Window.SetShown(const aValue : boolean);
-begin
-  if FShown = aValue then Exit;
-  FShown := aValue;
-end;
-
 procedure cCHXSDL2Window.SetTitle(const aValue : string);
 begin
   if FTitle = aValue then Exit;
   FTitle := aValue;
 
-  SDL_SetWindowTitle(PSDLWindow, pchar(aValue));
+  SDL_SetWindowTitle(PWindow, pchar(aValue));
 end;
 
-procedure cCHXSDL2Window.SetWidth(const aValue : CInt);
+procedure cCHXSDL2Window.SetHeight(const AValue : CInt);
 begin
-  if FWidth = aValue then Exit;
-  FWidth := aValue;
+  if FHeight = AValue then Exit;
+  FHeight := AValue;
+
+  CreateWindow;
+end;
+
+procedure cCHXSDL2Window.SetWidth(const AValue : CInt);
+begin
+  if FWidth = AValue then Exit;
+  FWidth := AValue;
+
+  CreateWindow;
 end;
 
 procedure cCHXSDL2Window.InitWindow;
@@ -144,35 +111,35 @@ function cCHXSDL2Window.CreateWindow : boolean;
 begin
   Result := False;
 
-  if Assigned(PSDLRenderer) then
-    SDL_DestroyRenderer(PSDLRenderer);
-  if Assigned(PSDLWindow) then
-    SDL_DestroyWindow(PSDLWindow);
+  if Assigned(PRenderer) then
+    SDL_DestroyRenderer(PRenderer);
+  if Assigned(PWindow) then
+    SDL_DestroyWindow(PWindow);
 
   InitWindow;
 
   // Creating new Window
-  FPSDLWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_UNDEFINED,
-    SDL_WINDOWPOS_UNDEFINED, Width, Height, SDL_WINDOW_SHOWN +
+  FPSDLWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_CENTERED,
+    SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_SHOWN +
     SDL_WINDOW_RESIZABLE);
-  if not assigned(PSDLWindow) then Exit;
+  if not assigned(PWindow) then Exit;
 
   //Create renderer for window
-  FPSDLRenderer := SDL_CreateRenderer(PSDLWindow, -1, SDL_RENDERER_SOFTWARE
+  FPSDLRenderer := SDL_CreateRenderer(PWindow, -1, SDL_RENDERER_SOFTWARE
    // + SDL_RENDERER_ACCELERATED
    // + SDL_RENDERER_PRESENTVSYNC
    );
-  if not assigned(PSDLWindow) then
+  if not assigned(PWindow) then
   begin
-    SDL_DestroyWindow(PSDLWindow);
+    SDL_DestroyWindow(PWindow);
     InitWindow;
     Exit;
   end;
 
-  FWindowID := SDL_GetWindowID(PSDLWindow);
-  SDL_GetWindowSize(PSDLWindow, @FWidth, @FHeight);
+  FWindowID := SDL_GetWindowID(PWindow);
+  SDL_GetWindowSize(PWindow, @FWidth, @FHeight);
 
-  SDL_SetRenderDrawColor(PSDLRenderer, 255, 255, 255, 255);
+  SDL_SetRenderDrawColor(PRenderer, 255, 255, 255, 255);
 
   FMouseFocus := True;
   FKeyboardFocus := True;
@@ -184,19 +151,8 @@ end;
 procedure cCHXSDL2Window.Focus;
 begin
   if not Shown then
-    SDL_ShowWindow(PSDLWindow);
-  SDL_RaiseWindow(PSDLWindow);
-end;
-
-procedure cCHXSDL2Window.Render;
-begin
-  if not Minimized then
-  begin
-    SDL_SetRenderDrawColor(PSDLRenderer, 255, 255, 255, 255);
-    SDL_RenderClear(PSDLRenderer);
-
-    SDL_RenderPresent(PSDLRenderer);
-  end;
+    SDL_ShowWindow(PWindow);
+  SDL_RaiseWindow(PWindow);
 end;
 
 procedure cCHXSDL2Window.HandleEvent(aEvent : TSDL_Event);
@@ -216,11 +172,11 @@ begin
     begin
       Width := aEvent.window.data1;
       Height := aEvent.window.data2;
-      SDL_RenderPresent(PSDLRenderer);
+      SDL_RenderPresent(PRenderer);
     end;
 
     SDL_WINDOWEVENT_EXPOSED : // Repaint
-      SDL_RenderPresent(PSDLRenderer);
+      SDL_RenderPresent(PRenderer);
 
     SDL_WINDOWEVENT_ENTER : // Mouse enter
       FMouseFocus := True;

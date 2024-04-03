@@ -8,17 +8,16 @@ unit ucSDL2Engine;
 interface
 
 uses
-  Classes, SysUtils, IniFiles, CTypes,
+  Classes, SysUtils, CTypes,
   // SDL2
-  SDL2,
-  SDL2_GFX,
+  SDL2, SDL2_GFX,
   // CHX
   ucSDL2Config,
   ucCHXSDL2Window;
 
 type
   TSDL2SetupFunc = function() : boolean;
-  TSDL2CompFunc = function() : boolean;
+  TSDL2CompFunc = function(DeltaTime, FrameTime : CUInt32) : boolean;
   TSDL2DrawFunc = function(Window : PSDL_Window;
     Renderer : PSDL_Renderer) : boolean;
   TSDL2EventFunc = function(aEvent : TSDL_Event) : boolean;
@@ -140,6 +139,7 @@ begin
   SDL_InitFramerate(@SDLFrameMang);
   SDL_SetFramerate(@SDLFrameMang, 60);
   DeltaTime := 0;
+  FrameTime := 0;
 
   try
     if assigned(SDL2Setup) then
@@ -149,14 +149,14 @@ begin
     begin
       // COMPUTE
       if ProgRun and (assigned(SDL2Comp)) then
-        ProgRun := SDL2Comp();
+        ProgRun := SDL2Comp(DeltaTime, FrameTime);
 
       // DRAW
       if ProgRun and (assigned(SDL2Draw)) then
-        ProgRun := SDL2Draw(SDLWindow.PSDLWindow, SDLWindow.PSDLRenderer);
+        ProgRun := SDL2Draw(SDLWindow.PWindow, SDLWindow.PRenderer);
 
       // UPDATE RENDER
-      SDL_RenderPresent(SDLWindow.PSDLRenderer);
+      SDL_RenderPresent(SDLWindow.PRenderer);
 
       // TIMING
       FrameTime := SDL_GetTicks - FrameTime;

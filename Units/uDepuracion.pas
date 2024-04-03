@@ -4,7 +4,7 @@ Unit udepuracion;
 {
   AUTOR: Chixpy
 
-  VERSIÓN: 1
+  VERSIÃ“N: 1
 
   USO
   ---
@@ -15,7 +15,7 @@ Unit udepuracion;
     Procedure EscribirLOGFmt(Mensajero: String; Mensaje: String;
       Const Args: Array Of Const; Tipo: Byte = 5);
 
-    PARÁMETROS
+    PARÃMETROS
       Mensajero: Objeto que quiere enviar el mensaje en caso de que se pase una
         String seria equivalente a una 'Seccion'
       Mensaje: Texto que se quiere escribir. En caso de los procedimientos Fmt
@@ -35,7 +35,7 @@ Unit udepuracion;
     caracteres, aunque por otra parte esta bien si no de quiere que se
     separen dos palabras...
 
-  CONSEJO: Para desactivar la depuración desde el programa basta con poner:
+  CONSEJO: Para desactivar la depuraciÃ³n desde el programa basta con poner:
     UDEPURACION_NIVELDETALLE := uDAtencion;  // Errores y Warnings
     o
     UDEPURACION_NIVELDETALLE := uDError;  // Solo Errores
@@ -47,7 +47,7 @@ Unit udepuracion;
     - Posibilidad de cambiar dinamicamente:
       - Nivel de detalle con el que se va a escribir.
       - El ancho de la linea.
-      - Tamaño de la Sangria
+      - TamaÃ±o de la Sangria
       - Escribir en tiempo real al fichero.
     - Escritura multilinea guardando la sangria.
     - 7 tipos de mensajes.
@@ -58,10 +58,10 @@ Unit udepuracion;
 
   POSIBLES MEJORAS:
   -----------------
-    - Detectar si es posible crear el fichero de depuración en caso de
+    - Detectar si es posible crear el fichero de depuraciÃ³n en caso de
       que el programa este en un CD-ROM para evitar que de errores al
       intentar escribir
-    - ¿Convertir a XML? Pero tendría que reconstruir todo...
+    - Â¿Convertir a XML? Pero tendrÃ­a que reconstruir todo...
     - Hacer que no se cree el fichero si todo esta desactivado.
     - Pseudo-Monitor de Objetos (Siempre que se envien bien los mensajes
       correspondiente cuando se crean y se destruyen)
@@ -69,7 +69,7 @@ Unit udepuracion;
       por supuesto con posibilidad de desactivarlo
     - No estaria mal de en vez de hacer un TAD a pelo,
       usar un objeto cDepuracion
-    - Añadir la posibilidad de que los mensajes de error muestren una excepcion
+    - AÃ±adir la posibilidad de que los mensajes de error muestren una excepcion
       o un showmessage
     - Buscar una forma para que evitar que si oPadre tiene un EscribirLog al
       Crear/Destruir y un oHijo tambien al realizar esas operaciones se
@@ -78,33 +78,33 @@ Unit udepuracion;
   ACTUALIZACIONES:
   ----------------
     12/04/07 - 1.002
-      - Retoquecillo insertando un salto de línea adicional al final
+      - Retoquecillo insertando un salto de lÃ­nea adicional al final
 
     12/04/07 - 1.001
-      - Desactivo salto de línea automático porque WrapText inserta un salto
-        de línea de más al final de la cadena...
+      - Desactivo salto de lÃ­nea automÃ¡tico porque WrapText inserta un salto
+        de lÃ­nea de mÃ¡s al final de la cadena...
       
-    11/04/07 - 1 (Época 2)
+    11/04/07 - 1 (Ã‰poca 2)
       - Eliminado Gestor de memoria, mejor en una unidad a parte, ya que el de
-        Delphi no es del todo compatible con el de FPC y es mejor que estén
+        Delphi no es del todo compatible con el de FPC y es mejor que estÃ©n
         separados.
       
     05/04/06 - 3.7u3
-      m Eliminado algo de Leak a base de mostrar algo menos información al
+      m Eliminado algo de Leak a base de mostrar algo menos informaciÃ³n al
         inicio y al final del archivo.
 
     26/03/06 - 3.7u2
       m Cambiados los saltos de linea '#13#10' por la variable sLineBreak
         que esta definida dependiendo del sistema operativo.
-      m Corregida alguna que otra falta de ortografía en el texto de salida
+      m Corregida alguna que otra falta de ortografÃ­a en el texto de salida
 
     16/03/06 - 3.7u1
       m Las cadenas largas '*' se crean dinamicamente respecto al ancho
-        ¿¿¿¡¡¡PERO A AUMENTADO EL LEAK!!!??? d>_<b!
+        Â¿Â¿Â¿Â¡Â¡Â¡PERO A AUMENTADO EL LEAK!!!??? d>_<b!
 
     17/12/05 - 3.7
       m Convertido el parametro Tipo a un enumerado siendo del tipo
-        TuDepTipoMensaje, pero el leak vueleva a ser -8 dº_ºb?
+        TuDepTipoMensaje, pero el leak vueleva a ser -8 dÂº_Âºb?
 
     01/12/05 - 3.6u2
       m Cambiada un poco la diferencia de memoria a -5, pero creo que es mejor,
@@ -115,20 +115,20 @@ Unit udepuracion;
         es normal que de -5.
 
     18/11/05 - 3.6u1
-      m No he añadido nada... simplemente actualizado el mensaje final del
+      m No he aÃ±adido nada... simplemente actualizado el mensaje final del
         depurador porque misteriosamente el 'leak' ha bajado a -3
         de una forma misteriosa...  d^_^b
 
     23/10/05 - 3.6
-      + Añadidos dos tipo nuevos de mensajes para la creacion y destruccion de
+      + AÃ±adidos dos tipo nuevos de mensajes para la creacion y destruccion de
         objetos. Y por tanto cambiado tambien el orden de Tipo y el valor por
         defecto (Siguen siendo las Acciones detalladas)
 
     22/10/05 - 3.5
-      + Añadida de desactivar la depuracion con la directiva 'DEFINE Depuracion'
-      + Añadida la posibilidad de usar solo el Gestor de Memoria
+      + AÃ±adida de desactivar la depuracion con la directiva 'DEFINE Depuracion'
+      + AÃ±adida la posibilidad de usar solo el Gestor de Memoria
         (Activando su directiva y Desactivando la de la depuracion)
-      + Añadido lo necesario para que no de Warnings de varibles no usadas
+      + AÃ±adido lo necesario para que no de Warnings de varibles no usadas
         (Sin usar la directiva WARNINGS OFF), pasaba si se desactivaba
         la depuracion.
       m Reducido a -6 el desfase de no liberaciones porque cuando comenzaba el
@@ -136,10 +136,10 @@ Unit udepuracion;
         la comprobacion todavia no lo he cerrado
         (Curiosamente si comienzo el monitor despues de la cabecera y hago un
         flush el desfase baja a -2, y no logro comprender que 4 asignaciones
-        hago en esas lineas... ¡¡¡'ni cuales no devuelvo!!!)
+        hago en esas lineas... Â¡Â¡Â¡'ni cuales no devuelvo!!!)
 
     21/10/05 - 3.2
-      + Añadido que el parametro byte(Tipo) en las funciones EscribirLOGXXX sea
+      + AÃ±adido que el parametro byte(Tipo) en las funciones EscribirLOGXXX sea
         de Tipo 3 por defecto.
 
     23/09/05 - 3.1
@@ -147,11 +147,11 @@ Unit udepuracion;
         simplemente abriendo un ventana, por tanto si se da un desfase de 8
         posiblemente este bien liberado el programa. (La verdad no se porque
         se produce.. :,-( )
-      + Añadida una directiva al compilador para que cuando se ejecute paso
+      + AÃ±adida una directiva al compilador para que cuando se ejecute paso
         a paso no entre en esta unidad.
 
     23/09/05 - 3.0
-      + Añadido el Gestor de Memoria.
+      + AÃ±adido el Gestor de Memoria.
 
     21/09/05 - 2.1
       + Cada vez que se escribe un error (Tipo = 0) hace un Flush.
@@ -160,7 +160,7 @@ Unit udepuracion;
       + Posibilidad de cambiar dinamicamente:
         + Tipo de detalle con el que se va a escribir.
         + El ancho de la linea.
-        + Tamaño de la Sangria
+        + TamaÃ±o de la Sangria
         + Escribir en tiempo real al fichero.
       + Escritura Jerarquizada de los mensanjes.
       + Escritura multilinea guardando la sangria.
@@ -175,13 +175,13 @@ Unit udepuracion;
 
   LICENCIA
   --------
-  No me hago responsable del los daños ocasionados por el uso de estas
-    fuentes de código.
+  No me hago responsable del los daÃ±os ocasionados por el uso de estas
+    fuentes de cÃ³digo.
   Puedes hacer lo que quieras con ello pero solo te pido que si las
-    modificaciones no son demasiado importantes, no estaría mal un
+    modificaciones no son demasiado importantes, no estarÃ­a mal un
     "Basado o Usa en las Fuentes de OMMugen por Chixpy"
 
-  Este código fuente hace uso de JEDI-SDL pero no se distribuye con él
+  Este cÃ³digo fuente hace uso de JEDI-SDL pero no se distribuye con Ã©l
     * http://sourceforge.net/projects/jedi-sdl
 
 }
@@ -191,7 +191,7 @@ Type
   TuDepTipoMensaje = (uDError, uDAtencion, uDAccion, uDDestruir, uDCrear,
     uDDetalle, uDDepuracion);
 Var
-  // ¿Actualizar el siempre el fichero instantaneamente?
+  // Â¿Actualizar el siempre el fichero instantaneamente?
   // NOTA: uDDError SIEMPRE lo hace
   UDEPURACION_ACTUALIZAFICHERO: Boolean = False;
 
@@ -201,7 +201,7 @@ Var
   // Ancho que no se quiere que pasen las lineas del archivo
   UDEPURACION_ANCHOLINEA: Byte = 78;
 
-  // Tamaño del Tabulador para la sangria
+  // TamaÃ±o del Tabulador para la sangria
   UDEPURACION_TAMANOTABULADOR: Byte = 2;
 
   {Este comentario es para que el DelForExp no ponga sangria en el siguiente}
@@ -240,7 +240,7 @@ var
 {$ENDIF}
 Begin
 {$IFDEF Depuracion}
-  // Aqui especifico el ancho de línea que voy a usar
+  // Aqui especifico el ancho de lÃ­nea que voy a usar
   //   o El ancho menos la sangria usada
   //   o La mitad del ancho
   LongitudLinea := UDEPURACION_ANCHOLINEA - (Sangria *
@@ -253,9 +253,9 @@ Begin
     UDEPURACION_TAMANOTABULADOR - 1),
     Sangria);
 
-{ FALLA WrapText al poner un salto de línea de más
+{ FALLA WrapText al poner un salto de lÃ­nea de mÃ¡s
 
-  // Defino el salto de linea y añado la sangria para las sublineas
+  // Defino el salto de linea y aÃ±ado la sangria para las sublineas
   // sLineBreak -> Salto de Linea
   // EspacioSangria -> Barras Verticales
   // Lo siguiente es la sangria de las sublineas
@@ -321,9 +321,9 @@ Begin
 
     uDAtencion:
       Begin
-        EscribeMultilinea(Sangria, '*** ATENCIÓN ***');
+        EscribeMultilinea(Sangria, '*** ATENCIÃ“N ***');
         EscribeMultilinea(Sangria, Mensajero + ': ' + Mensaje);
-        EscribeMultilinea(Sangria, '*** ATENCIÓN ***');
+        EscribeMultilinea(Sangria, '*** ATENCIÃ“N ***');
       End;
 
     uDCrear:
@@ -353,7 +353,7 @@ Begin
 
     uDDepuracion:
       Begin
-        EscribeMultilinea(Sangria, '|·· ' + Mensaje);
+        EscribeMultilinea(Sangria, '|Â·Â· ' + Mensaje);
       End;
   End;
 
