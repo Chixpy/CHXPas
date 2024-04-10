@@ -1,57 +1,135 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
-
-   The Coding Train Challenge #00X - Title }
-
+program CT005;
+{< The Coding Train Challenge #005 - Space Invaders }
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/biN3v3ef-Y0
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
-  Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SysUtils,
+  ctypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
+  fgl,
+  Math, //SDL have math
+  sdl2,
+  sdl2_gfx,
   uCHXStrUtils,
   ucSDL2Engine,
-  uProcUtils;
+  uProcUtils,
+  ucCTFlower,
+  ucCTShip,
+  ucCTDrop;
 
 const
-  // Renderer scales images to actual size of the window.
-  WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  WinW = 800; // Window width on creation
+  WinH = 600; // Window height on creation
 
-//var // Global variables :-(
+  NFlowers = 5;
 
-// Any auxiliar procedure/function will be here
+type
+  TDropList = specialize TFPGObjectList<cCTDrop>;
+
+var
+  Ship : cCTShip;
+  Flowers : array of cCTFlower;
+  // CHX: Dinamic arrays are bad idea if lenght is changed many times,
+  //   specialized Object Lists are better
+  // drops : array of cCTDrop;
+  Drops : TDropList;
 
   function OnSetup : Boolean;
+  var
+    i : integer;
   begin
+    Drops := TDropList.Create(True);
+    Ship := cCTShip.Create(WinW div 2, WinH - 20);
+    // drop = new Drop(width/2, height/2);
+    SetLength(Flowers, NFlowers);
+    for i := 0 to High(Flowers) do
+      Flowers[i] := cCTFlower.Create(WinW div (NFlowers + 4) * (i + 2), 60);
 
-    Result := True; // False -> Finish program
-  end;
-
-  procedure OnFinish;
-  begin
-    // Free any created objects
-
+    Result := True;
   end;
 
   function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    i, j : integer;
+    Edge : Boolean;
   begin
+    // Ship
+    Ship.Move;
 
-    Result := True; // False -> Finish program
+    // Drops
+    for i := 0 to Drops.Count - 1 do
+    begin
+      Drops[i].move;
+      for j := 0 to High(Flowers) do
+      begin
+        if Drops[i].hits(Flowers[j]) then
+        begin
+          Flowers[j].grow;
+          Drops[i].evaporate;
+        end;
+      end;
+    end;
+
+    // CHX: Removing items from a list by index is better backwards...
+    for i := Drops.Count - 1 downto 0 do
+    begin
+      // CHX: Added Drops that go out of window
+      if (Drops[i].y < 0) or (Drops[i].y > WinH) or Drops[i].toDelete then
+      begin
+        Drops.Delete(i);
+      end;
+    end;
+
+    // Flowers
+    Edge := False;
+    i := 0;
+    // CHX: Added Edge collision check
+    while (i <= High(Flowers)) and (not Edge) do
+    begin
+      Flowers[i].move;
+      if (Flowers[i].x > WinW) or (Flowers[i].x < 0) then
+        edge := True;
+      Inc(i);
+    end;
+
+    if Edge then
+      for i := 0 to High(Flowers) do
+      begin
+        Flowers[i].shiftDown;
+      end;
+
+    Result := True;
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    i : Integer;
   begin
-    // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(SDL2R, 51, 0, 0, 255);
     SDL_RenderClear(SDL2R);
 
-    Result := True; // False -> Finish program
+    // Ship
+    boxRGBA(SDL2R, Ship.x - 10, Ship.y - 30, Ship.x + 10, Ship.y + 30,
+      255, 0, 0, 255);
+
+    // Drops
+    for i := 0 to Drops.Count - 1 do
+      filledCircleRGBA(SDL2R, Drops[i].x, Drops[i].y, Drops[i].r,
+        150, 0, 255, 255);
+
+    // Flowers
+    for i := 0 to High(Flowers) do
+      filledCircleRGBA(SDL2R, Flowers[i].x, Flowers[i].y, Flowers[i].r,
+        255, 0, 200, 150);
+
+    Result := True;
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
@@ -59,23 +137,30 @@ const
     Result := True;
 
     // EVENTS
-
     case aEvent.type_ of
       //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
       //SDL_DISPLAYEVENT : // (display: TSDL_DisplayEvent);
 
       // Handled by SDL2Engine: SDL_WINDOWEVENT : //(window: TSDL_WindowEvent)
 
-      //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
+      SDL_KEYUP : // (key: TSDL_KeyboardEvent);
+      begin
+        case aEvent.key.keysym.sym of
+          SDLK_SPACE : ;
+          else
+            Ship.setDir(0);
+        end;
+      end;
+
       SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
       begin
         case aEvent.key.keysym.sym of
           //SDLK_UP : ;
           //SDLK_DOWN : ;
-          //SDLK_LEFT : ;
-          //SDLK_RIGHT : ;
-          //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False; // Exit
+          SDLK_LEFT : Ship.setDir(-1);
+          SDLK_RIGHT : Ship.setDir(1);
+          SDLK_SPACE : Drops.Add(cCTDrop.Create(Ship.x, WinH));
+          SDLK_ESCAPE : Result := False;
           else
             ;
         end;
@@ -133,6 +218,16 @@ const
 
   end;
 
+  procedure OnFinish;
+  var
+    i : integer;
+  begin
+    Ship.Free;
+    for i := 0 to High(Flowers) do
+      Flowers[i].Free;
+    Drops.Free;
+  end;
+
 var
   SDL2Engine : cSDL2Engine;
   BaseFolder : string;
@@ -149,7 +244,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, 0);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

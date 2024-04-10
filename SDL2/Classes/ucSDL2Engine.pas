@@ -16,11 +16,11 @@ uses
   ucCHXSDL2Window;
 
 type
-  TSDL2SetupFunc = function() : boolean;
-  TSDL2CompFunc = function(DeltaTime, FrameTime : CUInt32) : boolean;
+  TSDL2SetupFunc = function() : Boolean;
+  TSDL2CompFunc = function(DeltaTime, FrameTime : CUInt32) : Boolean;
   TSDL2DrawFunc = function(Window : PSDL_Window;
-    Renderer : PSDL_Renderer) : boolean;
-  TSDL2EventFunc = function(aEvent : TSDL_Event) : boolean;
+    Renderer : PSDL_Renderer) : Boolean;
+  TSDL2EventFunc = function(aEvent : TSDL_Event) : Boolean;
   TSDL2FinishProc = procedure();
 
   { cSDL2Engine }
@@ -68,9 +68,9 @@ type
     procedure Run;
 
     constructor Create(aOwner : TComponent; aTitle : string;
-      WinX, WinY : longint); overload;
+      WinX, WinY : LongInt;  HWAcc : Boolean = False); overload;
     constructor Create(aOwner : TComponent; aTitle : string;
-      aIniFile : string); overload;
+      aIniFile : string;   HWAcc : Boolean = False); overload;
     destructor Destroy; override;
 
   published
@@ -131,7 +131,7 @@ end;
 
 procedure cSDL2Engine.Run;
 var
-  ProgRun : boolean;
+  ProgRun : Boolean;
   aEvent : TSDL_Event;
 begin
   ProgRun := True;
@@ -186,8 +186,8 @@ begin
   end;
 end;
 
-constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string;
-  WinX, WinY : longint);
+constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string; WinX,
+  WinY : LongInt; HWAcc : Boolean);
 begin
   inherited Create(aOwner);
 
@@ -195,16 +195,19 @@ begin
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
-  FSDLWindow := cCHXSDL2Window.Create(Title, WinX, WinY);
+  FSDLWindow := cCHXSDL2Window.Create(Title, WinX, WinY, HWAcc);
 
   if not assigned(SDLWindow) then
     raise Exception.Create('cCHXSDL2Window was not created.');
   if SDLWindow.WindowID = 0 then
+  begin
+    FreeAndNil(FSDLWindow);
     raise Exception.Create('cCHXSDL2Window.PSDLWindow was not created.');
+  end;
 end;
 
 constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string;
-  aIniFile : string);
+  aIniFile : string; HWAcc : Boolean);
 begin
   inherited Create(aOwner);
 
@@ -212,7 +215,7 @@ begin
   Config.DefaultFileName := aIniFile;
   Config.LoadFromFile('');
 
-  Create(aOwner, aTitle, Config.WindowWidth, Config.WindowHeight);
+  Create(aOwner, aTitle, Config.WindowWidth, Config.WindowHeight, HWAcc);
 end;
 
 destructor cSDL2Engine.Destroy;
@@ -223,7 +226,7 @@ begin
     Config.Free;
   end;
 
-  SDLWindow.Free;
+  FreeAndNil(FSDLWindow);
 
   SDL_Quit;
 

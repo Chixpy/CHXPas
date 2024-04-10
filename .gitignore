@@ -4,3 +4,7 @@ GeometricShape/lib/
 GeometricShape/*.exe
 SDL2/NOCT/lib/
 /SDL2/Test/lib
+/SDL2/NOCT/bin/x86_64-win64/*.exe
+/SDL2/SDL2
+/SDL2/Test/*.exe
+/SDL2/Test/bin/*.exe

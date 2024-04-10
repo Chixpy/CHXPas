@@ -1,30 +1,34 @@
 program CT003;
-{< Base program for NOTC and CT
+{< The Coding Train Challenge #003 - Snake Game }
 
-  Copyright (C) 2024 Chixpy
-}
+// Daniel Shiffman
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/AaGK-fj-BAM
+// Port: (C) 2024 Chixpy https://github.com/Chixpy
+
 {$mode ObjFPC}{$H+}
 uses
   Classes,
   SysUtils,
-  ctypes,
+  CTypes,
   StrUtils,
   FileUtil,
   LazFileUtils,
   Math,
-  sdl2,
+  SDL2,
   sdl2_gfx,
   uCHXStrUtils,
   ucSDL2Engine,
   uProcUtils,
-  ucSnake;
+  ucCTSnake;
 
 const
   WinW = 800; // Window width on creation
   WinH = 600; // Window height on creation
 
 var
-  s : cSnake;
+  s : cCTSnake;
   scl : integer;
   Food : TPoint;
 
@@ -42,7 +46,7 @@ var
   begin
     scl := 20; // Size of the grid
 
-    s := cSnake.Create;
+    s := cCTSnake.Create;
     pickLocation;
 
     Result := True;
@@ -75,11 +79,11 @@ var
     begin
       Dec(i);
       boxRGBA(SDL2R, s.tail[i].x, s.tail[i].y, s.tail[i].x +
-        scl, s.tail[i].y + scl, 255, 255, 0, 255);
+        scl, s.tail[i].y + scl, 255, 255, 255, 255);
     end;
-    boxRGBA(SDL2R, s.x, s.y, s.x + scl, s.y + scl, 255, 255, 0, 255);
+    boxRGBA(SDL2R, s.x, s.y, s.x + scl, s.y + scl, 255, 255, 255, 255);
 
-    SDL_Delay(100);
+    SDL_Delay(100); // TODO: Until FrameRate can be set in cSDL2Engine
     Result := True;
   end;
 

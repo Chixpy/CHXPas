@@ -1,4 +1,10 @@
-unit uc3DStar;
+unit ucCT3DStar;
+// Daniel Shiffman
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/17WoOqgXsRM
+// Port: (C) 2024 Chixpy https://github.com/Chixpy
+
 
 {$mode ObjFPC}{$H+}
 
@@ -9,9 +15,9 @@ uses
 
 type
 
-  { c3DStar }
+  { cCT3DStar }
 
-  c3DStar = class
+  cCT3DStar = class
   private
     FPZ : Single;
     FX : Single;
@@ -28,6 +34,7 @@ type
     property Z: Single read FZ write SetZ;
 
     property PZ: Single read FPZ write SetPZ;
+    {< Previous Z}
 
     procedure Update(Speed: Single);
 
@@ -37,39 +44,39 @@ type
 
 implementation
 
-{ c3DStar }
+{ cCT3DStar }
 
-procedure c3DStar.SetX(const AValue : Single);
+procedure cCT3DStar.SetX(const AValue : Single);
 begin
   if FX = AValue then Exit;
   FX := AValue;
 end;
 
-procedure c3DStar.SetPZ(const AValue : Single);
+procedure cCT3DStar.SetPZ(const AValue : Single);
 begin
   if FPZ = AValue then Exit;
   FPZ := AValue;
 end;
 
-procedure c3DStar.SetY(const AValue : Single);
+procedure cCT3DStar.SetY(const AValue : Single);
 begin
   if FY = AValue then Exit;
   FY := AValue;
 end;
 
-procedure c3DStar.SetZ(const AValue : Single);
+procedure cCT3DStar.SetZ(const AValue : Single);
 begin
   if FZ = AValue then Exit;
   FZ := AValue;
 end;
 
-procedure c3DStar.Update(Speed : Single);
+procedure cCT3DStar.Update(Speed : Single);
 begin
   PZ := Z;
   Z := Z - Speed;
 end;
 
-constructor c3DStar.Create(aX, aY, aZ : Single);
+constructor cCT3DStar.Create(aX, aY, aZ : Single);
 begin
   Self.X := aX;
   Self.Y := aY;
@@ -77,7 +84,7 @@ begin
   Self.PZ := Self.Z;
 end;
 
-destructor c3DStar.Destroy;
+destructor cCT3DStar.Destroy;
 begin
   inherited Destroy;
 end;

@@ -1,34 +1,56 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
-
-   The Coding Train Challenge #00X - Title }
+program CT006;
+{< The Coding Train Challenge #006 - Mitosis Simulation }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/jxGS3fKPKJA
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes,
+  SysUtils,
+  CTypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
+  fgl,
   Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SDL2,
+  sdl2_gfx,
   uCHXStrUtils,
   ucSDL2Engine,
-  uProcUtils;
+  uProcUtils,
+  ucCTCell;
 
 const
   // Renderer scales images to actual size of the window.
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-//var // Global variables :-(
+type
+  TCellList = specialize TFPGObjectList<cCTCell>;
 
-// Any auxiliar procedure/function will be here
+var // Global variables :-(
+  Cells : TCellList;
+
+  // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
+  var
+    aPoint : TPoint;
   begin
+    Cells := TCellList.Create(True);
+    Randomize;
+
+    aPoint := Point(Random(WinW div 2) + WinW div 4,
+      Random(WinH div 2) + WinH div 4);
+    Cells.Add(cCTCell.Create(aPoint, RandomRange(50, 120), $FF0000FF));
+
+    aPoint := Point(Random(WinW div 2) + WinW div 4,
+      Random(WinH div 2) + WinH div 4);
+    Cells.Add(cCTCell.Create(aPoint, RandomRange(50, 120), $FF00FFFF));
 
     Result := True; // False -> Finish program
   end;
@@ -36,25 +58,42 @@ const
   procedure OnFinish;
   begin
     // Free any created objects
-
+    Cells.Free;
   end;
 
   function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    aCell : cCTCell;
   begin
+    for aCell in Cells do
+      aCell.Move;
 
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    aCell : cCTCell;
   begin
     // Background
     SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
     SDL_RenderClear(SDL2R);
 
+    for aCell in Cells do
+    begin
+      filledCircleColor(SDL2R, aCell.Pos.X, aCell.Pos.Y,
+        Round(aCell.R), aCell.C);
+      circleRGBA(SDL2R, aCell.Pos.X, aCell.Pos.Y,
+        Round(aCell.R), 0,0,0,255);
+    end;
+
     Result := True; // False -> Finish program
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
+  var
+    i : integer;
+    aCell : cCTCell;
   begin
     Result := True;
 
@@ -75,18 +114,37 @@ const
           //SDLK_LEFT : ;
           //SDLK_RIGHT : ;
           //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False; // Exit
+          SDLK_ESCAPE : Result := False;
           else
             ;
         end;
       end;
-        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+      //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
+      //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
+      //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
 
-        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+      //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+      //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+      SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+      begin
+        i := Cells.Count - 1;
+        while i >= 0 do
+        begin
+          aCell := Cells[i];
+          if aCell.Clicked(aEvent.button.x, aEvent.button.y) then
+          begin
+            if aCell.R > 10 then
+            begin
+              Cells.Add(aCell.Mitosis);
+              Cells.Add(aCell.Mitosis);
+            end;
+            Cells.Delete(i);
+          end;
+
+          Dec(i);
+        end;
+      end;
+
         //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
         //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
@@ -149,7 +207,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, 0);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

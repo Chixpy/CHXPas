@@ -1,8 +1,12 @@
 program CT001;
-{< Coding Train Challenge #001 — Starfield in Processing
+{< The Coding Train Challenge #001 — Starfield in Processing }
 
-  Copyright (C) 2024 Chixpy
-}
+// Daniel Shiffman
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/17WoOqgXsRM
+// Port: (C) 2024 Chixpy https://github.com/Chixpy
+
 {$mode ObjFPC}{$H+}
 uses
   SysUtils,
@@ -16,22 +20,23 @@ uses
   uCHXStrUtils,
   ucSDL2Engine,
   uProcUtils,
-  uc3DStar;
+  ucCT3DStar;
 
 const
   WinW = 800; // Window width on creation
   WinH = 600; // Window height on creation
 
 var
-  Stars : array[0..25000] of c3DStar;
+  Stars : array[0..25000] of cCT3DStar;
   Speed : longint;
 
   function OnSetup : Boolean;
   var
     i : integer;
   begin
+    // CHX: RandomRange don't get upper limit
     for i := Low(Stars) to High(Stars) do
-      Stars[i] := c3DStar.Create(RandomRange(-WinW, WinW),
+      Stars[i] := cCT3DStar.Create(RandomRange(-WinW, WinW),
         RandomRange(-WinH, WinW), Random(WinW));
 
     Speed := 0;
@@ -62,9 +67,7 @@ var
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
   var
     Px, Py, Sx, Sy, i : integer;
-    RW, RH : cint;
   begin
-    SDL_GetRendererOutputSize(SDL2R, @RW, @RH);
 
     SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 0);
     SDL_RenderClear(SDL2R);
@@ -75,11 +78,11 @@ var
 
       if (Stars[i].PZ <> 0) and (Stars[i].Z <> 0) then
       begin
-        Sx := RW shr 1 + Round(map(Stars[i].X / Stars[i].Z, 0, 1, 0, WinW));
-        Sy := RH shr 1 + Round(map(Stars[i].Y / Stars[i].Z, 0, 1, 0, WinH));
+        Sx := WinW shr 1 + Round(map(Stars[i].X / Stars[i].Z, 0, 1, 0, WinW));
+        Sy := WinH shr 1 + Round(map(Stars[i].Y / Stars[i].Z, 0, 1, 0, WinH));
 
-        Px := RW shr 1 + Round(map(Stars[i].X / Stars[i].PZ, 0, 1, 0, WinW));
-        Py := RH shr 1 + Round(map(Stars[i].Y / Stars[i].PZ, 0, 1, 0, WinH));
+        Px := WinW shr 1 + Round(map(Stars[i].X / Stars[i].PZ, 0, 1, 0, WinW));
+        Py := WinH shr 1 + Round(map(Stars[i].Y / Stars[i].PZ, 0, 1, 0, WinH));
 
         //LongInt range (and can use floats)
         //SDL_SetRenderDrawColor(SDL2R, 255,255,255,255);

@@ -26,6 +26,24 @@
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
+      <Target FileName="CTTest\CT004.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
+      <Target FileName="CTTest\CT005.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
+      <Target FileName="CTTest\CT006.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
     </Targets>
   </ProjectGroup>
 </CONFIG>

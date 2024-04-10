@@ -40,7 +40,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Classes;..\source\Units"/>
+            <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Classes;..\source\Units;CT003"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -94,15 +94,15 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\source\Classes\uc3DStar.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="..\source\Units\uProcUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\source\Classes\ucSnake.pas"/>
+        <Filename Value="CT003\ucCTSnake.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="CT.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -115,7 +115,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Classes;..\source\Units"/>
+      <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Classes;..\source\Units;CT003"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

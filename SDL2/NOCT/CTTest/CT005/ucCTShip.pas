@@ -1,8 +1,9 @@
-unit uProcUtils;
-{< Unit with methods to help in Processing "simulation".
-
-  Copyright (C) 2024 Chixpy https://github.com/Chixpy
-}
+unit ucCTShip;
+// Daniel Shiffman
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/biN3v3ef-Y0
+// Port: (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
 
 interface
@@ -10,14 +11,46 @@ interface
 uses
   Classes, SysUtils;
 
-function map(const value: Double; const min1, max1, min2, max2: Double): Double;
-{< Maps a value from a range to another range. An interpolation. }
+type
+
+  { cCTShip }
+
+  cCTShip = class
+  public
+    x : integer;
+    y : integer; // CHX: Added to set y position from main program
+    xdir : integer;
+
+    procedure SetDir(aDir : integer); // CHX: Dir parameter not used;
+    procedure Move;
+
+    constructor Create(aX, aY : integer);
+    destructor Destroy; override;
+  end;
 
 implementation
 
-function map(const value: Double; const min1, max1, min2, max2: Double): Double;
+{ cCTShip }
+
+procedure cCTShip.SetDir(aDir : integer);
 begin
-  map := min2 + (value - min1) * (max2 - min2) / (max1 - min1);
+  xdir := aDir;
+end;
+
+procedure cCTShip.Move; //(aDir : integer);
+begin
+  Self.x += Self.xdir * 5;
+end;
+
+constructor cCTShip.Create(aX, aY : integer);
+begin
+  x := aX;
+  y := aY;
+end;
+
+destructor cCTShip.Destroy;
+begin
+  inherited Destroy;
 end;
 
 end.

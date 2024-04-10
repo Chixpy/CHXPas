@@ -3,7 +3,7 @@ unit ucCHXSDL2Window;
 
   SDL_Init(SDL_INIT_VIDEO); must be called before creating the window.
 
-  Supports creating
+  Supports creating multiple windows
 
   Copyright (C) 2024 Chixpy https://github.com/Chixpy
 }
@@ -12,9 +12,9 @@ unit ucCHXSDL2Window;
 interface
 
 uses
-  Classes, SysUtils, ctypes,
+  Classes, SysUtils, CTypes,
   // SDL
-  sdl2;
+  SDL2;
 
 type
 
@@ -23,48 +23,48 @@ type
   cCHXSDL2Window = class
   private
     FHeight : CInt;
-    FKeyboardFocus : boolean;
-    FMinimized : boolean;
-    FMouseFocus : boolean;
-    FPSDLRenderer : PSDL_Renderer;
-    FPSDLWindow : PSDL_Window;
-    FShown : boolean;
-    FTitle : string;
+    FKeyboardFocus : Boolean;
+    FMinimized : Boolean;
+    FMouseFocus : Boolean;
+    FPRenderer : PSDL_Renderer;
+    FPWindow : PSDL_Window;
+    FShown : Boolean;
+    FTitle : String;
     FWidth : CInt;
     FWindowID : CUInt32;
     procedure SetHeight(const AValue : CInt);
-    procedure SetTitle(const AValue : string);
+    procedure SetTitle(const AValue : String);
     procedure SetWidth(const AValue : CInt);
 
   protected
-
     // Internal states
-    {property} FullScreen : boolean;
+    {property} FullScreen : Boolean;
+    {property} Accelerated : Boolean;
 
     procedure InitWindow;
 
-    function CreateWindow : boolean;
-
+    function CreateWindow : Boolean;
   public
-    property Title : string read FTitle write SetTitle;
+    property Title : String read FTitle write SetTitle;
     property Width : CInt read FWidth write SetWidth;
     property Height : CInt read FHeight write SetHeight;
 
-    property PWindow : PSDL_Window read FPSDLWindow;
-    property PRenderer : PSDL_Renderer read FPSDLRenderer;
+    property PWindow : PSDL_Window read FPWindow;
+    property PRenderer : PSDL_Renderer read FPRenderer;
 
     property WindowID : CUInt32 read FWindowID;
 
-    property Shown : boolean read FShown;
-    property Minimized : boolean read FMinimized;
-    property MouseFocus : boolean read FMouseFocus;
-    property KeyboardFocus : boolean read FKeyboardFocus;
+    property Shown : Boolean read FShown;
+    property Minimized : Boolean read FMinimized;
+    property MouseFocus : Boolean read FMouseFocus;
+    property KeyboardFocus : Boolean read FKeyboardFocus;
 
     procedure Focus;
 
     procedure HandleEvent(aEvent : TSDL_Event);
 
-    constructor Create(aTitle : string; aWidth, aHeight : longint);
+    constructor Create(aTitle : String; aWidth, aHeight : LongInt;
+      HWAcc : Boolean = False);
     destructor Destroy; override;
   end;
 
@@ -72,12 +72,12 @@ implementation
 
 { cCHXSDL2Window }
 
-procedure cCHXSDL2Window.SetTitle(const aValue : string);
+procedure cCHXSDL2Window.SetTitle(const AValue : String);
 begin
   if FTitle = aValue then Exit;
   FTitle := aValue;
 
-  SDL_SetWindowTitle(PWindow, pchar(aValue));
+  SDL_SetWindowTitle(PWindow, PChar(aValue));
 end;
 
 procedure cCHXSDL2Window.SetHeight(const AValue : CInt);
@@ -107,7 +107,9 @@ begin
   FWindowID := 0;
 end;
 
-function cCHXSDL2Window.CreateWindow : boolean;
+function cCHXSDL2Window.CreateWindow : Boolean;
+var
+  Flags : CUInt32;
 begin
   Result := False;
 
@@ -118,26 +120,41 @@ begin
 
   InitWindow;
 
-  // Creating new Window
-  FPSDLWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_CENTERED,
+  // Create new window
+  FPWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_CENTERED,
     SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_SHOWN +
-    SDL_WINDOW_RESIZABLE);
-  if not assigned(PWindow) then Exit;
-
-  //Create renderer for window
-  FPSDLRenderer := SDL_CreateRenderer(PWindow, -1, SDL_RENDERER_SOFTWARE
-   // + SDL_RENDERER_ACCELERATED
-   // + SDL_RENDERER_PRESENTVSYNC
-   );
-  if not assigned(PWindow) then
+    +SDL_WINDOW_OPENGL + SDL_WINDOW_ALLOW_HIGHDPI + SDL_WINDOW_RESIZABLE);
+  if not assigned(FPWindow) then
   begin
-    SDL_DestroyWindow(PWindow);
-    InitWindow;
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, 'SDL_CreateWindow Error',
+      SDL_GetError, nil);
     Exit;
   end;
 
+  // Create renderer for window
+  { TODO : Create a fallback to software renderer. }
+  { NOTE : On laptops with internal and NVidia; if NVidia chip is used as
+      default in the system (in NVidia control panel), then Renderer can't be
+      created Accelerated, OpenGL or HighDPI. }
+  if Accelerated then
+    Flags := SDL_WINDOW_ALLOW_HIGHDPI + SDL_WINDOW_OPENGL +
+      SDL_RENDERER_ACCELERATED
+  else
+    Flags := SDL_RENDERER_SOFTWARE;
+
+  FPRenderer := SDL_CreateRenderer(PWindow, -1, Flags);
+  if not assigned(PRenderer) then
+  begin
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+      'SDL_CreateRenderer Error', SDL_GetError,
+      PWindow);
+    SDL_DestroyWindow(PWindow);
+    Exit;
+  end;
+
+  SDL_RenderSetLogicalSize(PRenderer, Width, Height);
+
   FWindowID := SDL_GetWindowID(PWindow);
-  SDL_GetWindowSize(PWindow, @FWidth, @FHeight);
 
   SDL_SetRenderDrawColor(PRenderer, 255, 255, 255, 255);
 
@@ -169,11 +186,7 @@ begin
       FShown := False;
 
     SDL_WINDOWEVENT_SIZE_CHANGED : // New dimensions and repaint
-    begin
-      Width := aEvent.window.data1;
-      Height := aEvent.window.data2;
       SDL_RenderPresent(PRenderer);
-    end;
 
     SDL_WINDOWEVENT_EXPOSED : // Repaint
       SDL_RenderPresent(PRenderer);
@@ -204,16 +217,18 @@ begin
   end;
 end;
 
-constructor cCHXSDL2Window.Create(aTitle : string; aWidth, aHeight : longint);
+constructor cCHXSDL2Window.Create(aTitle : String; aWidth, aHeight : LongInt;
+  HWAcc : Boolean);
 begin
-  FPSDLWindow := nil;
-  FPSDLRenderer := nil;
+  FPWindow := nil;
+  FPRenderer := nil;
 
-  InitWindow;
+  // Don't call SDL2 updates
+  FTitle := aTitle;
+  FWidth := aWidth;
+  FHeight := aHeight;
 
-  Title := aTitle;
-  Width := aWidth;
-  Height := aHeight;
+  Accelerated := HWAcc;
 
   CreateWindow;
 end;

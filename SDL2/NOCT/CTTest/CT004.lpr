@@ -1,57 +1,88 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
-
-   The Coding Train Challenge #00X - Title }
+program CT004;
+{< The Coding Train Challenge #004 - Purple Rain }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/KkyIDI6rQJI
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
-
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
   Math, //SDL have math methods too
   SDL2, sdl2_gfx,
   uCHXStrUtils,
   ucSDL2Engine,
-  uProcUtils;
+  uProcUtils,
+  ucCTDrop;
 
 const
-  // Renderer scales images to actual size of the window.
-  WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  WinW = 800; // Window width
+  WinH = 600; // Window height
 
-//var // Global variables :-(
+  NDrops = 500;
 
-// Any auxiliar procedure/function will be here
+var
+  Drops : array of cCTDrop;
 
   function OnSetup : Boolean;
+  var
+    i : integer;
+    aDrop : cCTDrop;
   begin
+    SetLength(Drops, NDrops + 1);
 
-    Result := True; // False -> Finish program
-  end;
+    for i := 0 to NDrops do
+    begin
+      aDrop := cCTDrop.Create(Random(WinW), RandomRange(-500, -50),
+        Random(20));
+      Drops[i] := aDrop;
+    end;
 
-  procedure OnFinish;
-  begin
-    // Free any created objects
-
+    Result := True;
   end;
 
   function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    i : integer;
+    aDrop : cCTDrop;
   begin
+    for i := 0 to NDrops do
+    begin
+      aDrop := Drops[i];
+      aDrop.Fall;
 
-    Result := True; // False -> Finish program
+      // Drop out of the window
+      if (aDrop.y > WinH) then
+      begin
+        aDrop.y := RandomRange(-200, -100);
+        aDrop.yspeed := map(aDrop.z, 0, 20, 4, 10);
+      end;
+    end;
+
+    Result := True;
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    i : integer;
+    aDrop : cCTDrop;
   begin
-    // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(SDL2R, 230, 230, 250, 255);
     SDL_RenderClear(SDL2R);
 
-    Result := True; // False -> Finish program
+    // Draw drops
+    for i := 0 to NDrops do
+    begin
+      aDrop := Drops[i];
+
+      thickLineRGBA(SDL2R, round(aDrop.x), round(aDrop.y), round(aDrop.x),
+        round(aDrop.y + aDrop.len),
+        round(map(aDrop.z, 0, 20, 1, 5)),
+        138, 43, 226, 255);
+    end;
+
+    Result := True;
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
@@ -59,7 +90,6 @@ const
     Result := True;
 
     // EVENTS
-
     case aEvent.type_ of
       //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
       //SDL_DISPLAYEVENT : // (display: TSDL_DisplayEvent);
@@ -75,7 +105,7 @@ const
           //SDLK_LEFT : ;
           //SDLK_RIGHT : ;
           //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False; // Exit
+          SDLK_ESCAPE : Result := False;
           else
             ;
         end;
@@ -133,6 +163,16 @@ const
 
   end;
 
+  procedure OnFinish;
+  var
+    i : integer;
+  begin
+    for i := 0 to NDrops do
+    begin
+      Drops[i].Free;
+    end;
+  end;
+
 var
   SDL2Engine : cSDL2Engine;
   BaseFolder : string;
@@ -149,7 +189,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, 0);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;
