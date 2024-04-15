@@ -12,7 +12,7 @@ uses
   Math, //SDL have math methods too
   SDL2, sdl2_gfx,
   uCHXStrUtils,
-  ucSDL2Engine,
+  ucSDL2Engine, ucCHXSDL2Window,
   uProcUtils,
   ucCTDrop;
 
@@ -42,7 +42,7 @@ var
     Result := True;
   end;
 
-  function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(SDL2W : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
   var
     i : integer;
     aDrop : cCTDrop;
@@ -189,7 +189,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

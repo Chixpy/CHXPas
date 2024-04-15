@@ -9,18 +9,11 @@ program CT006;
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes,
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
-  fgl,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, fgl,
   Math, //SDL have math methods too
-  SDL2,
-  sdl2_gfx,
+  SDL2, sdl2_gfx,
   uCHXStrUtils,
-  ucSDL2Engine,
+  ucSDL2Engine, ucCHXSDL2Window,
   uProcUtils,
   ucCTCell;
 
@@ -61,7 +54,7 @@ var // Global variables :-(
     Cells.Free;
   end;
 
-  function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(SDL2W : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
   var
     aCell : cCTCell;
   begin
@@ -84,7 +77,7 @@ var // Global variables :-(
       filledCircleColor(SDL2R, aCell.Pos.X, aCell.Pos.Y,
         Round(aCell.R), aCell.C);
       circleRGBA(SDL2R, aCell.Pos.X, aCell.Pos.Y,
-        Round(aCell.R), 0,0,0,255);
+        Round(aCell.R), 0, 0, 0, 255);
     end;
 
     Result := True; // False -> Finish program
@@ -207,7 +200,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

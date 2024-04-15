@@ -17,7 +17,8 @@ uses
 
 type
   TSDL2SetupFunc = function() : Boolean;
-  TSDL2CompFunc = function(DeltaTime, FrameTime : CUInt32) : Boolean;
+  TSDL2CompFunc = function(Window : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
   TSDL2DrawFunc = function(Window : PSDL_Window;
     Renderer : PSDL_Renderer) : Boolean;
   TSDL2EventFunc = function(aEvent : TSDL_Event) : Boolean;
@@ -49,7 +50,6 @@ type
     procedure SetTitle(const AValue : string);
 
   protected
-    property SDLWindow : cCHXSDL2Window read FSDLWindow;
     property SDLFrameMang : TFPSManager read FSDLFrameMang;
     property DeltaTime : CUInt32 read FDeltaTime write SetDeltaTime;
     property FrameTime : CUInt32 read FFrameTime write SetFrameTime;
@@ -65,12 +65,14 @@ type
     property SDL2Event : TSDL2EventFunc read FSDL2Event write SetSDL2Event;
     property SDL2Finish : TSDL2FinishProc read FSDL2Finish write SetSDL2Finish;
 
+    property SDLWindow : cCHXSDL2Window read FSDLWindow;
+
     procedure Run;
 
     constructor Create(aOwner : TComponent; aTitle : string;
-      WinX, WinY : LongInt;  HWAcc : Boolean = False); overload;
+      WinX, WinY : LongInt; HWAcc : Boolean = False); overload;
     constructor Create(aOwner : TComponent; aTitle : string;
-      aIniFile : string;   HWAcc : Boolean = False); overload;
+      aIniFile : string; HWAcc : Boolean = False); overload;
     destructor Destroy; override;
 
   published
@@ -147,26 +149,33 @@ begin
 
     while ProgRun do
     begin
+
       // COMPUTE
       if ProgRun and (assigned(SDL2Comp)) then
-        ProgRun := SDL2Comp(DeltaTime, FrameTime);
+        ProgRun := SDL2Comp(SDLWindow, DeltaTime, FrameTime);
 
-      // DRAW
-      if ProgRun and (assigned(SDL2Draw)) then
-        ProgRun := SDL2Draw(SDLWindow.PWindow, SDLWindow.PRenderer);
+      // Don't draw if minimized
+      if not SDLWindow.Minimized then
+      begin
+        // DRAW
+        if ProgRun and (assigned(SDL2Draw)) then
+          ProgRun := SDL2Draw(SDLWindow.PWindow, SDLWindow.PRenderer);
 
-      // UPDATE RENDER
-      SDL_RenderPresent(SDLWindow.PRenderer);
+        // UPDATE RENDER
+        SDL_RenderPresent(SDLWindow.PRenderer);
 
-      // TIMING
-      FrameTime := SDL_GetTicks - FrameTime;
-      DeltaTime := SDL_framerateDelay(@SDLFrameMang);
-      if (SDL_getFramecount(@SDLFrameMang) mod 30) = 0 then
-        SDLWindow.Title :=
-          Format('%0:s: %1:5d ms (%2:5d ms)', [Title, DeltaTime, FrameTime]);
-      FrameTime := SDL_GetTicks;
+        // TIMING
+        FrameTime := SDL_GetTicks - FrameTime;
+        DeltaTime := SDL_framerateDelay(@SDLFrameMang);
+        if (SDL_getFramecount(@SDLFrameMang) mod 30) = 0 then
+          SDLWindow.Title :=
+            Format('%0:s: %1:5d ms (%2:5d ms)', [Title, DeltaTime, FrameTime]);
+        FrameTime := SDL_GetTicks;
+      end;
 
       // EVENTS
+
+      { NOTE : Listen window events when minimized. }
 
       // SDL_PumpEvents;
       while SDL_PollEvent(@aEvent) <> 0 do
@@ -186,8 +195,8 @@ begin
   end;
 end;
 
-constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string; WinX,
-  WinY : LongInt; HWAcc : Boolean);
+constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string;
+  WinX, WinY : LongInt; HWAcc : Boolean);
 begin
   inherited Create(aOwner);
 

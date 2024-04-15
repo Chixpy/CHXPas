@@ -14,7 +14,7 @@
         <SaveFoldState Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="PasProc"/>
+      <Title Value="CT021"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -29,7 +29,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="1"/>
+      <BuildNr Value="2"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Debug" Default="True"/>
@@ -38,7 +38,7 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PasProc"/>
+            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT021"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
@@ -80,31 +80,31 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="PasProc.lpr"/>
+        <Filename Value="CT021.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2.pas"/>
+        <Filename Value="..\..\SDL2\sdl2.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucSDL2Engine.pas"/>
+        <Filename Value="..\..\Classes\ucSDL2Engine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Units\uCHXStrUtils.pas"/>
+        <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="source\Units\uProcUtils.pas"/>
+        <Filename Value="..\source\Units\uProcUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Window.pas"/>
+        <Filename Value="..\..\Classes\ucCHXSDL2Window.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="CTTest\CT.md"/>
+        <Filename Value="CT.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -113,11 +113,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PasProc"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT021"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\SDL2;..\Classes;..\..\Units;source\Units"/>
+      <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Units"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

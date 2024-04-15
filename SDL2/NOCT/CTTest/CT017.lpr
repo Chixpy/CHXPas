@@ -1,34 +1,44 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
+program CT017;
+{< The Coding Train Challenge #017 - Space Colonization }
 
-   The Coding Train Challenge #00X - Title }
-
+// Coding Rainbow
 // Daniel Shiffman
-// http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/kKT0v3qhIQY
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes,
+  SysUtils,
+  CTypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
   Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SDL2,
+  sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window, ucSDL2Engine,
-  uProcUtils;
+  ucCHXSDL2Window,
+  ucSDL2Engine,
+  uProcUtils,
+  ucCTLeaf,
+  ucCTBranch,
+  ucCTTree;
 
 const
   // Renderer scales images to actual size of the window.
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-//var // Global variables :-(
+var // Global variables :-(
+  Tree : cCTTree;
 
-// Any auxiliar procedure/function will be here
+  // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
   begin
+    Tree := cCTTree.Create(WinW, WinH);
 
     Result := True; // False -> Finish program
   end;
@@ -36,10 +46,11 @@ const
   procedure OnFinish;
   begin
     // Free any created objects
-
+    Tree.Free;
   end;
 
-  function OnCompute(Window : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(Window : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
   begin
     { If we want to pause when minimized or lost focus.}
     // if Window.Minimized then
@@ -47,16 +58,31 @@ const
     //   Result := True;
     //   Exit;
     // end;
-
+    Tree.Grow;
 
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    l : cCTLeaf;
+    b : cCTBranch;
   begin
     // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
     SDL_RenderClear(SDL2R);
+
+    // cCTTree.Show
+    for l in Tree.leaves do
+      // cCTLeaf.Show
+      filledCircleRGBA(SDL2R, round(l.pos.x), round(l.pos.Y),
+        4, 255, 255, 255, 255);
+
+    for b in tree.branches do
+      if assigned(b.parent) then
+        lineRGBA(SDL2R, round(b.pos.x), round(b.pos.y),
+          round(b.parent.pos.x), round(b.parent.pos.y),
+          255, 255, 255, 255);
 
     Result := True; // False -> Finish program
   end;
@@ -81,7 +107,11 @@ const
           //SDLK_DOWN : ;
           //SDLK_LEFT : ;
           //SDLK_RIGHT : ;
-          //SDLK_SPACE : ;
+          SDLK_SPACE :
+          begin
+            Tree.Free;
+            Tree := cCTTree.Create(WinW, WinH);;
+          end;
           SDLK_ESCAPE : Result := False; // Exit
           else
             ;

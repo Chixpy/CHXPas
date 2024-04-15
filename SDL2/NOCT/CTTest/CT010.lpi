@@ -10,11 +10,9 @@
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
         <MainUnitHasScaledStatement Value="False"/>
-        <SaveJumpHistory Value="False"/>
-        <SaveFoldState Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="PasProc"/>
+      <Title Value="CT010"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -23,7 +21,7 @@
         <LongPathAware Value="True"/>
         <AnsiUTF8 Value="True"/>
         <TextName Value="Chixpy.CHXSDL2.PasProc"/>
-        <TextDesc Value="Basic structure for Nature of the Code and The Coding Train tests"/>
+        <TextDesc Value="Basic structure for Nature of the Code and The Coding Train"/>
       </XPManifest>
     </General>
     <VersionInfo>
@@ -38,11 +36,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PasProc"/>
+            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT010"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\SDL2;..\Classes;..\..\Units;source\Units"/>
+            <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Classes;..\source\Units;CT010"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -80,31 +78,35 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="PasProc.lpr"/>
+        <Filename Value="CT010.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2.pas"/>
+        <Filename Value="..\..\SDL2\sdl2.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucSDL2Engine.pas"/>
+        <Filename Value="..\..\Classes\ucSDL2Engine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Units\uCHXStrUtils.pas"/>
+        <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="source\Units\uProcUtils.pas"/>
+        <Filename Value="..\source\Units\uProcUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Window.pas"/>
+        <Filename Value="..\..\Classes\ucCHXSDL2Window.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="CTTest\CT.md"/>
+        <Filename Value="CT.md"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="CT010\ucCTCell.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -113,11 +115,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PasProc"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT010"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\SDL2;..\Classes;..\..\Units;source\Units"/>
+      <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Units;CT010"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

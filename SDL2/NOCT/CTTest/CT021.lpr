@@ -1,21 +1,32 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
+program CT021;
+{< The Coding Train Challenge #021 - Mandelbrot }
 
-   The Coding Train Challenge #00X - Title }
+// CHX: By the way, I'm testing another way to direct pixel access
+//   wich seems to be faster from CT013: Reaction Diffusion Algorithm
+//   by texture editing.
+// It's About 20% faster than direct pixel editing on renderer and
+//   have same speed if hardware acceleration is used.
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/6z7GQewK-Ks
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes,
+  SysUtils,
+  CTypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
   Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SDL2,
+  sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window, ucSDL2Engine,
+  ucCHXSDL2Window,
+  ucSDL2Engine,
   uProcUtils;
 
 const
@@ -23,12 +34,44 @@ const
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-//var // Global variables :-(
 
-// Any auxiliar procedure/function will be here
+  // CHX: Make values as constants
+
+  // Establish a range of values on the complex plane
+  // A different range will allow us to "zoom" in or out on the fractal
+
+  // It all starts with the width, try higher or lower values
+  w = 5;
+  h = (w * WinH) / WinW;
+
+  // Maximum number of iterations for each point on the complex plane
+  maxiterations = 255;
+
+  // Start at negative half the width and height
+  xmin = -w / 2;
+  ymin = -h / 2;
+
+  // x goes from xmin to xmax
+  xmax = xmin + w;
+  // y goes from ymin to ymax
+  ymax = ymin + h;
+
+  // Calculate amount we increment x,y for each pixel
+  dx = (xmax - xmin) / WinW;
+  dy = (ymax - ymin) / WinH;
+
+
+var // Global variables :-(
+  SDL2Engine : cSDL2Engine;
+  aTex : PSDL_Texture;
+
+  // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
   begin
+    aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
+      SDL_GetWindowPixelFormat(SDL2Engine.SDLWindow.PWindow),
+      SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
 
     Result := True; // False -> Finish program
   end;
@@ -36,27 +79,100 @@ const
   procedure OnFinish;
   begin
     // Free any created objects
-
+    SDL_DestroyTexture(aTex);
   end;
 
-  function OnCompute(Window : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  procedure PutPixel(Base : PCUInt32; Pitch : cint; x, y : word;
+    r, g, b : byte);
+  var
+    PPoint : PCUInt32;
   begin
-    { If we want to pause when minimized or lost focus.}
-    // if Window.Minimized then
-    // begin
-    //   Result := True;
-    //   Exit;
-    // end;
+    // CHX: Only works in RGBA8888 in Windows and Intel (order and endianess);
+    PPoint := Base + y * (Pitch div 4) + x;
+    // No transparency applied, PPoint is write only and
+    //   it don't have previous color value.
+    PPoint^ := 0;
+    PPoint^ := {(a shl 24) or} (r shl 16) or (g shl 8) or b;
+    // Actually SDL_MapRGBA is the correct way but we need
+    //SDL_MapRGBA(format, r, g, b, a);
+  end;
 
+  function OnCompute(Window : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    pitch : cint;
+    PPBase : PCUInt32;
+    x, y, a, b, aa, bb, twoab : Double; // fractal coords.
+    n, i, j : integer; // screen coords.
+  begin
+    // CHX: As we are editing a SDLTexture and don't need a SDL_Rendererwe
+    //   can do in OnCompute.
 
+    SDL_LockTexture(aTex, nil, @PPBase, @pitch);
+
+    y := ymin;
+
+    j := 0;
+    while j < WinH do
+    begin
+      x := xmin;
+
+      i := 0;
+      while i < WinW do
+      begin
+        // Now we test, as we iterate z = z^2 + cm does z tend towards infinity?
+        a := x;
+        b := y;
+
+        n := 0;
+        while n < maxiterations do
+        begin
+          aa := a * a;
+          bb := b * b;
+          twoab := 2.0 * a * b;
+
+          a := aa - bb + x;
+          b := twoab + y;
+
+          if (a * a + b * b) > 16 then
+            Break; // CHX: Ouhg... :-(
+
+          Inc(n);
+        end;
+
+        // We color each pixel based on how long it takes to get to infinity
+        // If we never got there, let's pick the color black
+        if n >= maxiterations then
+          PutPixel(PPBase, pitch, i, j, 0, 0, 0)
+        else
+        begin
+          // Gosh, we could make fancy colors here if we wanted
+          n := round(sqrt(n / maxiterations) * 255);
+          //n := round(n / maxiterations * 255);
+          PutPixel(PPBase, pitch, i, j, n, n, n);
+        end;
+
+        x += dx;
+
+        Inc(i);
+      end;
+
+      y += dy;
+
+      Inc(j);
+    end;
+
+    SDL_UnlockTexture(aTex);
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
   begin
     // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
-    SDL_RenderClear(SDL2R);
+    //SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    //SDL_RenderClear(SDL2R);
+
+    SDL_RenderCopy(SDL2R, aTex, nil, nil);
 
     Result := True; // False -> Finish program
   end;
@@ -141,7 +257,6 @@ const
   end;
 
 var
-  SDL2Engine : cSDL2Engine;
   BaseFolder : string;
 
   {$R *.res}
@@ -156,7 +271,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

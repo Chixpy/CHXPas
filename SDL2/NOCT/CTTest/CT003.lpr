@@ -19,7 +19,7 @@ uses
   SDL2,
   sdl2_gfx,
   uCHXStrUtils,
-  ucSDL2Engine,
+  ucSDL2Engine, ucCHXSDL2Window,
   uProcUtils,
   ucCTSnake;
 
@@ -52,7 +52,7 @@ var
     Result := True;
   end;
 
-  function OnCompute(DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(SDL2W : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
   begin
     if s.eat(food) then
       pickLocation;

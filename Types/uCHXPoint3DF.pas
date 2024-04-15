@@ -12,7 +12,7 @@ unit uCHXPoint3DF;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, Math;
 
 const
   krsFltValueSep = ';';
@@ -23,13 +23,12 @@ type
 
   TPoint3DF = {$ifndef FPC_REQUIRES_PROPER_ALIGNMENT}
     packed {$endif FPC_REQUIRES_PROPER_ALIGNMENT} record
-  private
-
-  public
     X : TPoint3DFType;
     Y : TPoint3DFType;
     Z : TPoint3DFType;
+  public
 
+    {Not sure why i can't do aPoint3DF.X := aValue; }
     procedure SetX(const AValue : TPoint3DFType);
     procedure SetY(const AValue : TPoint3DFType);
     procedure SetZ(const AValue : TPoint3DFType);
@@ -47,6 +46,11 @@ type
     procedure Clone(const aPoint3DF : TPoint3DF);
     {< Copy aPoint3DF data. }
 
+    class function Zero : TPoint3DF; static;
+    {< Returns a new TPoint3DF at (0, 0, 0). }
+    function IsZero : Boolean;
+    {< Checks if it's (0, 0, 0). }
+
     function GetMagnitude : TPoint3DFType;
     {< Magnitude, modulus or length of the vector. Returns the distance
        to the origin.
@@ -54,22 +58,55 @@ type
     procedure SetMagnitude(const aMag : TPoint3DFType);
     {< Changes the distance to the origin or the vector modulus or length. }
 
+    function GetAngleXY : TPoint3DFType;
+    {< Angle of the vector on X/Y plane projection. }
+    function GetAngleXZ : TPoint3DFType;
+    {< Angle of the vector on X/Z plane projection. }
+    function GetAngleYZ : TPoint3DFType;
+    {< Angle of the vector on Y/Z plane projection. }
+
+    { TODO: Change the angles. }
+    //function SetAngleXY: TPoint3DFType;
+    //{< Change the angle of the vector on X/Y plane projection. }
+    //function SetAngleXZ: TPoint3DFType;
+    //{< Change the angle of the vector on X/Z plane projection. }
+    //function SetAngleYZ: TPoint3DFType;
+    //{< Change the angle of the vector on Y/Z plane projection. }
+
+    procedure RotateXY(const aAngle : TPoint3DFType); overload;
+    {< Rotates the counter clockwise angle of the vector on X/Y plane
+      projection around origin. }
+    procedure RotateXY(const aAngle : TPoint3DFType;
+      const aCenter : TPoint3DF); overload;
+    {< Rotates the counter clockwise angle of the vector on X/Y plane projection
+      with another point as center. }
+    procedure RotateXZ(const aAngle : TPoint3DFType); overload;
+    {< Rotates the counter clockwise angle of the vector on X/Z plane
+      projection around origin. }
+    procedure RotateXZ(const aAngle : TPoint3DFType;
+      const aCenter : TPoint3DF); overload;
+    {< Rotates the counter clockwise angle of the vector on X/Z plane projection
+      with another point as center. }
+    procedure RotateYZ(const aAngle : TPoint3DFType); overload;
+    {< Rotates the counter clockwise angle of the vector on Y/Z plane
+      projection around origin. }
+    procedure RotateYZ(const aAngle : TPoint3DFType;
+      const aCenter : TPoint3DF); overload;
+    {< Rotates the counter clockwise angle of the vector on Y/Z plane projection
+      with another point as center. }
+
     function Distance(const aPoint3DF : TPoint3DF) : TPoint3DFType;
     {< Returns the distance between this point and another one. }
     function InSphere(const aCenter3DF : TPoint3DF;
       const aRadius : TPoint3DFType) : Boolean;
     {< The point is inside a sphere? }
 
-    class function Zero : TPoint3DF; static;
-    {< Returns a new TPoint3DF at (0, 0, 0). }
-    function IsZero : Boolean;
-    {< Checks if it's (0, 0, 0). }
-
     function IsEqual(const aPoint3DF : TPoint3DF) : Boolean;
     class operator =(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
-    {< Check if two point or vectors are equal. }
-    class operator <>(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
-    {< Check if two point or vectors are different. }
+    //{< Check if two point or vectors are equal. }
+    { NOTE: Automatically created by FPC if = created. }
+    //class operator <>(const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
+    //{< Check if two point or vectors are different. }
 
     procedure Add(const aPoint3DF : TPoint3DF);
     {< Vector addition. Adds point components separately. }
@@ -108,8 +145,8 @@ type
     procedure Normalize;
     {< Makes the vector length equal 1, with same direction. }
 
-    class function VectProd(
-      const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF; static;
+    class function VectProd(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+      : TPoint3DF; static;
     {< Returns the vectorial product between two vectors. }
 
     function ScalProd(const aPoint3DF : TPoint3DF) : TPoint3DFType;
@@ -221,6 +258,78 @@ begin
   Result := Self.Distance(aCenter3DF) <= aRadius;
 end;
 
+function TPoint3DF.GetAngleXY : TPoint3DFType;
+begin
+  Result := ArcTan2(Self.Y, Self.X); // Params: y, x
+end;
+
+function TPoint3DF.GetAngleXZ : TPoint3DFType;
+begin
+  Result := ArcTan2(Self.Z, Self.X); // Params: z, x
+end;
+
+function TPoint3DF.GetAngleYZ : TPoint3DFType;
+begin
+  Result := ArcTan2(Self.Z, Self.Y); // Params: z, y
+end;
+
+procedure TPoint3DF.RotateXY(const aAngle : TPoint3DFType);
+var
+  Sinus, Cosinus, TempX : TPoint3DFType;
+begin
+  SinCos(aAngle, Sinus, Cosinus);
+
+  TempX := Self.X;
+  Self.X := Self.X * Cosinus - Self.Y * Sinus; // |cos(θ)  −sin(θ)| |x0|
+  Self.Y := TempX * Sinus + Self.Y * Cosinus;  // |sin(θ)   cos(θ)| |y0|
+end;
+
+procedure TPoint3DF.RotateXY(const aAngle : TPoint3DFType;
+  const aCenter : TPoint3DF);
+begin
+  Self.Substract(aCenter);
+  Self.RotateXY(aAngle);
+  Self.Add(aCenter);
+end;
+
+procedure TPoint3DF.RotateXZ(const aAngle : TPoint3DFType);
+var
+  Sinus, Cosinus, TempX : TPoint3DFType;
+begin
+  SinCos(aAngle, Sinus, Cosinus);
+
+  TempX := Self.X;
+  Self.X := Self.X * Cosinus - Self.Z * Sinus;
+  Self.Z := TempX * Sinus + Self.Z * Cosinus;
+end;
+
+procedure TPoint3DF.RotateXZ(const aAngle : TPoint3DFType;
+  const aCenter : TPoint3DF);
+begin
+  Self.Substract(aCenter);
+  Self.RotateXZ(aAngle);
+  Self.Add(aCenter);
+end;
+
+procedure TPoint3DF.RotateYZ(const aAngle : TPoint3DFType);
+var
+  Sinus, Cosinus, TempY : TPoint3DFType;
+begin
+  SinCos(aAngle, Sinus, Cosinus);
+
+  TempY := Self.Y;
+  Self.Y := Self.Y * Cosinus - Self.Z * Sinus;
+  Self.Z := TempY * Sinus + Self.Z * Cosinus;
+end;
+
+procedure TPoint3DF.RotateYZ(const aAngle : TPoint3DFType;
+  const aCenter : TPoint3DF);
+begin
+  Self.Substract(aCenter);
+  Self.RotateYZ(aAngle);
+  Self.Add(aCenter);
+end;
+
 class function TPoint3DF.Zero : TPoint3DF;
 begin
   Result.X := 0;
@@ -245,12 +354,13 @@ begin
     (aPoint3DF1.Z = aPoint3DF2.Z);
 end;
 
-class operator TPoint3DF.<>(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
-: Boolean;
-begin
-  Result := (aPoint3DF1.X <> aPoint3DF2.X) or (aPoint3DF1.Y <> aPoint3DF2.Y) or
-    (aPoint3DF1.Z <> aPoint3DF2.Z);
-end;
+{ NOTE: Automatically created by FPC if = created. }
+//class operator TPoint3DF.<>(
+//  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : Boolean;
+//begin
+//  Result := (aPoint3DF1.X <> aPoint3DF2.X) or (aPoint3DF1.Y <> aPoint3DF2.Y) or
+//    (aPoint3DF1.Z <> aPoint3DF2.Z);
+//end;
 
 procedure TPoint3DF.Add(const aPoint3DF : TPoint3DF);
 begin
@@ -266,8 +376,8 @@ begin
   Self.Z += dZ;
 end;
 
-class operator TPoint3DF.+(
-  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
+class operator TPoint3DF.+(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+: TPoint3DF;
 begin
   Result.X := aPoint3DF1.X + aPoint3DF2.X;
   Result.Y := aPoint3DF1.Y + aPoint3DF2.Y;
@@ -281,8 +391,8 @@ begin
   Self.Z -= aPoint3DF.Z;
 end;
 
-class operator TPoint3DF.-(
-  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
+class operator TPoint3DF.-(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
+: TPoint3DF;
 begin
   Result.X := aPoint3DF1.X - aPoint3DF2.X;
   Result.Y := aPoint3DF1.Y - aPoint3DF2.Y;
@@ -353,8 +463,8 @@ begin
   Self.Z /= l;
 end;
 
-class function TPoint3DF.VectProd(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
-: TPoint3DF;
+class function TPoint3DF.VectProd(
+  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DF;
 begin
   Result.X := (aPoint3DF1.Y * aPoint3DF1.Z) - (aPoint3DF2.Y * aPoint3DF1.Z);
   Result.Y := (aPoint3DF1.Z * aPoint3DF1.X) - (aPoint3DF2.Z * aPoint3DF1.X);
@@ -367,8 +477,8 @@ begin
     (Self.Z * aPoint3DF.Z);
 end;
 
-class operator TPoint3DF.*(const aPoint3DF1, aPoint3DF2 : TPoint3DF)
-: TPoint3DFType;
+class operator TPoint3DF.*(
+  const aPoint3DF1, aPoint3DF2 : TPoint3DF) : TPoint3DFType;
 begin
   Result := (aPoint3DF1.X * aPoint3DF2.X) + (aPoint3DF1.Y * aPoint3DF2.Y) +
     (aPoint3DF1.Z * aPoint3DF2.Z);

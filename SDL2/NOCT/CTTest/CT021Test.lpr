@@ -1,21 +1,30 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
+program CT021Test;
+{< The Coding Train Challenge #021 - Mandelbrot }
 
-   The Coding Train Challenge #00X - Title }
+// CHX: Direct drawing pixels on render as CT013.
+//   It's About 20% slower than texture direct pixel editing. And very much
+//   slower, if hardware acceleration is used.
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/6z7GQewK-Ks
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes,
+  SysUtils,
+  CTypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
   Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SDL2,
+  sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window, ucSDL2Engine,
+  ucCHXSDL2Window,
+  ucSDL2Engine,
   uProcUtils;
 
 const
@@ -23,9 +32,37 @@ const
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-//var // Global variables :-(
 
-// Any auxiliar procedure/function will be here
+  // CHX: Make values as constants
+
+  // Establish a range of values on the complex plane
+  // A different range will allow us to "zoom" in or out on the fractal
+
+  // It all starts with the width, try higher or lower values
+  w = 5;
+  h = (w * WinH) / WinW;
+
+  // Maximum number of iterations for each point on the complex plane
+  maxiterations = 255;
+
+  // Start at negative half the width and height
+  xmin = -w / 2;
+  ymin = -h / 2;
+
+  // x goes from xmin to xmax
+  xmax = xmin + w;
+  // y goes from ymin to ymax
+  ymax = ymin + h;
+
+  // Calculate amount we increment x,y for each pixel
+  dx = (xmax - xmin) / WinW;
+  dy = (ymax - ymin) / WinH;
+
+
+var // Global variables :-(
+  SDL2Engine : cSDL2Engine;
+
+  // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
   begin
@@ -39,24 +76,78 @@ const
 
   end;
 
-  function OnCompute(Window : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(Window : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
   begin
-    { If we want to pause when minimized or lost focus.}
-    // if Window.Minimized then
-    // begin
-    //   Result := True;
-    //   Exit;
-    // end;
-
 
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    x, y, a, b, aa, bb, twoab : Double; // fractal coords.
+    n, i, j : integer; // screen coords.
   begin
-    // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
-    SDL_RenderClear(SDL2R);
+    y := ymin;
+
+    j := 0;
+    while j < WinH do
+    begin
+      x := xmin;
+
+      i := 0;
+      while i < WinW do
+      begin
+        // Now we test, as we iterate z = z^2 + cm does z tend towards infinity?
+        a := x;
+        b := y;
+
+        n := 0;
+        while n < maxiterations do
+        begin
+          aa := a * a;
+          bb := b * b;
+          twoab := 2.0 * a * b;
+
+          a := aa - bb + x;
+          b := twoab + y;
+
+          if (a * a + b * b) > 16 then
+            Break; // CHX: Ouhg... :-(
+
+          Inc(n);
+        end;
+
+        // We color each pixel based on how long it takes to get to infinity
+        // If we never got there, let's pick the color black
+        if n >= maxiterations then
+        begin
+          //pixelRGBA(SDL2R, i, j, 0, 0, 0, 255)
+
+          SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+          SDL_RenderDrawPoint(SDL2R, i, j);
+        end
+        else
+        begin
+          // Gosh, we could make fancy colors here if we wanted
+          n := round(sqrt(n / maxiterations) * 255);
+          //n := round(n / maxiterations * 255);
+
+          //pixelRGBA(SDL2R, i, j, n, n, n, 255);
+
+          SDL_SetRenderDrawColor(SDL2R, n, n, n, 255);
+          SDL_RenderDrawPoint(SDL2R, i, j);
+        end;
+
+        x += dx;
+
+        Inc(i);
+      end;
+
+      y += dy;
+
+      Inc(j);
+    end;
 
     Result := True; // False -> Finish program
   end;
@@ -141,7 +232,6 @@ const
   end;
 
 var
-  SDL2Engine : cSDL2Engine;
   BaseFolder : string;
 
   {$R *.res}

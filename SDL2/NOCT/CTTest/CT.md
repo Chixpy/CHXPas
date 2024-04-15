@@ -4,7 +4,7 @@ Basically Processing code is ported "as is", althougt it is not very optimized
 or Pascal friendly. The main changes are:
 
   - Show/Draw methods in classes are moved to main OnDraw call.
-  - No Garbage Collector, so reserved dinamicmemory and objects are freed.
+  - No Garbage Collector, so reserved dynamic memory and objects are freed.
 
 Maybe some day a better "Pascalized" version of the programs and the classes 
 will be done and ucSDL2Engine will evolve.
@@ -18,7 +18,13 @@ will be done and ucSDL2Engine will evolve.
 | CT004 | Purple Rain |
 | CT005 | Space Invaders |
 | CT006 | Mitosis Simulation |
-  
+| CT010 | Maze Generator |
+| CT013 | Reaction Diffusion Algorithm |
+| CT015 | Object-Oriented Fractal Trees |
+| CT017 | Space Colonization |
+| CT019 | Superellipse |
+| CT021 | Mandelbrot |
+
 ## Skipped
 
 Reasons to skip:
@@ -29,29 +35,25 @@ Reasons to skip:
 | CT007 | PM | Solar System (2D) |
 | CT008 | 3D | Solar System (3D) |
 | CT009 | 3D | Solar System (3D) with textures |
- 
- - 3D: Not done now because needs 3D engine, to be done with OpenGL/Vulkan 
-    setup.
-  - PM: Not done because Processing coordinate Matrix manipulations (pushMatrix).
-    They change the coordinate system in a stack and apply to make relative
-    translations and rotations.
+| CT011 | 3D | 3D Terrain Generation with Perlin Noise |
+| CT012 | 3D | The Lorenz Attractor |
+| CT014 | PM | Recursive Fractal Trees |
+| CT016 | PM | Fractal Trees - L-System |
+| CT018 | 3D | 3D Fractal Trees |
+| CT020 | TX | 3D Cloth with Toxiclibs |
+
+  - 3D: Not done now, because needs a 3D engine; they can be done with
+    SDL OpenGL/Vulkan setup.
+  - PM: Not done because Processing coordinate Matrix manipulations
+    (pushMatrix, rotate, translate, popMatrix, etc.).
+    They change the coordinate system in a stack and apply to all points to
+    make relative translations and rotations. Not sure how to implement it.
+  - TX: Use toxiclibs physics library
  
 ## ToDo
 
 | # | Name |
 |---:|:---|
-| CT010 | Maze Generator |
-| CT01 | 3D Terrain Generation with Perlin Noise |
-| CT012 | The Lorenz Attractor |
-| CT013 | Reaction Diffusion Algorithm |
-| CT014 | Recursive Fractal Trees |
-| CT015 | Object-Oriented Fractal Trees |
-| CT016 | Fractal Trees - L-System |
-| CT017 | Space Colonization |
-| CT018 | 3D Fractal Trees |
-| CT019 | Superellipse |
-| CT020 | 3D Cloth with Toxiclibs |
-| CT021 | Mandelbrot Set with p5.js |
 | CT022 | Julia Set in Processing |
 | CT023 | 2D Supershapes |
 | CT024 | Perlin Noise Flow Field |

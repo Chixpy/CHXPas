@@ -29,11 +29,11 @@ type
     FPRenderer : PSDL_Renderer;
     FPWindow : PSDL_Window;
     FShown : Boolean;
-    FTitle : String;
+    FTitle : string;
     FWidth : CInt;
     FWindowID : CUInt32;
     procedure SetHeight(const AValue : CInt);
-    procedure SetTitle(const AValue : String);
+    procedure SetTitle(const AValue : string);
     procedure SetWidth(const AValue : CInt);
 
   protected
@@ -44,8 +44,9 @@ type
     procedure InitWindow;
 
     function CreateWindow : Boolean;
+
   public
-    property Title : String read FTitle write SetTitle;
+    property Title : string read FTitle write SetTitle;
     property Width : CInt read FWidth write SetWidth;
     property Height : CInt read FHeight write SetHeight;
 
@@ -63,7 +64,7 @@ type
 
     procedure HandleEvent(aEvent : TSDL_Event);
 
-    constructor Create(aTitle : String; aWidth, aHeight : LongInt;
+    constructor Create(aTitle : string; aWidth, aHeight : LongInt;
       HWAcc : Boolean = False);
     destructor Destroy; override;
   end;
@@ -72,7 +73,7 @@ implementation
 
 { cCHXSDL2Window }
 
-procedure cCHXSDL2Window.SetTitle(const AValue : String);
+procedure cCHXSDL2Window.SetTitle(const AValue : string);
 begin
   if FTitle = aValue then Exit;
   FTitle := aValue;
@@ -110,6 +111,9 @@ end;
 function cCHXSDL2Window.CreateWindow : Boolean;
 var
   Flags : CUInt32;
+  NRend : cint32;
+  i, RendDrv : integer;
+  RendInfo : TSDL_RendererInfo;
 begin
   Result := False;
 
@@ -120,10 +124,13 @@ begin
 
   InitWindow;
 
+  Flags := SDL_WINDOW_SHOWN + SDL_WINDOW_ALLOW_HIGHDPI + SDL_WINDOW_RESIZABLE;
+  if Accelerated then
+    Flags += SDL_WINDOW_OPENGL;
+
   // Create new window
   FPWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED, Width, Height, SDL_WINDOW_SHOWN +
-    +SDL_WINDOW_OPENGL + SDL_WINDOW_ALLOW_HIGHDPI + SDL_WINDOW_RESIZABLE);
+    SDL_WINDOWPOS_CENTERED, Width, Height, Flags);
   if not assigned(FPWindow) then
   begin
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, 'SDL_CreateWindow Error',
@@ -132,17 +139,61 @@ begin
   end;
 
   // Create renderer for window
-  { TODO : Create a fallback to software renderer. }
-  { NOTE : On laptops with internal and NVidia; if NVidia chip is used as
-      default in the system (in NVidia control panel), then Renderer can't be
-      created Accelerated, OpenGL or HighDPI. }
-  if Accelerated then
-    Flags := SDL_WINDOW_ALLOW_HIGHDPI + SDL_WINDOW_OPENGL +
-      SDL_RENDERER_ACCELERATED
-  else
-    Flags := SDL_RENDERER_SOFTWARE;
+  { TODO : Make a renderer driver selector.}
 
-  FPRenderer := SDL_CreateRenderer(PWindow, -1, Flags);
+  if Accelerated then
+  begin
+    { NOTE : On laptops with internal Intel and NVidia. Maybe happens with
+        NVidia cards alone.
+
+      If NVidia chip is used as default in the system (in NVidia control
+        panel), SDL_CreateRenderer will fail on "direct3d" driver wich
+        usually is autoselected with -1 parameter..
+
+      if it's set to internal Intel, it seems to work always.
+
+      If the default setting 'autoselect chip' it can work or not at random.
+    }
+
+    { NOTE : "Accelerated" means 3D (at least initially).
+
+      Although flag is named 'SDL_RENDERER_ACCELERATED', in my tests
+        (setting all pixels with SDL_RenderDrawPoint or sdl2_gfx-pixelRGBA)
+        all accelerated drivers are actually slower than software.
+
+        - opengl, opengles2: 3~4 times slower.
+        - direct3d11, direct3d12: ¡20! times slower.
+    }
+    { TODO : Test with surfaces, sprites, etc. because it can be faster than
+        direct drawing.
+    }
+
+    // Searching opengl driver
+    // SDL_SetHint(SDL_HINT_RENDER_DRIVER, 'opengl');
+
+    NRend := SDL_GetNumRenderDrivers;
+    i := 0;
+    RendDrv := -1;
+    while (i < NRend) and (RendDrv = -1) do
+    begin
+      SDL_GetRenderDriverInfo(i, @RendInfo);
+      if RendInfo.Name = 'opengl' then
+        RendDrv := i;
+      Inc(i);
+    end;
+
+    if RendDrv <> -1 then
+      Set8087CW($133F);  // Seems to be better to use this with OpenGL
+    Flags := SDL_RENDERER_ACCELERATED;
+    FPRenderer := SDL_CreateRenderer(PWindow, RendDrv, Flags);
+  end
+  else
+  begin
+    // SDL_SetHint(SDL_HINT_RENDER_DRIVER, '');
+    Flags := SDL_RENDERER_SOFTWARE;
+    FPRenderer := SDL_CreateRenderer(PWindow, -1, Flags);
+  end;
+
   if not assigned(PRenderer) then
   begin
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
@@ -152,6 +203,10 @@ begin
     Exit;
   end;
 
+  // Software Renderer can look ugly on resize
+  { TODO : Make IntegerScale configurable }
+  if not accelerated then
+    SDL_RenderSetIntegerScale(PRenderer, True);
   SDL_RenderSetLogicalSize(PRenderer, Width, Height);
 
   FWindowID := SDL_GetWindowID(PWindow);
@@ -212,13 +267,15 @@ begin
     SDL_WINDOWEVENT_RESTORED : // Window restored
       FMinimized := False;
 
-    // SDL_WINDOWEVENT_CLOSE: // Close window
-    // SDL_HideWindow( mWindow );
+      // SDL_WINDOWEVENT_CLOSE: // Close window
+      // SDL_HideWindow( mWindow );
+    else
+      ;
   end;
 end;
 
-constructor cCHXSDL2Window.Create(aTitle : String; aWidth, aHeight : LongInt;
-  HWAcc : Boolean);
+constructor cCHXSDL2Window.Create(aTitle : string;
+  aWidth, aHeight : LongInt; HWAcc : Boolean);
 begin
   FPWindow := nil;
   FPRenderer := nil;
@@ -235,6 +292,8 @@ end;
 
 destructor cCHXSDL2Window.Destroy;
 begin
+  if Accelerated then
+    Set8087CW(Default8087CW);
   inherited Destroy;
 end;
 

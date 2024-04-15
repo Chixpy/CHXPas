@@ -1,34 +1,104 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
-
-   The Coding Train Challenge #00X - Title }
+program CT010;
+{< The Coding Train Challenge #010 - Maze Generator }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+
+// Videos
+// https://youtu.be/HyK_Q5rrcr4
+// https://youtu.be/D8UgRyRnvXU
+// https://youtu.be/8Ju_uxJ9v44
+// https://youtu.be/_p5IH0L63wo
+
+// Depth-first search
+// Recursive backtracker
+// https://en.wikipedia.org/wiki/Maze_generation_algorithm
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes,
+  SysUtils,
+  CTypes,
+  StrUtils,
+  FileUtil,
+  LazFileUtils,
   Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
+  SDL2,
+  sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window, ucSDL2Engine,
-  uProcUtils;
+  ucSDL2Engine, ucCHXSDL2Window,
+  uProcUtils,
+  ucCTCell;
 
 const
   // Renderer scales images to actual size of the window.
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-//var // Global variables :-(
+  w = 19;
 
-// Any auxiliar procedure/function will be here
+var // Global variables :-(
+  Cols, Rows : integer;
+  Grid : TCellList;
+  Stack : TGenCellList;
+  Current : cCTCell;
+
+  Speed : CUInt32; // CHX: To handle speed with Up/Down
+
+  // Any auxiliar procedure/function will be here
+
+  procedure removeWalls(a, b : cCTCell);
+  var
+    z : integer;
+  begin
+    z := a.i - b.i;
+    if (z = 1) then
+    begin
+      a.walls[3] := False;
+      b.walls[1] := False;
+    end
+    else if (z = -1) then
+    begin
+      a.walls[1] := False;
+      b.walls[3] := False;
+    end;
+
+    z := a.j - b.j;
+    if (z = 1) then
+    begin
+      a.walls[0] := False;
+      b.walls[2] := False;
+    end
+    else if (z = -1) then
+    begin
+      a.walls[2] := False;
+      b.walls[0] := False;
+    end;
+  end;
 
   function OnSetup : Boolean;
+  var
+    j , i: Integer;
   begin
+    Randomize;
+    Cols := WinW div w;
+    Rows := WinH div w;
+
+    Speed := 210;
+
+    Grid := TCellList.Create(True);
+    Grid.Cols := Cols;
+    Grid.Rows := Rows;
+
+    Stack := TGenCellList.Create(False);
+
+    for j := 0 to Rows - 1 do
+      for  i := 0 to Cols - 1 do
+        Grid.Add(cCTCell.Create(i, j));
+
+    Current := Grid[0];
 
     Result := True; // False -> Finish program
   end;
@@ -36,27 +106,80 @@ const
   procedure OnFinish;
   begin
     // Free any created objects
-
+    Stack.Free;
+    Grid.Free;
   end;
 
-  function OnCompute(Window : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(SDL2W : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    Next : cCTCell;
   begin
-    { If we want to pause when minimized or lost focus.}
-    // if Window.Minimized then
-    // begin
-    //   Result := True;
-    //   Exit;
-    // end;
+    Current.visited := true;
 
+    // STEP 1
+    Next := Current.CheckNeighbors(Grid);
+    if assigned(Next) then
+    begin
+      Next.visited := True;
+
+      // STEP 2
+      stack.add(current);
+
+      // STEP 3
+      removeWalls(current, Next);
+
+      // STEP 4
+      current := Next;
+    end
+    else if (stack.Count > 0) then
+    begin
+      // current = stack.Extract(stack.Last);
+      // Faster
+      Current := stack[stack.Count - 1];
+      Stack.Delete(stack.Count - 1);
+    end;
 
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    aCell : cCTCell;
+    x, y : integer;
   begin
     // Background
     SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
     SDL_RenderClear(SDL2R);
+
+    // Grid
+    for aCell in grid do
+    begin
+      y := aCell.j * w;
+      x := aCell.i * w;
+
+      if (aCell.walls[0]) then
+        hlineRGBA(SDL2R, x, x + w, y, 255, 255, 255, 255);
+      if (aCell.walls[1]) then
+        vlineRGBA(SDL2R, x + w, y, y + w, 255, 255, 255, 255);
+      if (aCell.walls[2]) then
+        hlineRGBA(SDL2R, x + w, x, y + w, 255, 255, 255, 255);
+      if (aCell.walls[3]) then
+        vlineRGBA(SDL2R, x, y + w, y, 255, 255, 255, 255);
+
+      // Visited
+      if (aCell.visited) then
+        boxRGBA(SDL2R, x, y, x + w, y + w, 255, 0, 255, 100);
+    end;
+
+    // Current
+    if assigned(current) then
+    begin
+      y := Current.j * w;
+      x := Current.i * w;
+      boxRGBA(SDL2R, x, y, x + w, y + w, 0, 0, 255, 100);
+    end;
+
+    SDL_Delay(Speed);
 
     Result := True; // False -> Finish program
   end;
@@ -77,8 +200,8 @@ const
       SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
       begin
         case aEvent.key.keysym.sym of
-          //SDLK_UP : ;
-          //SDLK_DOWN : ;
+          SDLK_UP : if Speed > 50 then Speed -= 50;
+          SDLK_DOWN : Speed += 50;
           //SDLK_LEFT : ;
           //SDLK_RIGHT : ;
           //SDLK_SPACE : ;

@@ -1,7 +1,11 @@
-program PasProc;
-{< Base program for NOTC and CT <- Remove this
+program CT015;
+{< The Coding Train Challenge #015 - Title }
 
-   The Coding Train Challenge #00X - Title }
+//* makes a FractalTree using Array(Lists)
+//* adds one Level per MouseClick
+//* at Level 6 Leaves will fall down
+//* @author Lukas Klassen
+//* translated version of CC_015_FractalTreeArray by Daniel Shiffmann
 
 // Daniel Shiffman
 // http://codingtra.in
@@ -11,24 +15,43 @@ program PasProc;
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, fgl,
   Math, //SDL have math methods too
   SDL2, sdl2_gfx,
-  uCHXStrUtils,
+  uCHXStrUtils, uCHXPoint3DF,
   ucCHXSDL2Window, ucSDL2Engine,
-  uProcUtils;
+  uProcUtils,
+  ucCTBranch;
 
 const
   // Renderer scales images to actual size of the window.
-  WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  WinW = 400; // Window logical width
+  WinH = 400; // Window logical height
 
-//var // Global variables :-(
+  NIter = 6; // Number of max iterations
 
-// Any auxiliar procedure/function will be here
+type
+  TTree = specialize TFPGObjectList<cCTBranch>;
+  TLeaves = specialize TFPGList<TPoint3DF>;
+
+var // Global variables :-(
+  Tree : TTree;
+  Leaves : TLeaves;
+  Count : integer;
+
+  // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
+  var
+    Root : cCTBranch;
   begin
+    Tree := TTree.Create(True);
+    Leaves := TLeaves.Create;
+
+    Root := cCTBranch.Create(Point3DF(WinW / 2, WinH, 0),
+      Point3DF(WinW / 2, WinH - 100, 0));
+
+    Tree.Add(Root);
 
     Result := True; // False -> Finish program
   end;
@@ -36,32 +59,65 @@ const
   procedure OnFinish;
   begin
     // Free any created objects
-
+    Tree.Free;
+    Leaves.Free;
   end;
 
-  function OnCompute(Window : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(Window : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    l : TPoint3DF;
+    i : Integer;
   begin
-    { If we want to pause when minimized or lost focus.}
-    // if Window.Minimized then
-    // begin
-    //   Result := True;
-    //   Exit;
-    // end;
+    { A little dream, l is a copy and it can't be assigned to. }
+    //for l in Leaves do
+    //  //let the Leave fall
+    //  l.Y := l.Y + Random * 4;
+
+    //forEach Leave: draw it
+    i := Leaves.Count - 1;
+    while i >= 0 do
+    begin
+      l := Leaves[i]; // CHX: Returns a copy
+      //let the Leave fall
+      // CHX: I don't know why l.Y := l.Y + Random * 4 don't work.
+      l.SetY(l.Y + Random * 4);
+      Leaves[i] := l;
 
 
+      // CHX: removing leaves offscreen
+      if Leaves[i].Y > WinH then
+        Leaves.Delete(i);
+      Dec(i);
+    end;
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  var
+    b : cCTBranch;
+    l : TPoint3DF;
   begin
     // Background
-    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
     SDL_RenderClear(SDL2R);
+
+    SDL_SetRenderDrawColor(SDL2R, 255, 255, 255, 255);
+    //forEach Branch of the Tree: Draw it
+    for b in Tree do
+      SDL_RenderDrawLineF(SDL2R, b.beginB.X, b.beginB.Y,
+        b.endB.X, b.endB.Y);
+
+    for l in Leaves do
+      filledCircleRGBA(SDL2R, round(l.x), round(l.y), 4, 255, 0, 100, 100);
 
     Result := True; // False -> Finish program
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
+  var
+    i : integer;
+    Current : cCTBranch;
   begin
     Result := True;
 
@@ -87,13 +143,46 @@ const
             ;
         end;
       end;
-        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
 
-        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+      //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
+      //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
+      //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+
+      //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+      //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+      SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+      begin
+        // CHX: Stop iterating, and make a constant with iteration.
+        if Count <= NIter then
+        begin
+        i := Tree.Count - 1;
+        while i >= 0 do
+        begin
+          Current := Tree[i];
+
+          if not Current.finished then
+          begin
+            Tree.Add(Current.branchA);
+            Tree.Add(Current.branchB);
+          end;
+
+          Current.finished := True;
+
+          Dec(i);
+        end;
+
+        end;
+
+        //new Level added
+        Inc(Count);
+
+        //on the 6. Level: spawn the Leaves
+        if Count >= NIter then
+          for Current in Tree do
+            if not Current.finished then
+              Leaves.add(Current.endB);
+
+      end;
         //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
         //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
@@ -132,6 +221,7 @@ const
         //SDL_MULTIGESTURE : // (mgesture: TSDL_MultiGestureEvent);
         //SDL_DOLLARGESTURE : //(dgesture: TSDL_DollarGestureEvent);
         //SDL_DOLLARRECORD : //(dgesture: TSDL_DollarGestureEvent);
+
 
         //SDL_DROPFILE : // (drop: TSDL_DropEvent);
       else

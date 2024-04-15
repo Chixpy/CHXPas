@@ -4,8 +4,8 @@ uses
   Classes,
   SysUtils,
   StrUtils,
-  ctypes,
-  sdl2;
+  CTypes,
+  SDL2;
 
   {$R *.res}
 
@@ -17,10 +17,11 @@ var
   SDLAudioSpec : TSDL_AudioSpec;
   SDLRect : TSDL_Rect;
   SDLDisplayMode : TSDL_DisplayMode;
+  SDL_RendererInfo : TSDL_RendererInfo;
   aIntA, aIntB, aIntC, aIntD : CInt;
   aFloatA, aFloatB, aFloatC : cfloat;
   aMin, aMax : integer;
-  aGUIDStr: string;
+  aGUIDStr : string;
 
 begin
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -147,6 +148,26 @@ begin
   WriteLn('SDL_IsScreenSaverEnabled: ', SDL_IsScreenSaverEnabled);
   WriteLn;
 
+  // sdl_renderer.h
+  aIntA := SDL_GetNumRenderDrivers;
+  WriteLn('SDL_GetNumRenderDrivers: ', aIntA);
+  for aIntB := 0 to (aIntA - 1) do
+  begin
+    SDL_GetRenderDriverInfo(aIntB, @SDL_RendererInfo);
+    WriteLn('+ (', aIntB, ') SDL_RendererInfo.name: ', SDL_RendererInfo.Name);
+    WriteLn('  + SDL_RendererInfo.flags: ', SDL_RendererInfo.flags);
+    WriteLn('  + SDL_RendererInfo.num_texture_formats: ',
+      SDL_RendererInfo.num_texture_formats);
+    //WriteLn('  + SDL_RendererInfo.texture_formats: ', SDL_RendererInfo.texture_formats);
+    WriteLn('  + SDL_RendererInfo.max_texture_width: ',
+      SDL_RendererInfo.max_texture_width);
+    WriteLn('  + SDL_RendererInfo.max_texture_height: ',
+      SDL_RendererInfo.max_texture_height);
+  end;
+
+
+  WriteLn;
+
   // sdl_joystick.h
   aIntA := SDL_NumJoysticks;
   aIntC := 0;
@@ -186,7 +207,7 @@ begin
       SDL_GameControllerMappingForDeviceIndex(aIntB));
   end;
   WriteLn('Game Controllers: ', aIntC);
-    WriteLn;
+  WriteLn;
 
   // sdl_sensor.h
   aIntA := SDL_NumSensors;
