@@ -6,7 +6,7 @@ or Pascal friendly. The main changes are:
   - Show/Draw methods in classes are moved to main OnDraw call.
   - No Garbage Collector, so reserved dynamic memory and objects are freed.
 
-Maybe some day a better "Pascalized" version of the programs and the classes 
+Some day a better "Pascalized" version of the programs and the classes
 will be done and ucSDL2Engine will evolve.
 
 ## Done / Skipped
@@ -24,6 +24,7 @@ will be done and ucSDL2Engine will evolve.
 | CT017 | Space Colonization |
 | CT019 | Superellipse |
 | CT021 | Mandelbrot |
+| CT022 | Julia Set |
 
 ## Skipped
 
@@ -41,24 +42,28 @@ Reasons to skip:
 | CT016 | PM | Fractal Trees - L-System |
 | CT018 | 3D | 3D Fractal Trees |
 | CT020 | TX | 3D Cloth with Toxiclibs |
+| CT024 | PM | Perlin Noise Flow Field |
+| CT025 | 3D | Spherical Geometry |
+| CT026 | 3D | 3D Supershapes |
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
-    SDL OpenGL/Vulkan setup.
+      SDL OpenGL/Vulkan setup.
   - PM: Not done because Processing coordinate Matrix manipulations
-    (pushMatrix, rotate, translate, popMatrix, etc.).
-    They change the coordinate system in a stack and apply to all points to
-    make relative translations and rotations. Not sure how to implement it.
+    (pushMatrix, rotate, translate, popMatrix, etc.). They change the
+    coordinate system in a stack and apply to all points to make relative
+    translations and rotations. Not sure how to implement it:
+    - Maybe creating a stack of new rendering textures on pushMatrix. They
+      can be rotated and translated and render in parent texture on popMatrix.
+      But, we can't draw on negative coords.
+    - Or making a wrapper of all drawing function that makes all
+      transformations before actual drawing.
   - TX: Use toxiclibs physics library
  
 ## ToDo
 
 | # | Name |
 |---:|:---|
-| CT022 | Julia Set in Processing |
 | CT023 | 2D Supershapes |
-| CT024 | Perlin Noise Flow Field |
-| CT025 | Spherical Geometry |
-| CT026 | 3D Supershapes |
 | CT027 | Fireworks |
 | CT028 | Metaballs |
 | CT029 | Smart Rockets in p5.js |

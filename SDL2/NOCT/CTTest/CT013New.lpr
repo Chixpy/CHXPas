@@ -1,153 +1,205 @@
-program CT021Test;
-{< The Coding Train Challenge #021 - Mandelbrot }
+program CT013New;
+{< The Coding Train Challenge #013 - Reaction Diffusion Algorithm }
 
-// CHX: Direct drawing pixels on render as CT013.
-//   It's About 20% slower than texture direct pixel editing. And very much
-//   slower, if hardware acceleration is used.
+// CHX: Testing faster direct pixel access of a texture instead renderer.
+// Time per frame in my computer in Release build mode at 800x800:
+//   - Old Soft:  ~55ms
+//   - Old Hard: ~215ms
+//   - New Soft:  ~35ms (30ms if SDL_MapRGBA isn't used.)
+//   - New Hard:  ~35ms (30ms if SDL_MapRGBA isn't used.)
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for: https://youtu.be/6z7GQewK-Ks
+// Code for this video: https://youtu.be/BV9ny785UNc
+
+// Written entirely based on
+// http://www.karlsims.com/rd.html
+
+// Also, for reference
+// http://hg.postspectacular.com/toxiclibs/src/44d9932dbc9f9c69a170643e2d459f449562b750/src.sim/toxi/sim/grayscott/GrayScott.java?at=default
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
+
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes,
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
   Math, //SDL have math methods too
-  SDL2,
-  sdl2_gfx,
+  SDL2, sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window,
-  ucSDL2Engine,
+  ucCHXSDL2Window, ucSDL2Engine,
   uProcUtils;
 
 const
   // Renderer scales images to actual size of the window.
   WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  WinH = 800; // Window logical height
 
+  dA = 1.0;
+  dB = 0.5;
+  feed = 0.055;
+  k = 0.062;
 
-  // CHX: Make values as constants
+type
+  // CHX: Actually it's a class in original code.
+  TCell = record
+    a : Double;
+    b : Double;
+  end;
 
-  // Establish a range of values on the complex plane
-  // A different range will allow us to "zoom" in or out on the fractal
-
-  // It all starts with the width, try higher or lower values
-  w = 5;
-  h = (w * WinH) / WinW;
-
-  // Maximum number of iterations for each point on the complex plane
-  maxiterations = 255;
-
-  // Start at negative half the width and height
-  xmin = -w / 2;
-  ymin = -h / 2;
-
-  // x goes from xmin to xmax
-  xmax = xmin + w;
-  // y goes from ymin to ymax
-  ymax = ymin + h;
-
-  // Calculate amount we increment x,y for each pixel
-  dx = (xmax - xmin) / WinW;
-  dy = (ymax - ymin) / WinH;
-
+  TCellsArray = array [0..WinW - 1, 0..WinH - 1] of TCell;
 
 var // Global variables :-(
   SDL2Engine : cSDL2Engine;
+  aTex : PSDL_Texture;
+  aPxFmt : PSDL_PixelFormat;
+
+  Grid, Prev : TCellsArray;
 
   // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
+  var
+    aFmt : CUInt32;
+    i, j, n, StartX, StartY : integer;
   begin
+    // CHX: Allocating Window pixel format
+    aFmt := SDL_GetWindowPixelFormat(SDL2Engine.SDLWindow.PWindow);
+    aPxFmt := SDL_AllocFormat(aFmt);
+
+    // CHX: Creating a SDLTexture to edit its pixels
+    aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
+      aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
+
+
+    for i := 1 to WinW - 2 do
+      for j := 1 to WinH - 2 do
+      begin
+        Grid[i, j].a := 1;
+        Grid[i, j].b := 0;
+        Prev[i, j].a := 1;
+        Prev[i, j].b := 0;
+      end;
+
+    for n := 0 to 9 do
+    begin
+      StartX := RandomRange(20, WinW - 19);
+      StartY := RandomRange(20, WinH - 19);
+
+      for i := StartX to StartX + 10 do
+        for j := StartY to StartY + 10 do
+        begin
+          Grid[i, j].a := 1;
+          Grid[i, j].b := 1;
+          Prev[i, j].a := 1;
+          Prev[i, j].b := 1;
+        end;
+    end;
 
     Result := True; // False -> Finish program
   end;
 
   procedure OnFinish;
   begin
-    // Free any created objects
+    // CHX:Free any created objects
+    SDL_DestroyTexture(aTex);
+    SDL_FreeFormat(aPxFmt);
+    // As TCell is a record, nothing to do here
+  end;
 
+  procedure PutPixel(Base : PCUInt32; Pitch : cint; x, y : word;
+    r, g, b, a : byte);
+  var
+    PPoint : PCUInt32;
+  begin
+    PPoint := Base + y * (Pitch div 4) + x;
+    // CHX: Doesn't apply transparency, only sets it. PPoint is write-only and
+    //   it doesn't have previous color value.
+
+    // This is a little faster, less than 5%, but only works in RGBA8888 in
+    //   Windows and Intel (component order and endianess);
+    //PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
+
+    // SDL_MapRGBA is the correct way and we need texture pixel format.
+    PPoint^ := SDL_MapRGBA(aPxFmt, r, g, b, a);
   end;
 
   function OnCompute(Window : cCHXSDL2Window;
     DeltaTime, FrameTime : CUInt32) : Boolean;
+  var
+    pitch : cint;
+    PPBase : PCUInt32;
+    a, b, laplaceA, laplaceB : Double;
+    Temp : TCellsArray;
+    i, j, c : integer;
   begin
+    // CHX: As we are editing a SDLTexture and don't need a SDL_Renderer, we
+    //   can do in OnCompute.
+    SDL_LockTexture(aTex, nil, @PPBase, @pitch);
 
+    // Update()
+
+    // Don't compute borders
+    for i := 1 to WinW - 2 do
+      for j := 1 to WinH - 2 do
+      begin
+        a := prev[i][j].a;
+        b := prev[i][j].b;
+
+        laplaceA := 0.0;
+        laplaceA += a * -1;
+        laplaceA += prev[i + 1][j].a * 0.2;
+        laplaceA += prev[i - 1][j].a * 0.2;
+        laplaceA += prev[i][j + 1].a * 0.2;
+        laplaceA += prev[i][j - 1].a * 0.2;
+        laplaceA += prev[i - 1][j - 1].a * 0.05;
+        laplaceA += prev[i + 1][j - 1].a * 0.05;
+        laplaceA += prev[i - 1][j + 1].a * 0.05;
+        laplaceA += prev[i + 1][j + 1].a * 0.05;
+
+        laplaceB := 0.0;
+        laplaceB += b * -1;
+        laplaceB += prev[i + 1][j].b * 0.2;
+        laplaceB += prev[i - 1][j].b * 0.2;
+        laplaceB += prev[i][j + 1].b * 0.2;
+        laplaceB += prev[i][j - 1].b * 0.2;
+        laplaceB += prev[i - 1][j - 1].b * 0.05;
+        laplaceB += prev[i + 1][j - 1].b * 0.05;
+        laplaceB += prev[i - 1][j + 1].b * 0.05;
+        laplaceB += prev[i + 1][j + 1].b * 0.05;
+
+        grid[i][j].a := a + (dA * laplaceA - a * b * b + feed * (1 - a)) * 1;
+        grid[i][j].b := b + (dB * laplaceB + a * b * b - (k + feed) * b) * 1;
+
+        grid[i][j].a := EnsureRange(grid[i][j].a, 0, 1);
+        grid[i][j].b := EnsureRange(grid[i][j].b, 0, 1);
+      end;
+
+    // Swap()
+    Temp := Prev;
+    prev := grid;
+    grid := Temp;
+
+
+    for i := 0 to WinW - 1 do
+      for j := 0 to WinH - 1 do
+      begin
+        c := EnsureRange(round((grid[i, j].a - grid[i, j].b) * 255), 0, 255);
+
+        PutPixel(PPBase, pitch, i, j, c, c, c, 255);
+      end;
+
+    SDL_UnlockTexture(aTex);
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
-  var
-    x, y, a, b, aa, bb, twoab : Double; // fractal coords.
-    n, i, j : integer; // screen coords.
   begin
-    y := ymin;
+    // Background
+    //SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    //SDL_RenderClear(SDL2R);
 
-    j := 0;
-    while j < WinH do
-    begin
-      x := xmin;
-
-      i := 0;
-      while i < WinW do
-      begin
-        // Now we test, as we iterate z = z^2 + cm does z tend towards infinity?
-        a := x;
-        b := y;
-
-        n := 0;
-        while n < maxiterations do
-        begin
-          aa := a * a;
-          bb := b * b;
-          twoab := 2.0 * a * b;
-
-          a := aa - bb + x;
-          b := twoab + y;
-
-          if (a * a + b * b) > 16 then
-            Break; // CHX: Ouhg... :-(
-
-          Inc(n);
-        end;
-
-        // We color each pixel based on how long it takes to get to infinity
-        // If we never got there, let's pick the color black
-        if n >= maxiterations then
-        begin
-          //pixelRGBA(SDL2R, i, j, 0, 0, 0, 255)
-
-          SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
-          SDL_RenderDrawPoint(SDL2R, i, j);
-        end
-        else
-        begin
-          // Gosh, we could make fancy colors here if we wanted
-          n := round(sqrt(n / maxiterations) * 255);
-          //n := round(n / maxiterations * 255);
-
-          //pixelRGBA(SDL2R, i, j, n, n, n, 255);
-
-          SDL_SetRenderDrawColor(SDL2R, n, n, n, 255);
-          SDL_RenderDrawPoint(SDL2R, i, j);
-        end;
-
-        x += dx;
-
-        Inc(i);
-      end;
-
-      y += dy;
-
-      Inc(j);
-    end;
+    SDL_RenderCopy(SDL2R, aTex, nil, nil);
 
     Result := True; // False -> Finish program
   end;
@@ -246,7 +298,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

@@ -14,7 +14,7 @@
         <SaveFoldState Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="CT021Test"/>
+      <Title Value="CT022"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -38,11 +38,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT021Test"/>
+            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT022"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\SDL2;..\Classes;..\..\Units;source\Units"/>
+            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\Classes;..\..\SDL2;..\source\Units"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -80,7 +80,7 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="CT021Test.lpr"/>
+        <Filename Value="CT022.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -107,17 +107,37 @@
         <Filename Value="CT.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\Classes\ucSDL2Config.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Abstract\uaCHXConfig.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Abstract\uaCHXStorable.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Units\uCHXConst.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Units\uCHXRscStr.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT021Test"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CT022"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\SDL2;..\..\Classes;..\..\..\Units;..\source\Units"/>
+      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\Classes;..\..\SDL2;..\source\Units"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

@@ -1,11 +1,9 @@
-program CT021;
+program CT021Old;
 {< The Coding Train Challenge #021 - Mandelbrot }
 
-// CHX: By the way, I'm testing another way to direct pixel access
-//   by texture editing, wich seems to be faster from "CT013: Reaction
-//   Diffusion Algorithm" direct renderer method.
-// It's about 20% faster than direct pixel editing on renderer and
-//   it has same speed if hardware acceleration is used.
+// CHX: Direct drawing pixels on render as CT013.
+//   It's About 20% slower than texture direct pixel editing. And very much
+//   slower, if hardware acceleration is used.
 
 // Daniel Shiffman
 // http://codingtra.in
@@ -34,7 +32,8 @@ const
   WinW = 800; // Window logical width
   WinH = 600; // Window logical height
 
-  // CHX: Making values as constants, can be set in OnSetup too
+
+  // CHX: Making values as constants
 
   // Establish a range of values on the complex plane
   // A different range will allow us to "zoom" in or out on the fractal
@@ -62,63 +61,33 @@ const
 
 var // Global variables :-(
   SDL2Engine : cSDL2Engine;
-  aTex : PSDL_Texture;
-  aPxFmt: PSDL_PixelFormat;
 
   // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
-  var
-    aFmt: CUint32;
   begin
-    // CHX: Allocating Window pixel format
-    aFmt :=SDL_GetWindowPixelFormat(SDL2Engine.SDLWindow.PWindow);
-    aPxFmt := SDL_AllocFormat(aFmt);
-
-    // CHX: Creating a SDLTexture to edit its pixels
-    aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
-      aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
 
     Result := True; // False -> Finish program
   end;
 
   procedure OnFinish;
   begin
-    // CHX:Free any created objects
-    SDL_DestroyTexture(aTex);
-    SDL_FreeFormat(aPxFmt);
-  end;
+    // Free any created objects
 
-  procedure PutPixel(Base : PCUInt32; Pitch : cint; x, y : word;
-    r, g, b, a : byte);
-  var
-    PPoint : PCUInt32;
-  begin
-    PPoint := Base + y * (Pitch div 4) + x;
-    // CHX: Doesn't apply transparency, only sets it. PPoint is write-only and
-    //   it doesn't have previous color value.
-
-    // This is a little faster, less than 5%, but only works in RGBA8888 in
-    //   Windows and Intel (component order and endianess);
-    //PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
-
-    // SDL_MapRGBA is the correct way but we need texture pixel format.
-    PPoint^ := SDL_MapRGBA(aPxFmt, r, g, b, a);
   end;
 
   function OnCompute(Window : cCHXSDL2Window;
     DeltaTime, FrameTime : CUInt32) : Boolean;
+  begin
+
+    Result := True; // False -> Finish program
+  end;
+
+  function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
   var
-    pitch : cint;
-    PPBase : PCUInt32;
     x, y, a, b, aa, bb, twoab : Double; // fractal coords.
     n, i, j : integer; // screen coords.
   begin
-    // CHX: As we are editing a SDLTexture and don't need a SDL_Renderer, we
-    //   can do in OnCompute.
-
-    SDL_LockTexture(aTex, nil, @PPBase, @pitch);
-
     y := ymin;
 
     j := 0;
@@ -152,13 +121,22 @@ var // Global variables :-(
         // We color each pixel based on how long it takes to get to infinity
         // If we never got there, let's pick the color black
         if n >= maxiterations then
-          PutPixel(PPBase, pitch, i, j, 0, 0, 0)
+        begin
+          //pixelRGBA(SDL2R, i, j, 0, 0, 0, 255)
+
+          SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+          SDL_RenderDrawPoint(SDL2R, i, j);
+        end
         else
         begin
           // Gosh, we could make fancy colors here if we wanted
           n := round(sqrt(n / maxiterations) * 255);
           //n := round(n / maxiterations * 255);
-          PutPixel(PPBase, pitch, i, j, n, n, n);
+
+          //pixelRGBA(SDL2R, i, j, n, n, n, 255);
+
+          SDL_SetRenderDrawColor(SDL2R, n, n, n, 255);
+          SDL_RenderDrawPoint(SDL2R, i, j);
         end;
 
         x += dx;
@@ -170,18 +148,6 @@ var // Global variables :-(
 
       Inc(j);
     end;
-
-    SDL_UnlockTexture(aTex);
-    Result := True; // False -> Finish program
-  end;
-
-  function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
-  begin
-    // Background
-    //SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
-    //SDL_RenderClear(SDL2R);
-
-    SDL_RenderCopy(SDL2R, aTex, nil, nil);
 
     Result := True; // False -> Finish program
   end;
@@ -280,7 +246,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

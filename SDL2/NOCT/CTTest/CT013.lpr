@@ -15,23 +15,17 @@ program CT013;
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes,
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
   Math, //SDL have math methods too
-  SDL2,
-  sdl2_gfx,
+  SDL2, sdl2_gfx,
   uCHXStrUtils,
   ucSDL2Engine, ucCHXSDL2Window,
   uProcUtils;
 
 const
   // Renderer scales images to actual size of the window.
-  WinW = 320; // Window logical width
-  WinH = 200; // Window logical height
+  WinW = 800; // Window logical width
+  WinH = 800; // Window logical height
 
   dA = 1.0;
   dB = 0.5;
@@ -258,7 +252,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

@@ -148,7 +148,7 @@ begin
 
       If NVidia chip is used as default in the system (in NVidia control
         panel), SDL_CreateRenderer will fail on "direct3d" driver wich
-        usually is autoselected with -1 parameter..
+        usually is autoselected with -1 parameter...
 
       if it's set to internal Intel, it seems to work always.
 
@@ -157,15 +157,24 @@ begin
 
     { NOTE : "Accelerated" means 3D (at least initially).
 
-      Although flag is named 'SDL_RENDERER_ACCELERATED', in my tests
-        (setting all pixels with SDL_RenderDrawPoint or sdl2_gfx-pixelRGBA)
-        all accelerated drivers are actually slower than software.
+      Although flag is named 'SDL_RENDERER_ACCELERATED', in my tests all
+        accelerated drivers are actually slower than software in direct pixel
+        manipulation or drawing primitives with sdl2_gfx (with Nvidia chip)
+        in window renderer.
 
         - opengl, opengles2: 3~4 times slower.
         - direct3d11, direct3d12: ¡20! times slower.
+
+      But manipulating pixels of a texture and then RenderCopy is near
+        2 times faster than software in direct pixel manipulation of renderer.
+        (and "opengl" is about the same speed)
+
+      TODO: Test rendering primitives to a texture and test other drivers.
+        Test Intel chip.
+
     }
-    { TODO : Test with surfaces, sprites, etc. because it can be faster than
-        direct drawing.
+    { TODO : Test with surfaces, etc. because it can be faster than
+        texture drawing.
     }
 
     // Searching opengl driver
@@ -240,7 +249,7 @@ begin
     SDL_WINDOWEVENT_HIDDEN : // Window is hidden now
       FShown := False;
 
-    SDL_WINDOWEVENT_SIZE_CHANGED : // New dimensions and repaint
+    SDL_WINDOWEVENT_SIZE_CHANGED : // Repaint
       SDL_RenderPresent(PRenderer);
 
     SDL_WINDOWEVENT_EXPOSED : // Repaint

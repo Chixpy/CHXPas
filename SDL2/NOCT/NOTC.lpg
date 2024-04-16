@@ -56,6 +56,12 @@
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
+      <Target FileName="CTTest\CT013New.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
       <Target FileName="CTTest\CT015.lpi">
         <BuildModes>
           <Mode Name="Debug" Compile="True"/>
@@ -80,7 +86,13 @@
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
-      <Target FileName="CTTest\CT021Test.lpi">
+      <Target FileName="CTTest\CT021Old.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
+      <Target FileName="CTTest\CT022.lpi">
         <BuildModes>
           <Mode Name="Debug" Compile="True"/>
           <Mode Name="Release"/>

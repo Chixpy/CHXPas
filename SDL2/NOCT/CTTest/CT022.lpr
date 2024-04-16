@@ -1,38 +1,26 @@
-program CT021;
-{< The Coding Train Challenge #021 - Mandelbrot }
+program CT022;
+{< The Coding Train Challenge #022 - Julia Set }
 
-// CHX: By the way, I'm testing another way to direct pixel access
-//   by texture editing, wich seems to be faster from "CT013: Reaction
-//   Diffusion Algorithm" direct renderer method.
-// It's about 20% faster than direct pixel editing on renderer and
-//   it has same speed if hardware acceleration is used.
-
-// Daniel Shiffman
-// http://codingtra.in
-// http://patreon.com/codingtrain
-// Code for: https://youtu.be/6z7GQewK-Ks
+// Julia Set
+// The Coding Train / Daniel Shiffman
+// https://thecodingtrain.com/CodingChallenges/022-juliaset.html
+// https://youtu.be/fAsaSkmbF5s
+// https://editor.p5js.org/codingtrain/sketches/G6qbMmaI
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
 uses
-  Classes,
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
   Math, //SDL have math methods too
-  SDL2,
-  sdl2_gfx,
+  SDL2, sdl2_gfx,
   uCHXStrUtils,
-  ucCHXSDL2Window,
-  ucSDL2Engine,
+  ucCHXSDL2Window, ucSDL2Engine,
   uProcUtils;
 
 const
   // Renderer scales images to actual size of the window.
   WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  WinH = 800; // Window logical height
 
   // CHX: Making values as constants, can be set in OnSetup too
 
@@ -40,7 +28,7 @@ const
   // A different range will allow us to "zoom" in or out on the fractal
 
   // It all starts with the width, try higher or lower values
-  w = 5;
+  w = 2;
   h = (w * WinH) / WinW;
 
   // Maximum number of iterations for each point on the complex plane
@@ -65,6 +53,8 @@ var // Global variables :-(
   aTex : PSDL_Texture;
   aPxFmt: PSDL_PixelFormat;
 
+  angle: Double;
+
   // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
@@ -78,6 +68,9 @@ var // Global variables :-(
     // CHX: Creating a SDLTexture to edit its pixels
     aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
       aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
+
+
+    angle := 0;
 
     Result := True; // False -> Finish program
   end;
@@ -95,10 +88,10 @@ var // Global variables :-(
     PPoint : PCUInt32;
   begin
     PPoint := Base + y * (Pitch div 4) + x;
-    // CHX: Doesn't apply transparency, only sets it. PPoint is write-only and
+    // CHX: Don`t apply transparency, only sets it. PPoint is write-only and
     //   it doesn't have previous color value.
 
-    // This is a little faster, less than 5%, but only works in RGBA8888 in
+    // This is a litte faster, less than 5%, but only works in RGBA8888 in
     //   Windows and Intel (component order and endianess);
     //PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
 
@@ -111,13 +104,19 @@ var // Global variables :-(
   var
     pitch : cint;
     PPBase : PCUInt32;
-    x, y, a, b, aa, bb, twoab : Double; // fractal coords.
+    x, y, a, b, aa, bb, twoab, ca, cb : Double; // fractal coords.
     n, i, j : integer; // screen coords.
   begin
     // CHX: As we are editing a SDLTexture and don't need a SDL_Renderer, we
     //   can do in OnCompute.
-
     SDL_LockTexture(aTex, nil, @PPBase, @pitch);
+
+    angle += 0.01;
+    if angle > 2 * pi then
+      angle := angle - 2 * pi;
+
+    ca := cos(angle*3.213);//sin(angle);
+    cb := sin(angle);
 
     y := ymin;
 
@@ -138,13 +137,14 @@ var // Global variables :-(
         begin
           aa := a * a;
           bb := b * b;
+
+          if (aa + bb) > 4 then
+            Break; // CHX: Ouhg... :-(
+
           twoab := 2.0 * a * b;
 
-          a := aa - bb + x;
-          b := twoab + y;
-
-          if (a * a + b * b) > 16 then
-            Break; // CHX: Ouhg... :-(
+          a := aa - bb + ca;
+          b := twoab + cb;
 
           Inc(n);
         end;
@@ -152,13 +152,17 @@ var // Global variables :-(
         // We color each pixel based on how long it takes to get to infinity
         // If we never got there, let's pick the color black
         if n >= maxiterations then
-          PutPixel(PPBase, pitch, i, j, 0, 0, 0)
+          PutPixel(PPBase, pitch, i, j, 0, 0, 0, 255)
         else
         begin
           // Gosh, we could make fancy colors here if we wanted
+          //float hu = sqrt(float(n) / maxiterations);
+          //pixels[i+j*width] = color(hu, 255, 150);
+
+          // CHX: Sorry no rainbow colors...
           n := round(sqrt(n / maxiterations) * 255);
           //n := round(n / maxiterations * 255);
-          PutPixel(PPBase, pitch, i, j, n, n, n);
+          PutPixel(PPBase, pitch, i, j, n, n, n, 255);
         end;
 
         x += dx;

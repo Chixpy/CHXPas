@@ -85,17 +85,20 @@ type
     class operator -(const aCN : TComplexNumber) : TComplexNumber;
 
     function IsEqual(const aCN : TComplexNumber) : boolean; overload;
-    class operator =(const aCN1, aCN2 : TComplexNumber) : boolean;
-    class operator <>(const aCN1, aCN2 : TComplexNumber) : boolean;
+    { NOTE: Not needed. }
+    //class operator =(const aCN1, aCN2 : TComplexNumber) : boolean;
+    { NOTE: Automatically created by FPC if = created and not needed. }
+    //class operator <>(const aCN1, aCN2 : TComplexNumber) : boolean;
     function IsEqual(const aR : TComplexNumberType) : boolean; overload;
     class operator =(const aCN : TComplexNumber;
       const aR : TComplexNumberType) : boolean;
     class operator =(const aR : TComplexNumberType;
       const aCN : TComplexNumber) : boolean;
-    class operator <>(const aCN : TComplexNumber;
-      const aR : TComplexNumberType) : boolean;
-    class operator <>(const aR : TComplexNumberType;
-      const aCN : TComplexNumber) : boolean;
+    { NOTE: Automatically created by FPC if = created. }
+    //class operator <>(const aCN : TComplexNumber;
+    //  const aR : TComplexNumberType) : boolean;
+    //class operator <>(const aR : TComplexNumberType;
+    //  const aCN : TComplexNumber) : boolean;
 
     class function Conjugate(const aCN : TComplexNumber) : TComplexNumber;
       overload; static;
@@ -460,18 +463,20 @@ end;
 
 function TComplexNumber.IsEqual(const aCN : TComplexNumber) : boolean;
 begin
-  Result := (Self.R = aCN.R) and (Self.i = aCN.i);
+  Result := Self = aCN;
 end;
 
-class operator TComplexNumber.=(const aCN1, aCN2 : TComplexNumber) : boolean;
-begin
-  Result := (aCN1.R = aCN2.R) and (aCN1.i = aCN2.i);
-end;
+{ NOTE: Not needed. }
+//class operator TComplexNumber.=(const aCN1, aCN2 : TComplexNumber) : boolean;
+//begin
+//  Result := (aCN1.R = aCN2.R) and (aCN1.i = aCN2.i);
+//end;
 
-class operator TComplexNumber.<>(const aCN1, aCN2 : TComplexNumber) : boolean;
-begin
-  Result := (aCN1.R <> aCN2.R) or (aCN1.i <> aCN2.i);
-end;
+{ NOTE: Automatically created by FPC and not needed. }
+//class operator TComplexNumber.<>(const aCN1, aCN2 : TComplexNumber) : boolean;
+//begin
+//  Result := (aCN1.R <> aCN2.R) or (aCN1.i <> aCN2.i);
+//end;
 
 function TComplexNumber.IsEqual(const aR : TComplexNumberType) : boolean;
 begin
@@ -490,17 +495,18 @@ begin
   Result := (aCN.i = 0) and (aCN.R = aR);
 end;
 
-class operator TComplexNumber.<>(const aCN : TComplexNumber;
-  const aR : TComplexNumberType) : boolean;
-begin
-  Result := (aCN.i <> 0) or (aCN.R <> aR);
-end;
+{ NOTE: Automatically created by FPC if = created. }
+//class operator TComplexNumber.<>(const aCN : TComplexNumber;
+//  const aR : TComplexNumberType) : boolean;
+//begin
+//  Result := (aCN.i <> 0) or (aCN.R <> aR);
+//end;
 
-class operator TComplexNumber.<>(const aR : TComplexNumberType;
-  const aCN : TComplexNumber) : boolean;
-begin
-  Result := (aCN.i <> 0) or (aCN.R <> aR);
-end;
+//class operator TComplexNumber.<>(const aR : TComplexNumberType;
+//  const aCN : TComplexNumber) : boolean;
+//begin
+//  Result := (aCN.i <> 0) or (aCN.R <> aR);
+//end;
 
 class function TComplexNumber.Conjugate(const aCN : TComplexNumber
   ) : TComplexNumber;
