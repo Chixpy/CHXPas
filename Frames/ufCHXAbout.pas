@@ -64,7 +64,7 @@ begin
   fmCHXAbout := TfmCHXAbout.Create(nil);
 
   if Assigned(aInfo) then
-    fmCHXAbout.mAditional.Assign(aInfo);
+    fmCHXAbout.mAditional.Lines.Assign(aInfo);
 
   Result := GenSimpleModalForm(fmCHXAbout, krsFormCHXAboutName,
     Format(krsFormCHXAboutTitleFmt, [Application.Title]),
