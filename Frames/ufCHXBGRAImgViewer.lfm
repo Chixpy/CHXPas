@@ -11,7 +11,6 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
     ClientWidth = 396
     PopupMenu = pmImgViewer
     TabOrder = 0
-    OnResize = sbxImageResize
     object pbxImage: TPaintBox
       Cursor = crCross
       Left = 0
@@ -19,6 +18,8 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
       Top = 0
       Width = 0
       ParentColor = False
+      OnMouseWheelDown = pbxImageMouseWheelDown
+      OnMouseWheelUp = pbxImageMouseWheelUp
       OnPaint = pbxImagePaint
     end
   end
@@ -26,30 +27,71 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
     Images = ilImgViewer
     Left = 32
     Top = 24
-    object actZoomIn: TAction
+    object actZoomInX2: TAction
       Category = 'View'
-      Caption = 'Zoom In'
-      OnExecute = actZoomInExecute
+      Caption = 'Zoom In x2'
+      ImageIndex = 2
+      OnExecute = actZoomInX2Execute
     end
-    object actZoomOut: TAction
+    object actZoomOutX2: TAction
       Category = 'View'
-      Caption = 'Zoom Out'
-      OnExecute = actZoomOutExecute
+      Caption = 'Zoom Out / 2'
+      ImageIndex = 3
+      OnExecute = actZoomOutX2Execute
     end
     object actAutoZoom: TAction
       Category = 'View'
       Caption = 'Auto Zoom'
+      ImageIndex = 1
       OnExecute = actAutoZoomExecute
     end
     object actOriginalSize: TAction
       Category = 'View'
       Caption = 'Original Size'
+      ImageIndex = 0
       OnExecute = actOriginalSizeExecute
+    end
+    object actIntegerZoom: TAction
+      Category = 'View'
+      AutoCheck = True
+      Caption = 'Integer Zoom'
+      OnExecute = actIntegerZoomExecute
     end
   end
   object ilImgViewer: TImageList[2]
     Left = 136
     Top = 24
+    Bitmap = {
+      4C7A040000001000000010000000700300000000000078DAED966D4813711CC7
+      FF368BA2072AB6E80945A91C25560A4DDC7C6889153D90E88BAC082B5F544205
+      D99B1E5E542241054120BD99F9A2088AA0074CD361A226733A75C369ADEC369D
+      7BB86DEA74D36D12D7EFA73B99E7825D445478F0E17E77F7FBEEEEFEEC73FF3F
+      21D3DBAE8D4252992F25FA4B87A7305D2B2074E969B1B3AC4801504020B857E0
+      79BC8E7DC5A909B3722CD4D5A3B9A61BC7A9C1CA5B2A576B55ADC7FA5535DAFD
+      B1C1FEECBE1ACFE375ECD39CCD9943E7F97D62ED858394E975798DE35373E3B8
+      B35F33EE32774C01B5B9FA71ADF6C2210AFB1A4EA4913028B4F72FAA86BEB577
+      F9466C0393E3A3D6503CB63EBDEE41891AFBDE1C4E2461A0FADE29AA3DF63E23
+      D40C173C4F299F2AB1EF45CE26128680B5F37D03F63161B6C971B7C5D1D3D482
+      7D2FB3E34918A86FD5957598879AE1827953FDF346ECABD99F40C2A0E82C2BD6
+      0C1BBB7401CFD020F7FD614C0CDABB9775D82797CB49565616C9C8C820E9E9E9
+      442693917372495A535EB2CDF8B6423366F9DC3633F6C0C4B0454B7F78A56ECD
+      4FA15A8E2489B979A9541A0BBF7159F9F00ED35590465B1FDDD479BA5BDB7C43
+      D65E8F5EDD6E57DCE9319C9451BD0592DCF6BC9D24340FB9AD7B7372AE2B6B6A
+      983522D1EDD2B42D19D633BB15000504827B85F954A6F8F3B154129A877BA7E6
+      E5E696B5373733F17171F7A2A3A33797A4C413BA483E07C89327D9DB488A6839
+      7BEF034585850FFAB45A66475252396453040201898A8A225792E3E610BAC5C4
+      C410894452421B0CCC9ECCCC0AC866638EC7B6582412650B85C252C816C3F176
+      201110039B80586003B00658052CC30CB01058004407AFAD07D6016B83C74260
+      35B01258012C0596008B82190130F3A07FA3FF56E5339597361A03DE110BFBDF
+      C5DA56FF5C1589FFE80FD40CE21F76326C3DE132F7F3F11F1C1AC11AF77CFD9F
+      70D9197C6E7407F7D3C7FCFCFF3EE91FC32CEEF9F8EF7598FAA166109F8B66D8
+      3AE01DB646E2FFA0F2E517FF98D332EBFBE1F3D0CEA6AAEE79FFFF0FFFB9DEF2
+      F5FF67FCCEF9DFE7B61BF0BFE71F757CE133FFDB74750DEE01BD0AB3E83DEBE1
+      A8B9471589FFB87E08F59EFD0EE0F948FD879AE112A9FF781FEC65BD67BF037E
+      B7C31089FFB4FE4393D74EB56106BD67DF1FC6B083CFFC8FE3CE8EFFFCFC3F3F
+      FFFF2BEB7FD6FFD0F5EBAFF8CFE54FFBCF5DBFF3F59FFBFE7CFD9F5FFFFFBFFE
+      FF00CC8EB4A3
+    }
   end
   object pmImgViewer: TPopupMenu[3]
     Images = ilImgViewer
@@ -62,10 +104,17 @@ inherited fmCHXBGRAImgViewer: TfmCHXBGRAImgViewer
       Action = actAutoZoom
     end
     object mipmZoomIn: TMenuItem
-      Action = actZoomIn
+      Action = actZoomInX2
     end
     object mipmZoomOut: TMenuItem
-      Action = actZoomOut
+      Action = actZoomOutX2
+    end
+    object Separator1: TMenuItem
+      Caption = '-'
+    end
+    object mipmIntegerZoom: TMenuItem
+      Action = actIntegerZoom
+      AutoCheck = True
     end
   end
 end

@@ -2,7 +2,7 @@ unit uCHXStrUtils;
 
 {< Unit with some string related functions.
 
-  Copyright (C) 2011-2024 Chixpy
+  (C) 2011-2024 Chixpy https://github.com/Chixpy
 }
 {$DEBUGINFO OFF}
 

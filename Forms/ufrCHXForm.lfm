@@ -10,5 +10,5 @@ object frmCHXForm: TfrmCHXForm
   DesignTimePPI = 120
   Position = poOwnerFormCenter
   ShowHint = True
-  LCLVersion = '3.0.0.3'
+  LCLVersion = '3.2.0.0'
 end

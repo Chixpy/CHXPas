@@ -2,7 +2,7 @@ unit ufCHXBGRAImgViewerEx;
 
 {< TfmCHXBGRAImgViewerEx frame unit.
 
-  Copyright (C) 2021-2022 Chixpy
+  (C) 2020-2024 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -10,7 +10,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ComCtrls,
-  Math, BGRABitmapTypes, BGRABitmap,
+  Menus, Math, BGRABitmapTypes, BGRABitmap,
   // CHX frames
   ufCHXBGRAImgViewer;
 
@@ -30,7 +30,7 @@ type
     maiNone,              // Don't interact
     maiMouseClick,        // Notify mouse clicks (press and release button)
     maiMouseSelectRect,   // Notify rectangle selections (on finish drag)
-    maiMouseSelectingRect // Internal state while dragging
+    maiMouseSelectingRect // Internal state while dragging on selection
     );
 
   { TfmCHXBGRAImgViewerEx }
@@ -58,7 +58,7 @@ type
     procedure SetOnImgMouseUp(AValue: TMouseEvent);
 
   protected
-    procedure SetActualImage(AValue: TBGRABitmap); override;
+    procedure SetActualImage(const AValue: TBGRABitmap); override;
 
     procedure OnZoomChange; override;
 
@@ -283,7 +283,7 @@ begin
   FOnImgMouseUp := AValue;
 end;
 
-procedure TfmCHXBGRAImgViewerEx.SetActualImage(AValue: TBGRABitmap);
+procedure TfmCHXBGRAImgViewerEx.SetActualImage(const AValue: TBGRABitmap);
 begin
   inherited SetActualImage(AValue);
 

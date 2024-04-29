@@ -2,7 +2,7 @@ unit uaCHXStorable;
 
 {< caCHXStorable, caCHXStorableIni and caCHXStorableTxt abstract classes unit.
 
-  Copyright (C) 2006-2024 Chixpy
+  (C) 2006-2024 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

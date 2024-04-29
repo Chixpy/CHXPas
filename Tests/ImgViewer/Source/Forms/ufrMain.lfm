@@ -1,0 +1,126 @@
+inherited CHXForm: TCHXForm
+  Left = 621
+  Height = 555
+  Top = 236
+  Width = 833
+  Caption = 'CHXForm'
+  ClientHeight = 555
+  ClientWidth = 833
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  object pImage: TPanel[0]
+    Left = 231
+    Height = 547
+    Top = 4
+    Width = 598
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 547
+    ClientWidth = 598
+    TabOrder = 0
+    object pImgLeft: TPanel
+      Left = 0
+      Height = 547
+      Top = 0
+      Width = 286
+      Align = alLeft
+      BevelOuter = bvNone
+      ClientHeight = 547
+      ClientWidth = 286
+      TabOrder = 0
+      object gbxTImage: TGroupBox
+        Left = 0
+        Height = 270
+        Top = 0
+        Width = 286
+        Align = alTop
+        Caption = 'TImage'
+        ClientHeight = 245
+        ClientWidth = 282
+        TabOrder = 0
+        object aTImage: TImage
+          Left = 0
+          Height = 245
+          Top = 0
+          Width = 282
+          Align = alClient
+        end
+      end
+      object Splitter2: TSplitter
+        Cursor = crVSplit
+        Left = 0
+        Height = 6
+        Top = 270
+        Width = 286
+        Align = alTop
+        ResizeAnchor = akTop
+      end
+      object gbxCHXBGRAImgViewer: TGroupBox
+        Left = 0
+        Height = 271
+        Top = 276
+        Width = 286
+        Align = alClient
+        Caption = 'cCHXBGRAImgViewer'
+        TabOrder = 2
+      end
+    end
+    object Splitter3: TSplitter
+      Left = 286
+      Height = 547
+      Top = 0
+      Width = 6
+    end
+    object pImgRight: TPanel
+      Left = 292
+      Height = 547
+      Top = 0
+      Width = 306
+      Align = alClient
+      ClientHeight = 547
+      ClientWidth = 306
+      TabOrder = 2
+      object gbxCHXImgViewer: TGroupBox
+        Left = 1
+        Height = 263
+        Top = 1
+        Width = 304
+        Align = alTop
+        Caption = 'cCHXImgViewer'
+        TabOrder = 0
+      end
+      object Splitter4: TSplitter
+        Cursor = crVSplit
+        Left = 1
+        Height = 6
+        Top = 264
+        Width = 304
+        Align = alTop
+        ResizeAnchor = akTop
+      end
+      object gbxCHXBGRAImgViewerEx: TGroupBox
+        Left = 1
+        Height = 276
+        Top = 270
+        Width = 304
+        Align = alClient
+        Caption = 'cCHXBGRAImgViewerEx'
+        TabOrder = 2
+      end
+    end
+  end
+  object pLeft: TPanel[1]
+    Left = 4
+    Height = 547
+    Top = 4
+    Width = 213
+    Align = alLeft
+    TabOrder = 1
+  end
+  object Splitter1: TSplitter[2]
+    Left = 221
+    Height = 547
+    Top = 4
+    Width = 6
+  end
+end

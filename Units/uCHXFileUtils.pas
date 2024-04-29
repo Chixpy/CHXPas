@@ -1,6 +1,6 @@
 unit uCHXFileUtils;
 
-{< Copyright (C) 2011-2021 Chixpy
+{< (C) 2011-2021 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

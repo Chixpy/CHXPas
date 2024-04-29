@@ -1,6 +1,6 @@
 unit uCHXDlgUtils;
 
-{< Copyright (C) 2011-2020 Chixpy
+{< (C) 2011-2020 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

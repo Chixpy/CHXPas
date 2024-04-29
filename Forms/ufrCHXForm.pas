@@ -2,7 +2,7 @@ unit ufrCHXForm;
 
 {< TfrmCHXForm form unit.
 
-  Copyright (C) 2017-2024 Chixpy
+  (C) 2017-2024 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

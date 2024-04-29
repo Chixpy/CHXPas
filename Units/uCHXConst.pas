@@ -1,6 +1,8 @@
 unit uCHXConst;
 
-{< Copyright (C) 2011-2020 Chixpy
+{< Constants used in CHX library
+
+  (C) 2011-2020 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

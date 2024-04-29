@@ -1,9 +1,9 @@
 unit uCHXRscStr;
 {<  Localizable strings unit for CHX utils.
 
-  Not all strings are actually used by CHXPas units,
+  Not all strings are actually used by CHXPas units.
 
-  Copyright (C) 2017-2022 Chixpy
+  (C) 2017-2022 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

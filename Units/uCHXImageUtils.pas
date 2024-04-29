@@ -2,7 +2,7 @@ unit uCHXImageUtils;
 
 {< Custom image utils.
 
-  Copyright (C) 2006-2019 Chixpy
+  (C) 2006-2019 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 

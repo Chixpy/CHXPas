@@ -1,6 +1,7 @@
 {"version":1,"strings":[
-{"hash":23458974,"name":"tfmchxbgraimgviewer.actzoomin.caption","sourcebytes":[90,111,111,109,32,73,110],"value":"Zoom In"},
-{"hash":106909908,"name":"tfmchxbgraimgviewer.actzoomout.caption","sourcebytes":[90,111,111,109,32,79,117,116],"value":"Zoom Out"},
+{"hash":256512482,"name":"tfmchxbgraimgviewer.actzoominx2.caption","sourcebytes":[90,111,111,109,32,73,110,32,120,50],"value":"Zoom In x2"},
+{"hash":13667938,"name":"tfmchxbgraimgviewer.actzoomoutx2.caption","sourcebytes":[90,111,111,109,32,79,117,116,32,47,32,50],"value":"Zoom Out / 2"},
 {"hash":186015389,"name":"tfmchxbgraimgviewer.actautozoom.caption","sourcebytes":[65,117,116,111,32,90,111,111,109],"value":"Auto Zoom"},
-{"hash":23757077,"name":"tfmchxbgraimgviewer.actoriginalsize.caption","sourcebytes":[79,114,105,103,105,110,97,108,32,83,105,122,101],"value":"Original Size"}
+{"hash":23757077,"name":"tfmchxbgraimgviewer.actoriginalsize.caption","sourcebytes":[79,114,105,103,105,110,97,108,32,83,105,122,101],"value":"Original Size"},
+{"hash":155303821,"name":"tfmchxbgraimgviewer.actintegerzoom.caption","sourcebytes":[73,110,116,101,103,101,114,32,90,111,111,109],"value":"Integer Zoom"}
 ]}

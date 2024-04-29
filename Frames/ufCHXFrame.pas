@@ -2,7 +2,7 @@ unit ufCHXFrame;
 
 {< TfmCHXFrame frame unit.
 
-  Copyright (C) 2006-2023 Chixpy
+  (C) 2006-2023 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 
