@@ -1,5 +1,5 @@
 program PasProc;
-{< Base program for NOTC and CT <- Remove this
+{< Base program for NOTC and CT <- Remove this on examples
 
    The Coding Train Challenge #00X - Title }
 

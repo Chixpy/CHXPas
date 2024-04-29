@@ -1,15 +1,18 @@
 # The Coding Train Challenges
 
+All
+
 Basically Processing code is ported "as is", althougt it is not very optimized
 or Pascal friendly. The main changes are:
 
   - Show/Draw methods in classes are moved to main OnDraw call.
   - No Garbage Collector, so reserved dynamic memory and objects are freed.
+  - OnDraw is splitted in OnCompute and OnDraw functions.
 
 Some day a better "Pascalized" version of the programs and the classes
 will be done and ucSDL2Engine will evolve.
 
-## Done / Skipped
+## Done
 
 | # | Name |
 |---:|:---|
@@ -48,6 +51,7 @@ Reasons to skip:
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
       SDL OpenGL/Vulkan setup.
+      -
   - PM: Not done because Processing coordinate Matrix manipulations
     (pushMatrix, rotate, translate, popMatrix, etc.). They change the
     coordinate system in a stack and apply to all points to make relative
@@ -57,6 +61,10 @@ Reasons to skip:
       But, we can't draw on negative coords.
     - Or making a wrapper of all drawing function that makes all
       transformations before actual drawing.
+    - Or, Without SDL, TBGRABitmap has TBGRACanvas2D wich simulates JavaScript
+      Canvas with rotate, scale, translate, save (pushMatrix) and
+      restore (popMatrix). But I need to create a new engine based on
+      TBGRABitmap (and maybe redo all SDL examples in TBGRABitmap too).
   - TX: Use toxiclibs physics library
  
 ## ToDo
