@@ -1,6 +1,10 @@
 msgid ""
 msgstr "Content-Type: text/plain; charset=UTF-8"
 
+#: tchxform.bopenfile.caption
+msgid "Open File"
+msgstr ""
+
 #: tchxform.caption
 msgid "CHXForm"
 msgstr ""

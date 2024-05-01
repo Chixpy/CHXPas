@@ -27,9 +27,10 @@ const
   WinW = 800; // Window width on creation
   WinH = 600; // Window height on creation
 
+  scl = 20; // Size of the grid
+
 var
   s : cCTSnake;
-  scl : integer;
   Food : TPoint;
 
   procedure pickLocation;
@@ -44,8 +45,6 @@ var
 
   function OnSetup : Boolean;
   begin
-    scl := 20; // Size of the grid
-
     s := cCTSnake.Create;
     pickLocation;
 

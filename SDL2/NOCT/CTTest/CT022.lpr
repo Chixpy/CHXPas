@@ -69,7 +69,6 @@ var // Global variables :-(
     aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
       aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
 
-
     angle := 0;
 
     Result := True; // False -> Finish program
@@ -77,7 +76,7 @@ var // Global variables :-(
 
   procedure OnFinish;
   begin
-    // CHX:Free any created objects
+    // CHX: Free any created objects
     SDL_DestroyTexture(aTex);
     SDL_FreeFormat(aPxFmt);
   end;

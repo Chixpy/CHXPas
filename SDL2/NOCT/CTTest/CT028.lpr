@@ -1,11 +1,10 @@
-program CT019;
-{< The Coding Train Challenge #019 - Superellipse }
+program CT028;
+{< The Coding Train Challenge #028 - Metaballs }
 
 // Daniel Shiffman
-// https://thecodingtrain.com/CodingChallenges/019-superellipse.html
-// https://youtu.be/z86cx2A4_3E
-// https://editor.p5js.org/codingtrain/sketches/Hk-1AMTgN
-// Processing transcription: Chuck England
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/ccYLb7cLB1I
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
@@ -16,121 +15,168 @@ uses
   StrUtils,
   FileUtil,
   LazFileUtils,
-  Math, //SDL have math methods too
+  Math, //SDL2 have some math methods too
   SDL2,
   sdl2_gfx,
+  uCHXPoint3DF,
   uCHXStrUtils,
   ucCHXSDL2Window,
   ucSDL2Engine,
   uProcUtils,
-  ucCTSlider;
+  ucCTBlob;
 
 const
   // Renderer scales images to actual size of the window.
-  WinW = 300; // Window logical width
-  WinH = 300; // Window logical height
+  WinW = 400; // Window logical width
+  WinH = 400; // Window logical height
 
-  // CHX:
-  Incr = 0.001; // Increment beetwen points
-  TWO_PI = PI * 2;
-  OffsetX = WinW div 2;
-  OffsetY = WinH div 2;
+var // Global variables :-(
+  SDL2Engine : cSDL2Engine;
+  aTex : PSDL_Texture;
+  aPxFmt : PSDL_PixelFormat;
 
-var // Global variables :-(    .
-  slider : cCTSlider;
-  // CHX: Added to store the shape
-  points : array of TSDL_FPoint;
+  blobs : array[0..7] of cCTBlob;
 
   // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
+  var
+    aFmt : CUInt32;
+    i : integer;
   begin
-    SetLength(points, Ceil(TWO_PI / Incr));
+    // CHX: Allocating Window pixel format
+    aFmt := SDL_GetWindowPixelFormat(SDL2Engine.SDLWindow.PWindow);
+    aPxFmt := SDL_AllocFormat(aFmt);
 
-    slider := cCTSlider.Create(-WinW div 2 + 20 + OffsetX,
-      -WinH div 2 + 20 + OffsetY, 0.01, 4, 2, 0.01);
+    // CHX: Creating a SDLTexture to edit its pixels
+    aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
+      aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
+
+    for i := Low(blobs) to High(blobs) do
+      blobs[i] := cCTBlob.Create(random * WinW, random * WinH);
 
     Result := True; // False -> Finish program
   end;
 
   procedure OnFinish;
+  var
+    i : integer;
   begin
-    // Free any created objects
-    slider.Free;
+    // CHX:Free any created objects
+    for i := Low(blobs) to High(blobs) do
+      blobs[i].Free;
+
+    SDL_DestroyTexture(aTex);
+    SDL_FreeFormat(aPxFmt);
+  end;
+
+  procedure PutPixel(Base : PCUInt32; Pitch : cint; x, y : word;
+    r, g, b, a : byte);
+  var
+    PPoint : PCUInt32;
+  begin
+    PPoint := Base + y * (Pitch div 4) + x;
+    // CHX: Doesn't apply transparency, only sets it. PPoint is write-only and
+    //   it doesn't have previous color value.
+
+    // This is a little faster, less than 5%, but only works in RGBA8888 in
+    //   Windows and Intel (component order and endianess);
+    //PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
+
+    // SDL_MapRGBA is the correct way but we need texture pixel format.
+    PPoint^ := SDL_MapRGBA(aPxFmt, r, g, b, a);
   end;
 
   function OnCompute(Window : cCHXSDL2Window;
     DeltaTime, FrameTime : CUInt32) : Boolean;
   var
-    a, b, n, angle, na : Double;
-    aPoint : TSDL_FPoint;
-    idx : integer;
+    pitch : cint;
+    PPBase : PCUInt32;
+
+    b : cCTBlob;
+    y, x : integer;
+    sum , d: Float;
+    Col: Byte;
   begin
+    { If we want to pause when minimized or lost focus. }
+    // if Window.Minimized then
+    // begin
+    //   Result := True;
+    //   Exit;
+    // end;
 
-    a := 100;
-    b := 100;
-    n := slider.Value;
-    //n := 0.7;
+    // CHX: As we are editing a SDLTexture and don't need a SDL_Renderer, we
+    //   can do in OnCompute.
+    SDL_LockTexture(aTex, nil, @PPBase, @pitch);
 
-    angle := 0;
-    idx := 0;
-    while angle < TWO_PI do
+    y := 0;
+    while y < WinH do
     begin
-      //// Simple ellipse
-      //aPoint.x := 200 * cos(angle) + WinW / 2;
-      //aPoint.y := 200 * sin(angle) + WinH / 2;
+      x := 0;
+      while x < WinW do
+      begin
+        sum := 0;
+        for b in blobs do
+        begin
+          d := b.pos.Distance(Point3DF(x, y));
+          if d <> 0 then // Zero division
+            sum += 200 * b.r / d;
+        end;
 
-      // Superellipse
-      na := 2 / n;
-      aPoint.x := Power(abs(cos(angle)), na) * a * Sign(cos(angle)) + OffsetX;
-      aPoint.y := Power(abs(sin(angle)), na) * b * Sign(sin(angle)) + OffsetY;
+        // CHX: Weigh down color by numbers of blobs
+        //   so, we don't need to change constant in sum
+        col := EnsureRange(Round(sum) div length(blobs), 0, 255);
 
-      Points[idx] := aPoint;
-      Inc(idx);
-      angle := angle + Incr;
+        //pixels[index] = color(sum, 255, 255); // no HSB
+        PutPixel(PPBase, pitch, x, y, col, col, col, 255);
+
+        Inc(x);
+      end;
+
+      Inc(y);
     end;
 
+    SDL_UnlockTexture(aTex);
     Result := True; // False -> Finish program
   end;
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
   var
-    x0, x1, y0, y1 : integer;
+    b : cCTBlob;
+    r : integer;
   begin
     // Background
-    SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
-    SDL_RenderClear(SDL2R);
+    //SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
+    //SDL_RenderClear(SDL2R);
 
-    //translate(width / 2, height / 2);
+    SDL_RenderCopy(SDL2R, aTex, nil, nil);
 
-    SDL_SetRenderDrawColor(SDL2R, 255, 255, 255, 255);
-    SDL_RenderDrawPointsF(SDL2R, @points[0], Length(points));
+    for b in blobs do
+    begin
+      // CHX: Reducing blob radius based in previous color weigh down.
+      r := Round(b.r) div length(blobs);
+      circleRGBA(SDL2R, Round(b.pos.X), Round(b.pos.Y), r,
+        0, 0, 0, 255);
 
+      // CHX: Updating after draw, so circle is centered on previous
+      //   calculated pixels
+      b.update;
 
-    // cCTSlider.show
-    x0 := slider.x;
-    y0 := slider.y + slider.h div 3;
-    x1 := slider.w + x0;
-    y1 := slider.h div 3 + y0;
-
-    rectangleRGBA(SDL2R, x0, y0, x1, y1, 255, 255, 255, 255);
-
-    x0 := round(slider.xPosition(slider.Value)) - slider.controlSize div 2;
-    y0 := slider.y;
-    x1 := slider.controlSize + x0;
-    y1 := slider.h + y0;
-
-    boxRGBA(SDL2R, x0, y0, x1 - 1, y1 - 1, 128, 128, 128, 255);
-    rectangleRGBA(SDL2R, x0, y0, x1, y1, 200, 200, 200, 255);
+      if not InRange(b.pos.x, 0, WinW) then
+        b.vel.X := -b.vel.X;
+      if not InRange(b.pos.y, 0, WinH) then
+        b.vel.Y := -b.vel.Y;
+    end;
 
     Result := True; // False -> Finish program
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
   begin
-    Result := True;
+    Result := True; // False -> Finish program
 
-    // EVENTS
+    // EVENTS:
+    // Commented out for easy reference
 
     case aEvent.type_ of
       //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
@@ -152,20 +198,13 @@ var // Global variables :-(    .
             ;
         end;
       end;
-      //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-      //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-      //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
+        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
+        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
 
-      SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-      begin
-        if aEvent.motion.state <> 0 then
-          slider.handleInteractions(aEvent.motion.x, aEvent.motion.y, True);
-      end;
-      //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-      SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-      begin
-        slider.handleInteractions(aEvent.button.x, aEvent.button.y, False);
-      end;
+        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
         //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
         //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
@@ -213,7 +252,6 @@ var // Global variables :-(    .
   end;
 
 var
-  SDL2Engine : cSDL2Engine;
   BaseFolder : string;
 
   {$R *.res}
@@ -228,7 +266,7 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
+    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
     SDL2Engine.SDL2Setup := @OnSetup;
     SDL2Engine.SDL2Comp := @OnCompute;
     SDL2Engine.SDL2Draw := @OnDraw;

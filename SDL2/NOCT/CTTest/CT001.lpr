@@ -10,15 +10,16 @@ program CT001;
 {$mode ObjFPC}{$H+}
 uses
   SysUtils,
-  ctypes,
+  CTypes,
   StrUtils,
   FileUtil,
   LazFileUtils,
   Math,
-  sdl2,
+  SDL2,
   sdl2_gfx,
   uCHXStrUtils,
-  ucSDL2Engine, ucCHXSDL2Window,
+  ucSDL2Engine,
+  ucCHXSDL2Window,
   uProcUtils,
   ucCT3DStar;
 
@@ -28,7 +29,7 @@ const
 
 var
   Stars : array[0..25000] of cCT3DStar;
-  Speed : longint;
+  Speed : LongInt;
 
   function OnSetup : Boolean;
   var
@@ -44,7 +45,8 @@ var
     Result := True;
   end;
 
-  function OnCompute(SDL2W : cCHXSDL2Window; DeltaTime, FrameTime : CUInt32) : Boolean;
+  function OnCompute(SDL2W : cCHXSDL2Window;
+    DeltaTime, FrameTime : CUInt32) : Boolean;
   var
     i : integer;
   begin
@@ -84,18 +86,19 @@ var
         Px := WinW shr 1 + Round(map(Stars[i].X / Stars[i].PZ, 0, 1, 0, WinW));
         Py := WinH shr 1 + Round(map(Stars[i].Y / Stars[i].PZ, 0, 1, 0, WinH));
 
-        //LongInt range (and can use floats)
+        //LongInt range (and can use floats if needed)
         //SDL_SetRenderDrawColor(SDL2R, 255,255,255,255);
         //SDL_RenderDrawLine(SDL2R, Sx, Sy, Px, Py);
 
         // With sdl2_gfx: SmallInt (32765) limit
-        if InRange(Px, -32765, 32765) and InRange(Py, -32765, 32765) and
-          InRange(Sx, -32765, 32765) and InRange(Sy, -32765, 32765) then
-        begin
-          pixelRGBA(SDL2R, Sx, Py, 255, 255, 0, 255);
-          lineRGBA(SDL2R, Sx, Sy, Px, Py, 255, 255, 255, 255);
-          pixelRGBA(SDL2R, Px, Py, 255, 255, 0, 255);
-        end;
+        Px := EnsureRange(Px, -32765, 32765);
+        Py := EnsureRange(Py, -32765, 32765);
+        Sx := EnsureRange(Sx, -32765, 32765);
+        Sy := EnsureRange(Sy, -32765, 32765);
+
+        pixelRGBA(SDL2R, Sx, Py, 255, 255, 0, 255);
+        lineRGBA(SDL2R, Sx, Sy, Px, Py, 255, 255, 255, 255);
+        pixelRGBA(SDL2R, Px, Py, 255, 255, 0, 255);
       end;
     end;
 

@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, FileUtil,
-  LCLTranslator, ExtCtrls, StdCtrls, BGRABitmapTypes, BGRABitmap,
+  LCLTranslator, ExtCtrls, StdCtrls, ExtDlgs, BGRABitmapTypes, BGRABitmap,
   // CHX units
   uCHXConst, uCHXStrUtils, uCHXVerInfo,
   // CHX frames
@@ -20,10 +20,12 @@ type
 
   TCHXForm = class(TfrmCHXForm)
     aTImage : TImage;
+    bOpenFile : TButton;
     gbxCHXBGRAImgViewer : TGroupBox;
     gbxCHXBGRAImgViewerEx : TGroupBox;
     gbxCHXImgViewer : TGroupBox;
     gbxTImage : TGroupBox;
+    OpenPictureDialog1 : TOpenPictureDialog;
     pImage : TPanel;
     pImgLeft : TPanel;
     pImgRight : TPanel;
@@ -32,43 +34,45 @@ type
     Splitter2 : TSplitter;
     Splitter3 : TSplitter;
     Splitter4 : TSplitter;
+    procedure bOpenFileClick(Sender : TObject);
     procedure FormCloseQuery(Sender : TObject; var CanClose : Boolean);
-    procedure FormCreate(Sender: TObject);
+    procedure FormCreate(Sender : TObject);
 
   private
     FaImageList : TStringList;
-    FBaseFolder: string;
+    FBaseFolder : string;
     FfmCHXBGRAImgViewer : TfmCHXBGRAImgViewer;
     FfmCHXBGRAImgViewerEx : TfmCHXBGRAImgViewerEx;
     FfmCHXImgViewer : TfmCHXImgViewer;
-    FGUIConfig: string;
-    FIconsFile: string;
+    FGUIConfig : string;
+    FIconsFile : string;
     FImage : TBGRABitmap;
-    procedure SetBaseFolder(AValue: string);
+    procedure SetBaseFolder(AValue : string);
     procedure SetfmCHXBGRAImgViewerEx(const AValue : TfmCHXBGRAImgViewerEx);
     procedure SetfmCHXImgViewer(const AValue : TfmCHXImgViewer);
-    procedure SetGUIConfig(AValue: string);
-    procedure SetIconsFile(AValue: string);
+    procedure SetGUIConfig(AValue : string);
+    procedure SetIconsFile(AValue : string);
 
   protected
     property aImageList : TStringList read FaImageList;
 
   public
-    property fmCHXBGRAImgViewer:TfmCHXBGRAImgViewer read FfmCHXBGRAImgViewer;
-    property fmCHXBGRAImgViewerEx:TfmCHXBGRAImgViewerEx read FfmCHXBGRAImgViewerEx write SetfmCHXBGRAImgViewerEx;
-    property fmCHXImgViewer:TfmCHXImgViewer read FfmCHXImgViewer write SetfmCHXImgViewer;
+    property fmCHXBGRAImgViewer : TfmCHXBGRAImgViewer read FfmCHXBGRAImgViewer;
+    property fmCHXBGRAImgViewerEx : TfmCHXBGRAImgViewerEx
+      read FfmCHXBGRAImgViewerEx write SetfmCHXBGRAImgViewerEx;
+    property fmCHXImgViewer : TfmCHXImgViewer
+      read FfmCHXImgViewer write SetfmCHXImgViewer;
 
-    property Image: TBGRABitmap read FImage;
+    property Image : TBGRABitmap read FImage;
 
-    property BaseFolder: string read FBaseFolder write SetBaseFolder;
+    property BaseFolder : string read FBaseFolder write SetBaseFolder;
     {< Base folder for relative paths of files. }
-    property GUIConfig: string read FGUIConfig write SetGUIConfig;
-    property IconsFile: string read FIconsFile write SetIconsFile;
-
+    property GUIConfig : string read FGUIConfig write SetGUIConfig;
+    property IconsFile : string read FIconsFile write SetIconsFile;
   end;
 
 var
-  CHXForm: TCHXForm;
+  CHXForm : TCHXForm;
 
 implementation
 
@@ -84,9 +88,28 @@ begin
   CanClose := True;
 end;
 
-procedure TCHXForm.FormCreate(Sender: TObject);
+procedure TCHXForm.bOpenFileClick(Sender : TObject);
 var
-  aFile : String;
+  aFile : string;
+begin
+  FreeAndNil(FImage);
+  FreeAndNil(FaImageList);
+
+  if OpenPictureDialog1.Execute then
+  begin
+    aFile := OpenPictureDialog1.FileName;
+    FImage := TBGRABitmap.Create(aFile);
+
+    aTImage.Picture.LoadFromFile(aFile);
+  end;
+
+  fmCHXBGRAImgViewer.ActualImage := Image;
+  fmCHXBGRAImgViewerEx.ActualImage := Image;
+
+  //fmCHXImgViewer.FileList := aImageList;
+end;
+
+procedure TCHXForm.FormCreate(Sender : TObject);
 begin
   // Tipical CHX program init...
 
@@ -94,7 +117,8 @@ begin
   //   There is an option
   Application.Title := Format(krsFmtApplicationTitle,
     [Application.Title, GetFileVersion]);
-  Self.Caption:= Format(krsFmtWindowCaption, [Application.Title, Self.Caption]);
+  Self.Caption := Format(krsFmtWindowCaption,
+    [Application.Title, Self.Caption]);
 
   // Changing base folder to parents exe folder.
   BaseFolder := ExtractFileDir(ExcludeTrailingPathDelimiter(ProgramDirectory));
@@ -112,8 +136,6 @@ begin
   // IconsFile can be a fixed value or a value readed from GUIConfig
   IconsFile := 'Images\GUI\Icons.ini';
 
-
-
   // TODO: Load program config from previous file, a fixed value or
   //   a value from previous file with the filename of config file.
 
@@ -121,35 +143,24 @@ begin
   LoadGUIIcons(IconsFile);
   LoadGUIConfig(GUIConfig);
 
-  aFile := 'TestImg.png';
-
-  FImage := TBGRABitmap.Create(aFile);
 
   FfmCHXBGRAImgViewer := TfmCHXBGRAImgViewer.Create(gbxCHXBGRAImgViewer);
   fmCHXBGRAImgViewer.Align := alClient;
   fmCHXBGRAImgViewer.Parent := gbxCHXBGRAImgViewer;
   fmCHXBGRAImgViewer.BackgroundType := bkChecker;
-  fmCHXBGRAImgViewer.ActualImage := FImage;
 
   FfmCHXBGRAImgViewerEx := TfmCHXBGRAImgViewerEx.Create(gbxCHXBGRAImgViewerEx);
   fmCHXBGRAImgViewerEx.Align := alClient;
   fmCHXBGRAImgViewerEx.Parent := gbxCHXBGRAImgViewerEx;
   fmCHXBGRAImgViewerEx.BackgroundType := bkChecker;
-  fmCHXBGRAImgViewerEx.ActualImage := FImage;
+  fmCHXBGRAImgViewerEx.MouseActionMode := maiMouseSelectRect;
 
-  //
-  //FaImageList := TStringList.Create;
-  //aImageList.Add(aFile);
   //FfmCHXImgViewer := TfmCHXImgViewer.Create(gbxCHXImgViewer);
-  //fmCHXImgViewer.FileList := aImageList;
   //fmCHXImgViewer.Align := alClient;
   //fmCHXImgViewer.Parent := gbxCHXImgViewer;
-  //
-  //aTImage.Picture.LoadFromFile('TestImg.png');
-
 end;
 
-procedure TCHXForm.SetBaseFolder(AValue: string);
+procedure TCHXForm.SetBaseFolder(AValue : string);
 begin
   FBaseFolder := SetAsFile(AValue);
 end;
@@ -167,15 +178,14 @@ begin
   FfmCHXImgViewer := AValue;
 end;
 
-procedure TCHXForm.SetGUIConfig(AValue: string);
+procedure TCHXForm.SetGUIConfig(AValue : string);
 begin
   FGUIConfig := SetAsFile(AValue);
 end;
 
-procedure TCHXForm.SetIconsFile(AValue: string);
+procedure TCHXForm.SetIconsFile(AValue : string);
 begin
   FIconsFile := SetAsFile(AValue);
 end;
 
 end.
-

@@ -38,6 +38,11 @@ type
       {< Creates a TPoint3DF. }
       constructor Create(const aPoint3DF : TPoint3DF); overload;
       {< Creates a TPoint3DF cloning another TPoint3DF. }
+      constructor CreateRnd(Only2D: Boolean);
+      {< Creates a TPoint3DF with 1 lenght and random angles.
+
+        If Only2D is true, only rotates it in XY plane.
+      }
     {$endif VER3}
 
     procedure Init(const aX, aY : TPoint3DFType;
@@ -65,7 +70,7 @@ type
     function GetAngleYZ : TPoint3DFType;
     {< Angle of the vector on Y/Z plane projection. }
 
-    { TODO: Change the angles. }
+    { TODO: Set absolute angles. }
     //function SetAngleXY: TPoint3DFType;
     //{< Change the angle of the vector on X/Y plane projection. }
     //function SetAngleXZ: TPoint3DFType;
@@ -170,7 +175,7 @@ type
   PPoint3DF = ^TPoint3DF;
   {< Pointer to a TPoint3DF. }
 
-function Point3DF(aX, aY, aZ : TPoint3DFType) : TPoint3DF;
+function Point3DF(aX, aY: TPoint3DFType; aZ : TPoint3DFType = 0) : TPoint3DF;
 {< Creates a new TPoint3DF. }
 
 implementation
@@ -215,6 +220,18 @@ begin
   //Self.Z := aPoint3DF.Z;
   Self := aPoint3DF;
 end;
+
+constructor TPoint3DF.CreateRnd(Only2D : Boolean);
+begin
+  Self.X := 1;
+  Self.Y := 0;
+  Self.Z := 0;
+  RotateXY(Random * 2 * pi);
+  if not Only2D then
+    RotateXZ(Random * 2 * pi);
+  // RotateYZ(Random * 2 * pi); Not needed as far I know
+end;
+
 {$endif VER3}
 
 procedure TPoint3DF.Init(const aX, aY : TPoint3DFType;

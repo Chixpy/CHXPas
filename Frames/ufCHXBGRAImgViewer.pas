@@ -11,9 +11,9 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, ActnList,
-  Menus, Math, BGRABitmapTypes, BGRABitmap,
+  Menus, Math, BGRABitmapTypes, BGRABitmap, Types,
   // CHX frames
-  ufCHXFrame, Types;
+  ufCHXFrame;
 
 type
 
@@ -46,10 +46,10 @@ type
     procedure actOriginalSizeExecute(Sender : TObject);
     procedure actZoomInX2Execute(Sender : TObject);
     procedure actZoomOutX2Execute(Sender : TObject);
-    procedure pbxImageMouseWheelDown(Sender : TObject; Shift : TShiftState;
-      MousePos : TPoint; var Handled : Boolean);
-    procedure pbxImageMouseWheelUp(Sender : TObject; Shift : TShiftState;
-      MousePos : TPoint; var Handled : Boolean);
+    procedure pbxImageMouseWheelDown(Sender : TObject;
+      Shift : TShiftState; MousePos : TPoint; var Handled : Boolean);
+    procedure pbxImageMouseWheelUp(Sender : TObject;
+      Shift : TShiftState; MousePos : TPoint; var Handled : Boolean);
     procedure pbxImagePaint(Sender : TObject);
 
   private
@@ -64,7 +64,7 @@ type
     FIntegerZoom : Boolean;
     FPopUpMenuEnabled : Boolean;
     FVisibleImage : TBGRABitmap;
-    FZoom : LongWord;
+    FZoom : longword;
     procedure SetAutoCenterOnLoad(const AValue : Boolean);
     procedure SetAutoZoomEnabled(const AValue : Boolean);
     procedure SetAutoZoomOnLoad(const AValue : Boolean);
@@ -75,7 +75,7 @@ type
     procedure SetIntegerZoom(const AValue : Boolean);
     procedure SetPopUpMenuEnabled(const AValue : Boolean);
     procedure SetVisibleImage(const AValue : TBGRABitmap);
-    procedure SetZoom(const AValue : LongWord);
+    procedure SetZoom(const AValue : longword);
 
   protected
     property VisibleImage : TBGRABitmap read FVisibleImage
@@ -118,7 +118,7 @@ type
          - bkColor: Use BackgroundColor.
          - bkChecker: Use BackgroundColor and BackgroundChecker.
 
-       This backgroung it's only on draw, it don't change actual image.
+       This background it's only on draw, it don't change actual image.
     }
     property BackgroundColor : TBGRAPixel
       read FBackgroundColor write SetBackgroundColor;
@@ -135,7 +135,7 @@ type
     {< Center image when image loaded. }
     property IntegerZoom : Boolean read FIntegerZoom write SetIntegerZoom;
     {< Keep zoom in a integer value (divisible by 100). }
-    property Zoom : LongWord read FZoom write SetZoom;
+    property Zoom : longword read FZoom write SetZoom;
     {< Zoom of image (in percentage). }
     property PopUpMenuEnabled : Boolean
       read FPopUpMenuEnabled write SetPopUpMenuEnabled;
@@ -200,12 +200,14 @@ procedure TfmCHXBGRAImgViewer.pbxImageMouseWheelDown(Sender : TObject;
   Shift : TShiftState; MousePos : TPoint; var Handled : Boolean);
 begin
   ZoomOutX2;
+  Handled := True;
 end;
 
 procedure TfmCHXBGRAImgViewer.pbxImageMouseWheelUp(Sender : TObject;
   Shift : TShiftState; MousePos : TPoint; var Handled : Boolean);
 begin
   ZoomInX2;
+  Handled := True;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetActualImage(const AValue : TBGRABitmap);
@@ -268,6 +270,8 @@ procedure TfmCHXBGRAImgViewer.SetAutoCenterOnLoad(const AValue : Boolean);
 begin
   if FAutoCenterOnLoad = AValue then Exit;
   FAutoCenterOnLoad := AValue;
+
+  CenterEnabled := AutoCenterOnLoad;
 end;
 
 procedure TfmCHXBGRAImgViewer.SetAutoZoomEnabled(const AValue : Boolean);
@@ -282,7 +286,7 @@ begin
   FVisibleImage := AValue;
 end;
 
-procedure TfmCHXBGRAImgViewer.SetZoom(const AValue : LongWord);
+procedure TfmCHXBGRAImgViewer.SetZoom(const AValue : longword);
 begin
   if AValue = 0 then
     FZoom := 1
@@ -296,14 +300,14 @@ begin
   begin
     FZoom := FZoom - (FZoom mod 100);
     if FZoom < 100 then
-       FZoom := 100;
+      FZoom := 100;
   end;
 
   OnZoomChange;
 
-  AutoZoomEnabled := False;
-
   DrawImage;
+
+  AutoZoomEnabled := False;
 end;
 
 procedure TfmCHXBGRAImgViewer.LoadFrameData;
@@ -331,15 +335,15 @@ begin
   inherited;
 
   Zoom := 100;
-  ActualImage := nil;
+  ActualImage := nil; // Call DrawImage
   Enabled := False;
-  DrawImage;
 end;
 
 procedure TfmCHXBGRAImgViewer.DrawImage;
 var
   Temp : TBGRABitmap;
-  ZWidth, ZHeight : LongWord;
+  ZWidth, ZHeight : longword;
+  CTop, CLeft : LongInt;
 begin
   FreeAndNil(FVisibleImage);
 
@@ -350,42 +354,45 @@ begin
     pbxImage.ClientHeight := 0;
     pbxImage.Top := 0;
     pbxImage.Left := 0;
+
+    AfterDrawImage;
+
+    pbxImage.Invalidate;
+
     Exit;
   end;
 
-  // Really big image...
+  // Zoom: Really big image...
   ZWidth := (ActualImage.Width * Zoom) div 100;
   if ZWidth > MaxLongint then
   begin
     ZWidth := ActualImage.Width div MaxLongint;
-    Zoom :=  ZWidth * 100;
+    FZoom := ZWidth * 100; // FZoom
   end;
   ZHeight := (ActualImage.Height * Zoom) div 100;
   if ZHeight > MaxLongint then
   begin
     ZHeight := ActualImage.Height div MaxLongint;
-    Zoom :=  ZHeight * 100;
+    FZoom := ZHeight * 100; // FZoom
   end;
 
-  if (pbxImage.ClientWidth <> ZWidth) or
-    (pbxImage.ClientHeight <> ZHeight) then
+  pbxImage.ClientWidth := ZWidth;
+  pbxImage.ClientHeight := ZHeight;
+
+  // Centering
+  CTop := 0;
+  CLeft := 0;
+
+  if CenterEnabled then
   begin
-    pbxImage.ClientWidth := ZWidth;
-    pbxImage.ClientHeight := ZHeight;
-
-    if CenterEnabled then
-    begin
-      if sbxImage.ClientHeight > pbxImage.Height then
-        pbxImage.Top := (sbxImage.ClientHeight - pbxImage.Height) div 2;
-      if sbxImage.ClientWidth > pbxImage.Width then
-        pbxImage.Left := (sbxImage.ClientWidth - pbxImage.Width) div 2;
-    end
-    else
-    begin
-      pbxImage.Top := 0;
-      pbxImage.Left := 0;
-    end;
+    if sbxImage.ClientHeight > pbxImage.Height then
+      CTop := (sbxImage.ClientHeight - pbxImage.Height) div 2;
+    if sbxImage.ClientWidth > pbxImage.Width then
+      CLeft := (sbxImage.ClientWidth - pbxImage.Width) div 2;
   end;
+
+  pbxImage.Top := CTop;
+  pbxImage.Left := CLeft;
 
   FVisibleImage := TBGRABitmap.Create(ZWidth, ZHeight);
 
@@ -420,15 +427,11 @@ end;
 
 procedure TfmCHXBGRAImgViewer.ZoomInX2;
 begin
-  FreeAndNil(FVisibleImage);
-
   Zoom := Zoom shl 1; // * 2
 end;
 
 procedure TfmCHXBGRAImgViewer.ZoomOutX2;
 begin
-  FreeAndNil(FVisibleImage);
-
   Zoom := Zoom shr 1; // div 2
 end;
 
@@ -436,13 +439,11 @@ procedure TfmCHXBGRAImgViewer.AutoZoom;
 var
   i : integer;
 begin
-  FreeAndNil(FVisibleImage);
-
   if not assigned(ActualImage) then
     Exit;
 
-  i := Floor(Min((sbxImage.ClientWidth * 100) / ActualImage.Width,
-    (sbxImage.ClientHeight * 100) / ActualImage.Height));
+  i := Floor(Min(sbxImage.ClientWidth / ActualImage.Width,
+    sbxImage.ClientHeight / ActualImage.Height) * 100);
 
   Zoom := i;
 

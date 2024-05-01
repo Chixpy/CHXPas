@@ -3,5 +3,6 @@
 {"hash":93337557,"name":"tchxform.gbxtimage.caption","sourcebytes":[84,73,109,97,103,101],"value":"TImage"},
 {"hash":175042098,"name":"tchxform.gbxchxbgraimgviewer.caption","sourcebytes":[99,67,72,88,66,71,82,65,73,109,103,86,105,101,119,101,114],"value":"cCHXBGRAImgViewer"},
 {"hash":196222354,"name":"tchxform.gbxchximgviewer.caption","sourcebytes":[99,67,72,88,73,109,103,86,105,101,119,101,114],"value":"cCHXImgViewer"},
-{"hash":250494120,"name":"tchxform.gbxchxbgraimgviewerex.caption","sourcebytes":[99,67,72,88,66,71,82,65,73,109,103,86,105,101,119,101,114,69,120],"value":"cCHXBGRAImgViewerEx"}
+{"hash":250494120,"name":"tchxform.gbxchxbgraimgviewerex.caption","sourcebytes":[99,67,72,88,66,71,82,65,73,109,103,86,105,101,119,101,114,69,120],"value":"cCHXBGRAImgViewerEx"},
+{"hash":201628229,"name":"tchxform.bopenfile.caption","sourcebytes":[79,112,101,110,32,70,105,108,101],"value":"Open File"}
 ]}

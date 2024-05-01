@@ -143,7 +143,7 @@ begin
 
   if Accelerated then
   begin
-    { NOTE : On laptops with internal Intel and NVidia. Maybe happens with
+    { NOTE : On laptops with internal Intel and NVidia. Maybe it happens with
         NVidia cards alone.
 
       If NVidia chip is used as default in the system (in NVidia control
@@ -173,7 +173,7 @@ begin
         Test Intel chip.
 
     }
-    { TODO : Test with surfaces, etc. because it can be faster than
+    { TODO : Test with surfaces, etc. because it can be faster than direct
         texture drawing.
     }
 

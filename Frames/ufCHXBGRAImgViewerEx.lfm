@@ -35,12 +35,6 @@ inherited fmCHXBGRAImgViewerEx: TfmCHXBGRAImgViewerEx
     SimplePanel = False
   end
   inherited alImgViewer: TActionList[2]
-    inherited actZoomInX2: TAction
-      Caption = 'Zoom In'
-    end
-    inherited actZoomOutX2: TAction
-      Caption = 'Zoom Out'
-    end
   end
   inherited ilImgViewer: TImageList[3]
   end

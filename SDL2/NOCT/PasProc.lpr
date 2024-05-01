@@ -12,7 +12,7 @@ program PasProc;
 {$mode ObjFPC}{$H+}
 uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils,
-  Math, //SDL have math methods too
+  Math, //SDL2 have some math methods too
   SDL2, sdl2_gfx,
   uCHXStrUtils,
   ucCHXSDL2Window, ucSDL2Engine,
@@ -63,9 +63,10 @@ const
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
   begin
-    Result := True;
+    Result := True; // False -> Finish program
 
-    // EVENTS
+    // EVENTS:
+    // Commented out for easy reference
 
     case aEvent.type_ of
       //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);

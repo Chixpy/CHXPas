@@ -1,11 +1,10 @@
-program CT019;
-{< The Coding Train Challenge #019 - Superellipse }
+program CT027_2D;
+{< The Coding Train Challenge #027 - Fireworks (2D) }
 
 // Daniel Shiffman
-// https://thecodingtrain.com/CodingChallenges/019-superellipse.html
-// https://youtu.be/z86cx2A4_3E
-// https://editor.p5js.org/codingtrain/sketches/Hk-1AMTgN
-// Processing transcription: Chuck England
+// http://codingtra.in
+// http://patreon.com/codingtrain
+// Code for: https://youtu.be/CKeyIbT3vXI
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 
 {$mode ObjFPC}{$H+}
@@ -16,39 +15,34 @@ uses
   StrUtils,
   FileUtil,
   LazFileUtils,
-  Math, //SDL have math methods too
+  Math, //SDL2 have some math methods too
   SDL2,
   sdl2_gfx,
+  uCHXPoint3DF,
   uCHXStrUtils,
   ucCHXSDL2Window,
   ucSDL2Engine,
   uProcUtils,
-  ucCTSlider;
+  ucCTParticle2D,
+  ucCTFirework2D;
 
 const
   // Renderer scales images to actual size of the window.
-  WinW = 300; // Window logical width
-  WinH = 300; // Window logical height
+  WinW = 640; // Window logical width
+  WinH = 360; // Window logical height
 
-  // CHX:
-  Incr = 0.001; // Increment beetwen points
-  TWO_PI = PI * 2;
-  OffsetX = WinW div 2;
-  OffsetY = WinH div 2;
-
-var // Global variables :-(    .
-  slider : cCTSlider;
-  // CHX: Added to store the shape
-  points : array of TSDL_FPoint;
+var // Global variables :-(
+  Fireworks : cCTFirework2DList;
+  gravity : TPoint3DF;
 
   // Any auxiliar procedure/function will be here
 
   function OnSetup : Boolean;
   begin
-    SetLength(points, Ceil(TWO_PI / Incr));
+    Fireworks := cCTFirework2DList.Create(True);
+    gravity := Point3DF(0, 0.2);
 
-    slider := cCTSlider.Create(-WinW div 2 + 20 + OffsetX,
-      -WinH div 2 + 20 + OffsetY, 0.01, 4, 2, 0.01);
+    // colorMode(HSB);
 
     Result := True; // False -> Finish program
   end;
@@ -56,38 +50,33 @@ var // Global variables :-(    .
   procedure OnFinish;
   begin
     // Free any created objects
-    slider.Free;
+    Fireworks.Free;
   end;
 
   function OnCompute(Window : cCHXSDL2Window;
     DeltaTime, FrameTime : CUInt32) : Boolean;
   var
-    a, b, n, angle, na : Double;
-    aPoint : TSDL_FPoint;
-    idx : integer;
+    i : integer;
+    f : cCTFirework2D;
   begin
+    { If we want to pause when minimized or lost focus.}
+    // if Window.Minimized then
+    // begin
+    //   Result := True;
+    //   Exit;
+    // end;
 
-    a := 100;
-    b := 100;
-    n := slider.Value;
-    //n := 0.7;
+    // CHX: Passing some global variables as parameters...
+    if Random < 0.08 then
+      fireworks.add(cCTFirework2D.Create(RandomRange(0, WinW),
+        WinH, RandomRange(0, 256), RandomRange(0, 256), RandomRange(0, 256), gravity));
 
-    angle := 0;
-    idx := 0;
-    while angle < TWO_PI do
+    for i := Fireworks.Count - 1 downto 0 do
     begin
-      //// Simple ellipse
-      //aPoint.x := 200 * cos(angle) + WinW / 2;
-      //aPoint.y := 200 * sin(angle) + WinH / 2;
-
-      // Superellipse
-      na := 2 / n;
-      aPoint.x := Power(abs(cos(angle)), na) * a * Sign(cos(angle)) + OffsetX;
-      aPoint.y := Power(abs(sin(angle)), na) * b * Sign(sin(angle)) + OffsetY;
-
-      Points[idx] := aPoint;
-      Inc(idx);
-      angle := angle + Incr;
+      f := Fireworks[i];
+      f.run;
+      if f.done then
+        Fireworks.Delete(i);
     end;
 
     Result := True; // False -> Finish program
@@ -95,42 +84,53 @@ var // Global variables :-(    .
 
   function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
   var
-    x0, x1, y0, y1 : integer;
+    f : cCTFirework2D;
+    p : cCTParticle2D;
+    r : integer;
   begin
     // Background
     SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
     SDL_RenderClear(SDL2R);
 
-    //translate(width / 2, height / 2);
+    // CHX: Drawing
+    for f in Fireworks do
+    begin
+      // stroke(hu, 255, 255, lifespan); // Simulated by random RGB
+      p := f.firework;
 
-    SDL_SetRenderDrawColor(SDL2R, 255, 255, 255, 255);
-    SDL_RenderDrawPointsF(SDL2R, @points[0], Length(points));
+      if assigned(p) then
+      begin
+        if p.seed then
+          r := 4
+        else
+          r := 2;
 
+        filledcircleRGBA(SDL2R, Round(p.location.x), Round(p.location.y), r,
+          p.r, p.g, p.b, Round(p.lifespan));
+      end;
 
-    // cCTSlider.show
-    x0 := slider.x;
-    y0 := slider.y + slider.h div 3;
-    x1 := slider.w + x0;
-    y1 := slider.h div 3 + y0;
+      // CHX: I know that this is repeated
+      for p in f.particles do
+      begin
+        if p.seed then
+          r := 4
+        else
+          r := 2;
 
-    rectangleRGBA(SDL2R, x0, y0, x1, y1, 255, 255, 255, 255);
-
-    x0 := round(slider.xPosition(slider.Value)) - slider.controlSize div 2;
-    y0 := slider.y;
-    x1 := slider.controlSize + x0;
-    y1 := slider.h + y0;
-
-    boxRGBA(SDL2R, x0, y0, x1 - 1, y1 - 1, 128, 128, 128, 255);
-    rectangleRGBA(SDL2R, x0, y0, x1, y1, 200, 200, 200, 255);
+        filledcircleRGBA(SDL2R, Round(p.location.x), Round(p.location.y), r,
+          p.r, p.g, p.b, Round(p.lifespan));
+      end;
+    end;
 
     Result := True; // False -> Finish program
   end;
 
   function OnEvent(aEvent : TSDL_Event) : Boolean;
   begin
-    Result := True;
+    Result := True; // False -> Finish program
 
-    // EVENTS
+    // EVENTS:
+    // Commented out for easy reference
 
     case aEvent.type_ of
       //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
@@ -152,20 +152,13 @@ var // Global variables :-(    .
             ;
         end;
       end;
-      //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-      //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-      //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
+        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
+        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
 
-      SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-      begin
-        if aEvent.motion.state <> 0 then
-          slider.handleInteractions(aEvent.motion.x, aEvent.motion.y, True);
-      end;
-      //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-      SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-      begin
-        slider.handleInteractions(aEvent.button.x, aEvent.button.y, False);
-      end;
+        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
         //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
         //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);

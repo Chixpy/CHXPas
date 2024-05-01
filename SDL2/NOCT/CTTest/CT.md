@@ -1,7 +1,5 @@
 # The Coding Train Challenges
 
-All
-
 Basically Processing code is ported "as is", althougt it is not very optimized
 or Pascal friendly. The main changes are:
 
@@ -14,20 +12,23 @@ will be done and ucSDL2Engine will evolve.
 
 ## Done
 
-| # | Name |
-|---:|:---|
-| CT001 | Starfield |
-| CT003 | The Snake Game |
-| CT004 | Purple Rain |
-| CT005 | Space Invaders |
-| CT006 | Mitosis Simulation |
-| CT010 | Maze Generator |
-| CT013 | Reaction Diffusion Algorithm |
-| CT015 | Object-Oriented Fractal Trees |
-| CT017 | Space Colonization |
-| CT019 | Superellipse |
-| CT021 | Mandelbrot |
-| CT022 | Julia Set |
+| # | Name | Comments |
+|---:|:---|:---|
+| CT001 | Starfield | Testing SDL_RenderX and SDL_GFX functions |
+| CT003 | The Snake Game | Keyboard event handling |
+| CT004 | Purple Rain |  |
+| CT005 | Space Invaders |  |
+| CT006 | Mitosis Simulation | Mouse event handling |
+| CT010 | Maze Generator |  |
+| CT013 | Reaction Diffusion Algorithm | Direct renderer pixel access. (Redone later with direct texture pixel access) |
+| CT015 | Object-Oriented Fractal Trees |  |
+| CT017 | Space Colonization |  |
+| CT019 | Superellipse | Interactive control |
+| CT021 | Mandelbrot | Direct texture pixel access. (And redone later with direct renderer pixel access) |
+| CT022 | Julia Set |  |
+| CT023 | 2D Supershapes |  |
+| CT027 | Fireworks (2D) |  |
+| CT028 | Metaballs |  |
 
 ## Skipped
 
@@ -48,10 +49,11 @@ Reasons to skip:
 | CT024 | PM | Perlin Noise Flow Field |
 | CT025 | 3D | Spherical Geometry |
 | CT026 | 3D | 3D Supershapes |
+| CT027 | 3D | Fireworks (3D) |
+
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
       SDL OpenGL/Vulkan setup.
-      -
   - PM: Not done because Processing coordinate Matrix manipulations
     (pushMatrix, rotate, translate, popMatrix, etc.). They change the
     coordinate system in a stack and apply to all points to make relative
@@ -65,15 +67,12 @@ Reasons to skip:
       Canvas with rotate, scale, translate, save (pushMatrix) and
       restore (popMatrix). But I need to create a new engine based on
       TBGRABitmap (and maybe redo all SDL examples in TBGRABitmap too).
-  - TX: Use toxiclibs physics library
+  - TX: Use toxiclibs physics library.
  
 ## ToDo
 
 | # | Name |
 |---:|:---|
-| CT023 | 2D Supershapes |
-| CT027 | Fireworks |
-| CT028 | Metaballs |
 | CT029 | Smart Rockets in p5.js |
 | CT030 | Phyllotaxis |
 | CT031 | Flappy Bird |
