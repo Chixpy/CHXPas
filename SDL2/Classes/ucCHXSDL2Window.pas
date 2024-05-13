@@ -22,7 +22,9 @@ type
 
   cCHXSDL2Window = class
   private
-    FHeight : CInt;
+    FLogHeight : CInt;
+    FLogWidth : CInt;
+    FWinHeight : CInt;
     FKeyboardFocus : Boolean;
     FMinimized : Boolean;
     FMouseFocus : Boolean;
@@ -30,11 +32,11 @@ type
     FPWindow : PSDL_Window;
     FShown : Boolean;
     FTitle : string;
-    FWidth : CInt;
+    FWinWidth : CInt;
     FWindowID : CUInt32;
-    procedure SetHeight(const AValue : CInt);
+    procedure SetWinHeight(const AValue : CInt);
     procedure SetTitle(const AValue : string);
-    procedure SetWidth(const AValue : CInt);
+    procedure SetWinWidth(const AValue : CInt);
 
   protected
     // Internal states
@@ -47,8 +49,10 @@ type
 
   public
     property Title : string read FTitle write SetTitle;
-    property Width : CInt read FWidth write SetWidth;
-    property Height : CInt read FHeight write SetHeight;
+    property WinWidth : CInt read FWinWidth write SetWinWidth;
+    property WinHeight : CInt read FWinHeight write SetWinHeight;
+    property LogWidth : CInt read FLogWidth;
+    property LogHeight : CInt read FLogHeight;
 
     property PWindow : PSDL_Window read FPWindow;
     property PRenderer : PSDL_Renderer read FPRenderer;
@@ -64,8 +68,9 @@ type
 
     procedure HandleEvent(aEvent : TSDL_Event);
 
-    constructor Create(aTitle : string; aWidth, aHeight : LongInt;
-      HWAcc : Boolean = False);
+    constructor Create(const aTitle : string; const aWinWidth : LongInt;
+      const aWinHeight : LongInt; const HWAcc : Boolean = False;
+      const LWidth : LongInt = 0; const LHeight : LongInt = 0);
     destructor Destroy; override;
   end;
 
@@ -81,18 +86,18 @@ begin
   SDL_SetWindowTitle(PWindow, PChar(aValue));
 end;
 
-procedure cCHXSDL2Window.SetHeight(const AValue : CInt);
+procedure cCHXSDL2Window.SetWinHeight(const AValue : CInt);
 begin
-  if FHeight = AValue then Exit;
-  FHeight := AValue;
+  if FWinHeight = AValue then Exit;
+  FWinHeight := AValue;
 
   CreateWindow;
 end;
 
-procedure cCHXSDL2Window.SetWidth(const AValue : CInt);
+procedure cCHXSDL2Window.SetWinWidth(const AValue : CInt);
 begin
-  if FWidth = AValue then Exit;
-  FWidth := AValue;
+  if FWinWidth = AValue then Exit;
+  FWinWidth := AValue;
 
   CreateWindow;
 end;
@@ -130,7 +135,7 @@ begin
 
   // Create new window
   FPWindow := SDL_CreateWindow(PChar(Title), SDL_WINDOWPOS_CENTERED,
-    SDL_WINDOWPOS_CENTERED, Width, Height, Flags);
+    SDL_WINDOWPOS_CENTERED, WinWidth, WinHeight, Flags);
   if not assigned(FPWindow) then
   begin
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, 'SDL_CreateWindow Error',
@@ -155,7 +160,8 @@ begin
       If the default setting 'autoselect chip' it can work or not at random.
     }
 
-    { NOTE : "Accelerated" means 3D (at least initially).
+    { NOTE : "Accelerated" means 3D, at least initially on direc pixel
+        manipulation.
 
       Although flag is named 'SDL_RENDERER_ACCELERATED', in my tests all
         accelerated drivers are actually slower than software in direct pixel
@@ -212,11 +218,11 @@ begin
     Exit;
   end;
 
-  // Software Renderer can look ugly on resize
+  // Software Renderer can look ugly on resize with vertical black stripes
   { TODO : Make IntegerScale configurable }
   if not accelerated then
     SDL_RenderSetIntegerScale(PRenderer, True);
-  SDL_RenderSetLogicalSize(PRenderer, Width, Height);
+  SDL_RenderSetLogicalSize(PRenderer, LogWidth, LogHeight);
 
   FWindowID := SDL_GetWindowID(PWindow);
 
@@ -283,16 +289,27 @@ begin
   end;
 end;
 
-constructor cCHXSDL2Window.Create(aTitle : string;
-  aWidth, aHeight : LongInt; HWAcc : Boolean);
+constructor cCHXSDL2Window.Create(const aTitle : string;
+  const aWinWidth : LongInt; const aWinHeight : LongInt;
+  const HWAcc : Boolean; const LWidth : LongInt; const LHeight : LongInt);
 begin
   FPWindow := nil;
   FPRenderer := nil;
 
   // Don't call SDL2 updates
   FTitle := aTitle;
-  FWidth := aWidth;
-  FHeight := aHeight;
+  FWinWidth := aWinWidth;
+  FWinHeight := aWinHeight;
+
+  if LWidth = 0 then
+    FLogWidth := aWinWidth
+  else
+    FLogWidth := LWidth;
+
+  if LHeight = 0 then
+    FLogHeight := aWinHeight
+  else
+    FLogHeight := LHeight;
 
   Accelerated := HWAcc;
 

@@ -73,7 +73,7 @@ var
     filledCircleRGBA(SDL2R, food.x + scl shr 1, food.y + scl shr
       1, scl shr 1, 255, 0, 0, 255);
 
-    // Snake
+    // Snake.show
     i := length(s.tail);
     while i > 0 do
     begin

@@ -83,6 +83,7 @@ var
     begin
       aDrop := Drops[i];
 
+      // Drop.show
       thickLineRGBA(SDL2R, round(aDrop.x), round(aDrop.y), round(aDrop.x),
         round(aDrop.y + aDrop.len),
         round(map(aDrop.z, 0, 20, 1, 5)),

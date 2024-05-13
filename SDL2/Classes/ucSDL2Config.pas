@@ -14,68 +14,53 @@ const
   krsIniKeyFullScreen = 'FullScreen';
   krsIniKeyWindowWidth = 'WindowWidth';
   krsIniKeyWindowHeight = 'WindowHeight';
+  krsIniKeyRendererWidth = 'RendererWidth';
+  krsIniKeyRendererHeight = 'RendererHeight';
 
 type
 
   { cSDL2Config }
 
   cSDL2Config = class(caCHXConfig)
-  private
-    FFullScreen: boolean;
-    FWindowHeight: integer;
-    FWindowWidth: integer;
-    procedure SetFullScreen(AValue: boolean);
-    procedure SetWindowHeight(AValue: integer);
-    procedure SetWindowWidth(AValue: integer);
-
   public
+    // Window properties
+    {property} WindowWidth : integer;
+    {property} WindowHeight : integer;
+    {property} FullScreen : Boolean;
+
+    // Renderer properties
+    {property} RendererWidth : integer;
+    {property} RendererHeight : integer;
+
     procedure ResetDefaultConfig; override;
 
-    procedure LoadFromIni(aIniFile: TMemIniFile); override;
-    procedure SaveToIni(aIniFile: TMemIniFile); override;
+    procedure LoadFromIni(aIniFile : TMemIniFile); override;
+    procedure SaveToIni(aIniFile : TMemIniFile); override;
 
-    constructor Create(aOwner: TComponent); override;
+    constructor Create(aOwner : TComponent); override;
     destructor Destroy; override;
-
-  published
-    property WindowWidth: integer read FWindowWidth write SetWindowWidth;
-    property WindowHeight: integer read FWindowHeight write SetWindowHeight;
-    property FullScreen: boolean read FFullScreen write SetFullScreen;
   end;
 
 implementation
 
 { cSDL2Config }
 
-procedure cSDL2Config.LoadFromIni(aIniFile: TMemIniFile);
+procedure cSDL2Config.LoadFromIni(aIniFile : TMemIniFile);
 begin
+  // Window properties
   FullScreen := aIniFile.ReadBool(krsIniSectionSDL2Engine,
     krsIniKeyFullScreen, FullScreen);
   WindowWidth := aIniFile.ReadInteger(krsIniSectionSDL2Engine,
     krsIniKeyWindowWidth, WindowWidth);
   WindowHeight := aIniFile.ReadInteger(krsIniSectionSDL2Engine,
     krsIniKeyWindowHeight, WindowHeight);
-end;
 
-procedure cSDL2Config.SetWindowHeight(AValue: integer);
-begin
-  if FWindowHeight = AValue then
-    Exit;
-  FWindowHeight := AValue;
-end;
-
-procedure cSDL2Config.SetFullScreen(AValue: boolean);
-begin
-  if FFullScreen = AValue then
-    Exit;
-  FFullScreen := AValue;
-end;
-
-procedure cSDL2Config.SetWindowWidth(AValue: integer);
-begin
-  if FWindowWidth = AValue then
-    Exit;
-  FWindowWidth := AValue;
+  // Renderer properties
+  // Renderer size defaults to Window size, not default config values.
+  RendererWidth := aIniFile.ReadInteger(krsIniSectionSDL2Engine,
+    krsIniKeyRendererWidth, WindowWidth);
+  RendererHeight := aIniFile.ReadInteger(krsIniSectionSDL2Engine,
+    krsIniKeyRendererHeight, WindowHeight);
 end;
 
 procedure cSDL2Config.ResetDefaultConfig;
@@ -83,9 +68,12 @@ begin
   WindowWidth := 640;
   WindowHeight := 480;
   FullScreen := False;
+
+  RendererWidth := 640;
+  RendererHeight := 480;
 end;
 
-constructor cSDL2Config.Create(aOwner: TComponent);
+constructor cSDL2Config.Create(aOwner : TComponent);
 begin
   inherited Create(aOwner);
 end;
@@ -95,8 +83,9 @@ begin
   inherited Destroy;
 end;
 
-procedure cSDL2Config.SaveToIni(aIniFile: TMemIniFile);
+procedure cSDL2Config.SaveToIni(aIniFile : TMemIniFile);
 begin
+  // Window properties
   aIniFile.WriteBool(krsIniSectionSDL2Engine, krsIniKeyFullScreen,
     FullScreen);
   aIniFile.WriteInteger(krsIniSectionSDL2Engine, krsIniKeyWindowWidth,
@@ -104,6 +93,19 @@ begin
   aIniFile.WriteInteger(krsIniSectionSDL2Engine, krsIniKeyWindowHeight,
     WindowHeight);
 
+  // Renderer properties
+  if (RendererWidth <> WindowWidth) or (RendererHeight <> WindowHeight) then
+  begin
+    aIniFile.WriteInteger(krsIniSectionSDL2Engine, krsIniKeyRendererWidth,
+      RendererWidth);
+    aIniFile.WriteInteger(krsIniSectionSDL2Engine, krsIniKeyRendererHeight,
+      RendererHeight);
+  end
+  else
+  begin
+    aIniFile.DeleteKey(krsIniSectionSDL2Engine, krsIniKeyRendererWidth);
+    aIniFile.DeleteKey(krsIniSectionSDL2Engine, krsIniKeyRendererHeight);
+  end;
 end;
 
 end.

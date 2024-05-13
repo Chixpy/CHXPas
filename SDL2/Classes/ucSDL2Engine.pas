@@ -29,107 +29,42 @@ type
   cSDL2Engine = class(TComponent)
   private
     FConfig : cSDL2Config;
-    FDeltaTime : CUInt32;
-    FFrameTime : CUInt32;
-    FSDL2Comp : TSDL2CompFunc;
-    FSDL2Draw : TSDL2DrawFunc;
-    FSDL2Event : TSDL2EventFunc;
-    FSDL2Finish : TSDL2FinishProc;
-    FSDL2Setup : TSDL2SetupFunc;
     FSDLFrameMang : TFPSManager;
     FSDLWindow : cCHXSDL2Window;
-    FTitle : string;
-    procedure SetDeltaTime(const AValue : CUInt32);
-    procedure SetFrameTime(const AValue : CUInt32);
-    procedure SetSDL2Comp(const AValue : TSDL2CompFunc);
-    procedure SetSDL2Draw(const AValue : TSDL2DrawFunc);
-    procedure SetSDL2Event(const AValue : TSDL2EventFunc);
-    procedure SetSDL2Finish(const AValue : TSDL2FinishProc);
-    procedure SetSDL2Setup(const AValue : TSDL2SetupFunc);
-
-    procedure SetTitle(const AValue : string);
 
   protected
+    {property} DeltaTime : CUInt32;
+    {property} FrameTime : CUInt32;
+
     property SDLFrameMang : TFPSManager read FSDLFrameMang;
-    property DeltaTime : CUInt32 read FDeltaTime write SetDeltaTime;
-    property FrameTime : CUInt32 read FFrameTime write SetFrameTime;
 
   public
-    property Title : string read FTitle write SetTitle;
+    {property} Title : string;
+
+    {property} SDL2Setup : TSDL2SetupFunc;
+    {property} SDL2Comp : TSDL2CompFunc;
+    {property} SDL2Draw : TSDL2DrawFunc;
+    {property} SDL2Event : TSDL2EventFunc;
+    {property} SDL2Finish : TSDL2FinishProc;
 
     property Config : cSDL2Config read FConfig;
-
-    property SDL2Setup : TSDL2SetupFunc read FSDL2Setup write SetSDL2Setup;
-    property SDL2Comp : TSDL2CompFunc read FSDL2Comp write SetSDL2Comp;
-    property SDL2Draw : TSDL2DrawFunc read FSDL2Draw write SetSDL2Draw;
-    property SDL2Event : TSDL2EventFunc read FSDL2Event write SetSDL2Event;
-    property SDL2Finish : TSDL2FinishProc read FSDL2Finish write SetSDL2Finish;
 
     property SDLWindow : cCHXSDL2Window read FSDLWindow;
 
     procedure Run;
 
-    constructor Create(aOwner : TComponent; aTitle : string;
-      WinX, WinY : LongInt; HWAcc : Boolean = False); overload;
-    constructor Create(aOwner : TComponent; aTitle : string;
-      aIniFile : string; HWAcc : Boolean = False); overload;
+    constructor Create(const aOwner : TComponent; const aTitle : string;
+      const aWinWidth : LongInt; const aWinHeight : LongInt;
+      const HWAcc : Boolean = False; const aLogWidth : LongInt = 0;
+      const aLogHeight : LongInt = 0); overload;
+    constructor Create(const aOwner : TComponent; const aTitle : string;
+      const aIniFile : string; const HWAcc : Boolean = False); overload;
     destructor Destroy; override;
-
-  published
-
   end;
 
 implementation
 
 { cSDL2Engine }
-
-procedure cSDL2Engine.SetDeltaTime(const AValue : CUInt32);
-begin
-  if FDeltaTime = AValue then Exit;
-  FDeltaTime := AValue;
-end;
-
-procedure cSDL2Engine.SetFrameTime(const AValue : CUInt32);
-begin
-  if FFrameTime = AValue then Exit;
-  FFrameTime := AValue;
-end;
-
-procedure cSDL2Engine.SetSDL2Comp(const AValue : TSDL2CompFunc);
-begin
-  if FSDL2Comp = AValue then Exit;
-  FSDL2Comp := AValue;
-end;
-
-procedure cSDL2Engine.SetSDL2Draw(const AValue : TSDL2DrawFunc);
-begin
-  if FSDL2Draw = AValue then Exit;
-  FSDL2Draw := AValue;
-end;
-
-procedure cSDL2Engine.SetSDL2Event(const AValue : TSDL2EventFunc);
-begin
-  if FSDL2Event = AValue then Exit;
-  FSDL2Event := AValue;
-end;
-
-procedure cSDL2Engine.SetSDL2Finish(const AValue : TSDL2FinishProc);
-begin
-  if FSDL2Finish = AValue then Exit;
-  FSDL2Finish := AValue;
-end;
-
-procedure cSDL2Engine.SetSDL2Setup(const AValue : TSDL2SetupFunc);
-begin
-  if FSDL2Setup = AValue then Exit;
-  FSDL2Setup := AValue;
-end;
-
-procedure cSDL2Engine.SetTitle(const AValue : string);
-begin
-  if FTitle = AValue then Exit;
-  FTitle := AValue;
-end;
 
 procedure cSDL2Engine.Run;
 var
@@ -195,8 +130,10 @@ begin
   end;
 end;
 
-constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string;
-  WinX, WinY : LongInt; HWAcc : Boolean);
+constructor cSDL2Engine.Create(const aOwner : TComponent;
+  const aTitle : string; const aWinWidth : LongInt;
+  const aWinHeight : LongInt; const HWAcc : Boolean;
+  const aLogWidth : LongInt; const aLogHeight : LongInt);
 begin
   inherited Create(aOwner);
 
@@ -204,7 +141,8 @@ begin
 
   SDL_Init(SDL_INIT_EVERYTHING);
 
-  FSDLWindow := cCHXSDL2Window.Create(Title, WinX, WinY, HWAcc);
+  FSDLWindow := cCHXSDL2Window.Create(Title, aWinWidth, aWinHeight,
+    HWAcc, aLogWidth, aLogHeight);
 
   if not assigned(SDLWindow) then
     raise Exception.Create('cCHXSDL2Window was not created.');
@@ -215,8 +153,8 @@ begin
   end;
 end;
 
-constructor cSDL2Engine.Create(aOwner : TComponent; aTitle : string;
-  aIniFile : string; HWAcc : Boolean);
+constructor cSDL2Engine.Create(const aOwner : TComponent;
+  const aTitle : string; const aIniFile : string; const HWAcc : Boolean);
 begin
   inherited Create(aOwner);
 
@@ -224,7 +162,8 @@ begin
   Config.DefaultFileName := aIniFile;
   Config.LoadFromFile('');
 
-  Create(aOwner, aTitle, Config.WindowWidth, Config.WindowHeight, HWAcc);
+  Create(aOwner, aTitle, Config.WindowWidth, Config.WindowHeight, HWAcc,
+    Config.RendererWidth, Config.RendererHeight);
 end;
 
 destructor cSDL2Engine.Destroy;

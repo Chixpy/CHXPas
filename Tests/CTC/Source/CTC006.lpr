@@ -80,6 +80,7 @@ var // Global variables :-(
     SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
     SDL_RenderClear(SDL2R);
 
+    // Cells
     for aCell in Cells do
     begin
       filledCircleColor(SDL2R, aCell.Pos.X, aCell.Pos.Y,

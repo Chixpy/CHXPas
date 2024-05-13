@@ -12,4 +12,6 @@ Tests/CTC/bin/x86_64-win64/*.exe
 Tests/ImgViewer/Bin/*.ini
 Tests/ImgViewer/Bin/x86_64-win64/*.exe
 Tests/ImgViewer/Lib/
-/Tests/CTC/lib
+Tests/CTC/lib
+SDL2/bin/x86_64-win64/*.exe
+/SDL2/lib
