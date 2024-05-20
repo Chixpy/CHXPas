@@ -1,31 +1,27 @@
-program SDLProcessing;
-// Template program simulating Processing with SDL2 Engine
-
-// USE: Project/Save as... with new program's name
-
-{< Base program for NOTC and CT <- Remove this on examples
-
-   The Coding Train Challenge #00X - Title }
+program CTC031;
+{< The Coding Train Challenge #031 - Flappy Bird }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/cXgA1d_E-jY
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
 
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math, fgl,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
-  uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
+  uCHXPoint3DF, uCHXStrUtils,
+  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils,
+  ucCTCPipe, ucCTCBird;
 
 const
-  { CHX: Renderer scales images to actual size of the window. }
+  // Renderer scales images to actual size of the window.
   WinW = 800; { CHX: Window logical width. }
   WinH = 600; { CHX: Window logical height. }
 
 type
+  PipeList = specialize TFPGObjectList<cCTCPipe>;
 
   { cCTCEng }
 
@@ -41,6 +37,15 @@ type
 
   public
     { CHX: Global variables. }
+    b : cCTCBird;
+
+    score : integer;
+    jumping : Boolean;
+    gravity : TPoint3DF;
+
+    pipes : PipeList;
+
+    //int rez = 20;
 
   end;
 
@@ -48,35 +53,96 @@ type
 
   procedure cCTCEng.Setup;
   begin
+    score := 0;
+    jumping := False;
 
+    b := cCTCBird.Create(WinH);
+
+    pipes := PipeList.Create(True);
+    pipes.add(cCTCPipe.Create(WinW, WinH));
   end;
 
   procedure cCTCEng.Finish;
   begin
     { CHX: Free any created objects. }
-
+    FreeAndNil(pipes);
+    FreeAndNil(b);
   end;
 
   procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+  var
+    safe : Boolean;
+    p : cCTCPipe;
+    i : integer;
   begin
-    { CHX: If we want to pause when minimized. }
+    { CHX: If we want to pause when minimized or focus lost. }
     // if SDLWindow.Minimized then Exit;
 
+    if (FrameCount mod 75) = 0 then
+      pipes.add(cCTCPipe.Create(WinW, WinH));
+
+    b.update();
+
+    safe := True;
+
+    i := pipes.Count - 1;
+    while i >= 0 do
+    begin
+      p := pipes[i];
+      p.update;
+
+      if (p.hits(b)) then safe := False;
+
+      if p.x < -p.w then
+        pipes.Delete(i);
+
+      Dec(i);
+    end;
+
+    if safe then
+      Inc(score)
+    else
+      score -= 50;
   end;
 
   procedure cCTCEng.Draw;
+  var
+    p : cCTCPipe;
+    aRect : TSDL_FRect;
   begin
     // Background and frame clear.
     SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
     SDL_RenderClear(SDLWindow.PRenderer);
 
+    // Pipe.Draw()
+    for p in pipes do
+    begin
+      if p.hited then
+        SDL_SetRenderDrawColor(SDLWindow.PRenderer, 255, 0, 0, 255)
+      else
+        SDL_SetRenderDrawColor(SDLWindow.PRenderer, 255, 255, 255, 255);
+
+      aRect := SDLFRect(p.x, 0, p.w, p.top);
+      SDL_RenderFillRectF(SDLWindow.PRenderer, @aRect);
+
+      aRect := SDLFRect(p.x, WinH - p.bottom, p.w, p.bottom);
+      SDL_RenderFillRectF(SDLWindow.PRenderer, @aRect);
+    end;
+
+    //  bird.Draw()
+    filledCircleRGBA(SDLWindow.PRenderer, Round(b.pos.x), Round(b.pos.y),
+      Round(b.r), 255, 255, 255, 255);
+
+    if score < 0 then score := 0;
+
+    DefFont.RenderDynStr(score.ToString, WinW div 2, 50);
   end;
 
   procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
   var Handled : Boolean; var ExitProg : Boolean);
   begin
     inherited HandleEvent(aEvent, Handled, ExitProg);
-    if ExitProg then Exit; { CHX: Inherited Draw can change ExitProg. }
+    if ExitProg then Exit; { CHX: Inherited Draw don't change ExitProg. }
 
     { CHX: Some common events for fast reference, CTRL+MAYS+U removes comments
         while selecting the block.
@@ -85,26 +151,29 @@ type
       Escape key is mapped to exit the program too.
     }
 
-    //case aEvent.type_ of
-    //  SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-    //  begin
-    //    case aEvent.key.keysym.sym of
-    //      //SDLK_UP : ;
-    //      //SDLK_DOWN : ;
-    //      //SDLK_LEFT : ;
-    //      //SDLK_RIGHT : ;
-    //      //SDLK_SPACE : ;
-    //      else
-    //        ;
-    //    end;
-    //  end;
-    //  //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-    //  //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-    //  //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-    //  //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
-    //  else
-    //    ;
-    //end;
+    case aEvent.type_ of
+      SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+      begin
+        b.applyForce(Point3DF(0, -5));
+        //case aEvent.key.keysym.sym of
+        //  //SDLK_UP : ;
+        //  //SDLK_DOWN : ;
+        //  //SDLK_LEFT : ;
+        //  //SDLK_RIGHT : ;
+        //  //SDLK_SPACE : ;
+        //  else
+        //    ;
+        //end;
+      end;
+
+        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
+
+      else
+        ;
+    end;
   end;
 
   { Main program }
@@ -134,7 +203,7 @@ begin
     CTCEng.Init;
     CTCEng.Run;
   finally
-    FreeAndNil(CTCEng);
+    CTCEng.Free;
   end;
 end.
 {

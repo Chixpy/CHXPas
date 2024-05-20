@@ -38,8 +38,8 @@ type
       {< Creates a TPoint3DF. }
       constructor Create(const aPoint3DF : TPoint3DF); overload;
       {< Creates a TPoint3DF cloning another TPoint3DF. }
-      constructor CreateRnd(Only2D: Boolean);
-      {< Creates a TPoint3DF with 1 lenght and random angles.
+      constructor CreateRnd(Only2D: Boolean; aMag: TPoint3DFType = 1);
+      {< Creates a TPoint3DF with `aMag` lenght (default = 1) and random angles.
 
         If Only2D is true, only rotates it in XY plane.
       }
@@ -221,9 +221,9 @@ begin
   Self := aPoint3DF;
 end;
 
-constructor TPoint3DF.CreateRnd(Only2D : Boolean);
+constructor TPoint3DF.CreateRnd(Only2D : Boolean; aMag : TPoint3DFType);
 begin
-  Self.X := 1;
+  Self.X := aMag;
   Self.Y := 0;
   Self.Z := 0;
   RotateXY(Random * 2 * pi);

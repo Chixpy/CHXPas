@@ -8,7 +8,7 @@ unit ucCHXSDL2Engine;
 interface
 
 uses
-  Classes, SysUtils, CTypes,
+  Classes, SysUtils, CTypes, Math,
   // SDL2
   SDL2, SDL2_GFX, SDL2_TTF,
   // CHX SDL2
@@ -25,6 +25,7 @@ type
   private
     FConfig : cCHXSDL2Config;
     FDefFont : cCHXSDL2Font;
+    FFrameCount : UInt64;
     FPWinPxFmt : PSDL_PixelFormat;
     FSDLWindow : cCHXSDL2Window;
     FShowFrameRate : Boolean;
@@ -61,6 +62,8 @@ type
     {property} Title : string;
 
     property Config : cCHXSDL2Config read FConfig;
+
+    property FrameCount: UInt64 read FFrameCount;
 
     procedure Init;
     {< Init engine and window. }
@@ -227,6 +230,7 @@ begin
 
   SDL_InitFramerate(@SDLFrameMang);
   SDL_SetFramerate(@SDLFrameMang, 60);
+  FFrameCount := 0;
   LastFrameTime := 0;
   DeltaTime := 0;
 
@@ -235,14 +239,16 @@ begin
 
     while (not ProgExit) do
     begin
+      Inc(FFrameCount);
+
       // COMPUTE
       if (not ProgExit) then
         Self.Compute(LastFrameTime, ProgExit);
 
       // TIMING (1)
-      // Actual calculation and drawing time in milliseconds.
+      // Actual Compute + Event time in milliseconds.
       DeltaTime := SDL_GetTicks - DeltaTime;
-      // Frame rate in milliseconds.
+      // Frame rate in milliseconds. Compute + Event + Draw + WaitFPS
       LastFrameTime := SDL_framerateDelay(@SDLFrameMang);
 
       // Don't draw if minimized

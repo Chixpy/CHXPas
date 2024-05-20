@@ -14,7 +14,7 @@
         <SaveFoldState Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="SDLProcessing"/>
+      <Title Value="CTC031"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -29,7 +29,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
-      <BuildNr Value="1"/>
+      <BuildNr Value="2"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Debug" Default="True"/>
@@ -38,11 +38,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\SDLProcessing"/>
+            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CTC031"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
+            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units;CTC031;..\..\..\Types"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -80,63 +80,67 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="SDLProcessing.lpr"/>
+        <Filename Value="CTC031.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2.pas"/>
+        <Filename Value="..\..\..\SDL2\SDL2\sdl2.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Units\uCHXStrUtils.pas"/>
+        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Engine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Window.pas"/>
+        <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2_gfx.pas"/>
+        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Window.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Units\uCHXConst.pas"/>
+        <Filename Value="..\..\..\SDL2\SDL2\sdl2_gfx.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Units\uCHXRscStr.pas"/>
+        <Filename Value="..\Readme.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Tests\CTC\Readme.md"/>
+        <Filename Value="..\..\..\Abstract\uaCHXConfig.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\Abstract\uaCHXConfig.pas"/>
+        <Filename Value="..\..\..\SDL2\SDLProcessing\Units\uProcUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="Units\uProcUtils.pas"/>
+        <Filename Value="..\..\..\SDL2\SDL2\sdl2_ttf.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Font.pas"/>
+        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Font.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Engine.pas"/>
+        <Filename Value="..\..\..\SDL2\Units\uCHXSDL2Utils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Units\uCHXSDL2Utils.pas"/>
+        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2TextCache.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2_ttf.pas"/>
+        <Filename Value="CTC031\ucCTCPipe.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\SDL2\sdl2_image.pas"/>
+        <Filename Value="CTC031\ucCTCBird.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Types\uCHXPoint3DF.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -145,11 +149,11 @@
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\SDLProcessing"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CTC031"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
+      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units;CTC031;..\..\..\Types"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

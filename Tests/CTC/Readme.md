@@ -19,7 +19,8 @@ will be done while ucSDL2Engine will evolve if needed.
 ## SDLProcessing.lpi
 
 This is the main base program to simulate Processing. To use it simply open and
-`Save Proyect As...` with a new name.
+`Save Proyect As...` with a new name. NOTE: Doing this only updates unit folders
+in current build mode, then copy then to other in project options.
 
 Pascal don't have Garbage Collector as is, so allocated memory and objects must
 be freed. In FPC, we can make reference counted interfaced objects wich
@@ -40,7 +41,7 @@ Some Events are listed and commented out to have an easy reference, and window
 and any quit event is handled automatically.
 
 `Esc` key is mapped to exit the program and `F11` will show framerate in
-  window title
+window title
 
 If window is resized, SDL Renderer automatically stretch image to its actual
 size. If soft renderer is used it will be scaled by integer values, because
@@ -50,7 +51,7 @@ it shows vertical black stripes ¿?.
 
 | # | Name | Comments |
 |---:|:---|:---|
-| CT001 | Starfield | Testing SDL_RenderXXX and SDL_GFX functions. Manual tweak of simple coordinates tranformations |
+| CT001 | Starfield | Testing SDL_RenderXXX and SDL_GFX functions. Manual tweak of simple coordinates tranformations (PMM) |
 | CT003 | The Snake Game | Keyboard event handling |
 | CT004 | Purple Rain |  |
 | CT005 | Space Invaders |  |
@@ -65,6 +66,8 @@ it shows vertical black stripes ¿?.
 | CT023 | 2D Supershapes |  |
 | CT027 | Fireworks (2D) |  |
 | CT028 | Metaballs |  |
+| CT031 | Flappy Bird |  First program with text |
+| CT033 | Poisson-disc Sampling | |
 
 ## Skipped
 
@@ -86,9 +89,8 @@ Reasons to skip:
 | CT025 | 3D | Spherical Geometry |
 | CT026 | 3D | 3D Supershapes |
 | CT027 | 3D | Fireworks (3D) |
-| CT029 | PMM / TXT | Smart Rockets in p5.js |
+| CT029 | PMM | Smart Rockets in p5.js |
 | CT030 | PMM | Phyllotaxis |
-| CT031 | TXT | Flappy Bird |
 | CT032.1 | PMM | Agar.io |
 | CT032.2 | PMM / S/C | Agar.io |
 
@@ -100,8 +102,8 @@ Reasons to skip:
     translations and rotations. Not sure how to implement it:
     - Manually tweaked drawing of points and lines.
     - Maybe creating a stack of new rendering textures on pushMatrix. They
-      can be rotated and translated and render in parent texture on popMatrix.
-      But, we can't draw on negative coords.
+      can be rotated, translated and zoomed, thed render in parent texture
+      on popMatrix. But, we can't draw on negative coords
     - Or making a wrapper of all drawing function that makes all
       transformations before actual drawing.
     - Or, Without SDL, TBGRABitmap has TBGRACanvas2D wich simulates JavaScript
@@ -109,16 +111,17 @@ Reasons to skip:
       restore (popMatrix). But I need to create a new engine based on
       TBGRABitmap (and maybe I can redo all SDL examples in TBGRABitmap too).
   - TXL: Use toxiclibs physics library.
-  - TXT: Draw text with graphics.
-    - Drawing text in SDL requires SDL_ttf, creating a surface with actual text
-      rendered.
   - S/C: Use of Server / Client sockets.
+
+Not Skipped now:
+
+  - TXT: Draw text with graphics.
+  - EVN: Events (They weree skipped before uploaded to Github).
 
 ## ToDo
 
 | # | Name |
 |---:|:---|
-| CT033 | Poisson-disc Sampling |
 | CT034 | Diffusion-Limited Aggregation |
 
 

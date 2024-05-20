@@ -20,6 +20,14 @@ function SDLColor2Str(aColor : TSDL_Color) : string;
 function Str2SDLColor(aColor : string) : TSDL_Color;
 {< Write a TSDL_Color to a string.}
 
+function SDLRect(const x : CUInt; const y : CUInt; const w : CUInt;
+  const h : CUInt) : TSDL_Rect;
+{< Create a TSDL_Rect.}
+
+function SDLFRect(const x : CFloat; const y : CFloat; const w : CFloat;
+  const h : CFloat) : TSDL_FRect;
+{< Create a TSDL_FRect.}
+
 implementation
 
 function SDLColor(const r : CUInt8; const g : CUInt8; const b : CUInt8;
@@ -38,14 +46,13 @@ end;
 
 function Str2SDLColor(aColor : string) : TSDL_Color;
 var
-  R, G, B, A: Byte;
-  Components: array of string;
+  Components : array of string;
 begin
   Components := aColor.Split(',');
 
   if Length(Components) < 3 then
     raise EConvertError.CreateFmt(krsFmtGenericDef, [{$I %CURRENTROUTINE%},
-    '"' + aColor + '" doesn''t have at least 3 components.']);
+      '"' + aColor + '" doesn''t have at least 3 components.']);
 
   Result.R := EnsureRange(StrToInt(Components[0]), 0, 255);
   Result.G := EnsureRange(StrToInt(Components[1]), 0, 255);
@@ -54,6 +61,24 @@ begin
     Result.A := EnsureRange(StrToInt(Components[3]), 0, 255)
   else
     Result.A := 255;
+end;
+
+function SDLRect(const x : CUInt; const y : CUInt; const w : CUInt;
+  const h : CUInt) : TSDL_Rect;
+begin
+  Result.x := x;
+  Result.y := y;
+  Result.w := w;
+  Result.h := h;
+end;
+
+function SDLFRect(const x : CFloat; const y : CFloat; const w : CFloat;
+  const h : CFloat) : TSDL_FRect;
+begin
+  Result.x := x;
+  Result.y := y;
+  Result.w := w;
+  Result.h := h;
 end;
 
 end.
