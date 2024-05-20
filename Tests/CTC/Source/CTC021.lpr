@@ -12,26 +12,18 @@ program CTC021;
 // http://patreon.com/codingtrain
 // Code for: https://youtu.be/6z7GQewK-Ks
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
-
 {$mode ObjFPC}{$H+}
+
 uses
-  Classes,
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
-  Math, //SDL have math methods too
-  SDL2,
-  sdl2_gfx,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
+  SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucCHXSDL2Window,
-  ucSDL2Engine;
+  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
 
 const
-  // Renderer scales images to actual size of the window.
-  WinW = 800; // Window logical width
-  WinH = 600; // Window logical height
+  { CHX: Renderer scales images to actual size of the window. }
+  WinW = 800; { CHX: Window logical width. }
+  WinH = 600; { CHX: Window logical height. }
 
   // CHX: Making values as constants, can be set in OnSetup too
 
@@ -58,61 +50,50 @@ const
   dx = (xmax - xmin) / WinW;
   dy = (ymax - ymin) / WinH;
 
+type
 
-var // Global variables :-(
-  SDL2Engine : cSDL2Engine;
-  aTex : PSDL_Texture;
-  aPxFmt: PSDL_PixelFormat;
+  { cCTCEng }
 
-  // Any auxiliar procedure/function will be here
+  cCTCEng = class(cCHXSDL2Engine)
+  protected
+    procedure Setup; override;
+    procedure Finish; override;
+    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+      override;
+    procedure Draw; override;
+    procedure HandleEvent(const aEvent : TSDL_Event; var Handled : Boolean;
+      var ExitProg : Boolean); override;
 
-  function OnSetup : Boolean;
-  var
-    aFmt: CUint32;
+  public
+    { CHX: Global variables. }
+    aTex : PSDL_Texture;
+  end;
+
+  { cCTCEng }
+
+  procedure cCTCEng.Setup;
   begin
-    // CHX: Allocating Window pixel format
-    aFmt :=SDL_GetWindowPixelFormat(SDL2Engine.SDLWindow.PWindow);
-    aPxFmt := SDL_AllocFormat(aFmt);
-
     // CHX: Creating a SDLTexture to edit its pixels
-    aTex := SDL_CreateTexture(SDL2Engine.SDLWindow.PRenderer,
-      aFmt, SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
-
-    Result := True; // False -> Finish program
+    aTex := SDL_CreateTexture(SDLWindow.PRenderer, PWinPxFmt^.format,
+      SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
   end;
 
-  procedure OnFinish;
+  procedure cCTCEng.Finish;
   begin
-    // CHX:Free any created objects
+    { CHX: Free any created objects. }
     SDL_DestroyTexture(aTex);
-    SDL_FreeFormat(aPxFmt);
   end;
 
-  procedure PutPixel(Base : PCUInt32; Pitch : cint; x, y : word;
-    r, g, b, a : byte);
-  var
-    PPoint : PCUInt32;
-  begin
-    PPoint := Base + y * (Pitch div 4) + x;
-    // CHX: Doesn't apply transparency, only sets it. PPoint is write-only and
-    //   it doesn't have previous color value.
-
-    // This is a little faster, less than 5%, but only works in RGBA8888 in
-    //   Windows and Intel (component order and endianess);
-    //PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
-
-    // SDL_MapRGBA is the correct way but we need texture pixel format.
-    PPoint^ := SDL_MapRGBA(aPxFmt, r, g, b, a);
-  end;
-
-  function OnCompute(Window : cCHXSDL2Window;
-    DeltaTime, FrameTime : CUInt32) : Boolean;
+  procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
   var
     pitch : cint;
     PPBase : PCUInt32;
     x, y, a, b, aa, bb, twoab : Double; // fractal coords.
     n, i, j : integer; // screen coords.
   begin
+    { CHX: If we want to pause when minimized or focus lost. }
+    // if SDLWindow.Minimized then Exit;
+
     // CHX: As we are editing a SDLTexture and don't need a SDL_Renderer, we
     //   can do in OnCompute.
 
@@ -171,101 +152,59 @@ var // Global variables :-(
     end;
 
     SDL_UnlockTexture(aTex);
-    Result := True; // False -> Finish program
   end;
 
-  function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  procedure cCTCEng.Draw;
   begin
-    // Background
-    //SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
-    //SDL_RenderClear(SDL2R);
+    // Background and frame clear.
+    //SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
+    //SDL_RenderClear(SDLWindow.PRenderer);
 
-    SDL_RenderCopy(SDL2R, aTex, nil, nil);
-
-    Result := True; // False -> Finish program
+    SDL_RenderCopy(SDLWindow.PRenderer, aTex, nil, nil);
   end;
 
-  function OnEvent(aEvent : TSDL_Event) : Boolean;
+  procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
+  var Handled : Boolean; var ExitProg : Boolean);
   begin
-    Result := True;
+    inherited HandleEvent(aEvent, Handled, ExitProg);
+    if ExitProg then Exit; { CHX: Inherited Draw can change ExitProg. }
 
-    // EVENTS
+    { CHX: Some common events for fast reference, CTRL+MAYS+U removes comments
+        while selecting the block.
+      You can see full list in sdlevents.inc
+      Window and general quit events are handled automatically in parent.
+      Escape key is mapped to exit the program too.
+    }
 
-    case aEvent.type_ of
-      //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
-      //SDL_DISPLAYEVENT : // (display: TSDL_DisplayEvent);
+    //case aEvent.type_ of
+    //  SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+    //  begin
+    //      case aEvent.key.keysym.sym of
+    //        //SDLK_UP : ;
+    //        //SDLK_DOWN : ;
+    //        //SDLK_LEFT : ;
+    //        //SDLK_RIGHT : ;
+    //        //SDLK_SPACE : ;
+    //        else
+    //          ;
+    //      end;
+    //  end;
 
-      // Handled by SDL2Engine: SDL_WINDOWEVENT : //(window: TSDL_WindowEvent)
+    //  //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+    //  //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+    //  //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+    //  //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
-      //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
-      SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-      begin
-        case aEvent.key.keysym.sym of
-          //SDLK_UP : ;
-          //SDLK_DOWN : ;
-          //SDLK_LEFT : ;
-          //SDLK_RIGHT : ;
-          //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False; // Exit
-          else
-            ;
-        end;
-      end;
-        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
-
-        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
-
-        //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
-        //SDL_JOYBALLMOTION : // (jball: TSDL_JoyBallEvent);
-        //SDL_JOYHATMOTION : // (jhat: TSDL_JoyHatEvent);
-        //SDL_JOYBUTTONDOWN : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYBUTTONUP : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYDEVICEADDED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYDEVICEREMOVED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYBATTERYUPDATED : // (jbattery: TSDL_JoyBatteryEvent);
-
-        //SDL_CONTROLLERAXISMOTION : // (caxis: TSDL_ControllerAxisEvent);
-        //SDL_CONTROLLERBUTTONUP : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERBUTTONDOWN : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERDEVICEADDED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMOVED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMAPPED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERTOUCHPADDOWN : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADMOTION : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADUP : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERSENSORUPDATE : // (csensor: TSDL_ControllerSensorEvent);
-
-        //SDL_AUDIODEVICEADDED : // (adevice: TSDL_AudioDeviceEvent);
-        //SDL_AUDIODEVICEREMOVED : // (adevice: TSDL_AudioDeviceEvent);
-
-        //SDL_SENSORUPDATED : // (sensor: TSDL_SensorEvent);
-
-        // Handled by SDL2Engine: SDL_QUITEV : Result := False;
-
-        //SDL_USEREVENT : // (user: TSDL_UserEvent);
-        //SDL_SYSWMEVENT : // (syswm: TSDL_SysWMEvent);
-
-        //SDL_FINGERDOWN : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERUP : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERMOTION : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_MULTIGESTURE : // (mgesture: TSDL_MultiGestureEvent);
-        //SDL_DOLLARGESTURE : //(dgesture: TSDL_DollarGestureEvent);
-        //SDL_DOLLARRECORD : //(dgesture: TSDL_DollarGestureEvent);
-
-        //SDL_DROPFILE : // (drop: TSDL_DropEvent);
-      else
-        ;
-    end;
-
+    //  else
+    //    ;
+    //end;
   end;
+
+  { Main program }
 
 var
   BaseFolder : string;
+  CTCEng : cCTCEng;
 
   {$R *.res}
 
@@ -279,16 +218,16 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, True);
-    SDL2Engine.SDL2Setup := @OnSetup;
-    SDL2Engine.SDL2Comp := @OnCompute;
-    SDL2Engine.SDL2Draw := @OnDraw;
-    SDL2Engine.SDL2Event := @OnEvent;
-    SDL2Engine.SDL2Finish := @OnFinish;
-
-    SDL2Engine.Run;
+    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
+    CTCEng.Config.WindowWidth := WinW;
+    CTCEng.Config.RendererWidth := WinW;
+    CTCEng.Config.WindowHeight := WinH;
+    CTCEng.Config.RendererHeight := WinH;
+    CTCEng.Config.RendererUseHW := True;
+    CTCEng.Init;
+    CTCEng.Run;
   finally
-    SDL2Engine.Free;
+    FreeAndNil(CTCEng);
   end;
 end.
 {

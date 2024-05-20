@@ -42,7 +42,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units"/>
+            <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -88,10 +88,6 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucSDL2Engine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
@@ -116,10 +112,6 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucSDL2Config.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="..\..\Abstract\uaCHXConfig.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
@@ -129,6 +121,26 @@
       </Unit>
       <Unit>
         <Filename Value="Units\uProcUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Classes\ucCHXSDL2Font.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Classes\ucCHXSDL2Engine.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Units\uCHXSDL2Utils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\SDL2\sdl2_ttf.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\SDL2\sdl2_image.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
@@ -141,7 +153,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units"/>
+      <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

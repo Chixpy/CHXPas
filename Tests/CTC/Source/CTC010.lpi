@@ -40,7 +40,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\SDL2\SDL2;..\..\..\SDL2\Classes;..\..\..\Units;CTC010"/>
+            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\SDL2\SDL2;..\..\..\SDL2\Classes;..\..\..\Units;CTC010;..\..\..\SDL2\Units;..\..\..\SDL2\SDLProcessing\Units"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -86,10 +86,6 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\..\SDL2\Classes\ucSDL2Engine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
@@ -99,10 +95,6 @@
       </Unit>
       <Unit>
         <Filename Value="CTC010\ucCTCCell.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="..\..\..\SDL2\Classes\ucSDL2Config.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -125,6 +117,14 @@
         <Filename Value="..\Readme.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\..\SDL2\Units\uCHXSDL2Utils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\SDL2\SDLProcessing\Units\uProcUtils.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -135,7 +135,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\SDL2\SDL2;..\..\..\SDL2\Classes;..\..\..\Units;CTC010"/>
+      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\SDL2\SDL2;..\..\..\SDL2\Classes;..\..\..\Units;CTC010;..\..\..\SDL2\Units;..\..\..\SDL2\SDLProcessing\Units"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

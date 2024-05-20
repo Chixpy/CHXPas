@@ -9,9 +9,9 @@ or Pascal friendly. The main changes are:
 
   - No Garbage Collector, so reserved dynamic memory and objects are freed
     manually.
-  - OnDraw is splitted in OnCompute and OnDraw functions.
-    - `OnCompute`: To make
-    - `OnDraw`: Usually to implement Show/Draw methods of created classes.
+  - Processing's Draw is splitted in cCTCEng `Compute` and `Draw` methods.
+    - `cCTCEng.Compute`: To update program state.
+    - `cCTCEng.Draw`: Usually to implement Show/Draw methods of created classes.
 
 Some day improved and better "Pascalized" version of programs and classes
 will be done while ucSDL2Engine will evolve if needed.
@@ -19,31 +19,28 @@ will be done while ucSDL2Engine will evolve if needed.
 ## SDLProcessing.lpi
 
 This is the main base program to simulate Processing. To use it simply open and
-  `Save Proyect As...` with a new name.
+`Save Proyect As...` with a new name.
 
 Pascal don't have Garbage Collector as is, so allocated memory and objects must
-be freed `OnFinish` if created `OnSetup` (or `OnCompute`/`OnEvent`). In FPC, we
-can make reference counted interfaced objects wich autofree, but it's easier
-free them manually.
+be freed. In FPC, we can make reference counted interfaced objects wich
+autofree, but it's easier free them manually.
 
-Processing's `OnDraw` is splited in `OnCompute` and `OnDraw`.
+`ExitProg` var is used to Finish the program in `Compute` and `HandleEvent`.
 
-`OnCompute` is called every frame and had 3 parameters
+Processing's `Draw` is splited in `Compute` and `Draw`. Both are called
+every frame. `Compute` has FrameTime var with millisecond passed between
+frames.
 
-  - Window: A class wich
-
-So, the pourpose of `OnDraw` in the main program is for implemntation of
+The pourpose of `Draw` in the main program is for implementation of
 `Show`/`Draw`/etc. methods of classes. I'm not sure wich is the best way to
-implement it (SDLRenderer as parameter or as property of an common ancestor
-class).
+implement it in this ports. (pass SDLRenderer as parameter or as property of
+an common ancestor class).
 
+Some Events are listed and commented out to have an easy reference, and window
+and any quit event is handled automatically.
 
-
-
-
-All Events are listed and commented out to have an easy reference, and window
-and any quit event is handled automatically. Escape key is mapped to exit the
-program too.
+`Esc` key is mapped to exit the program and `F11` will show framerate in
+  window title
 
 If window is resized, SDL Renderer automatically stretch image to its actual
 size. If soft renderer is used it will be scaled by integer values, because

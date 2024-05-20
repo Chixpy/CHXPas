@@ -1,11 +1,16 @@
 unit ucCHXSDL2Window;
 {< Unit of SDL2 Window wrapper class.
 
-  SDL_Init(SDL_INIT_VIDEO); must be called before creating the window.
+  `SDL_InitSubSystem(SDL_INIT_VIDEO)` is called automatically if video system
+    is not initialized.
 
-  Supports creating multiple windows
+  But `SDL_QuitSubSystem(SDL_INIT_VIDEO)` (or `SDL_Quit`) must be called when
+    all windows are destroyed.
 
-  Copyright (C) 2024 Chixpy https://github.com/Chixpy
+  Supports creating multiple windows by the same engine, checking its ID in
+    event handling.
+
+  (C) 2024 Chixpy https://github.com/Chixpy
 }
 {$mode ObjFPC}{$H+}
 
@@ -15,6 +20,9 @@ uses
   Classes, SysUtils, CTypes,
   // SDL
   SDL2;
+
+resourcestring
+  rsErrSDL_CreateWindow = 'SDL_CreateWindow Error';
 
 type
 
@@ -34,9 +42,7 @@ type
     FTitle : string;
     FWinWidth : CInt;
     FWindowID : CUInt32;
-    procedure SetWinHeight(const AValue : CInt);
     procedure SetTitle(const AValue : string);
-    procedure SetWinWidth(const AValue : CInt);
 
   protected
     // Internal states
@@ -49,8 +55,8 @@ type
 
   public
     property Title : string read FTitle write SetTitle;
-    property WinWidth : CInt read FWinWidth write SetWinWidth;
-    property WinHeight : CInt read FWinHeight write SetWinHeight;
+    property WinWidth : CInt read FWinWidth;
+    property WinHeight : CInt read FWinHeight;
     property LogWidth : CInt read FLogWidth;
     property LogHeight : CInt read FLogHeight;
 
@@ -65,12 +71,13 @@ type
     property KeyboardFocus : Boolean read FKeyboardFocus;
 
     procedure Focus;
+    //< Set focus to this window.
 
-    procedure HandleEvent(aEvent : TSDL_Event);
+    function HandleEvent(aEvent : TSDL_Event; var Handled : Boolean) : Boolean;
 
-    constructor Create(const aTitle : string; const aWinWidth : LongInt;
-      const aWinHeight : LongInt; const HWAcc : Boolean = False;
-      const LWidth : LongInt = 0; const LHeight : LongInt = 0);
+    constructor Create(const aTitle : string; const aWinWidth : CInt;
+      const aWinHeight : CInt; const HWAcc : Boolean = False;
+      const LWidth : CInt = 0; const LHeight : CInt = 0);
     destructor Destroy; override;
   end;
 
@@ -84,22 +91,6 @@ begin
   FTitle := aValue;
 
   SDL_SetWindowTitle(PWindow, PChar(aValue));
-end;
-
-procedure cCHXSDL2Window.SetWinHeight(const AValue : CInt);
-begin
-  if FWinHeight = AValue then Exit;
-  FWinHeight := AValue;
-
-  CreateWindow;
-end;
-
-procedure cCHXSDL2Window.SetWinWidth(const AValue : CInt);
-begin
-  if FWinWidth = AValue then Exit;
-  FWinWidth := AValue;
-
-  CreateWindow;
 end;
 
 procedure cCHXSDL2Window.InitWindow;
@@ -160,8 +151,8 @@ begin
       If the default setting 'autoselect chip' it can work or not at random.
     }
 
-    { NOTE : "Accelerated" means 3D, at least initially on direc pixel
-        manipulation.
+    { NOTE : "Accelerated" means 3D, at least initially when direct pixel
+        manipulation or primitive drawing in renderer.
 
       Although flag is named 'SDL_RENDERER_ACCELERATED', in my tests all
         accelerated drivers are actually slower than software in direct pixel
@@ -176,11 +167,9 @@ begin
         (and "opengl" is about the same speed)
 
       TODO: Test rendering primitives to a texture and test other drivers.
-        Test Intel chip.
 
-    }
-    { TODO : Test with surfaces, etc. because it can be faster than direct
-        texture drawing.
+      TODO: Test Intel chip.
+
     }
 
     // Searching opengl driver
@@ -212,8 +201,7 @@ begin
   if not assigned(PRenderer) then
   begin
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-      'SDL_CreateRenderer Error', SDL_GetError,
-      PWindow);
+      'SDL_CreateRenderer Error', SDL_GetError, PWindow);
     SDL_DestroyWindow(PWindow);
     Exit;
   end;
@@ -242,56 +230,78 @@ begin
   SDL_RaiseWindow(PWindow);
 end;
 
-procedure cCHXSDL2Window.HandleEvent(aEvent : TSDL_Event);
+function cCHXSDL2Window.HandleEvent(aEvent : TSDL_Event;
+  var Handled : Boolean) : Boolean;
 begin
+  Result := True;
+
   if (aEvent.type_ <> SDL_WINDOWEVENT) or
-    (aEvent.window.windowID <> WindowID) then
+    (aEvent.window.windowID <> WindowID) or
+    Handled then
     Exit;
 
+  Handled := True; // Maybe pass current value always?
+
   case aEvent.window.event of
-    SDL_WINDOWEVENT_SHOWN : // Window is shown now
+    SDL_WINDOWEVENT_SHOWN : {< Window has been shown.}
       FShown := True;
 
-    SDL_WINDOWEVENT_HIDDEN : // Window is hidden now
+    SDL_WINDOWEVENT_HIDDEN : {< Window has been hidden.}
       FShown := False;
 
-    SDL_WINDOWEVENT_SIZE_CHANGED : // Repaint
+    SDL_WINDOWEVENT_EXPOSED :
+      {< Window has been exposed and should be redrawn.}
       SDL_RenderPresent(PRenderer);
 
-    SDL_WINDOWEVENT_EXPOSED : // Repaint
+    //SDL_WINDOWEVENT_MOVED  : {< Window has been moved to data1; data2.}
+    //SDL_WINDOWEVENT_RESIZED: {< Window has been resized to data1xdata2.}
+
+    SDL_WINDOWEVENT_SIZE_CHANGED : {< The window size has changed.}
       SDL_RenderPresent(PRenderer);
 
-    SDL_WINDOWEVENT_ENTER : // Mouse enter
-      FMouseFocus := True;
-
-    SDL_WINDOWEVENT_LEAVE : // Mouse exit
-      FMouseFocus := False;
-
-    SDL_WINDOWEVENT_FOCUS_GAINED : // Keyboard focus
-      FKeyboardFocus := True;
-
-    SDL_WINDOWEVENT_FOCUS_LOST : // Keyboard focus lost
-      FKeyboardFocus := False;
-
-    SDL_WINDOWEVENT_MINIMIZED : // Window minimized
+    SDL_WINDOWEVENT_MINIMIZED : {< Window has been minimized.}
       FMinimized := True;
 
-    SDL_WINDOWEVENT_MAXIMIZED : // Window maximized
+    SDL_WINDOWEVENT_MAXIMIZED : {< Window has been maximized.}
       FMinimized := False;
 
-    SDL_WINDOWEVENT_RESTORED : // Window restored
+    SDL_WINDOWEVENT_RESTORED :
+      {< Window has been restored to normal size and position.}
       FMinimized := False;
 
-      // SDL_WINDOWEVENT_CLOSE: // Close window
-      // SDL_HideWindow( mWindow );
+    SDL_WINDOWEVENT_ENTER : {< Window has gained mouse focus.}
+      FMouseFocus := True;
+
+    SDL_WINDOWEVENT_LEAVE : {< Window has lost mouse focus.}
+      FMouseFocus := False;
+
+    SDL_WINDOWEVENT_FOCUS_GAINED : {< Window has gained keyboard focus.}
+      FKeyboardFocus := True;
+
+    SDL_WINDOWEVENT_FOCUS_LOST : {< Window has lost keyboard focus.}
+      FKeyboardFocus := False;
+
+      //SDL_WINDOWEVENT_CLOSE :
+      {< The window manager requests that the window be closed.}
+      // SDL_HideWindow( mWindow ); // Done automatically?
+
+      //SDL_WINDOWEVENT_TAKE_FOCUS:
+      {< Window is being offered a focus (should SetWindowInputFocus() on
+         itself or a subwindow, or ignore.)}
+      //SDL_WINDOWEVENT_HIT_TEST:
+      {< Window had a hit test that wasn't SDL_HITTEST_NORMAL.}
+      //SDL_WINDOWEVENT_ICCPROF_CHANGED:
+      {< The ICC profile of the window's display has changed.}
+      //SDL_WINDOWEVENT_DISPLAY_CHANGED:
+      {< Window has been moved to display data1.}
     else
-      ;
+      Handled := False;
   end;
 end;
 
 constructor cCHXSDL2Window.Create(const aTitle : string;
-  const aWinWidth : LongInt; const aWinHeight : LongInt;
-  const HWAcc : Boolean; const LWidth : LongInt; const LHeight : LongInt);
+  const aWinWidth : CInt; const aWinHeight : CInt; const HWAcc : Boolean;
+  const LWidth : CInt; const LHeight : CInt);
 begin
   FPWindow := nil;
   FPRenderer := nil;
@@ -313,13 +323,20 @@ begin
 
   Accelerated := HWAcc;
 
+  if SDL_WasInit(SDL_INIT_VIDEO) = 0 then
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
+
   CreateWindow;
 end;
 
 destructor cCHXSDL2Window.Destroy;
 begin
+  SDL_DestroyRenderer(PRenderer);
+  SDL_DestroyWindow(PWindow);
+
   if Accelerated then
     Set8087CW(Default8087CW);
+
   inherited Destroy;
 end;
 

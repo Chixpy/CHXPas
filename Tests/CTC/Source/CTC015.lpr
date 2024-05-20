@@ -12,20 +12,19 @@ program CTC015;
 // http://patreon.com/codingtrain
 // Code for:                            <- Change this
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
-
 {$mode ObjFPC}{$H+}
+
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, fgl,
-  Math, //SDL have math methods too
-  SDL2, sdl2_gfx,
-  uCHXStrUtils, uCHXPoint3DF,
-  ucCHXSDL2Window, ucSDL2Engine,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math, fgl,
+  SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
+  uCHXPoint3DF, uCHXStrUtils,
+  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils,
   ucCTCBranch;
 
 const
-  // Renderer scales images to actual size of the window.
-  WinW = 400; // Window logical width
-  WinH = 400; // Window logical height
+  { CHX: Renderer scales images to actual size of the window. }
+  WinW = 800; { CHX: Window logical width. }
+  WinH = 600; { CHX: Window logical height. }
 
   NIter = 6; // Number of max iterations
 
@@ -33,14 +32,28 @@ type
   TTree = specialize TFPGObjectList<cCTCBranch>;
   TLeaves = specialize TFPGList<TPoint3DF>;
 
-var // Global variables :-(
-  Tree : TTree;
-  Leaves : TLeaves;
-  Count : integer;
+  { cCTCEng }
 
-  // Any auxiliar procedure/function will be here
+  cCTCEng = class(cCHXSDL2Engine)
+  protected
+    procedure Setup; override;
+    procedure Finish; override;
+    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+      override;
+    procedure Draw; override;
+    procedure HandleEvent(const aEvent : TSDL_Event; var Handled : Boolean;
+      var ExitProg : Boolean); override;
 
-  function OnSetup : Boolean;
+  public
+    { CHX: Global variables. }
+    Tree : TTree;
+    Leaves : TLeaves;
+    Count : integer;
+  end;
+
+  { cCTCEng }
+
+  procedure cCTCEng.Setup;
   var
     Root : cCTCBranch;
   begin
@@ -51,23 +64,23 @@ var // Global variables :-(
       Point3DF(WinW / 2, WinH - 100, 0));
 
     Tree.Add(Root);
-
-    Result := True; // False -> Finish program
   end;
 
-  procedure OnFinish;
+  procedure cCTCEng.Finish;
   begin
-    // Free any created objects
+    { CHX: Free any created objects. }
     Tree.Free;
     Leaves.Free;
   end;
 
-  function OnCompute(Window : cCHXSDL2Window;
-    DeltaTime, FrameTime : CUInt32) : Boolean;
+  procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
   var
     l : TPoint3DF;
-    i : Integer;
+    i : integer;
   begin
+    { CHX: If we want to pause when minimized or focus lost. }
+    // if SDLWindow.Minimized then Exit;
+
     { A little dream, l is a copy and it can't be assigned to. }
     //for l in Leaves do
     //  //let the Leave fall
@@ -89,63 +102,57 @@ var // Global variables :-(
         Leaves.Delete(i);
       Dec(i);
     end;
-    Result := True; // False -> Finish program
   end;
 
-  function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  procedure cCTCEng.Draw;
   var
     b : cCTCBranch;
     l : TPoint3DF;
   begin
     // Background
-    SDL_SetRenderDrawColor(SDL2R, 51, 51, 51, 255);
-    SDL_RenderClear(SDL2R);
+    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 51, 51, 51, 255);
+    SDL_RenderClear(SDLWindow.PRenderer);
 
-    SDL_SetRenderDrawColor(SDL2R, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 255, 255, 255, 255);
     //forEach Branch of the Tree: Draw it
     for b in Tree do
-      SDL_RenderDrawLineF(SDL2R, b.beginB.X, b.beginB.Y,
+      SDL_RenderDrawLineF(SDLWindow.PRenderer, b.beginB.X, b.beginB.Y,
         b.endB.X, b.endB.Y);
 
     for l in Leaves do
-      filledCircleRGBA(SDL2R, round(l.x), round(l.y), 4, 255, 0, 100, 100);
-
-    Result := True; // False -> Finish program
+      filledCircleRGBA(SDLWindow.PRenderer, round(l.x), round(l.y),
+        4, 255, 0, 100, 100);
   end;
 
-  function OnEvent(aEvent : TSDL_Event) : Boolean;
+  procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
+  var Handled : Boolean; var ExitProg : Boolean);
   var
     i : integer;
     Current : cCTCBranch;
   begin
-    Result := True;
+    inherited HandleEvent(aEvent, Handled, ExitProg);
+    if ExitProg then Exit; { CHX: Inherited Draw can change ExitProg. }
 
-    // EVENTS
+    { CHX: Some common events for fast reference, CTRL+MAYS+U removes comments
+        while selecting the block.
+      You can see full list in sdlevents.inc
+      Window and general quit events are handled automatically in parent.
+      Escape key is mapped to exit the program too.
+    }
 
     case aEvent.type_ of
-      //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
-      //SDL_DISPLAYEVENT : // (display: TSDL_DisplayEvent);
-
-      // Handled by SDL2Engine: SDL_WINDOWEVENT : //(window: TSDL_WindowEvent)
-
-      //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
-      SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-      begin
-        case aEvent.key.keysym.sym of
-          //SDLK_UP : ;
-          //SDLK_DOWN : ;
-          //SDLK_LEFT : ;
-          //SDLK_RIGHT : ;
-          //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False; // Exit
-          else
-            ;
-        end;
-      end;
-
-      //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-      //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-      //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+      //SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+      //begin
+      //  case aEvent.key.keysym.sym of
+      //      //SDLK_UP : ;
+      //      //SDLK_DOWN : ;
+      //      //SDLK_LEFT : ;
+      //      //SDLK_RIGHT : ;
+      //      //SDLK_SPACE : ;
+      //    else
+      //      ;
+      //  end;
+      //end;
 
       //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
       //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
@@ -154,21 +161,21 @@ var // Global variables :-(
         // CHX: Stop iterating, and make a constant with iteration.
         if Count <= NIter then
         begin
-        i := Tree.Count - 1;
-        while i >= 0 do
-        begin
-          Current := Tree[i];
-
-          if not Current.finished then
+          i := Tree.Count - 1;
+          while i >= 0 do
           begin
-            Tree.Add(Current.branchA);
-            Tree.Add(Current.branchB);
+            Current := Tree[i];
+
+            if not Current.finished then
+            begin
+              Tree.Add(Current.branchA);
+              Tree.Add(Current.branchB);
+            end;
+
+            Current.finished := True;
+
+            Dec(i);
           end;
-
-          Current.finished := True;
-
-          Dec(i);
-        end;
 
         end;
 
@@ -180,58 +187,19 @@ var // Global variables :-(
           for Current in Tree do
             if not Current.finished then
               Leaves.add(Current.endB);
-
       end;
         //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
-        //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
-        //SDL_JOYBALLMOTION : // (jball: TSDL_JoyBallEvent);
-        //SDL_JOYHATMOTION : // (jhat: TSDL_JoyHatEvent);
-        //SDL_JOYBUTTONDOWN : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYBUTTONUP : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYDEVICEADDED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYDEVICEREMOVED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYBATTERYUPDATED : // (jbattery: TSDL_JoyBatteryEvent);
-
-        //SDL_CONTROLLERAXISMOTION : // (caxis: TSDL_ControllerAxisEvent);
-        //SDL_CONTROLLERBUTTONUP : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERBUTTONDOWN : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERDEVICEADDED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMOVED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMAPPED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERTOUCHPADDOWN : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADMOTION : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADUP : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERSENSORUPDATE : // (csensor: TSDL_ControllerSensorEvent);
-
-        //SDL_AUDIODEVICEADDED : // (adevice: TSDL_AudioDeviceEvent);
-        //SDL_AUDIODEVICEREMOVED : // (adevice: TSDL_AudioDeviceEvent);
-
-        //SDL_SENSORUPDATED : // (sensor: TSDL_SensorEvent);
-
-        // Handled by SDL2Engine: SDL_QUITEV : Result := False;
-
-        //SDL_USEREVENT : // (user: TSDL_UserEvent);
-        //SDL_SYSWMEVENT : // (syswm: TSDL_SysWMEvent);
-
-        //SDL_FINGERDOWN : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERUP : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERMOTION : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_MULTIGESTURE : // (mgesture: TSDL_MultiGestureEvent);
-        //SDL_DOLLARGESTURE : //(dgesture: TSDL_DollarGestureEvent);
-        //SDL_DOLLARRECORD : //(dgesture: TSDL_DollarGestureEvent);
-
-
-        //SDL_DROPFILE : // (drop: TSDL_DropEvent);
       else
         ;
     end;
-
   end;
 
+  { Main program }
+
 var
-  SDL2Engine : cSDL2Engine;
   BaseFolder : string;
+  CTCEng : cCTCEng;
 
   {$R *.res}
 
@@ -245,16 +213,16 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
-    SDL2Engine.SDL2Setup := @OnSetup;
-    SDL2Engine.SDL2Comp := @OnCompute;
-    SDL2Engine.SDL2Draw := @OnDraw;
-    SDL2Engine.SDL2Event := @OnEvent;
-    SDL2Engine.SDL2Finish := @OnFinish;
-
-    SDL2Engine.Run;
+    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
+    CTCEng.Config.WindowWidth := WinW;
+    CTCEng.Config.RendererWidth := WinW;
+    CTCEng.Config.WindowHeight := WinH;
+    CTCEng.Config.RendererHeight := WinH;
+    CTCEng.Config.RendererUseHW := True;
+    CTCEng.Init;
+    CTCEng.Run;
   finally
-    SDL2Engine.Free;
+    FreeAndNil(CTCEng);
   end;
 end.
 {

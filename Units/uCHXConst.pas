@@ -9,6 +9,13 @@ unit uCHXConst;
 interface
 
 const
+  krsFmtGenericDef = '%0:s: %1:s';
+  {< Generic `'OneThing: OtherThing'` for Format,
+    equivalent to `OneThing + ': ' + OtherThing`. }
+  krsFmtItemCount = '%0:d / %0:d';
+  {< Generic `'Number / Total'` for Format,
+    equivalent to `IntToStr(Number) + ' / ' + IntToStr(Total)`. }
+
   kLinuxDirSeparator = '/';
   kWinDirSeparator = '\';
 
@@ -23,13 +30,13 @@ const
      @param(%1:s Version).
   }
 
-  krsFmtWindowCaption = '%0:s: %1:s';
+  krsFmtWindowCaption = krsFmtGenericDef;
   {< Window caption format.
     @param(%0:s Application.Title @(derived from krsFmtApplicationTitle@).)
     @param(%1:s Window caption.)
   }
 
-  krsLocaleFolder = 'locale';
+  krsLocaleFolder = 'locale'; // TODO: Maybe can be obtained LCLTrans.
 
   krsIniFileExt = '.ini';
 

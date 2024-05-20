@@ -7,31 +7,44 @@ program CTC004;
 // Code for: https://youtu.be/KkyIDI6rQJI
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
+
 uses
-  SysUtils,
-  CTypes,
-  StrUtils,
-  FileUtil,
-  LazFileUtils,
-  Math,
-  SDL2,
-  sdl2_gfx,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
+  SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucSDL2Engine,
-  ucCHXSDL2Window,
-  uProcUtils,
+  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils,
   ucCTCDrop;
 
 const
-  WinW = 800; // Window width
-  WinH = 600; // Window height
+  { CHX: Renderer scales images to actual size of the window. }
+  WinW = 800; { CHX: Window logical width. }
+  WinH = 600; { CHX: Window logical height. }
 
   NDrops = 500;
 
-var
-  Drops : array of cCTCDrop;
+type
 
-  function OnSetup : Boolean;
+  { cCTCEng }
+
+  cCTCEng = class(cCHXSDL2Engine)
+  protected
+    procedure Setup; override;
+    procedure Finish; override;
+    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+      override;
+    procedure Draw; override;
+    procedure HandleEvent(const aEvent : TSDL_Event; var Handled : Boolean;
+      var ExitProg : Boolean); override;
+
+  public
+    { CHX: Global variables. }
+    Drops : array of cCTCDrop;
+
+  end;
+
+  { cCTCEng }
+
+  procedure cCTCEng.Setup;
   var
     i : integer;
     aDrop : cCTCDrop;
@@ -44,16 +57,27 @@ var
         Random(20));
       Drops[i] := aDrop;
     end;
-
-    Result := True;
   end;
 
-  function OnCompute(SDL2W : cCHXSDL2Window;
-    DeltaTime, FrameTime : CUInt32) : Boolean;
+  procedure cCTCEng.Finish;
+  { CHX: Free any created objects. }
+  var
+    i : integer;
+  begin
+    for i := 0 to NDrops do
+    begin
+      Drops[i].Free;
+    end;
+  end;
+
+  procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
   var
     i : integer;
     aDrop : cCTCDrop;
   begin
+    { CHX: If we want to pause when minimized or focus lost. }
+    // if SDLWindow.Minimized then Exit;
+
     for i := 0 to NDrops do
     begin
       aDrop := Drops[i];
@@ -66,17 +90,15 @@ var
         aDrop.yspeed := map(aDrop.z, 0, 20, 4, 10);
       end;
     end;
-
-    Result := True;
   end;
 
-  function OnDraw(SDL2W : PSDL_Window; SDL2R : PSDL_Renderer) : Boolean;
+  procedure cCTCEng.Draw;
   var
     i : integer;
     aDrop : cCTCDrop;
   begin
-    SDL_SetRenderDrawColor(SDL2R, 230, 230, 250, 255);
-    SDL_RenderClear(SDL2R);
+    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 230, 230, 250, 255);
+    SDL_RenderClear(SDLWindow.PRenderer);
 
     // Draw drops
     for i := 0 to NDrops do
@@ -84,106 +106,56 @@ var
       aDrop := Drops[i];
 
       // Drop.show
-      thickLineRGBA(SDL2R, round(aDrop.x), round(aDrop.y), round(aDrop.x),
+      thickLineRGBA(SDLWindow.PRenderer, round(aDrop.x),
+        round(aDrop.y), round(aDrop.x),
         round(aDrop.y + aDrop.len),
         round(map(aDrop.z, 0, 20, 1, 5)),
         138, 43, 226, 255);
     end;
-
-    Result := True;
   end;
 
-  function OnEvent(aEvent : TSDL_Event) : Boolean;
+  procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
+  var Handled : Boolean; var ExitProg : Boolean);
   begin
-    Result := True;
+    inherited HandleEvent(aEvent, Handled, ExitProg);
+    if ExitProg then Exit; { CHX: Inherited Draw can change ExitProg. }
 
-    // EVENTS
-    case aEvent.type_ of
-      //SDL_COMMONEVENT : // (common: TSDL_CommonEvent);
-      //SDL_DISPLAYEVENT : // (display: TSDL_DisplayEvent);
+    { CHX: Some common events for fast reference, CTRL+MAYS+U removes comments
+        while selecting the block.
+      You can see full list in sdlevents.inc
+      Window and general quit events are handled automatically in parent.
+      Escape key is mapped to exit the program too.
+    }
 
-      // Handled by SDL2Engine: SDL_WINDOWEVENT : //(window: TSDL_WindowEvent)
+    //case aEvent.type_ of
+    //  SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+    //  begin
+    //      case aEvent.key.keysym.sym of
+    //        //SDLK_UP : ;
+    //        //SDLK_DOWN : ;
+    //        //SDLK_LEFT : ;
+    //        //SDLK_RIGHT : ;
+    //        //SDLK_SPACE : ;
+    //        else
+    //          ;
+    //      end;
+    //  end;
 
-      //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
-      SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-      begin
-        case aEvent.key.keysym.sym of
-          //SDLK_UP : ;
-          //SDLK_DOWN : ;
-          //SDLK_LEFT : ;
-          //SDLK_RIGHT : ;
-          //SDLK_SPACE : ;
-          SDLK_ESCAPE : Result := False;
-          else
-            ;
-        end;
-      end;
-        //SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
-        //SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
-        //SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+    //  //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+    //  //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+    //  //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+    //  //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
 
-        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-        //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
-
-        //SDL_JOYAXISMOTION : // (jaxis: TSDL_JoyAxisEvent);
-        //SDL_JOYBALLMOTION : // (jball: TSDL_JoyBallEvent);
-        //SDL_JOYHATMOTION : // (jhat: TSDL_JoyHatEvent);
-        //SDL_JOYBUTTONDOWN : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYBUTTONUP : // (jbutton: TSDL_JoyButtonEvent);
-        //SDL_JOYDEVICEADDED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYDEVICEREMOVED : // (jdevice: TSDL_JoyDeviceEvent);
-        //SDL_JOYBATTERYUPDATED : // (jbattery: TSDL_JoyBatteryEvent);
-
-        //SDL_CONTROLLERAXISMOTION : // (caxis: TSDL_ControllerAxisEvent);
-        //SDL_CONTROLLERBUTTONUP : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERBUTTONDOWN : // (cbutton: TSDL_ControllerButtonEvent);
-        //SDL_CONTROLLERDEVICEADDED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMOVED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERDEVICEREMAPPED : // (cdevice: TSDL_ControllerDeviceEvent);
-        //SDL_CONTROLLERTOUCHPADDOWN : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADMOTION : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERTOUCHPADUP : // (ctouchpad: TSDL_ControllerTouchpadEvent);
-        //SDL_CONTROLLERSENSORUPDATE : // (csensor: TSDL_ControllerSensorEvent);
-
-        //SDL_AUDIODEVICEADDED : // (adevice: TSDL_AudioDeviceEvent);
-        //SDL_AUDIODEVICEREMOVED : // (adevice: TSDL_AudioDeviceEvent);
-
-        //SDL_SENSORUPDATED : // (sensor: TSDL_SensorEvent);
-
-        // Handled by SDL2Engine: SDL_QUITEV : Result := False;
-
-        //SDL_USEREVENT : // (user: TSDL_UserEvent);
-        //SDL_SYSWMEVENT : // (syswm: TSDL_SysWMEvent);
-
-        //SDL_FINGERDOWN : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERUP : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_FINGERMOTION : // (tfinger: TSDL_TouchFingerEvent);
-        //SDL_MULTIGESTURE : // (mgesture: TSDL_MultiGestureEvent);
-        //SDL_DOLLARGESTURE : //(dgesture: TSDL_DollarGestureEvent);
-        //SDL_DOLLARRECORD : //(dgesture: TSDL_DollarGestureEvent);
-
-        //SDL_DROPFILE : // (drop: TSDL_DropEvent);
-      else
-        ;
-    end;
-
+    //  else
+    //    ;
+    //end;
   end;
 
-  procedure OnFinish;
-  var
-    i : integer;
-  begin
-    for i := 0 to NDrops do
-    begin
-      Drops[i].Free;
-    end;
-  end;
+  { Main program }
 
 var
-  SDL2Engine : cSDL2Engine;
   BaseFolder : string;
+  CTCEng : cCTCEng;
 
   {$R *.res}
 
@@ -197,16 +169,16 @@ begin
   StandardFormatSettings;
 
   try
-    SDL2Engine := cSDL2Engine.Create(nil, ApplicationName, WinW, WinH, False);
-    SDL2Engine.SDL2Setup := @OnSetup;
-    SDL2Engine.SDL2Comp := @OnCompute;
-    SDL2Engine.SDL2Draw := @OnDraw;
-    SDL2Engine.SDL2Event := @OnEvent;
-    SDL2Engine.SDL2Finish := @OnFinish;
-
-    SDL2Engine.Run;
+    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
+    CTCEng.Config.WindowWidth := WinW;
+    CTCEng.Config.RendererWidth := WinW;
+    CTCEng.Config.WindowHeight := WinH;
+    CTCEng.Config.RendererHeight := WinH;
+    CTCEng.Config.RendererUseHW := True;
+    CTCEng.Init;
+    CTCEng.Run;
   finally
-    SDL2Engine.Free;
+    FreeAndNil(CTCEng);
   end;
 end.
 {

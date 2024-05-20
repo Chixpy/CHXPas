@@ -44,7 +44,7 @@ function TextSimilarityDice(const aString1, aString2: string): byte;
 function TextSimilarityCHX(const aString1, aString2: string): byte;
 {< Returns the similarity between 2 strings.
 
-   Improvised to make anything faster or better.
+   Improvised to make anything faster than previous function.
 }
 
 // DIRECTORY NAME UTILS
@@ -134,11 +134,6 @@ function StrCount(aString, ToSearch: string;
 
   NOTE: StrCount('ooo', 'oo') = 2 .
 }
-
-function StrToCardinal(const aString: string): cardinal;
-
-function StrToCardinalDef(const aString: string;
-  const Default: cardinal): cardinal;
 
 function SecondsToFmtStr(aValue: int64): string;
 
@@ -303,7 +298,6 @@ var
   i, Sum : LongInt;
 begin
   Result := 0;
-
 
   for i := aString1.Length downto 1 do
   begin
@@ -654,17 +648,6 @@ begin
   end;
 end;
 
-function StrToCardinalDef(const aString: string;
-  const Default: cardinal): cardinal;
-var
-  h: int64;
-begin
-  h := StrToInt64Def(aString, Default);
-  if (h > High(cardinal)) or (h < 0) then
-    h := Default;
-  Result := h;
-end;
-
 function SecondsToFmtStr(aValue: int64): string;
 begin
   Result := RightStr('00' + IntToStr(aValue mod 60), 2);
@@ -681,16 +664,6 @@ begin
   end
   else
     Result := IntToStr(aValue) + ':' + Result;
-end;
-
-function StrToCardinal(const aString: string): cardinal;
-var
-  h: int64;
-begin
-  h := StrToInt64(aString);
-  if (h > High(cardinal)) or (h < 0) then
-    raise EConvertError.CreateFmt(rsCUExcCardRange, [h]);
-  Result := h;
 end;
 
 end.

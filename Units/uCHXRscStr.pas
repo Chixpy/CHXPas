@@ -73,8 +73,6 @@ resourcestring
      @param(%0:s Suported files extension mask "*.png;*.jpg")
   }
 
-  rsFmtItemCount = '%0:d / %0:d';
-
 implementation
 
 end.

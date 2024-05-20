@@ -88,10 +88,6 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\..\SDL2\Classes\ucSDL2Engine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="..\..\..\Units\uCHXStrUtils.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
@@ -125,6 +121,10 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXRscStr.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Engine.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

@@ -2,6 +2,12 @@
 <CONFIG>
   <ProjectGroup FileVersion="2">
     <Targets>
+      <Target FileName="..\..\SDL2\SDLProcessing\SDLProcessing.lpi">
+        <BuildModes>
+          <Mode Name="Debug" Compile="True"/>
+          <Mode Name="Release"/>
+        </BuildModes>
+      </Target>
       <Target FileName="Source\CTC001.lpi">
         <BuildModes>
           <Mode Name="Debug" Compile="True"/>
@@ -104,7 +110,7 @@
           <Mode Name="Release"/>
         </BuildModes>
       </Target>
-      <Target FileName="..\..\SDL2\SDLProcessing\SDLProcessing.lpi">
+      <Target FileName="Source\CTC031.lpi">
         <BuildModes>
           <Mode Name="Debug" Compile="True"/>
           <Mode Name="Release"/>
