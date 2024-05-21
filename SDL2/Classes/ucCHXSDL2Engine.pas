@@ -25,16 +25,15 @@ type
   private
     FConfig : cCHXSDL2Config;
     FDefFont : cCHXSDL2Font;
-    FFrameCount : UInt64;
     FPWinPxFmt : PSDL_PixelFormat;
     FSDLWindow : cCHXSDL2Window;
     FShowFrameRate : Boolean;
+
+    {property} SDLFrameMang : TFPSManager;
+
     procedure SetShowFrameRate(const AValue : Boolean);
 
   protected
-    {property} LastFrameTime : CUInt32;
-    {property} SDLFrameMang : TFPSManager;
-
     property SDLWindow : cCHXSDL2Window read FSDLWindow;
 
     property ShowFrameRate : Boolean
@@ -49,6 +48,9 @@ type
       const r : byte; const g : byte; const b : byte; const a : byte);
     //< Put Pixel in a locked texture.
 
+    function FrameCount : CUInt32; inline;
+    //< Its an SDL_GetFrameCount(@SDLFrameMang) alias
+
     // Virtual methods to implement in child classes
     procedure Setup; virtual; abstract;
     procedure Finish; virtual; abstract;
@@ -62,8 +64,6 @@ type
     {property} Title : string;
 
     property Config : cCHXSDL2Config read FConfig;
-
-    property FrameCount: UInt64 read FFrameCount;
 
     procedure Init;
     {< Init engine and window. }
@@ -114,20 +114,36 @@ begin
   // CHX: Doesn't apply transparency, only sets it.
   //   PPoint is write-only and it doesn't have previous color value.
 
-  // This is a little faster, less than 5%.
+  // Raw editing is a little faster, less than 5%.
+
+  // TODO: Actually, Window pixel format don't have transparency...
+  //   Texture pixel format must be a parameter.
+  // TODO2: Test endianess for RGB888 and BGR888 is correct.
   case PWinPxFmt^.format of
-    SDL_PIXELFORMAT_RGB888, SDL_PIXELFORMAT_ARGB8888:
+    {$IF DEFINED(ENDIAN_LITTLE)}SDL_PIXELFORMAT_RGB888,{$IFEND}
+    SDL_PIXELFORMAT_ARGB8888 :
       PPoint^ := (a shl 24) or (r shl 16) or (g shl 8) or b;
-    SDL_PIXELFORMAT_BGR888, SDL_PIXELFORMAT_ABGR8888:
+
+    {$IF DEFINED(ENDIAN_LITTLE)}SDL_PIXELFORMAT_BGR888,{$IFEND}
+    SDL_PIXELFORMAT_ABGR8888 :
       PPoint^ := (a shl 24) or (b shl 16) or (g shl 8) or r;
-    SDL_PIXELFORMAT_RGBA8888:
+
+    {$IF DEFINED(ENDIAN_BIG)}SDL_PIXELFORMAT_RGB888,{$IFEND}
+    SDL_PIXELFORMAT_RGBA8888 :
       PPoint^ := (r shl 24) or (g shl 16) or (b shl 8) or a;
-    SDL_PIXELFORMAT_BGRA8888:
+
+    {$IF DEFINED(ENDIAN_BIG)}SDL_PIXELFORMAT_BGR888,{$IFEND}
+    SDL_PIXELFORMAT_BGRA8888 :
       PPoint^ := (b shl 24) or (g shl 16) or (r shl 8) or a;
     else
-      // SDL_MapRGBA is the correct way but we need texture pixel format.
+      // SDL_MapRGBA is the correct way, but we need texture pixel format.
       PPoint^ := SDL_MapRGBA(PWinPxFmt, r, g, b, a);
   end;
+end;
+
+function cCHXSDL2Engine.FrameCount : CUInt32;
+begin
+  Result := SDL_getFramecount(@SDLFrameMang);
 end;
 
 procedure cCHXSDL2Engine.HandleEvent(const aEvent : TSDL_Event;
@@ -189,9 +205,6 @@ begin
 end;
 
 procedure cCHXSDL2Engine.Init;
-var
-  PixelFmtName : PAnsiChar;
-  str : string;
 begin
   if SDL_WasInit(0) = 0 then
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -217,20 +230,18 @@ begin
   if FileExists(Config.DefFontFile) and (Config.DefFontSize > 0) then
     FDefFont := cCHXSDL2Font.Create(SDLWindow.PRenderer, Config.DefFontFile,
       Config.DefFontSize, Config.DefFontColor);
-
 end;
 
 procedure cCHXSDL2Engine.Run;
 var
   ProgExit, HandledEvent : Boolean;
-  DeltaTime : CUInt32;
+  DeltaTime, LastFrameTime : CUInt32;
   aEvent : TSDL_Event;
 begin
   ProgExit := False;
 
   SDL_InitFramerate(@SDLFrameMang);
   SDL_SetFramerate(@SDLFrameMang, 60);
-  FFrameCount := 0;
   LastFrameTime := 0;
   DeltaTime := 0;
 
@@ -239,16 +250,14 @@ begin
 
     while (not ProgExit) do
     begin
-      Inc(FFrameCount);
-
       // COMPUTE
       if (not ProgExit) then
         Self.Compute(LastFrameTime, ProgExit);
 
       // TIMING (1)
-      // Actual Compute + Event time in milliseconds.
+      // Actual Compute + Events time in milliseconds.
       DeltaTime := SDL_GetTicks - DeltaTime;
-      // Frame rate in milliseconds. Compute + Event + Draw + WaitFPS
+      // Frame rate in milliseconds. Compute + Event + Draw + Delay
       LastFrameTime := SDL_framerateDelay(@SDLFrameMang);
 
       // Don't draw if minimized
@@ -258,7 +267,7 @@ begin
         Self.Draw;
 
         if ShowFrameRate and
-          ((SDL_getFramecount(@SDLFrameMang) and 31) = 0) then
+          ((FrameCount and 31) = 0) then
           SDLWindow.Title := Format('%0:s: %1:d ms (%2:d ms)',
             [Title, LastFrameTime, DeltaTime]);
 
@@ -316,7 +325,11 @@ begin
   Config.DefaultFileName := aIniFile;
   Config.LoadFromFile('');
 
-  if AutoInit then Init;
+  if AutoInit then
+    Init
+  else
+    // If Config will be changed manually then no save changes
+    Config.DefaultFileName := '';
 end;
 
 destructor cCHXSDL2Engine.Destroy;

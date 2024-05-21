@@ -1,29 +1,31 @@
-program SDLProcessing;
-// Template program simulating Processing with SDL2 Engine
-
-// USE: Project/Save as... with new program's name
-
-{< Base program for NOTC and CT <- Remove this on examples
-
-   The Coding Train Challenge #00X - Title }
+program CTC034;
+{< The Coding Train Challenge #034 - Diffusion-Limited Aggregation }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for this video: https://youtu.be/Cl_Gjj80gPE
+// Processing transcription: Chuck England
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
 
 uses
-  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
+  Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math, fgl,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
+  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils,
+  ucCTCWalker;
 
 const
   { CHX: Renderer scales images to actual size of the window. }
-  WinW = 800; { CHX: Window logical width. }
+  WinW = 600; { CHX: Window logical width. }
   WinH = 600; { CHX: Window logical height. }
+
+  //r = 4;
+  maxWalkers = 50;
+  iterations = 1000;
+
+  shrink = 0.995;
 
 type
 
@@ -42,34 +44,119 @@ type
   public
     { CHX: Global variables. }
 
+    tree : cCTCWalkerList;
+    walkers : cCTCWalkerList;
+    hue : integer;
+    radius : float;
+
   end;
 
   { cCTCEng }
 
   procedure cCTCEng.Setup;
+  var
+    i : integer;
   begin
+    DefFont.ChangeFontStyle(SDLColor(255, 255, 0), -1, -1, -1, -1);
 
+    tree := cCTCWalkerList.Create(True);
+    walkers := cCTCWalkerList.Create(False);
+    radius := 12;
+    hue := 0;
+
+    //colorMode(HSB, 360, 100, 100);
+
+    // for x := 1 to width step r * 2 do
+    //   tree.add(cCTCWalker.CreateStuck(WinW, WinH));
+
+    tree.add(cCTCWalker.CreateStuck(WinW, WinH, WinW div 2,
+      WinH div 2, radius));
+
+    radius *= shrink;
+
+    for i := 1 to maxWalkers do
+    begin
+      walkers.add(cCTCWalker.Create(WinW, WinH, radius));
+      radius *= shrink;
+    end;
   end;
 
   procedure cCTCEng.Finish;
+  var
+    i : cCTCWalker;
   begin
     { CHX: Free any created objects. }
+    FreeAndNil(tree);
 
+    // CHX: Ugh dirty patch to free not stucked walkers ...
+    for i in walkers do
+      i.Free;
+    FreeAndNil(walkers);
   end;
 
   procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+  var
+    n, i : integer;
+    walker : cCTCWalker;
   begin
     { CHX: If we want to pause when minimized. }
     // if SDLWindow.Minimized then Exit;
 
+    for n := 1 to iterations do
+    begin
+      i := walkers.Count - 1;
+      while i >= 0 do
+      begin
+        walker := walkers[i];
+        walker.walk;
+        if walker.checkStuck(tree) then
+        begin
+          walker.hu := hue mod 160 + 96;
+          hue += 2;
+          tree.add(walker);
+          walkers.Delete(i);
+        end;
+        Dec(i);
+      end;
+    end;
+
+    //r := walkers[walkers.Count - 1].r;
+    while (walkers.Count < maxWalkers) and (radius > 1) do
+    begin
+      radius *= shrink;
+      walkers.add(cCTCWalker.Create(WinW, WinH, radius));
+    end;
   end;
 
   procedure cCTCEng.Draw;
+    procedure WalkerShow(aWalker : cCTCWalker);
+    begin
+      //if not aWalker.stuck then
+      //  filledCircleRGBA(SDLWindow.PRenderer, Round(aWalker.aPos.x),
+      //    Round(aWalker.aPos.y), Round(aWalker.r), 255, 255, 255, 255)
+      //else
+      filledCircleRGBA(SDLWindow.PRenderer, Round(aWalker.aPos.x),
+        Round(aWalker.aPos.y), Round(aWalker.r), aWalker.hu,
+        aWalker.hu, aWalker.hu, 255);
+    end;
+  var
+    i : cCTCWalker;
+    y : cint;
   begin
     // Background and frame clear.
     SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
     SDL_RenderClear(SDLWindow.PRenderer);
 
+    for i in tree do
+      WalkerShow(i);
+
+    for i in walkers do
+      WalkerShow(i);
+
+    //y := DefFont.YPosAtLine(0, 10);
+    //DefFont.RenderDynStr(walkers.Count.ToString, 10, y);
+    //y := DefFont.YPosAtLine(1, 10);
+    //DefFont.RenderDynStr(tree.Count.ToString, 10, y);
   end;
 
   procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
@@ -130,7 +217,7 @@ begin
     CTCEng.Config.RendererWidth := WinW;
     CTCEng.Config.WindowHeight := WinH;
     CTCEng.Config.RendererHeight := WinH;
-    CTCEng.Config.RendererUseHW := True;
+    CTCEng.Config.RendererUseHW := False;
     CTCEng.Init;
     CTCEng.Run;
   finally

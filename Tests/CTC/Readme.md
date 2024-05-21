@@ -14,7 +14,7 @@ or Pascal friendly. The main changes are:
     - `cCTCEng.Draw`: Usually to implement Show/Draw methods of created classes.
 
 Some day improved and better "Pascalized" version of programs and classes
-will be done while ucSDL2Engine will evolve if needed.
+will be done while ucSDL2Engine is evolving as needed.
 
 ## SDLProcessing.lpi
 
@@ -51,23 +51,24 @@ it shows vertical black stripes ¿?.
 
 | # | Name | Comments |
 |---:|:---|:---|
-| CT001 | Starfield | Testing SDL_RenderXXX and SDL_GFX functions. Manual tweak of simple coordinates tranformations (PMM) |
-| CT003 | The Snake Game | Keyboard event handling |
-| CT004 | Purple Rain |  |
-| CT005 | Space Invaders |  |
-| CT006 | Mitosis Simulation | Mouse event handling |
-| CT010 | Maze Generator |  |
-| CT013 | Reaction Diffusion Algorithm | Direct renderer pixel access. (Redone later with direct texture pixel access) |
-| CT015 | Object-Oriented Fractal Trees |  |
-| CT017 | Space Colonization |  |
-| CT019 | Superellipse | Interactive control |
-| CT021 | Mandelbrot | Direct texture pixel access. (And redone later with direct renderer pixel access) |
-| CT022 | Julia Set |  |
-| CT023 | 2D Supershapes |  |
-| CT027 | Fireworks (2D) |  |
-| CT028 | Metaballs |  |
-| CT031 | Flappy Bird |  First program with text |
-| CT033 | Poisson-disc Sampling | |
+| CTC001 | Starfield | Testing SDL_RenderXXX and SDL_GFX functions. Manual tweak of simple coordinates tranformations (PMM) |
+| CTC003 | The Snake Game | Keyboard event handling |
+| CTC004 | Purple Rain |  |
+| CTC005 | Space Invaders |  |
+| CTC006 | Mitosis Simulation | Mouse event handling |
+| CTC010 | Maze Generator |  |
+| CTC013 | Reaction Diffusion Algorithm | Direct renderer pixel access. (Redone later with direct texture pixel access) |
+| CTC015 | Object-Oriented Fractal Trees |  |
+| CTC017 | Space Colonization |  |
+| CTC019 | Superellipse | Interactive control |
+| CTC021 | Mandelbrot | Direct texture pixel access. (And redone later with direct renderer pixel access) |
+| CTC022 | Julia Set |  |
+| CTC023 | 2D Supershapes |  |
+| CTC027 | Fireworks (2D) |  |
+| CTC028 | Metaballs |  |
+| CTC031 | Flappy Bird |  First program with text in graphics |
+| CTC033 | Poisson-disc Sampling | |
+| CTC034 | Diffusion-Limited Aggregation | |
 
 ## Skipped
 
@@ -75,24 +76,24 @@ Reasons to skip:
 
 | # | Reason | Name |
 |---:|:--:|:---|
-| CT002 | 3D | Menger Sponge Fractal |
-| CT007 | PMM | Solar System (2D) |
-| CT008 | 3D | Solar System (3D) |
-| CT009 | 3D | Solar System (3D) with textures |
-| CT011 | 3D | 3D Terrain Generation with Perlin Noise |
-| CT012 | 3D | The Lorenz Attractor |
-| CT014 | PMM | Recursive Fractal Trees |
-| CT016 | PMM | Fractal Trees - L-System |
-| CT018 | 3D | 3D Fractal Trees |
-| CT020 | TXL | 3D Cloth with Toxiclibs |
-| CT024 | PMM | Perlin Noise Flow Field |
-| CT025 | 3D | Spherical Geometry |
-| CT026 | 3D | 3D Supershapes |
-| CT027 | 3D | Fireworks (3D) |
-| CT029 | PMM | Smart Rockets in p5.js |
-| CT030 | PMM | Phyllotaxis |
-| CT032.1 | PMM | Agar.io |
-| CT032.2 | PMM / S/C | Agar.io |
+| CTC002 | 3D | Menger Sponge Fractal |
+| CTC007 | PMM | Solar System (2D) |
+| CTC008 | 3D | Solar System (3D) |
+| CTC009 | 3D | Solar System (3D) with textures |
+| CTC011 | 3D | 3D Terrain Generation with Perlin Noise |
+| CTC012 | 3D | The Lorenz Attractor |
+| CTC014 | PMM | Recursive Fractal Trees |
+| CTC016 | PMM | Fractal Trees - L-System |
+| CTC018 | 3D | 3D Fractal Trees |
+| CTC020 | TXL | 3D Cloth with Toxiclibs |
+| CTC024 | PMM | Perlin Noise Flow Field |
+| CTC025 | 3D | Spherical Geometry |
+| CTC026 | 3D | 3D Supershapes |
+| CTC027 | 3D | Fireworks (3D) |
+| CTC029 | PMM | Smart Rockets in p5.js |
+| CTC030 | PMM | Phyllotaxis |
+| CTC032.1 | PMM | Agar.io |
+| CTC032.2 | PMM / S/C | Agar.io |
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
       OpenGL/Vulkan setup (SDL, TBGRABitmap or any other OpenGl context).
@@ -122,7 +123,73 @@ Not Skipped now:
 
 | # | Name |
 |---:|:---|
-| CT034 | Diffusion-Limited Aggregation |
+| CTC035 | Traveling Salesperson |
+| CTC036 | Blobby! |
+| CTC037 | Diastic Machine |
+| CTC038 | Word Interactor |
+| CTC039 | Mad Libs Generator |
+| CTC040 | Word Counter |
+| CTC041 | Clappy Bird |
+| CTC042 | Markov Chain Name Generator |
+| CTC043 | Context-Free Grammar |
+| CTC044 | AFINN-111 Sentiment Analysis |
+| CTC045 | Saving p5.js Drawings to Firebase |
+| CTC046 | Asteroids |
+| CTC047 | Pixel Sorting in Processing |
+| CTC048 | White House Social Media Data Visualization |
+| CTC049 | Photo Mosaic with White House Social Media Images |
+| CTC050 | Circle Packing |
+| CTC051 | A* Pathfinding Algorithm |
+| CTC052 | Random Walker |
+| CTC053 | Random Walker with Vectors and Lévy Flight |
+| CTC054 | Islamic Star Patterns |
+| CTC055 | Mathematical Rose Patterns |
+| CTC056 | Attraction and Repulsion Forces |
+| CTC057 | Mapping Earthquake Data |
+| CTC058 | 3D Earthquake Data Visualization |
+| CTC059 | Steering Behaviors |
+| CTC060 | Butterfly Generator |
+| CTC061 | Fractal Spirograph |
+| CTC062 | Plinko with Matter.js |
+| CTC063 | Texturing Cloth Simulation |
+| CTC064 | Kinematics |
+| CTC065 | Binary Tree |
+| CTC066 | JavaScript Countdown Timer |
+| CTC067 | Pong! |
+| CTC068 | Breadth-First Search |
+| CTC069 | Evolutionary Steering Behaviors |
+| CTC070 | Nearest Neighbors Recommendation Engine |
+| CTC071 | Minesweeper |
+| CTC072 | Frogger |
+| CTC073 | Acrostic |
+| CTC074 | Clock |
+| CTC075 | Wikipedia API |
+| CTC076 | 10Print |
+| CTC077 | Recursion |
+| CTC078 | Simple Particle System |
+| CTC079 | Number Guessing Chatbot |
+| CTC080 | Voice Chatbot with p5.Speech |
+| CTC081 | Circle Morphing |
+| CTC082 | Image Chrome Extension - The Ex-Kitten-sion! |
+| CTC083 | Chrome Extension with p5.js Sketch - Doodle Chrome Extension |
+| CTC084 | Word Definition Chrome Extension |
+| CTC085 | The Game of Life |
+| CTC086 | Cube Wave by Bees and Bombs |
+| CTC087 | 3D Knots |
+| CTC088 | Snowfall |
+| CTC089 | Langton's Ant |
+| CTC090 | Floyd-Steinberg Dithering |
+| CTC091 | Snakes & Ladders |
+| CTC092 | XOR Problem |
+| CTC093 | Double Pendulum |
+| CTC094 | 2048 Sliding Puzzle Game |
+| CTC095 | Approximating the Value of Pi |
+| CTC096 | Visualizing the Digits of Pi |
+| CTC097 | The Book of Pi |
+| CTC098 | Quadtree |
+| CTC099 | Neural Network Color Predictor |
+| CTC100 | Neuroevolution Flappy Bird |
+| CTC101 | May the 4th Scrolling Text |
 
 
 
