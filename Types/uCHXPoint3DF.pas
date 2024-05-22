@@ -22,7 +22,8 @@ type
   TPoint3DFType = Double;
 
   TPoint3DF = {$ifndef FPC_REQUIRES_PROPER_ALIGNMENT}
-    packed {$endif FPC_REQUIRES_PROPER_ALIGNMENT} record
+    packed {$endif FPC_REQUIRES_PROPER_ALIGNMENT}
+  record
     X : TPoint3DFType;
     Y : TPoint3DFType;
     Z : TPoint3DFType;

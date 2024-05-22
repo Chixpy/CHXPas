@@ -28,6 +28,11 @@ function SDLFRect(const x : CFloat; const y : CFloat; const w : CFloat;
   const h : CFloat) : TSDL_FRect;
 {< Create a TSDL_FRect.}
 
+function SDLPoint(const x : CInt; const y : CInt) : TSDL_Point;
+{< Create a TSDL_Point.}
+function SDLFPoint(const x : CFloat; const y : CFloat) : TSDL_FPoint;
+{< Create a TSDL_FPoint.}
+
 implementation
 
 function SDLColor(const r : CUInt8; const g : CUInt8; const b : CUInt8;
@@ -79,6 +84,18 @@ begin
   Result.y := y;
   Result.w := w;
   Result.h := h;
+end;
+
+function SDLPoint(const x : CInt; const y : CInt) : TSDL_Point;
+begin
+  Result.x := x;
+  Result.y := y;
+end;
+
+function SDLFPoint(const x : CFloat; const y : CFloat) : TSDL_FPoint;
+begin
+  Result.x := x;
+  Result.y := y;
 end;
 
 end.

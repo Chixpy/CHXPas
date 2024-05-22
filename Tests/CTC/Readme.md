@@ -4,7 +4,7 @@ Initially this ports of [The Coding Train Challenges](http://codingtra.in)
 by Daniel Shiffman were used for testing SDL2 and creating a basic engine in
 FPC/Lazarus.
 
-Basically Processing code is ported "as is", althougth it is not very optimized
+Basically, Processing code is ported "as is", althougth it is not very optimized
 or Pascal friendly. The main changes are:
 
   - No Garbage Collector, so reserved dynamic memory and objects are freed
@@ -20,10 +20,14 @@ will be done while ucSDL2Engine is evolving as needed.
 
 This is the main base program to simulate Processing. To use it simply open and
 `Save Proyect As...` with a new name. NOTE: Doing this only updates unit folders
-in current build mode, then copy then to other in project options.
+in current build mode, then you must copy then to other in project options.
+
+This is not the prefered way of using cCHXSDL2Engine, because in Pascal
+every class is in its own unit usually (unless its a package) instead
+creating a child class in main program file.
 
 Pascal don't have Garbage Collector as is, so allocated memory and objects must
-be freed. In FPC, we can make reference counted interfaced objects wich
+be freed. In FPC, we can make reference counted interfaced objects wich can
 autofree, but it's easier free them manually.
 
 `ExitProg` var is used to Finish the program in `Compute` and `HandleEvent`.
@@ -34,18 +38,18 @@ frames.
 
 The pourpose of `Draw` in the main program is for implementation of
 `Show`/`Draw`/etc. methods of classes. I'm not sure wich is the best way to
-implement it in this ports. (pass SDLRenderer as parameter or as property of
+implement them in this ports. (pass SDLRenderer as parameter or as property of
 an common ancestor class).
 
 Some Events are listed and commented out to have an easy reference, and window
-and any quit event is handled automatically.
+events and any quit event is handled automatically.
 
 `Esc` key is mapped to exit the program and `F11` will show framerate in
 window title
 
 If window is resized, SDL Renderer automatically stretch image to its actual
 size. If soft renderer is used it will be scaled by integer values, because
-it shows vertical black stripes ¿?.
+it shows vertical black stripes on some gfx primitives ¿?.
 
 ## Done
 
@@ -66,9 +70,13 @@ it shows vertical black stripes ¿?.
 | CTC023 | 2D Supershapes |  |
 | CTC027 | Fireworks (2D) |  |
 | CTC028 | Metaballs |  |
-| CTC031 | Flappy Bird |  First program with text in graphics |
+| CTC031 | Flappy Bird | First program with text in graphics |
 | CTC033 | Poisson-disc Sampling | |
 | CTC034 | Diffusion-Limited Aggregation | |
+| CTC035.1 | Traveling Salesperson (Random Swap) | SDL_RenderDrawLines vs polygonColor |
+| CTC035.2 | Lexicographic Order | Well, SDl is not needed... |
+| CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this can be dynamic |
+| CTC035.4 | Traveling Salesperson (Genetic Algorithm) | First genetic algorittm ported |
 
 ## Skipped
 
@@ -110,20 +118,23 @@ Reasons to skip:
     - Or, Without SDL, TBGRABitmap has TBGRACanvas2D wich simulates JavaScript
       Canvas with rotate, scale, translate, save (pushMatrix) and
       restore (popMatrix). But I need to create a new engine based on
-      TBGRABitmap (and maybe I can redo all SDL examples in TBGRABitmap too).
+      TBGRABitmap (and maybe I can redo all SDL examples in TBGRABitmap too
+      :-P ).
   - TXL: Use toxiclibs physics library.
   - S/C: Use of Server / Client sockets.
 
 Not Skipped now:
 
   - TXT: Draw text with graphics.
-  - EVN: Events (They weree skipped before uploaded to Github).
+  - EVN: Keyboard or mouse events (They were skipped before uploaded to Github).
 
 ## ToDo
 
 | # | Name |
 |---:|:---|
-| CTC035 | Traveling Salesperson |
+| CTC035.2 | Traveling Salesperson |
+| CTC035.3 | Traveling Salesperson |
+| CTC035.4 | Traveling Salesperson |
 | CTC036 | Blobby! |
 | CTC037 | Diastic Machine |
 | CTC038 | Word Interactor |

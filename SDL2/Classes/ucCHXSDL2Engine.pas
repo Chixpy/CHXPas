@@ -30,6 +30,7 @@ type
     FShowFrameRate : Boolean;
 
     {property} SDLFrameMang : TFPSManager;
+    {property} FFrameCount : QWord; // More than the age of the universe
 
     procedure SetShowFrameRate(const AValue : Boolean);
 
@@ -48,8 +49,8 @@ type
       const r : byte; const g : byte; const b : byte; const a : byte);
     //< Put Pixel in a locked texture.
 
-    function FrameCount : CUInt32; inline;
-    //< Its an SDL_GetFrameCount(@SDLFrameMang) alias
+    function FrameCount : QWord; inline;
+    //< Current frame number
 
     // Virtual methods to implement in child classes
     procedure Setup; virtual; abstract;
@@ -141,9 +142,12 @@ begin
   end;
 end;
 
-function cCHXSDL2Engine.FrameCount : CUInt32;
+function cCHXSDL2Engine.FrameCount : QWord;
 begin
-  Result := SDL_getFramecount(@SDLFrameMang);
+  // This is reseted every time a frame is late, for example moving,
+  //   resizing, focus a window, etc.
+  //Result := SDL_getFramecount(@SDLFrameMang);
+  Result := FFrameCount;
 end;
 
 procedure cCHXSDL2Engine.HandleEvent(const aEvent : TSDL_Event;
@@ -244,12 +248,15 @@ begin
   SDL_SetFramerate(@SDLFrameMang, 60);
   LastFrameTime := 0;
   DeltaTime := 0;
+  FFrameCount := 0;
 
   try
     Self.Setup;
 
     while (not ProgExit) do
     begin
+      inc(FFrameCount);
+
       // COMPUTE
       if (not ProgExit) then
         Self.Compute(LastFrameTime, ProgExit);
