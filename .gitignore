@@ -14,4 +14,6 @@ Tests/ImgViewer/Bin/x86_64-win64/*.exe
 Tests/ImgViewer/Lib/
 Tests/CTC/lib
 SDL2/bin/x86_64-win64/*.exe
-/SDL2/lib
+SDL2/lib
+Tests/PerlinNoise/bin/x86_64-win64/*.exe
+/Tests/PerlinNoise/lib

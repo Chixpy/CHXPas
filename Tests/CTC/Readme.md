@@ -77,6 +77,7 @@ it shows vertical black stripes on some gfx primitives ¿?.
 | CTC035.2 | Lexicographic Order | Well, SDl is not needed... |
 | CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this can be dynamic |
 | CTC035.4 | Traveling Salesperson (Genetic Algorithm) | First genetic algorittm ported |
+| CTC036 | Blobby! | I had to implement a Perlin noise algorithm...<br />This time from [Hugo Elias](http://web.archive.org/web/20160325134143/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm|) |
 
 ## Skipped
 
@@ -132,10 +133,6 @@ Not Skipped now:
 
 | # | Name |
 |---:|:---|
-| CTC035.2 | Traveling Salesperson |
-| CTC035.3 | Traveling Salesperson |
-| CTC035.4 | Traveling Salesperson |
-| CTC036 | Blobby! |
 | CTC037 | Diastic Machine |
 | CTC038 | Word Interactor |
 | CTC039 | Mad Libs Generator |

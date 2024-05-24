@@ -159,7 +159,7 @@ begin
   // Some events are listed and commented out to have an easy reference.
   // Window and general quit events are handled automatically.
   // Escape key is mapped to exit the program.
-  // F11 shows framerate in window title.
+  // F11 toggles framerate in window title.
 
   case aEvent.type_ of
 
