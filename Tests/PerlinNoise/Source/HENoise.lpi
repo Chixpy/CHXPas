@@ -136,7 +136,7 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\..\..\Misc\uPNoise.pas"/>
+        <Filename Value="..\..\..\Units\uCHXPNoise.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

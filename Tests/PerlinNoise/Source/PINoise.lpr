@@ -1,6 +1,6 @@
-program HENoise;
-// Test of Hugo Elias implementation of Perlin Noise
-// http://web.archive.org/web/20160325134143/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+program PINoise;
+// Test of Perlin Improved Noise
+// https://mrl.cs.nyu.edu/~perlin/noise/
 
 // (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
@@ -13,10 +13,9 @@ uses
   ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
 
 const
-  { CHX: Renderer scales images to actual size of the window. }
+  { Window size: Renderer scales images to actual size of the window. }
   WinW = 640;
   WinH = 480;
-
 
   { Window position constants:
 
@@ -24,7 +23,7 @@ const
                    0       WinOffsetX     WinWMax
                  0 +-------------------------+
                    |            ·            |
-                   |·························| ZAxisPosY (1D)
+                   |·························| ZAxisPosY
                    |            ·            |
                    +-------------------------+ XFramePosY
                    |            ·            |
@@ -42,11 +41,11 @@ const
   WinWMax = WinW - 1; // Actual maximum values of Window
   WinHMax = WinH - 1;
 
-  WinOffsetX = WinW div 2; // Offset of current X position (actually center)
-  ZAxisPosY = WinH div 6; // Vertical position 1D axis
+  WinOffsetX = WinW div 2; // Offset of current X/Z position (actually center)
+  ZAxisPosY = WinH div 6; // Vertical position Z axis
   WaveAmpl = ZAxisPosY; // Wave amplitude
   XFramePosY = ZAxisPosY * 2; // First horizontal axis height
-  XAxisPosY = ZAxisPosY * 3; // Vertical position 2D X axis
+  XAxisPosY = ZAxisPosY * 3; // Second horizontal axis (X)
   YFramePosY = ZAxisPosY * 4; // Second horizontal axis height
   WinOffsetY = ZAxisPosY * 5;  // Offset of current Y position
   YAxisPosX = ZAxisPosY; // Vertical axis (Y)
@@ -70,18 +69,14 @@ type
   public
     MouseX : Double; // X value at Mouse position
     MouseY : Double; // Y value at Mouse position
+    MouseZ : Double; // Y value at Mouse position
 
     PosX : Double; // X Position in Perlin Noise
     PosY : Double; // Y Position in Perlin Noise
+    PosZ : Double; // Z Position in Perlin Noise
 
     Scale : Double; // Scale in Perlin Noise
 
-    InterpMth : TPNoiseInterp;
-
-    DrawNoise : Boolean;
-    DrawSmooth : Boolean;
-    DrawInterp : Boolean;
-    DrawHENoise : Boolean;
     DrawMap : Boolean;
 
     aTex : PSDL_Texture;
@@ -94,31 +89,25 @@ type
     aText : TStringList;
   begin
     ShowFrameRate := True;
-    DefFont.ChangeFontStyle(SDLColor(255, 255, 255, 255), WinW div 50,
-      -1, -1, -1);
+    DefFont.ChangeFontStyle(SDLColor(255, 255, 255, 192), WinW div
+      50, -1, -1, -1);
 
     PosX := 0;
     PosY := 0;
+    PosZ := 0;
     Scale := 0.125;
 
-    InterpMth := PNILinear;
-
-    DrawNoise := True;
-    DrawSmooth := True;
-    DrawInterp := True;
-    DrawHENoise := True;
     DrawMap := False;
 
     aText := TStringList.Create;
-    aText.Add('Arrows = Move; +/-/MWheel = Change scale');
+    aText.Add('Arrows,/,* = Move; +,- = Change scale');
     aText.Add('. = Integer pos; 0 = Reset');
-    aText.Add('1/2/3/4 = Toggle Noise/Smooth/Interp/Final');
-    aText.Add('M = Toggle Map; I = Interpolation Mode;');
+    aText.Add('M = Toggle Map');
     aText.Add('Click = Move to this point');
+    aText.Add('Wheel = Move Z Axis');
     DefFont.AddStaticText('Help', aText, InfoPosX - MapPosX,
       TTF_WRAPPED_ALIGN_CENTER);
     aText.Free;
-
   end;
 
   procedure cCTCEng.Finish;
@@ -130,147 +119,59 @@ type
   var
     Pitch : CInt;
     PPBase : PCUInt32;
-    X, Y, aColor : Integer;
-    CurrXPos, CurrYPos : Double;
+    X, Y, aColor : Integer; // Screen coords
+    CurrPos, CurrPos2 : Double;
   begin
     if SDLWindow.Minimized then Exit;
 
     // Direct pixel manupulation because of map
     aTex := SDL_CreateTexture(SDLWindow.PRenderer, PWinPxFmt^.format,
       SDL_TEXTUREACCESS_STREAMING, WinW, WinH);
+
     SDL_LockTexture(aTex, nil, @PPBase, @Pitch);
 
+    // Perlin Noise Z axis
+    //---------------------
     for X := 0 to WinWMax do
     begin
-      CurrXPos := PosX + Scale * (X - WinOffsetX);
-
-      // Hugo Elias 1D
-      //---------------
-
-      // HENoiseRNG1D(x)
-      if DrawNoise then
-      begin
-        Y := ZAxisPosY - Round(HENoiseRNG1D(Round(CurrXPos)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 0, 255, 255);
-      end;
-
-      // HESmoothNoise1D(x)
-      if DrawSmooth then
-      begin
-        Y := ZAxisPosY - Round(HESmoothNoise1D(Round(CurrXPos)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 255, 0, 0, 255);
-      end;
-
-      // HEInterpNoise1D(x)
-      if DrawInterp then
-      begin
-        Y := ZAxisPosY -
-          Round(HEInterpNoise1D(CurrXPos, InterpMth) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 255, 0, 255);
-      end;
-
-      // HENoise1D(x)
-      if DrawHENoise then
-      begin
-        Y := ZAxisPosY -
-          Round(HENoise1D(CurrXPos, 4, 0.25, InterpMth) * WaveAmpl);
-        if Y > 0 then // Teorically can return values out of [-1..1] in Cubic
-          PutPixel(PPBase, Pitch, X, Y, 255, 255, 255, 255);
-      end;
-
-      // Hugo Elias 2D X Axis
-      //----------------------
-
-      // HENoiseRNG2D (x)
-      if DrawNoise then
-      begin
-        Y := XAxisPosY -
-          Round(HENoiseRNG2D(Round(CurrXPos), Round(PosY)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 0, 255, 255);
-      end;
-
-      // HESmoothNoise2D (x)
-      if DrawSmooth then
-      begin
-        Y := XAxisPosY -
-          Round(HESmoothNoise2D(Round(CurrXPos), Round(PosY)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 255, 0, 0, 255);
-      end;
-
-      // HEInterpNoise2D (x)
-      if DrawInterp then
-      begin
-        Y := XAxisPosY -
-          Round(HEInterpNoise2D(CurrXPos, PosY, InterpMth) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 255, 0, 255);
-      end;
-
-      // HENoise2D (x)
-      if DrawHENoise then
-      begin
-        Y := XAxisPosY -
-          Round(HENoise2D(CurrXPos, PosY, 4, 0.25, InterpMth) * WaveAmpl);
-        if Y > 0 then // Teorically can return values out of [-1..1] in Cubic
-          PutPixel(PPBase, Pitch, X, Y, 255, 255, 255, 255);
-      end;
+      CurrPos := PosZ + Scale * (X - WinOffsetX);
+      Y := ZAxisPosY - Round(PINNoise(PosX, PosY, CurrPos) * WaveAmpl);
+      PutPixel(PPBase, Pitch, X, Y, 255, 255, 0, 255);
     end;
 
-    // Drawing 2D Y wave
+    // Perlin Noise X axis
+    //---------------------
+    for X := 0 to WinWMax do
+    begin
+      CurrPos := PosX + Scale * (X - WinOffsetX);
+      Y := XAxisPosY - Round(PINNoise(CurrPos, PosY, PosZ) * WaveAmpl);
+      PutPixel(PPBase, Pitch, X, Y, 255, 255, 0, 255);
+    end;
+
+    // Perlin Noise Y axis
+    //---------------------
     for Y := YFramePosY to WinHMax do
     begin
-      CurrYPos := PosY + Scale * (Y - WinOffsetY);
-
-      // Hugo Elias 2D Y Axis
-      //----------------------
-
-      // HENoiseRNG2D (y)
-      if DrawNoise then
-      begin
-        X := YAxisPosX -
-          Round(HENoiseRNG2D(Round(PosX), Round(CurrYPos)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 0, 255, 255);
-      end;
-
-      // HESmoothNoise2D (y)
-      if DrawSmooth then
-      begin
-        X := YAxisPosX -
-          Round(HESmoothNoise2D(Round(PosX), Round(CurrYPos)) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 255, 0, 0, 255);
-      end;
-
-      // HEInterpNoise2D (y)
-      if DrawInterp then
-      begin
-        X := YAxisPosX -
-          Round(HEInterpNoise2D(PosX, CurrYPos, InterpMth) * WaveAmpl);
-        PutPixel(PPBase, Pitch, X, Y, 0, 255, 0, 255);
-      end;
-
-      // HENoise2D (y)
-      if DrawHENoise then
-      begin
-        X := YAxisPosX -
-          Round(HENoise2D(PosX, CurrYPos, 4, 0.25, InterpMth) * WaveAmpl);
-        if Y > 0 then // Teorically can return values out of [-1..1] in Cubic
-          PutPixel(PPBase, Pitch, X, Y, 255, 255, 255, 255);
-      end;
+      CurrPos := PosY + Scale * (Y - WinOffsetY);
+      X := YAxisPosX - Round(PINNoise(PosX, CurrPos, PosZ) * WaveAmpl);
+      PutPixel(PPBase, Pitch, X, Y, 255, 255, 0, 255);
     end;
 
-    // Hugo Elias 2D Map
-    //-------------------
+    // Perlin Noise Map
+    //------------------
     if DrawMap then
       for X := MapPosX to InfoPosX do
       begin
-        CurrXPos := PosX + Scale * (X - WinOffsetX);
+        CurrPos := PosX + Scale * (X - WinOffsetX);
 
-        for Y := YFramePosY to WinHMax do
+        for Y := YFramePosY to (WinH - 1) do
         begin
-          CurrYPos := PosY + Scale * (Y - WinOffsetY);
-          aColor := Floor(map(HENoise2D(CurrXPos, CurrYPos, 4,
-            0.25, InterpMth), -1, 1, 0, 255));
-          // Teorically can return values out of [-1..1] in Cubic
-          aColor := EnsureRange(aColor, 0, 255);
+          CurrPos2 := PosY + Scale * (Y - WinOffsetY);
+
+          // X-Y Map
+          aColor := Floor(map(PINNoise(CurrPos, CurrPos2, PosZ),
+            -1, 1, 0, 255));
+
           PutPixel(PPBase, Pitch, X, Y, aColor, aColor, aColor, 255);
         end;
       end;
@@ -281,70 +182,95 @@ type
   procedure cCTCEng.Draw;
   var
     aText : string;
-    X : Integer;
+    i : Integer;
   begin
     //SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
     //SDL_RenderClear(SDLWindow.PRenderer);
 
     SDL_RenderCopy(SDLWindow.PRenderer, aTex, nil, nil);
-    SDL_DestroyTexture(aTex);
+    SDL_DestroyTexture(aTex); // ToDo: There is a way to clear a texture?
 
     // Axis
-    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 64, 64, 64, 255);
+    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 64, 64, 64, 128);
     SDL_RenderDrawLine(SDLWindow.PRenderer, 0, ZAxisPosY, WinWMax, ZAxisPosY);
     SDL_RenderDrawLine(SDLWindow.PRenderer, 0, XAxisPosY, WinWMax, XAxisPosY);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, YAxisPosX, YFramePosY, YAxisPosX, WinHMax);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, WinOffsetY,
+      InfoPosX, WinOffsetY);
 
-    SDL_RenderDrawLine(SDLWindow.PRenderer, WinOffsetX, 0, WinOffsetX, WinHMax);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, WinOffsetY, InfoPosX, WinOffsetY);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, WinOffsetX, 0,
+      WinOffsetX, WinHMax);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, YAxisPosX, YFramePosY,
+      YAxisPosX, WinHMax);
 
-    // X = 0 Noise position
-    X := Round(WinOffsetX - PosX / scale);
-    if InRange(X, 0, WinHMax) then
+    // X = 0 position
+    i := Round(WinOffsetX - PosX / scale);
+    if InRange(i, 0, WinWMax) then
     begin
-      SDL_RenderDrawLine(SDLWindow.PRenderer, X, 0, X, WinHMax);
-      characterColor(SDLWindow.PRenderer, X + 1, ZAxisPosY, '0', $444444FF);
-      characterColor(SDLWindow.PRenderer, X + 1, XAxisPosY, '0', $444444FF);
-      characterColor(SDLWindow.PRenderer, X + 1, WinOffsetY, '0', $444444FF);
+      SDL_RenderDrawLine(SDLWindow.PRenderer, i, XFramePosY, i, WinHMax);
+      characterColor(SDLWindow.PRenderer, i + 1, XAxisPosY +
+        1, '0', $444444FF);
+      characterColor(SDLWindow.PRenderer, i + 1, WinOffsetY +
+        1, '0', $444444FF);
+    end;
+
+    // Y = 0 position
+    i := Round(WinOffsetY - PosY / scale);
+    if InRange(i, YFramePosY, WinHMax) then
+    begin
+      SDL_RenderDrawLine(SDLWindow.PRenderer, 0, i, MapPosX, i);
+      characterColor(SDLWindow.PRenderer, i + 1, ZAxisPosY +
+        1, '0', $444444FF);
+    end;
+
+    // Z = 0 position
+    i := Round(WinOffsetX - PosZ / scale);
+    if InRange(i, 0, WinWMax) then
+    begin
+      SDL_RenderDrawLine(SDLWindow.PRenderer, i, 0, i, XFramePosY);
+      characterColor(SDLWindow.PRenderer, i + 1, ZAxisPosY +
+        1, '0', $444444FF);
     end;
 
     // Borders
     SDL_SetRenderDrawColor(SDLWindow.PRenderer, 255, 255, 255, 255);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, XFramePosY, WinWMax, XFramePosY);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, YFramePosY, WinWMax, YFramePosY);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, MapPosX, YFramePosY, MapPosX, WinHMax);
-    SDL_RenderDrawLine(SDLWindow.PRenderer, InfoPosX, YFramePosY, InfoPosX, WinHMax);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, XFramePosY, WinW, XFramePosY);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, 0, YFramePosY, WinW, YFramePosY);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, MapPosX, YFramePosY,
+      MapPosX, WinHMax);
+    SDL_RenderDrawLine(SDLWindow.PRenderer, InfoPosX, YFramePosY,
+      InfoPosX, WinHMax);
 
 
     // Wave texts
-    aText := '1D: ' + FloatToStrF(PosX, ffFixed, 4, 4) + ' = ' +
-      FloatToStrF(HENoise1D(PosX, 4, 0.25, InterpMth), ffFixed, 4, 4);
+    aText := 'Z: ' + FloatToStrF(PosZ, ffFixed, 4, 4);
     DefFont.RenderDynStr(aText, 0, 0);
 
-    aText := '2D X: ' + FloatToStrF(PosX, ffFixed, 4, 4) + ' = ' +
-      FloatToStrF(HENoise2D(PosX, PosY, 4, 0.25, InterpMth), ffFixed, 4, 4);
+    aText := 'X: ' + FloatToStrF(PosX, ffFixed, 4, 4);
     DefFont.RenderDynStr(aText, 0, XFramePosY);
 
-    aText := '2D Y: ' + FloatToStrF(PosY, ffFixed, 4, 4);
+    aText := 'Y: ' + FloatToStrF(PosY, ffFixed, 4, 4);
     DefFont.RenderDynStr(aText, 0, YFramePosY);
 
     // Bottom right box
     aText := 'Scale: ' + FloatToStrF(Scale, ffFixed, 4, 4);
     DefFont.RenderDynStr(aText, InfoPosX, YFramePosY);
 
-    case InterpMth of
-      PNICos : aText := 'Cosine';
-      PNICubic : aText := 'Cubic';
-      else // PNILinear:
-        aText := 'Linear';
-    end;
-    DefFont.RenderDynStr(aText, InfoPosX, DefFont.YPosAtLine(1, YFramePosY));
-
     aText := 'Mouse X: ' + FloatToStrF(MouseX, ffFixed, 4, 4);
-    DefFont.RenderDynStr(aText, InfoPosX, DefFont.YPosAtLine(2, YFramePosY));
+    DefFont.RenderDynStr(aText, InfoPosX,
+      DefFont.YPosAtLine(1, YFramePosY));
 
     aText := 'Mouse Y: ' + FloatToStrF(MouseY, ffFixed, 4, 4);
-    DefFont.RenderDynStr(aText, InfoPosX, DefFont.YPosAtLine(3, YFramePosY));
+    DefFont.RenderDynStr(aText, InfoPosX,
+      DefFont.YPosAtLine(2, YFramePosY));
+
+    aText := 'Mouse Z: ' + FloatToStrF(MouseZ, ffFixed, 4, 4);
+    DefFont.RenderDynStr(aText, InfoPosX,
+      DefFont.YPosAtLine(3, YFramePosY));
+
+    aText := 'Value: ' + FloatToStrF(PINNoise(PosX, PosY, PosZ),
+      ffFixed, 4, 4);
+    DefFont.RenderDynStr(aText, InfoPosX,
+      DefFont.YPosAtLine(5, YFramePosY));
 
     // Help
     if not DrawMap then
@@ -370,11 +296,13 @@ type
           begin
             PosX := 0;
             PosY := 0;
+            PosZ := 0;
           end;
           SDLK_PERIOD, SDLK_KP_PERIOD :
           begin
             PosX := Round(PosX);
             PosY := Round(PosY);
+            PosZ := Round(PosZ);
           end;
 
           // Moving
@@ -382,19 +310,12 @@ type
           SDLK_RIGHT : PosX += Scale;
           SDLK_UP : PosY -= Scale;
           SDLK_DOWN : PosY += Scale;
+          SDLK_SLASH, SDLK_KP_DIVIDE : PosZ -= Scale;
+          SDLK_ASTERISK, SDLK_KP_MULTIPLY : PosZ += Scale;
 
           // Drawings
-          SDLK_1, SDLK_KP_1 : DrawNoise := not DrawNoise;
-          SDLK_2, SDLK_KP_2 : DrawSmooth := not DrawSmooth;
-          SDLK_3, SDLK_KP_3 : DrawInterp := not DrawInterp;
-          SDLK_4, SDLK_KP_4 : DrawHENoise := not DrawHENoise;
           SDLK_m : DrawMap := not DrawMap;
 
-          // interpolation
-          SDLK_i :
-            if InterpMth = high(TPNoiseInterp) then
-              InterpMth := Low(TPNoiseInterp) else
-              InterpMth := Succ(InterpMth);
             //SDLK_SPACE : ;
           else
             ;
@@ -403,18 +324,30 @@ type
 
       SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
       begin
-        // Inside Y wave keep original X
-        if (aEvent.motion.Y > YFramePosY) and
-          (aEvent.motion.X < MapPosX) then
-          MouseX := PosX
-        else
+        // In Z Wave frame, X changes Z only
+        if aEvent.motion.Y < XFramePosY then
+        begin
+          MouseX := PosX;
+          MouseY := PosY;
+          MouseZ := PosZ + Scale * (aEvent.motion.X - WinOffsetX);
+        end
+        else // Rest of the window
+        begin
+          MouseZ := PosZ;
           MouseX := PosX + Scale * (aEvent.motion.X - WinOffsetX);
 
-        // If out of Map / Y wave keep original Y
-        if aEvent.motion.Y < YFramePosY then
-          MouseY := PosY
-        else
-          MouseY := PosY + Scale * (aEvent.motion.Y - WinOffsetY);
+          // Map zone
+          if aEvent.motion.Y > YFramePosY then
+          begin
+            MouseY := PosY + Scale * (aEvent.motion.Y - WinOffsetY);
+
+            if (aEvent.motion.X < MapPosX) then
+              // Inside Y wave, keep original X
+              MouseX := PosX;
+          end
+          else
+            MouseY := PosY;
+        end;
       end;
 
       //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
@@ -423,13 +356,15 @@ type
         // Any button
         PosX := MouseX;
         PosY := MouseY;
+        PosZ := MouseZ;
       end;
+
       SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
       begin
         if aEvent.wheel.Y > 0 then
-          Scale *= 2
+          PosZ += Scale
         else
-          Scale /= 2;
+          PosZ -= Scale;
       end;
       else
         ;

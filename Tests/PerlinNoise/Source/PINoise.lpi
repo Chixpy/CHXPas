@@ -14,7 +14,7 @@
         <SaveFoldState Value="False"/>
       </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="CTC036"/>
+      <Title Value="PINoise"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
@@ -38,11 +38,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CTC036"/>
+            <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PINoise"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units"/>
+            <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units;..\..\..\Misc"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -80,7 +80,7 @@
     </RequiredPackages>
     <Units>
       <Unit>
-        <Filename Value="CTC036.lpr"/>
+        <Filename Value="PINoise.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -105,10 +105,6 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\..\Units\uCHXRscStr.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="..\Readme.md"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -139,17 +135,21 @@
         <Filename Value="..\..\..\SDL2\SDL2\sdl2_image.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\..\..\Units\uCHXPNoise.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\CTC036"/>
+      <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\PINoise"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units"/>
+      <OtherUnitFiles Value="..\..\..\Abstract;..\..\..\Units;..\..\..\SDL2\Classes;..\..\..\SDL2\SDL2;..\..\..\SDL2\SDLProcessing\Units;..\..\..\SDL2\Units;..\..\..\Misc"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
