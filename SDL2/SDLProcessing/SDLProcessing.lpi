@@ -42,7 +42,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
+            <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units;..\Abstracts"/>
             <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -120,7 +120,7 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="..\Classes\ucCHXSDL2Font.pas"/>
+        <Filename Value="..\Classes\ucCHXSDL2FontTTF.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -139,6 +139,14 @@
         <Filename Value="..\SDL2\sdl2_image.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="..\Abstracts\uaCHXSDL2Font.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="..\Classes\ucCHXSDL2FontGFX.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -149,7 +157,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units"/>
+      <OtherUnitFiles Value="..\..\Abstract;..\..\Units;..\Classes;..\SDL2;Units;..\Units;..\Abstracts"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

@@ -99,8 +99,8 @@ begin
   RendererHeight := 480;
   RendererUseHW := True;
 
-  DefFontFile := 'FreeMonoBold.ttf';
-  DefFontSize := 24;
+  DefFontFile := '';
+  DefFontSize := 10;
   DefFontColor := SDLColor(255, 255, 255, 255);
 end;
 

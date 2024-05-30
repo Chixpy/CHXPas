@@ -218,8 +218,7 @@ type
     if InRange(i, YFramePosY, WinHMax) then
     begin
       SDL_RenderDrawLine(SDLWindow.PRenderer, 0, i, MapPosX, i);
-      characterColor(SDLWindow.PRenderer, i + 1, ZAxisPosY +
-        1, '0', $444444FF);
+      characterColor(SDLWindow.PRenderer, YAxisPosX + 1, i + 1, '0', $444444FF);
     end;
 
     // Z = 0 position
