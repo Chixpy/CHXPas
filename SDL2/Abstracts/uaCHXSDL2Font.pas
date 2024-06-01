@@ -86,34 +86,56 @@ type
     // Dynamic Text routines
     // ---------------------
 
-    procedure RenderDynStr(const aStr : string; const aX, aY : CInt;
-      const aWidth : CInt = 0); virtual; abstract;
+    function RenderDynStr(const aStr : string; const aX, aY : CInt;
+      const aWidth : CInt = 0) : Integer; virtual; abstract;
     {< Render a non cached string.
 
        @param(aStr String write.)
        @param(aX,aY Top left position to draw the text.)
        @param(aWidth Width in pixel to wordwrap the string. `0` don't wordwrap
          the string.)
+       @returns(Actual width of the rendered text in pixels.)
+    }
+    function RenderDynStrClipped(const aStr : string;
+      const aX, aY : CInt; const aWidth : CInt;
+      const aAlign : CInt = 2) : Integer; virtual; abstract;
+    {< Render a non cached string but clipped to aWidth in pixels.
+
+       @param(aStr String write.)
+       @param(aX,aY Top left position to draw the text.)
+       @param(aWidth Width .)
+       @param(aAlign   @definitionList(@itemSpacing(Compact)
+         @itemLabel(0 /  TTF_WRAPPED_ALIGN_LEFT)
+         @item(Show left side of the string.)
+
+         @itemLabel(1 / TTF_WRAPPED_ALIGN_CENTER)
+         @item(Show center side of the string.)
+
+         @itemLabel(3 / TTF_WRAPPED_ALIGN_RIGHT)
+         @item(Show right side of the string.)
+       )
+       @returns(Actual width of the rendered text in pixels.)
     }
     procedure RenderDynText(const aText : TStringList;
       const aX, aY, aWidth : CInt; const aAlign : CInt = 0); virtual; abstract;
     {< Render a non cached text.
 
-    Lines in aText TStringList are separated with an extra empty line.
+       Lines in aText TStringList are separated with an extra empty line.
 
-    @param(aText TStringList lines to store in cache.)
-    @param(aWidth Width in pixel to wordwrap the string. `0` don't wordwrap
-      the string.)
-    @param(aAlign   @definitionList(@itemSpacing(Compact)
-      @itemLabel(0 /  TTF_WRAPPED_ALIGN_LEFT)
-      @item(Left align.)
+       @param(aText TStringList lines to store in cache.)
+       @param(aWidth Width in pixel to wordwrap the string. `0` don't wordwrap
+         the string.)
+       @param(aAlign   @definitionList(@itemSpacing(Compact)
+         @itemLabel(0 /  TTF_WRAPPED_ALIGN_LEFT)
+         @item(Left align.)
 
-      @itemLabel(1 / TTF_WRAPPED_ALIGN_CENTER)
-      @item(Center align.)
+         @itemLabel(1 / TTF_WRAPPED_ALIGN_CENTER)
+         @item(Center align.)
 
-      @itemLabel(3 / TTF_WRAPPED_ALIGN_RIGHT)
-      @item(Right align.)
-    )
+         @itemLabel(3 / TTF_WRAPPED_ALIGN_RIGHT)
+         @item(Right align.)
+       )
+       @returns(Actual width of the rendered text in pixels.)
     }
 
     procedure ChangeFontStyle(const aColor : TSDL_Color;

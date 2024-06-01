@@ -49,9 +49,6 @@ type
 
     property SDLWindow : cCHXSDL2Window read FSDLWindow;
 
-    property ShowFrameRate : Boolean
-      read FShowFrameRate write SetShowFrameRate;
-
     property DefFont : caCHXSDL2Font read FDefFont;
     {< Default TTF font to use with the engine. A TTF file, size and color must
          be set in config file or manually before Init call.
@@ -90,6 +87,9 @@ type
 
   public
     {property} Title : string;
+
+    property ShowFrameRate : Boolean
+      read FShowFrameRate write SetShowFrameRate;
 
     property Config : cCHXSDL2Config read FConfig;
 
@@ -134,7 +134,8 @@ begin
   if FShowFrameRate = AValue then Exit;
   FShowFrameRate := AValue;
 
-  SDLWindow.Title := Self.Title;
+  if assigned(SDLWindow) then
+    SDLWindow.Title := Self.Title;
 end;
 
 procedure cCHXSDL2Engine.PutPixel(const Base : PCUInt32; const Pitch : CInt;
@@ -196,8 +197,6 @@ begin
   // But we need a global SDL_Rect property.
   //SDL_SetTextInputRect(@SDLRect(aX,aY,aW, aFont.LineHeight));
 
-  SDL_StartTextInput;
-
   CTIFont := aFont;
   CurrTextInput := aText;
   CTIX := aX;
@@ -205,6 +204,8 @@ begin
   CTIWidth := aWidth;
   CTIStrVar := @aText;
   CTIUpdateLive := UpdateLive;
+
+  SDL_StartTextInput;
 end;
 
 function cCHXSDL2Engine.IsEditingText : Boolean;
@@ -223,7 +224,8 @@ begin
   // Escape key is mapped to exit the program.
   // F11 toggles framerate in window title.
   // When TextInput is active handles character keys automatically too,
-  //   but SDL_KEYDOWN and SDL_KEYUP are sended too.
+  //   but SDL_KEYDOWN and SDL_KEYUP are sended too, so all keys are
+  //   handled.
 
   case aEvent.type_ of
 
@@ -238,29 +240,93 @@ begin
 
     //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
     SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-      case aEvent.key.keysym.sym of
-        //SDLK_UP : ;
-        //SDLK_DOWN : ;
-        //SDLK_LEFT : ;
-        //SDLK_RIGHT : ;
-        //SDLK_SPACE : ;
-        SDLK_F11 : ShowFrameRate := not ShowFrameRate;
-        SDLK_ESCAPE :
-        begin
-          ExitProg := True; // Exit
-          Handled := True;
-        end;
-        SDLK_RETURN, SDLK_KP_ENTER :
-          if SDL_IsTextInputActive then
+    begin
+      if SDL_IsTextInputActive then
+      begin
+        case aEvent.key.keysym.sym of
+          // Special keys while editing text.
+          SDLK_BACKSPACE, SDLK_DELETE :
+          begin
+            CurrTextInput := Copy(CurrTextInput, 1, CurrTextInput.Length - 1);
+            Handled := True;
+          end;
+
+          SDLK_RETURN, SDLK_KP_ENTER :
           begin
             SDL_StopTextInput;
             if not CTIUpdateLive then
               CTIStrVar^ := CurrTextInput;
             Handled := True;
           end;
-        else
-          ;
+
+          { TODO : CTRL+X, CTRL+C, CTRL+V...
+
+          }
+
+          SDLK_CUT :
+          begin
+            SDL_SetClipboardText(PAnsiChar(CurrTextInput));
+            CurrTextInput := '';
+            Handled := True;
+          end;
+
+          SDLK_COPY :
+          begin
+            SDL_SetClipboardText(PAnsiChar(CurrTextInput));
+            Handled := True;
+          end;
+
+          SDLK_PASTE :
+          begin
+            if SDL_HasClipboardText then
+            begin
+              CurrTextInput += SDL_GetClipboardText;
+              Handled := True;
+            end;
+          end;
+
+          // Keys
+          SDLK_SPACE, SDLK_EXCLAIM, SDLK_QUOTEDBL, SDLK_HASH,
+          SDLK_PERCENT, SDLK_DOLLAR, SDLK_AMPERSAND, SDLK_QUOTE,
+          SDLK_LEFTPAREN, SDLK_RIGHTPAREN, SDLK_ASTERISK, SDLK_PLUS,
+          SDLK_COMMA, SDLK_MINUS, SDLK_PERIOD, SDLK_SLASH, SDLK_0, SDLK_1,
+          SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9,
+          SDLK_COLON, SDLK_SEMICOLON, SDLK_LESS, SDLK_EQUALS, SDLK_GREATER,
+          SDLK_QUESTION, SDLK_AT, SDLK_LEFTBRACKET, SDLK_BACKSLASH,
+          SDLK_RIGHTBRACKET, SDLK_CARET, SDLK_UNDERSCORE, SDLK_BACKQUOTE,
+          SDLK_a, SDLK_b, SDLK_c, SDLK_d, SDLK_e, SDLK_f, SDLK_g, SDLK_h,
+          SDLK_i, SDLK_j, SDLK_k, SDLK_l, SDLK_m, SDLK_n, SDLK_o, SDLK_p,
+          SDLK_q, SDLK_r, SDLK_s, SDLK_t, SDLK_u, SDLK_v, SDLK_w, SDLK_x,
+          SDLK_y, SDLK_z, SDLK_KP_DIVIDE, SDLK_KP_MULTIPLY, SDLK_KP_MINUS,
+          SDLK_KP_PLUS, SDLK_KP_1, SDLK_KP_2, SDLK_KP_3,
+          SDLK_KP_4, SDLK_KP_5, SDLK_KP_6, SDLK_KP_7, SDLK_KP_8, SDLK_KP_9,
+          SDLK_KP_0, SDLK_KP_PERIOD :
+            Handled := True
+          else
+            Handled := False;
+        end;
       end;
+
+      if not Handled then
+      begin
+        case aEvent.key.keysym.sym of
+
+          SDLK_F11 :
+          begin
+            ShowFrameRate := not ShowFrameRate;
+            Handled := True;
+          end;
+
+          SDLK_ESCAPE :
+          begin
+            ExitProg := True; // Exit
+            Handled := True;
+          end;
+          else
+            ;
+        end;
+      end;
+    end;
 
     SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
     begin
@@ -271,7 +337,6 @@ begin
         Handled := True;
       end;
     end;
-
     SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
     begin
       if SDL_IsTextInputActive then
@@ -355,15 +420,16 @@ end;
 procedure cCHXSDL2Engine.Run;
 var
   ProgExit, HandledEvent : Boolean;
-  DeltaTime, LastFrameTime : CUInt32;
+  CompTime, LastFrameTime : CUInt32;
   aEvent : TSDL_Event;
+  CursorX : Integer;
 begin
   ProgExit := False;
 
   SDL_InitFramerate(@SDLFrameMang);
   SDL_SetFramerate(@SDLFrameMang, 60);
   LastFrameTime := 0;
-  DeltaTime := 0;
+  CompTime := 0;
   FFrameCount := 0;
 
   try
@@ -379,7 +445,7 @@ begin
 
       // TIMING (1)
       // Actual Compute + Events time in milliseconds.
-      DeltaTime := SDL_GetTicks - DeltaTime;
+      CompTime := SDL_GetTicks - CompTime;
       // Frame rate in milliseconds. Compute + Event + Draw + Delay
       LastFrameTime := SDL_framerateDelay(@SDLFrameMang);
 
@@ -392,13 +458,20 @@ begin
         if ShowFrameRate and
           ((FrameCount and 31) = 0) then
           SDLWindow.Title := Format('%0:s: %1:d ms (%2:d ms)',
-            [Title, LastFrameTime, DeltaTime]);
+            [Title, LastFrameTime, CompTime]);
 
         // Drawing current editing text
         if SDL_IsTextInputActive then
         begin
-          CTIFont.RenderDynStr(CurrTextInput, CTIX,
-            CTIY, CTIWidth);
+          CursorX := CTIFont.RenderDynStrClipped(CurrTextInput, CTIX, CTIY,
+            CTIWidth);
+
+          // Drawing cursor
+          if (FrameCount and 32) = 32 then
+            vlineRGBA(SDLWindow.PRenderer, CTIX + CursorX,
+              CTIY, CTIY + CTIFont.LineHeight, CTIFont.Color.r,
+              CTIFont.Color.g,
+              CTIFont.Color.b, CTIFont.Color.a);
         end;
 
         // UPDATE RENDER
@@ -406,7 +479,7 @@ begin
       end;
 
       // TIMING (2)
-      DeltaTime := SDL_GetTicks;
+      CompTime := SDL_GetTicks;
 
       // EVENTS
 

@@ -89,22 +89,22 @@ type
 
   procedure cCTCEng.Draw;
   var
-    x, y, a, b, aa, bb, twoab : Double; // fractal coords.
-    n, i, j : integer; // screen coords.
+    X, Y, a, b, aa, bb, twoab : Double; // fractal coords.
+    n, i, j : Integer; // screen coords.
   begin
-    y := ymin;
+    Y := ymin;
 
     j := 0;
     while j < WinH do
     begin
-      x := xmin;
+      X := xmin;
 
       i := 0;
       while i < WinW do
       begin
         // Now we test, as we iterate z = z^2 + cm does z tend towards infinity?
-        a := x;
-        b := y;
+        a := X;
+        b := Y;
 
         n := 0;
         while n < maxiterations do
@@ -113,8 +113,8 @@ type
           bb := b * b;
           twoab := 2.0 * a * b;
 
-          a := aa - bb + x;
-          b := twoab + y;
+          a := aa - bb + X;
+          b := twoab + Y;
 
           if (a * a + b * b) > 16 then
             Break; // CHX: Ouhg... :-(
@@ -143,12 +143,12 @@ type
           SDL_RenderDrawPoint(SDLWindow.PRenderer, i, j);
         end;
 
-        x += dx;
+        X += dx;
 
         Inc(i);
       end;
 
-      y += dy;
+      Y += dy;
 
       Inc(j);
     end;
@@ -209,12 +209,13 @@ begin
   StandardFormatSettings;
 
   try
-    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
-    CTCEng.Config.WindowWidth := WinW;
-    CTCEng.Config.RendererWidth := WinW;
-    CTCEng.Config.WindowHeight := WinH;
-    CTCEng.Config.RendererHeight := WinH;
-    CTCEng.Config.RendererUseHW := False; // True = 3~5 times slower than soft.
+    // HW acceleration is 3~5 times slower than soft.
+    CTCEng := cCTCEng.Create(ApplicationName, WinW, WinH, False, False);
+    CTCEng.Config.DefFontSize := WinH div 25;
+    // Actually,they are less than 25 lines because of LineHeight
+    CTCEng.Config.DefFontColor := SDLColor(255, 255, 255, 255);
+    CTCEng.Config.DefFontFile := 'FreeMonoBold.ttf';   
+    CTCEng.ShowFrameRate := True;
     CTCEng.Init;
     CTCEng.Run;
   finally

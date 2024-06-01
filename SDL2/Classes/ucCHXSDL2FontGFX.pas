@@ -29,6 +29,8 @@ type
   private
     FCachedTexts : cCHXSDL2GFXCacheMap;
 
+    {property} FontWidth : Integer;
+
     function DoWrapText(aStr : string; aWidth : CInt) : string; inline;
 
   protected
@@ -58,8 +60,11 @@ type
     // Dynamic Text routines
     // ---------------------
 
-    procedure RenderDynStr(const aStr : string; const aX, aY : CInt;
-      const aWidth : CInt = 0); override;
+    function RenderDynStr(const aStr : string; const aX, aY : CInt;
+      const aWidth : CInt = 0) : Integer; override;
+    {< See @inherited. }
+    function RenderDynStrClipped(const aStr : string; const aX, aY : CInt;
+      const aWidth : CInt; const aAlign : CInt = 2) : Integer; override;
     {< See @inherited. }
     procedure RenderDynText(const aText : TStringList; const aX, aY,
       aWidth : CInt; const aAlign : CInt = 0); override;
@@ -96,8 +101,8 @@ end;
 
 function cCHXSDL2FontGFX.DoWrapText(aStr : string; aWidth : CInt) : string;
 begin
-  if aWidth > 8 then  // 8 because it's SDL2_GFX text width
-    Result := WrapText(aStr, aWidth div 8)
+  if aWidth > FontWidth then
+    Result := WrapText(aStr, aWidth div FontWidth)
   else
     Result := aStr;
 end;
@@ -146,7 +151,7 @@ procedure cCHXSDL2FontGFX.RenderStatic(const aKey : string; const aX,
 var
   aSL : TStringList;
   i : Integer;
-  WStr : String;
+  WStr : string;
 begin
   if (aKey = EmptyStr) then Exit;
 
@@ -160,15 +165,15 @@ begin
     WStr := aSl[i];
 
     if WStr <> EmptyStr then
-      stringRGBA(Renderer, aX, LinePosY(i,aY), PChar(WStr), Color.r, Color.g,
+      stringRGBA(Renderer, aX, LinePosY(i, aY), PChar(WStr), Color.r, Color.g,
         Color.b, Color.a);
 
     Inc(i);
   end;
 end;
 
-procedure cCHXSDL2FontGFX.RenderDynStr(const aStr : string; const aX,
-  aY : CInt; const aWidth : CInt);
+function cCHXSDL2FontGFX.RenderDynStr(const aStr : string; const aX, aY : CInt;
+  const aWidth : CInt) : Integer;
 begin
   if (aStr = EmptyStr) then Exit;
 
@@ -176,10 +181,40 @@ begin
   AddStaticStr('RenderDynStr', aStr, aWidth);
   RenderStatic('RenderDynStr', aX, aY);
   CachedTexts.Remove('RenderDynStr');
+
+  Result := aStr.Length * FontWidth;
+  if (aWidth > FontWidth) and (Result > aWidth) then
+    Result := aWidth;
 end;
 
-procedure cCHXSDL2FontGFX.RenderDynText(const aText : TStringList; const aX,
-  aY, aWidth : CInt; const aAlign : CInt);
+function cCHXSDL2FontGFX.RenderDynStrClipped(const aStr : string; const aX,
+  aY : CInt; const aWidth : CInt; const aAlign : CInt) : Integer;
+var
+  NChars : Integer;
+  aCStr : string;
+begin
+  NChars := aWidth div FontWidth;
+  if (aWidth > FontWidth) and (aStr.Length > NChars) then
+  begin
+    case aAlign of
+      0 : aCStr := LeftStr(aStr, NChars);
+      1 : aCStr := Copy(aStr, (aStr.Length - NChars) div 2, NChars)
+      else
+        aCStr := RightStr(aStr, NChars);
+    end;
+    Result := aWidth;
+  end
+  else
+  begin
+    aCStr := aStr;
+    Result := aStr.Length * FontWidth;
+  end;
+
+  RenderDynStr(aCStr, aX, aY);
+end;
+
+procedure cCHXSDL2FontGFX.RenderDynText(const aText : TStringList; const aX, aY,
+  aWidth : CInt; const aAlign : CInt);
 begin
   if not assigned(aText) then Exit;
 
@@ -200,9 +235,11 @@ end;
 constructor cCHXSDL2FontGFX.Create(const aRenderer : PSDL_Renderer;
   const aColor : TSDL_Color);
 begin
-  // Althogth actual font size is 8, we will define lines of
-  //   2 pixels larger to make a little separation between chars
-  inherited Create(aRenderer, 10, aColor);
+  // Actual font size is 8x8, (unless we will define characters with
+  //   gfxPrimitivesSetFont).
+  // But we define 1 pixel bigger to make a little separation between lines.
+  FontWidth := 8;
+  inherited Create(aRenderer, FontWidth + 1, aColor);
 
   FCachedTexts := cCHXSDL2GFXCacheMap.Create(True);
 end;

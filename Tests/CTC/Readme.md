@@ -110,7 +110,7 @@ Reasons to skip:
     (pushMatrix, rotate, translate, popMatrix, etc.). They change the
     coordinate system in a stack and apply to all points to make relative
     translations and rotations. Not sure how to implement it:
-    - Manually tweaked drawing of points and lines.
+    - Manually tweak drawing of points and lines.
     - Maybe creating a stack of new rendering textures on pushMatrix. They
       can be rotated, translated and zoomed, thed render in parent texture
       on popMatrix. But, we can't draw on negative coords

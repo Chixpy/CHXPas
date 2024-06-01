@@ -18,7 +18,7 @@ uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
+  ucCHXSDL2Engine, ucCHXSDL2FontTTF, uCHXSDL2Utils, uProcUtils;
 
 const
   { CHX: Renderer scales images to actual size of the window. }
@@ -40,7 +40,7 @@ type
       var ExitProg : Boolean); override;
 
   public
-    { CHX: Global variables. }
+    { CHX: Processing global variables. }
 
   end;
 
@@ -48,6 +48,7 @@ type
 
   procedure cCTCEng.Setup;
   begin
+
 
   end;
 
@@ -59,6 +60,7 @@ type
 
   procedure cCTCEng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
   begin
+    if ExitProg then Exit;
     { CHX: If we want to pause when minimized. }
     // if SDLWindow.Minimized then Exit;
 
@@ -70,19 +72,24 @@ type
     SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
     SDL_RenderClear(SDLWindow.PRenderer);
 
+
+
   end;
 
   procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
   var Handled : Boolean; var ExitProg : Boolean);
   begin
     inherited HandleEvent(aEvent, Handled, ExitProg);
-    if ExitProg then Exit; { CHX: Inherited HandleEvent can change ExitProg. }
+    { CHX: Inherited HandleEvent can change ExitProg and Handled. }
+    if ExitProg or Handled then Exit;
 
     { CHX: Some common events for fast reference, CTRL+MAYS+U removes comments
         while selecting the block.
       You can see full list in sdlevents.inc
       Window and general quit events are handled automatically in parent.
       Escape key is mapped to exit the program too.
+      When editing text, all keys are handled too until Return is pressed (or
+        other event disables it).
     }
 
     //case aEvent.type_ of
@@ -94,14 +101,13 @@ type
     //      //SDLK_LEFT : ;
     //      //SDLK_RIGHT : ;
     //      //SDLK_SPACE : ;
-    //      else
-    //        ;
+    //      //SDLK_RETURN : ;
     //    end;
     //  end;
-    //  //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-    //  //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-    //  //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-    //  //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
+    //    //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+    //    //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+    //    //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+    //    //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
     //  else
     //    ;
     //end;
@@ -125,12 +131,12 @@ begin
   StandardFormatSettings;
 
   try
-    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
-    CTCEng.Config.WindowWidth := WinW;
-    CTCEng.Config.RendererWidth := WinW;
-    CTCEng.Config.WindowHeight := WinH;
-    CTCEng.Config.RendererHeight := WinH;
-    CTCEng.Config.RendererUseHW := True;
+    CTCEng := cCTCEng.Create(ApplicationName, WinW, WinH, True, False);
+    CTCEng.Config.DefFontSize := WinH div 25;
+    // Actually,they are less than 25 lines because of LineHeight
+    CTCEng.Config.DefFontColor := SDLColor(255,255,255,255);
+    CTCEng.Config.DefFontFile := 'FreeMonoBold.ttf';
+    CTCEng.ShowFrameRate := True;
     CTCEng.Init;
     CTCEng.Run;
   finally

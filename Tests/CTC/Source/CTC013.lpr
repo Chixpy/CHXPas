@@ -221,12 +221,13 @@ begin
   StandardFormatSettings;
 
   try
-    CTCEng := cCTCEng.Create(ApplicationName, 'CHXSDL.ini', False);
-    CTCEng.Config.WindowWidth := WinW;
-    CTCEng.Config.RendererWidth := WinW;
-    CTCEng.Config.WindowHeight := WinH;
-    CTCEng.Config.RendererHeight := WinH;
-    CTCEng.Config.RendererUseHW := False;
+    // HW acceleration is 3~5 times slower than soft.
+    CTCEng := cCTCEng.Create(ApplicationName, WinW, WinH, False, False);
+    CTCEng.Config.DefFontSize := WinH div 25;
+    // Actually,they are less than 25 lines because of LineHeight
+    CTCEng.Config.DefFontColor := SDLColor(255,255,255,255);
+    CTCEng.Config.DefFontFile := 'FreeMonoBold.ttf';   
+    CTCEng.ShowFrameRate := True;
     CTCEng.Init;
     CTCEng.Run;
   finally

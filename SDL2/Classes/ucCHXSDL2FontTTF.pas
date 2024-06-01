@@ -41,8 +41,7 @@ type
     // Static Text methods
     //---------------------
     procedure AddStaticStr(const aKey, aStr : string;
-      const aWidth : CInt = 0);
-      override;
+      const aWidth : CInt = 0); override;
     {< See @inherited. }
     procedure AddStaticText(const aKey : string; const aText : TStringList;
       const aWidth : CInt; const aAlign : CInt = 0); override;
@@ -54,8 +53,11 @@ type
     // Dynamic Text routines
     // ---------------------
 
-    procedure RenderDynStr(const aStr : string; const aX, aY : CInt;
-      const aWidth : CInt = 0); override;
+    function RenderDynStr(const aStr : string; const aX, aY : CInt;
+      const aWidth : CInt = 0): Integer; override;
+    {< See @inherited. }
+    function RenderDynStrClipped(const aStr : string; const aX, aY : CInt;
+      const aWidth : CInt; const aAlign : CInt = 2): Integer; override;
     {< See @inherited. }
     procedure RenderDynText(const aText : TStringList; const aX, aY,
       aWidth : CInt; const aAlign : CInt = 0); override;
@@ -138,8 +140,8 @@ begin
     TextCache.Draw(aX, aY);
 end;
 
-procedure cCHXSDL2FontTTF.RenderDynStr(const aStr : string;
-  const aX, aY : CInt; const aWidth : CInt);
+function cCHXSDL2FontTTF.RenderDynStr(const aStr : string; const aX, aY : CInt;
+  const aWidth : CInt) : Integer;
 var
   TextSFC : PSDL_Surface;
   TextTex : PSDL_Texture;
@@ -156,8 +158,58 @@ begin
 
   SDL_RenderCopy(Renderer, TextTex, nil, @aPos);
 
+  Result := TextSFC^.w;
   SDL_FreeSurface(TextSFC);
   SDL_DestroyTexture(TextTex);
+end;
+
+function cCHXSDL2FontTTF.RenderDynStrClipped(const aStr : string; const aX,
+  aY : CInt; const aWidth : CInt; const aAlign : CInt) : Integer;
+var
+  TextSFC : PSDL_Surface;
+  TextTex : PSDL_Texture;
+  aSPos, aTPos : TSDL_Rect;
+  Offset, CWidth : Integer;
+begin
+  if aStr = EmptyStr then Exit;
+  TextSFC := CreateStrSurface(aStr, 0);
+
+  if (aWidth > 0) and (TextSFC^.w > aWidth) then
+  begin
+    Offset := TextSFC^.w - aWidth;
+    CWidth := aWidth;
+  end
+  else
+  begin
+    Offset := 0;
+    CWidth := TextSFC^.w;
+  end;
+
+  // Source
+  case aAlign of
+    0 : aSPos.X := 0;
+    1 : aSPos.X := Offset div 2;
+    else
+      aSPos.X := Offset;
+  end;
+  aSPos.Y := 0;
+  aSPos.w := CWidth;
+  aSPos.h := TextSFC^.h;
+
+  // Target
+  aTPos.X := aX;
+  aTPos.Y := aY;
+  aTPos.w := CWidth;
+  aTPos.h := aSPos.h;
+
+  TextTex := SDL_CreateTextureFromSurface(Renderer, TextSFC);
+
+  SDL_RenderCopy(Renderer, TextTex, @aSPos, @aTPos);
+
+  SDL_FreeSurface(TextSFC);
+  SDL_DestroyTexture(TextTex);
+
+  Result := CWidth;
 end;
 
 procedure cCHXSDL2FontTTF.RenderDynText(const aText : TStringList;
