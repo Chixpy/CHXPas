@@ -13,7 +13,7 @@ uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math, fgl,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXPoint3DF, uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils,
+  ucCHXSDL2Engine, uaCHXSDL2Font, uCHXSDL2Utils, uProcUtils,
   uCTCGA;
 
 const

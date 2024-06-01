@@ -11,7 +11,7 @@ uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2Font, uProcUtils,
+  uCHXSDL2Utils, ucCHXSDL2Engine, uProcUtils,
   ucCTC3DStar;
 
 const

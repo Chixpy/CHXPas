@@ -13,7 +13,7 @@ uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXPoint3DF, uCHXStrUtils, uCHXMath, // Fastest Factorial 🤣
-  ucCHXSDL2Engine, ucCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
+  ucCHXSDL2Engine, uaCHXSDL2Font, uCHXSDL2Utils, uProcUtils;
 
 const
   { CHX: Renderer scales images to actual size of the window. }
@@ -168,15 +168,15 @@ type
     // Tests
     stringColor(SDLWindow.PRenderer, 10, WinH div 2,
       PChar(FloatToStrF(recordDistance, ffFixed, 4, 4)), $FFFF00FF);
-    DefFont.RenderStatic('TP', 10, DefFont.YPosAtLine(1, WinH div 2));
+    DefFont.RenderStatic('TP', 10, DefFont.LinePosY(1, WinH div 2));
 
     percent := (Count * 100) div totalPermutations;
     DefFont.RenderDynStr(percent.ToString + '% completed', 10,
-      DefFont.YPosAtLine(2, WinH div 2));
+      DefFont.LinePosY(2, WinH div 2));
 
     if Finished then
       DefFont.RenderDynStr('¡Finished!', 10,
-        DefFont.YPosAtLine(3, WinH div 2));
+        DefFont.LinePosY(3, WinH div 2));
   end;
 
   procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
