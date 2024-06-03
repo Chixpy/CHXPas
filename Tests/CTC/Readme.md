@@ -20,7 +20,7 @@ will be done while ucSDL2Engine is evolving as needed.
 
 This is the main base program to simulate Processing. To use it simply open and
 `Save Proyect As...` with a new name. NOTE: Doing this only updates unit folders
-in current build mode, then you must copy then to other in project options.
+in current build mode, then you must copy then to the other in project options.
 
 This is not the prefered way of using cCHXSDL2Engine, because in Pascal
 every class is in its own unit usually (unless its a package) instead
@@ -56,26 +56,26 @@ it shows vertical black stripes on some gfx primitives ¿?.
 | # | Name | Comments |
 |---:|:---|:---|
 | CTC001 | Starfield | Testing SDL_RenderXXX and SDL_GFX functions. Manual tweak of simple coordinates tranformations (PMM) |
-| CTC003 | The Snake Game | Keyboard event handling |
+| CTC003 | The Snake Game | First Keyboard event handling |
 | CTC004 | Purple Rain |  |
 | CTC005 | Space Invaders |  |
-| CTC006 | Mitosis Simulation | Mouse event handling |
+| CTC006 | Mitosis Simulation | First Mouse event handling |
 | CTC010 | Maze Generator |  |
 | CTC013 | Reaction Diffusion Algorithm | Direct renderer pixel access. (Redone later with direct texture pixel access) |
 | CTC015 | Object-Oriented Fractal Trees |  |
 | CTC017 | Space Colonization |  |
-| CTC019 | Superellipse | Interactive control |
+| CTC019 | Superellipse | First UI pseudo-component, a TrackBar. |
 | CTC021 | Mandelbrot | Direct texture pixel access. (And redone later with direct renderer pixel access) |
 | CTC022 | Julia Set |  |
 | CTC023 | 2D Supershapes |  |
 | CTC027 | Fireworks (2D) |  |
 | CTC028 | Metaballs |  |
-| CTC031 | Flappy Bird | First program with text in graphics |
+| CTC031 | Flappy Bird | First program with text and graphics |
 | CTC033 | Poisson-disc Sampling | |
 | CTC034 | Diffusion-Limited Aggregation | |
 | CTC035.1 | Traveling Salesperson (Random Swap) | SDL_RenderDrawLines vs polygonColor |
-| CTC035.2 | Lexicographic Order | Well, SDl is not needed... |
-| CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this can be dynamic |
+| CTC035.2 | Lexicographic Order | Well, SDL is not needed... |
+| CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this well changed to dynamic |
 | CTC035.4 | Traveling Salesperson (Genetic Algorithm) | First genetic algorittm ported |
 | CTC036 | Blobby! | I had to implement a Perlin noise algorithm...<br />This time from [Hugo Elias](http://web.archive.org/web/20160325134143/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm|) |
 
@@ -131,73 +131,73 @@ Not Skipped now:
 
 ## ToDo
 
-| # | Name |
-|---:|:---|
-| CTC037 | Diastic Machine |
-| CTC038 | Word Interactor |
-| CTC039 | Mad Libs Generator |
-| CTC040 | Word Counter |
-| CTC041 | Clappy Bird |
-| CTC042 | Markov Chain Name Generator |
-| CTC043 | Context-Free Grammar |
-| CTC044 | AFINN-111 Sentiment Analysis |
-| CTC045 | Saving p5.js Drawings to Firebase |
-| CTC046 | Asteroids |
-| CTC047 | Pixel Sorting in Processing |
-| CTC048 | White House Social Media Data Visualization |
-| CTC049 | Photo Mosaic with White House Social Media Images |
-| CTC050 | Circle Packing |
-| CTC051 | A* Pathfinding Algorithm |
-| CTC052 | Random Walker |
-| CTC053 | Random Walker with Vectors and Lévy Flight |
-| CTC054 | Islamic Star Patterns |
-| CTC055 | Mathematical Rose Patterns |
-| CTC056 | Attraction and Repulsion Forces |
-| CTC057 | Mapping Earthquake Data |
-| CTC058 | 3D Earthquake Data Visualization |
-| CTC059 | Steering Behaviors |
-| CTC060 | Butterfly Generator |
-| CTC061 | Fractal Spirograph |
-| CTC062 | Plinko with Matter.js |
-| CTC063 | Texturing Cloth Simulation |
-| CTC064 | Kinematics |
-| CTC065 | Binary Tree |
-| CTC066 | JavaScript Countdown Timer |
-| CTC067 | Pong! |
-| CTC068 | Breadth-First Search |
-| CTC069 | Evolutionary Steering Behaviors |
-| CTC070 | Nearest Neighbors Recommendation Engine |
-| CTC071 | Minesweeper |
-| CTC072 | Frogger |
-| CTC073 | Acrostic |
-| CTC074 | Clock |
-| CTC075 | Wikipedia API |
-| CTC076 | 10Print |
-| CTC077 | Recursion |
-| CTC078 | Simple Particle System |
-| CTC079 | Number Guessing Chatbot |
-| CTC080 | Voice Chatbot with p5.Speech |
-| CTC081 | Circle Morphing |
-| CTC082 | Image Chrome Extension - The Ex-Kitten-sion! |
-| CTC083 | Chrome Extension with p5.js Sketch - Doodle Chrome Extension |
-| CTC084 | Word Definition Chrome Extension |
-| CTC085 | The Game of Life |
-| CTC086 | Cube Wave by Bees and Bombs |
-| CTC087 | 3D Knots |
-| CTC088 | Snowfall |
-| CTC089 | Langton's Ant |
-| CTC090 | Floyd-Steinberg Dithering |
-| CTC091 | Snakes & Ladders |
-| CTC092 | XOR Problem |
-| CTC093 | Double Pendulum |
-| CTC094 | 2048 Sliding Puzzle Game |
-| CTC095 | Approximating the Value of Pi |
-| CTC096 | Visualizing the Digits of Pi |
-| CTC097 | The Book of Pi |
-| CTC098 | Quadtree |
-| CTC099 | Neural Network Color Predictor |
-| CTC100 | Neuroevolution Flappy Bird |
-| CTC101 | May the 4th Scrolling Text |
+| # | Name | Pre-comments |
+|---:|:---|:---|
+| CTC037 | Diastic Machine | Some way to get user text input must be implented. |
+| CTC038 | Word Interactor | First actual UI components and its events. Same as CTC037 (with an Edit component) and Button component.  |
+| CTC039 | Mad Libs Generator | URL Retrieving, maybe use local data? |
+| CTC040 | Word Counter | URL Retrieving |
+| CTC041 | Clappy Bird | Sound input. SDL_Mixer |
+| CTC042 | Markov Chain Name Generator |  |
+| CTC043 | Context-Free Grammar | It uses tracery.js |
+| CTC044 | AFINN-111 Sentiment Analysis | JSON reading? It's easier read .txt file... |
+| CTC045 | Saving p5.js Drawings to Firebase |  |
+| CTC046 | Asteroids |  |
+| CTC047 | Pixel Sorting in Processing |  |
+| CTC048 | White House Social Media Data Visualization |  |
+| CTC049 | Photo Mosaic with White House Social Media Images |  |
+| CTC050 | Circle Packing |  |
+| CTC051 | A* Pathfinding Algorithm |  |
+| CTC052 | Random Walker |  |
+| CTC053 | Random Walker with Vectors and Lévy Flight |  |
+| CTC054 | Islamic Star Patterns |  |
+| CTC055 | Mathematical Rose Patterns |  |
+| CTC056 | Attraction and Repulsion Forces |  |
+| CTC057 | Mapping Earthquake Data |  |
+| CTC058 | 3D Earthquake Data Visualization |  |
+| CTC059 | Steering Behaviors |  |
+| CTC060 | Butterfly Generator |  |
+| CTC061 | Fractal Spirograph |  |
+| CTC062 | Plinko with Matter.js |  |
+| CTC063 | Texturing Cloth Simulation |  |
+| CTC064 | Kinematics |  |
+| CTC065 | Binary Tree |  |
+| CTC066 | JavaScript Countdown Timer |  |
+| CTC067 | Pong! |  |
+| CTC068 | Breadth-First Search |  |
+| CTC069 | Evolutionary Steering Behaviors |  |
+| CTC070 | Nearest Neighbors Recommendation Engine |  |
+| CTC071 | Minesweeper |  |
+| CTC072 | Frogger |  |
+| CTC073 | Acrostic |  |
+| CTC074 | Clock |  |
+| CTC075 | Wikipedia API |  |
+| CTC076 | 10Print |  |
+| CTC077 | Recursion |  |
+| CTC078 | Simple Particle System |  |
+| CTC079 | Number Guessing Chatbot |  |
+| CTC080 | Voice Chatbot with p5.Speech |  |
+| CTC081 | Circle Morphing |  |
+| CTC082 | Image Chrome Extension - The Ex-Kitten-sion! |  |
+| CTC083 | Chrome Extension with p5.js Sketch - Doodle Chrome Extension |  |
+| CTC084 | Word Definition Chrome Extension |  |
+| CTC085 | The Game of Life |  |
+| CTC086 | Cube Wave by Bees and Bombs |  |
+| CTC087 | 3D Knots |  |
+| CTC088 | Snowfall |  |
+| CTC089 | Langton's Ant |  |
+| CTC090 | Floyd-Steinberg Dithering |  |
+| CTC091 | Snakes & Ladders |  |
+| CTC092 | XOR Problem |  |
+| CTC093 | Double Pendulum |  |
+| CTC094 | 2048 Sliding Puzzle Game |  |
+| CTC095 | Approximating the Value of Pi |  |
+| CTC096 | Visualizing the Digits of Pi |  |
+| CTC097 | The Book of Pi |  |
+| CTC098 | Quadtree |  |
+| CTC099 | Neural Network Color Predictor |  |
+| CTC100 | Neuroevolution Flappy Bird |  |
+| CTC101 | May the 4th Scrolling Text |  |
 
 
 

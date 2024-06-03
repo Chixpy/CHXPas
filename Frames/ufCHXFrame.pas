@@ -2,7 +2,7 @@ unit ufCHXFrame;
 
 {< TfmCHXFrame frame unit.
 
-  (C) 2006-2023 Chixpy https://github.com/Chixpy
+  (C) 2006-2024 Chixpy https://github.com/Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -16,8 +16,6 @@ uses
 type
   { TfmCHXFrame }
   TfmCHXFrame = class(TFrame)
-  private
-
   protected
     procedure DoLoadGUIConfig(aIniFile: TIniFile); virtual;
     procedure DoSaveGUIConfig(aIniFile: TIniFile); virtual;

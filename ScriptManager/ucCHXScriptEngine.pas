@@ -2,10 +2,10 @@ unit ucCHXScriptEngine;
 
 {< cCHXScriptEngine class unit.
 
-  Copyright (C) 2006-2023 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
-{$DEFINE PS_USESSUPPORT}
+{$DEFINE PS_USESSUPPORT} // Doesn't work here
 
 interface
 
@@ -77,33 +77,16 @@ type
 
   cCHXScriptEngine = class(TObject)
   private
-    FOnAskFile: TCHXSEAskFileCB;
-    FOnAskFolder: TCHXSEAskFolderCB;
-    FOnAskMultiFile: TCHXSEAskMultiFileCB;
-    FOnAskOption: TCHXSEAskOptionCB;
-    FOnAskYesNoCancel: TCHXSEAskYesNoCancelCB;
     FOnLine: TNotifyEvent;
-    FOnReadLn: TCHXSEReadLnCB;
-    FOnWriteLn: TCHXSEWriteLnCB;
-    FPasScript: TPSScriptDebugger;
-    FScriptError: TStrings;
-    function getScriptFile: string;
-    function getScriptText: TStrings;
-    procedure SetOnAskFile(AValue: TCHXSEAskFileCB);
-    procedure SetOnAskFolder(AValue: TCHXSEAskFolderCB);
-    procedure SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
-    procedure SetOnAskOption(AValue: TCHXSEAskOptionCB);
-    procedure SetOnAskYesNoCancel(AValue: TCHXSEAskYesNoCancelCB);
+    FPasScript : TPSScriptDebugger;
+    function GetScriptFile: string; inline;
+    function GetScriptText: TStrings; inline;
     procedure SetOnLine(AValue: TNotifyEvent);
-    procedure SetOnReadLn(AValue: TCHXSEReadLnCB);
-    procedure SetOnWriteLn(AValue: TCHXSEWriteLnCB);
-    procedure SetPasScript(AValue: TPSScriptDebugger);
-    procedure SetScriptError(AValue: TStrings);
-    procedure setScriptFile(AValue: string);
-    procedure setScriptText(AValue: TStrings);
+    procedure SetScriptFile(AValue: string); inline;
+    procedure SetScriptText(AValue: TStrings); inline;
 
   protected
-    property PasScript: TPSScriptDebugger read FPasScript write SetPasScript;
+    property PasScript: TPSScriptDebugger read FPasScript;
     {< PSScript object.}
 
     procedure PasScriptOnCompImport(Sender: TObject;
@@ -138,25 +121,22 @@ type
     function CHXCreateStringList: TStringList;
 
   public
-    property ScriptFile: string read getScriptFile write setScriptFile;
+    {property} ScriptError: TStrings;
 
-    property ScriptText: TStrings read getScriptText write setScriptText;
+    {property} OnWriteLn: TCHXSEWriteLnCB;
+    {property} OnReadLn: TCHXSEReadLnCB;
+    {property} OnAskFile: TCHXSEAskFileCB;
+    {property} OnAskMultiFile: TCHXSEAskMultiFileCB;
+    {property} OnAskFolder: TCHXSEAskFolderCB;
+    {property} OnAskOption: TCHXSEAskOptionCB;
+    {property} OnAskYesNoCancel: TCHXSEAskYesNoCancelCB;
 
-    property ScriptError: TStrings read FScriptError write SetScriptError;
+    property ScriptFile: string read GetScriptFile write SetScriptFile;
+
+    property ScriptText: TStrings read GetScriptText write SetScriptText;
 
     property OnLine: TNotifyEvent read FOnLine write SetOnLine;
 
-    property OnWriteLn: TCHXSEWriteLnCB read FOnWriteLn write SetOnWriteLn;
-    property OnReadLn: TCHXSEReadLnCB read FOnReadLn write SetOnReadLn;
-    property OnAskFile: TCHXSEAskFileCB read FOnAskFile write SetOnAskFile;
-    property OnAskMultiFile: TCHXSEAskMultiFileCB
-      read FOnAskMultiFile write SetOnAskMultiFile;
-    property OnAskFolder: TCHXSEAskFolderCB
-      read FOnAskFolder write SetOnAskFolder;
-    property OnAskOption: TCHXSEAskOptionCB
-      read FOnAskOption write SetOnAskOption;
-    property OnAskYesNoCancel: TCHXSEAskYesNoCancelCB
-      read FOnAskYesNoCancel write SetOnAskYesNoCancel;
 
     function RunScript: boolean;
     procedure Stop;
@@ -171,47 +151,14 @@ implementation
 { cCHXScriptEngine }
 
 
-function cCHXScriptEngine.getScriptFile: string;
+function cCHXScriptEngine.GetScriptFile: string;
 begin
   Result := PasScript.MainFileName;
 end;
 
-function cCHXScriptEngine.getScriptText: TStrings;
+function cCHXScriptEngine.GetScriptText: TStrings;
 begin
   Result := PasScript.Script;
-end;
-
-procedure cCHXScriptEngine.SetOnAskFile(AValue: TCHXSEAskFileCB);
-begin
-  if FOnAskFile = AValue then
-    Exit;
-  FOnAskFile := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOnAskFolder(AValue: TCHXSEAskFolderCB);
-begin
-  if FOnAskFolder = AValue then
-    Exit;
-  FOnAskFolder := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOnAskMultiFile(AValue: TCHXSEAskMultiFileCB);
-begin
-  if FOnAskMultiFile = AValue then
-    Exit;
-  FOnAskMultiFile := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOnAskOption(AValue: TCHXSEAskOptionCB);
-begin
-  if FOnAskOption = AValue then Exit;
-  FOnAskOption := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOnAskYesNoCancel(AValue: TCHXSEAskYesNoCancelCB);
-begin
-  if FOnAskYesNoCancel = AValue then Exit;
-  FOnAskYesNoCancel := AValue;
 end;
 
 procedure cCHXScriptEngine.SetOnLine(AValue: TNotifyEvent);
@@ -222,40 +169,12 @@ begin
   PasScript.OnLine := OnLine;
 end;
 
-procedure cCHXScriptEngine.SetOnReadLn(AValue: TCHXSEReadLnCB);
-begin
-  if FOnReadLn = AValue then
-    Exit;
-  FOnReadLn := AValue;
-end;
-
-procedure cCHXScriptEngine.SetOnWriteLn(AValue: TCHXSEWriteLnCB);
-begin
-  if FOnWriteLn = AValue then
-    Exit;
-  FOnWriteLn := AValue;
-end;
-
-procedure cCHXScriptEngine.SetPasScript(AValue: TPSScriptDebugger);
-begin
-  if FPasScript = AValue then
-    Exit;
-  FPasScript := AValue;
-end;
-
-procedure cCHXScriptEngine.SetScriptError(AValue: TStrings);
-begin
-  if FScriptError = AValue then
-    Exit;
-  FScriptError := AValue;
-end;
-
-procedure cCHXScriptEngine.setScriptFile(AValue: string);
+procedure cCHXScriptEngine.SetScriptFile(AValue: string);
 begin
   PasScript.MainFileName := SetAsFile(AValue);
 end;
 
-procedure cCHXScriptEngine.setScriptText(AValue: TStrings);
+procedure cCHXScriptEngine.SetScriptText(AValue: TStrings);
 begin
   PasScript.Script := AValue;
 end;

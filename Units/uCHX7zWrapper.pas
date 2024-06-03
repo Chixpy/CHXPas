@@ -39,7 +39,7 @@ resourcestring
     LineEnding + 'File: "%0:s"';
   //< Translatable string: '7z.exe/7zG.exe warning %1:d exit code.'
   rsw7zNoCRC32 = 'Error extracting CRC32: "%0:s"';
-//< Translatable string: 'Error extracting CRC32: %0:s'
+  //< Translatable string: 'Error extracting CRC32: %0:s'
 
 const
   // Experimental Global Cache
@@ -62,12 +62,12 @@ const
      ones. A program can drop or add supported extensions. After all, it's
      only a reference list. }
 
-function w7zGetErrorList: TStringList;
-function w7zGetLastError: string;
-procedure w7zSetErrorListFile(aFile: string = '');
+function w7zGetErrorList : TStringList;
+function w7zGetLastError : string;
+procedure w7zSetErrorListFile(aFile : string = '');
 
-function w7zGetFileExts: string;
-procedure w7zSetFileExts(aExtList: string = '');
+function w7zGetFileExts : string;
+procedure w7zSetFileExts(aExtList : string = '');
 {< Get/Set default file extensions. Empty restore default ones.
 
   String with suported file extensions by 7z.
@@ -79,31 +79,31 @@ procedure w7zSetFileExts(aExtList: string = '');
     compressed files. It's only a reference list.
 }
 
-function w7zPathsOK: boolean;
+function w7zPathsOK : Boolean;
 
-function w7zGetPathTo7zexe: string;
-procedure w7zSetPathTo7zexe(aPath: string);
+function w7zGetPathTo7zexe : string;
+procedure w7zSetPathTo7zexe(aPath : string);
 {< Path to 7z.exe executable.
 
   It can be useful for hidding the process, but it's
     needed for listing archives anyways.
 }
 
-function w7zGetPathTo7zGexe: string;
-procedure w7zSetPathTo7zGexe(aPath: string);
+function w7zGetPathTo7zGexe : string;
+procedure w7zSetPathTo7zGexe(aPath : string);
 {< Path to 7zG.exe executable.
 
   Absolute path
 }
-function w7zGetCacheDir: string;
-procedure w7zSetCacheDir(aPath: string);
+function w7zGetCacheDir : string;
+procedure w7zSetCacheDir(aPath : string);
 {< Directory were lists of files from compressed archives are stored.
 
   Defaults to '%USERTEMPDIR%/w7zCache', and the directory is deleted at
     program exit.
 }
-function w7zGetGlobalCache: string;
-procedure w7zSetGlobalCache(aPath: string);
+function w7zGetGlobalCache : string;
+procedure w7zSetGlobalCache(aPath : string);
 {< ¡EXPERIMENTAL!
 
   Similar to w7zCacheDir, but different folder structure:
@@ -112,12 +112,12 @@ procedure w7zSetGlobalCache(aPath: string);
   NOT DELETED AT EXIT. FOLDER MUST EXISTS.
 }
 
-function w7zFileExists(a7zArchive: string; aInnerFile: string;
-  const Password: string): integer;
+function w7zFileExists(a7zArchive : string; aInnerFile : string;
+  const Password : string) : Integer;
 {< Search if a file exists.}
 
-procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean; const Password: string);
+procedure w7zListFiles(a7zArchive : string; PackedFiles : TStrings;
+  const OnlyPaths : Boolean; const Password : string);
 {< List files and properties in a 7z (or other format) archive.
 
   Executes "7z.exe l -slt aFilename" but don't use wildcards.
@@ -137,8 +137,8 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
   @return(Exit code)
 }
 
-procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
-  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
+procedure w7zFilesByExt(AOutFolderList, AOutFileList : TStrings;
+  aBaseFolder : string; aExtList : TStrings; Recursive : Boolean);
 {< Searches all files with selected extensions, searching in compressed
    archives too.
 
@@ -155,9 +155,9 @@ procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
        have internal folder structure file are found any way)
 }
 
-function w7zExtractFile(a7zArchive: string; const aFileMask: string;
-  aFolder: string; const ShowProgress: boolean;
-  const Password: string): integer;
+function w7zExtractFile(a7zArchive : string; const aFileMask : string;
+  aFolder : string; const ShowProgress : Boolean;
+  const Password : string) : Integer;
 {< Extract de file (or files) from 7z archive.
 
   @param(aFilename Name of the 7z archive.)
@@ -169,8 +169,8 @@ function w7zExtractFile(a7zArchive: string; const aFileMask: string;
   @return(Exit code)
 }
 
-function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
-  const ShowProgress: boolean; const CompType: string = ''): integer;
+function w7zCompressFile(a7zArchive : string; aFileList : TStrings;
+  const ShowProgress : Boolean; const CompType : string = '') : Integer;
 {< Compress files in a 7z (or other type) archive.
 
   @param(a7zArchive Name of the 7z/zip archive.)
@@ -180,9 +180,9 @@ function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
   @return(Exit code)
 }
 
-function w7zCompressFolder(a7zArchive, aFolder: string;
-  IncludeRoot: boolean; const ShowProgress: boolean;
-  const CompType: string = ''): integer;
+function w7zCompressFolder(a7zArchive, aFolder : string;
+  IncludeRoot : Boolean; const ShowProgress : Boolean;
+  const CompType : string = '') : Integer;
 {< Compress files in a 7z (or other type) archive.
 
   @param(a7zArchive Name of the 7z/zip archive.)
@@ -193,22 +193,22 @@ function w7zCompressFolder(a7zArchive, aFolder: string;
   @return(Exit code)
 }
 
-function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
-  const Password: string): cardinal;
-function w7zCRC32InnerFileStr(a7zArchive: string; aInnerFile: string;
-  const Password: string): string;
-function w7zSHA32InnerFile(a7zArchive: string; const aInnerFile: string;
-  const Password: string): TSHA1Digest;
-function w7zSHA32InnerFileStr(a7zArchive: string; aInnerFile: string;
-  const Password: string): string;
+function w7zCRC32InnerFile(a7zArchive : string; const aInnerFile : string;
+  const Password : string) : Cardinal;
+function w7zCRC32InnerFileStr(a7zArchive : string; aInnerFile : string;
+  const Password : string) : string;
+function w7zSHA32InnerFile(a7zArchive : string; const aInnerFile : string;
+  const Password : string) : TSHA1Digest;
+function w7zSHA32InnerFileStr(a7zArchive : string; aInnerFile : string;
+  const Password : string) : string;
 
 implementation
 
 var
-  w7zPathTo7zexeOK: boolean;
-  w7zPathTo7zGexeOK: boolean;
+  w7zPathTo7zexeOK : Boolean;
+  w7zPathTo7zGexeOK : Boolean;
 
-  w7zFileExts: string;
+  w7zFileExts : string;
   {< String with suported file extensions by 7z.
 
      Format: 'ext,ext,ext' for easy creating a TStringList. At least until
@@ -217,24 +217,24 @@ var
      Warning: It's not used for test if the files passed as params are
        compressed files. It's only a reference list.
   }
-  w7zPathTo7zexe: string;
+  w7zPathTo7zexe : string;
   {< Path to 7z.exe executable.
 
     It can be useful for hidding the process, but it's
       needed for listing archives anyways.
   }
-  w7zPathTo7zGexe: string;
+  w7zPathTo7zGexe : string;
   {< Path to 7zG.exe executable.
   }
 
-  w7zCacheDir: string;
+  w7zCacheDir : string;
   {< Directory were lists of files from compressed archives are stored.
 
     Defaults to '%USERTEMPDIR%/w7zCache', and the directory is deleted at
       program exit.
   }
 
-  w7zGlobalCache: string;
+  w7zGlobalCache : string;
 
   {< ¡EXPERIMENTAL!
 
@@ -243,18 +243,18 @@ var
 
     NOT DELETED AT EXIT. FOLDER MUST EXISTS.
   }
-  w7zErrorListFile: string;
-  w7zErrorList: TStringList;
+  w7zErrorListFile : string;
+  w7zErrorList : TStringList;
 
   {< Keeps a list of errors produced.
   }
-procedure w7zErrorAdd(const aFunction, aError: string);
+procedure w7zErrorAdd(const aFunction, aError : string);
 begin
   w7zErrorList.Add(Format(rsw7zErrorLine, [DateTimeToStr(Now),
     aFunction, aError]));
 end;
 
-procedure w7zErrorAddStdErr(aStdErrSL: TStrings);
+procedure w7zErrorAddStdErr(aStdErrSL : TStrings);
 begin
   w7zErrorList.AddStrings(aStdErrSL);
 end;
@@ -266,12 +266,12 @@ begin
     w7zErrorList.Add('');
 end;
 
-procedure SaveGlobalCache(FileSHA1: string; PackedFiles: TStrings);
+procedure SaveGlobalCache(FileSHA1 : string; PackedFiles : TStrings);
 var
-  aFile: string;
-  sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1: TStringList;
-  aIni: TMemIniFile;
-  i: integer;
+  aFile : string;
+  sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1 : TStringList;
+  aIni : TMemIniFile;
+  i : Integer;
 begin
   if (w7zGetGlobalCache = '') or
     (not DirectoryExistsUTF8(w7zGetGlobalCache)) then
@@ -332,12 +332,12 @@ begin
   end;
 end;
 
-function w7zGetErrorList: TStringList;
+function w7zGetErrorList : TStringList;
 begin
   Result := w7zErrorList;
 end;
 
-function w7zGetLastError: string;
+function w7zGetLastError : string;
 begin
   if w7zErrorList.Count > 0 then
     Result := w7zErrorList[w7zErrorList.Count - 1]
@@ -345,22 +345,22 @@ begin
     Result := '';
 end;
 
-procedure w7zSetErrorListFile(aFile: string);
+procedure w7zSetErrorListFile(aFile : string);
 begin
   w7zErrorListFile := aFile;
 end;
 
-function w7zPathsOK: boolean;
+function w7zPathsOK : Boolean;
 begin
   Result := w7zPathTo7zexeOK and w7zPathTo7zGexeOK;
 end;
 
-function w7zGetFileExts: string;
+function w7zGetFileExts : string;
 begin
   Result := w7zFileExts;
 end;
 
-procedure w7zSetFileExts(aExtList: string);
+procedure w7zSetFileExts(aExtList : string);
 begin
   if aExtList = '' then
     w7zFileExts := kw7zFileExts
@@ -368,12 +368,12 @@ begin
     w7zFileExts := aExtList;
 end;
 
-function w7zGetPathTo7zexe: string;
+function w7zGetPathTo7zexe : string;
 begin
   Result := w7zPathTo7zexe;
 end;
 
-procedure w7zSetPathTo7zexe(aPath: string);
+procedure w7zSetPathTo7zexe(aPath : string);
 begin
   w7zPathTo7zexe := CleanAndExpandFilename(SetAsFile(aPath));
   w7zPathTo7zexeOK := FileExistsUTF8(w7zPathTo7zexe);
@@ -385,12 +385,12 @@ begin
     w7zErrorOK;
 end;
 
-function w7zGetPathTo7zGexe: string;
+function w7zGetPathTo7zGexe : string;
 begin
   Result := w7zPathTo7zGexe;
 end;
 
-procedure w7zSetPathTo7zGexe(aPath: string);
+procedure w7zSetPathTo7zGexe(aPath : string);
 begin
   w7zPathTo7zGexe := CleanAndExpandFilename(SetAsFile(aPath));
   w7zPathTo7zGexeOK := FileExistsUTF8(w7zPathTo7zGexe);
@@ -402,12 +402,12 @@ begin
     w7zErrorOK;
 end;
 
-function w7zGetCacheDir: string;
+function w7zGetCacheDir : string;
 begin
   Result := w7zCacheDir;
 end;
 
-procedure w7zSetCacheDir(aPath: string);
+procedure w7zSetCacheDir(aPath : string);
 begin
   if aPath = '' then
     aPath := SetAsFolder(GetTempDir(False)) + 'w7zCache';
@@ -420,21 +420,21 @@ begin
   w7zCacheDir := aPath;
 end;
 
-function w7zGetGlobalCache: string;
+function w7zGetGlobalCache : string;
 begin
   Result := w7zGlobalCache;
 end;
 
-procedure w7zSetGlobalCache(aPath: string);
+procedure w7zSetGlobalCache(aPath : string);
 begin
   w7zGlobalCache := SetAsFolder(aPath);
 end;
 
-function w7zFileExists(a7zArchive: string; aInnerFile: string;
-  const Password: string): integer;
+function w7zFileExists(a7zArchive : string; aInnerFile : string;
+  const Password : string) : Integer;
 var
-  aFileList: TStringList;
-  i: integer;
+  aFileList : TStringList;
+  i : Integer;
 begin
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
@@ -467,13 +467,13 @@ begin
   end;
 end;
 
-procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
-  const OnlyPaths: boolean; const Password: string);
+procedure w7zListFiles(a7zArchive : string; PackedFiles : TStrings;
+  const OnlyPaths : Boolean; const Password : string);
 
-  procedure ReturnOnlyPaths(aFileList: TStrings);
+  procedure ReturnOnlyPaths(aFileList : TStrings);
   var
-    slLine: TStringList;
-    i: integer;
+    slLine : TStringList;
+    i : Integer;
   begin
     // Removing additional data
     // slLine is out of the iteration to avoid creating-deleting every time.
@@ -499,13 +499,13 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
     end;
   end;
 
-  procedure LoadFromGlobalCache(FileSHA1: string; PackedFiles: TStrings;
-    OnlyPaths: boolean);
+  procedure LoadFromGlobalCache(FileSHA1 : string; PackedFiles : TStrings;
+    OnlyPaths : Boolean);
   var
-    aFile: string;
-    sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1: TStringList;
-    aIni: TMemIniFile;
-    i: integer;
+    aFile : string;
+    sl, slPath, slSizes, slPSizes, slDates, slCRC, slSHA1 : TStringList;
+    aIni : TMemIniFile;
+    i : Integer;
   begin
     aFile := SetAsFolder(w7zGetGlobalCache + Copy(FileSHA1, 1, 1)) +
       Copy(FileSHA1, 1, 3) + '.ini';
@@ -578,15 +578,13 @@ procedure w7zListFiles(a7zArchive: string; PackedFiles: TStrings;
       end;
     end;
   end;
-
 var
-  FileSHA1: string;
-  aPos, i: integer;
-  slLine, slOutput: TStringList;
-  aParam, aValue: string;
-  sOutput, sStdErr: string;
-  aPath, Size, PSize, aDate, aCRC, aSHA1: string;
-
+  FileSHA1 : string;
+  aPos, i : Integer;
+  slLine, slOutput : TStringList;
+  aParam, aValue : string;
+  sOutput, sStdErr : string;
+  aPath, Size, PSize, aDate, aCRC, aSHA1 : string;
 begin
   // Clearing PackedFiles file list
   if Assigned(PackedFiles) then
@@ -774,12 +772,12 @@ begin
   w7zErrorOK;
 end;
 
-procedure w7zFilesByExt(AOutFolderList, AOutFileList: TStrings;
-  aBaseFolder: string; aExtList: TStrings; Recursive: boolean);
+procedure w7zFilesByExt(AOutFolderList, AOutFileList : TStrings;
+  aBaseFolder : string; aExtList : TStrings; Recursive : Boolean);
 var
-  FileMask: string;
-  Archives, Compressed: TStringList;
-  i, j: integer;
+  FileMask : string;
+  Archives, Compressed : TStringList;
+  i, j : Integer;
 begin
   if not assigned(AOutFolderList) then
     AOutFolderList := TStringList.Create;
@@ -844,13 +842,13 @@ begin
 end;
 
 
-function w7zExtractFile(a7zArchive: string; const aFileMask: string;
-  aFolder: string; const ShowProgress: boolean;
-  const Password: string): integer;
+function w7zExtractFile(a7zArchive : string; const aFileMask : string;
+  aFolder : string; const ShowProgress : Boolean;
+  const Password : string) : Integer;
 var
-  aExeString: string;
-  Params, slOutput: TStringList;
-  sStdOut, sStdErr: string;
+  aExeString : string;
+  Params, slOutput : TStringList;
+  sStdOut, sStdErr : string;
 begin
   Result := -1;
 
@@ -950,13 +948,13 @@ begin
   w7zErrorOK;
 end;
 
-function w7zCompressFile(a7zArchive: string; aFileList: TStrings;
-  const ShowProgress: boolean; const CompType: string): integer;
+function w7zCompressFile(a7zArchive : string; aFileList : TStrings;
+  const ShowProgress : Boolean; const CompType : string) : Integer;
 var
-  aExeString: string;
-  i: integer;
-  sStdOut, sStdErr: string;
-  Params, slOutput: TStringList;
+  aExeString : string;
+  i : Integer;
+  sStdOut, sStdErr : string;
+  Params, slOutput : TStringList;
 begin
   Result := -1;
 
@@ -1048,13 +1046,13 @@ begin
   w7zErrorOK;
 end;
 
-function w7zCompressFolder(a7zArchive, aFolder: string;
-  IncludeRoot: boolean; const ShowProgress: boolean;
-  const CompType: string): integer;
+function w7zCompressFolder(a7zArchive, aFolder : string;
+  IncludeRoot : Boolean; const ShowProgress : Boolean;
+  const CompType : string) : Integer;
 var
-  aExeString: string;
-  sStdOut, sStdErr: string;
-  Params, slOutput: TStringList;
+  aExeString : string;
+  sStdOut, sStdErr : string;
+  Params, slOutput : TStringList;
 begin
   Result := -1;
 
@@ -1149,23 +1147,23 @@ begin
   w7zErrorOK;
 end;
 
-function w7zCRC32InnerFile(a7zArchive: string; const aInnerFile: string;
-  const Password: string): cardinal;
+function w7zCRC32InnerFile(a7zArchive : string; const aInnerFile : string;
+  const Password : string) : Cardinal;
 begin
   // Sometime are stored as directories
   a7zArchive := ExcludeTrailingPathDelimiter(a7zArchive);
 
-  Result := StrToCardinalDef('$' + w7zCRC32InnerFileStr(a7zArchive,
+  Result := StrToUIntDef('$' + w7zCRC32InnerFileStr(a7zArchive,
     aInnerFile, Password), 0);
 end;
 
-function w7zCRC32InnerFileStr(a7zArchive: string; aInnerFile: string;
-  const Password: string): string;
+function w7zCRC32InnerFileStr(a7zArchive : string; aInnerFile : string;
+  const Password : string) : string;
 var
-  aFileList, TmpStrList: TStringList;
-  Found: boolean;
-  FileSHA1: string;
-  i: integer;
+  aFileList, TmpStrList : TStringList;
+  Found : Boolean;
+  FileSHA1 : string;
+  i : Integer;
 begin
   Result := '';
 
@@ -1239,20 +1237,20 @@ begin
   end;
 end;
 
-function w7zSHA32InnerFile(a7zArchive: string; const aInnerFile: string;
-  const Password: string): TSHA1Digest;
+function w7zSHA32InnerFile(a7zArchive : string; const aInnerFile : string;
+  const Password : string) : TSHA1Digest;
 begin
   Result := StringToSHA1Digest(w7zSHA32InnerFileStr(
     a7zArchive, aInnerFile, Password));
 end;
 
-function w7zSHA32InnerFileStr(a7zArchive: string; aInnerFile: string;
-  const Password: string): string;
+function w7zSHA32InnerFileStr(a7zArchive : string; aInnerFile : string;
+  const Password : string) : string;
 var
-  aFileList, TmpStrList: TStringList;
-  Found: boolean;
-  FileSHA1: string;
-  i: integer;
+  aFileList, TmpStrList : TStringList;
+  Found : Boolean;
+  FileSHA1 : string;
+  i : Integer;
 begin
   Result := '';
 

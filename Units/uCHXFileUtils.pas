@@ -12,7 +12,7 @@ uses
   uCHXStrUtils;
 
 const
-  kCHXSHA1Empty: TSHA1Digest =
+  kCHXSHA1Empty : TSHA1Digest =
     (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   krsRenameFileFmt = '%0:s (%1:.2d)%2:s';
   {< Filename (00).ext
@@ -24,41 +24,41 @@ const
   krsPreviousDirDot = '..';
 
 type
-  TItFolderObj = function(aFolder: string;
-    FileInfo: TSearchRec): boolean of object;
-  TItFolderFun = function(aFolder: string; FileInfo: TSearchRec): boolean;
+  TItFolderObj = function(const aFolder : string;
+    const FileInfo : TSearchRec) : Boolean of object;
+  TItFolderFun = function(const aFolder : string;
+    const FileInfo : TSearchRec) : Boolean;
 
-function CHXCheckFileRename(const aFile: string): string;
+function CHXCheckFileRename(const aFile : string) : string;
 {< Checks if a file already exists, and change its name adding '(x)' }
 
 
 // Searching...
-function SearchFirstFileInFolderByExtCT(const aFolder: string;
-  const Extensions: string): string;
-function SearchFirstFileInFolderByExtSL(aFolder: string;
-  const Extensions: TStrings): string;
+function SearchFirstFileInFolderByExtCT(const aFolder : string;
+  const Extensions : string) : string;
+function SearchFirstFileInFolderByExtSL(aFolder : string; const Extensions : TStrings) : string;
 {< Searches first file found with a matched extension from a list in a folder.
 }
 
 // Some hashing
 // ------------
-function CRC32FileInt(const aFileName: string): cardinal;
+function CRC32FileInt(const aFileName : string) : Cardinal;
 {< Calculates CRC32 checksum of a file.
 }
-function CRC32FileStr(const aFileName: string): string;
+function CRC32FileStr(const aFileName : string) : string;
 {< Calculates CRC32 checksum of a file and return as string.
 }
-function SHA1FileStr(const aFileName: string): string;
+function SHA1FileStr(const aFileName : string) : string;
 {< Calculates SHA1 checksum of a file and return as string.
 }
-function StringToSHA1Digest(const aSHA1String: string): TSHA1Digest;
+function StringToSHA1Digest(const aSHA1String : string) : TSHA1Digest;
 
 // Iterating Folders
 // -----------------
-function IterateFolderObj(aFolder: string; aFunction: TItFolderObj;
-  Recursive: boolean = True): boolean;
-function IterateFolderFun(aFolder: string; aFunction: TItFolderFun;
-  Recursive: boolean = True): boolean;
+function IterateFolderObj(aFolder : string; aFunction : TItFolderObj;
+  const Recursive : Boolean = True) : Boolean;
+function IterateFolderFun(aFolder : string; aFunction : TItFolderFun;
+  const Recursive : Boolean = True) : Boolean;
 {< Recorre el directorio especificado y ejecuta aFuncion(TSearchRec) con cada uno
   de los archivos encontrados
 
@@ -76,19 +76,20 @@ Notas:
     False no pasa al siguiente archivo.
 }
 
-function FilesInFolder(aFolder, aFileMAsk: string): integer;
+function FilesInFolder(aFolder, aFileMAsk : string) : Integer;
 //< TODO 2: Is there a better way?
 
-function RemoveReadOnlyFileAttrib(aFolder: string; FileInfo: TSearchRec): boolean;
-procedure RemoveReadOnlyFolderRecursive(const aFolder: string);
+function RemoveReadOnlyFileAttrib(const aFolder : string;
+  const FileInfo : TSearchRec) : Boolean;
+procedure RemoveReadOnlyFolderRecursive(const aFolder : string);
 
 implementation
 
-function CRC32FileInt(const aFileName: string): cardinal;
+function CRC32FileInt(const aFileName : string) : Cardinal;
 var
-  aFile: TFileStream;
-  BufferCRC: array[0..32767] of char;
-  BufferSize: cardinal;
+  aFile : TFileStream;
+  BufferCRC : array[0..32767] of char;
+  BufferSize : Cardinal;
 begin
   BufferCRC[0] := #0; // Fix inicialization warning
   BufferSize := SizeOf(BufferCRC);
@@ -113,21 +114,21 @@ begin
   end;
 end;
 
-function CRC32FileStr(const aFileName: string): string;
+function CRC32FileStr(const aFileName : string) : string;
 begin
   Result := EmptyStr;
   if FileExistsUTF8(aFileName) then
     Result := IntToHex(CRC32FileInt(aFileName), 8);
 end;
 
-function SHA1FileStr(const aFileName: string): string;
+function SHA1FileStr(const aFileName : string) : string;
 begin
   Result := EmptyStr;
   if FileExistsUTF8(aFileName) then
     Result := SHA1Print(SHA1File(aFileName, MaxSmallint));
 end;
 
-function StringToSHA1Digest(const aSHA1String: string): TSHA1Digest;
+function StringToSHA1Digest(const aSHA1String : string) : TSHA1Digest;
 begin
   if Length(aSHA1String) < Length(TSHA1Digest) then
     Result := kCHXSHA1Empty
@@ -135,11 +136,10 @@ begin
     HexToBin(PChar(aSHA1String), @Result, Length(TSHA1Digest));
 end;
 
-function CHXCheckFileRename(const aFile: string): string;
-
+function CHXCheckFileRename(const aFile : string) : string;
 var
-  j: integer;
-  aFilePath, aFilename, aFileExt: string;
+  j : Integer;
+  aFilePath, aFilename, aFileExt : string;
 begin
   Result := aFile;
   aFilePath := ExtractFilePath(aFile);
@@ -154,10 +154,10 @@ begin
   end;
 end;
 
-function SearchFirstFileInFolderByExtCT(const aFolder: string;
-  const Extensions: string): string;
+function SearchFirstFileInFolderByExtCT(const aFolder : string;
+  const Extensions : string) : string;
 var
-  aTempSL: TStringList;
+  aTempSL : TStringList;
 begin
   aTempSL := TStringList.Create;
   try
@@ -168,10 +168,10 @@ begin
   end;
 end;
 
-function SearchFirstFileInFolderByExtSL(aFolder: string;
-  const Extensions: TStrings): string;
+function SearchFirstFileInFolderByExtSL(aFolder : string;
+  const Extensions : TStrings) : string;
 var
-  Info: TSearchRec;
+  Info : TSearchRec;
 begin
   Result := EmptyStr;
   aFolder := SetAsFolder(aFolder);
@@ -182,36 +182,36 @@ begin
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
-    try
-      repeat
-        if SupportedExtSL(Info.Name, Extensions) then
-          Result := aFolder + Info.Name;
-      until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
-    finally
-      FindCloseUTF8(Info);
-    end;
+  try
+    repeat
+      if SupportedExtSL(Info.Name, Extensions) then
+        Result := aFolder + Info.Name;
+    until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
+  finally
+    FindCloseUTF8(Info);
+  end;
 
   if Result <> EmptyStr then
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
-    try
-      repeat
-        if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
-          (Info.Name <> krsPreviousDirDot) and
-          ((Info.Attr and faDirectory) <> 0) then
-          Result := SearchFirstFileInFolderByExtSL(aFolder +
-            Info.Name, Extensions);
-      until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
-    finally
-      FindCloseUTF8(Info);
-    end;
+  try
+    repeat
+      if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+        (Info.Name <> krsPreviousDirDot) and
+        ((Info.Attr and faDirectory) <> 0) then
+        Result := SearchFirstFileInFolderByExtSL(aFolder +
+          Info.Name, Extensions);
+    until (Result <> EmptyStr) or (FindNextUTF8(Info) <> 0);
+  finally
+    FindCloseUTF8(Info);
+  end;
 end;
 
-function IterateFolderObj(aFolder: string; aFunction: TItFolderObj;
-  Recursive: boolean): boolean;
+function IterateFolderObj(aFolder : string; aFunction : TItFolderObj;
+  const Recursive : Boolean) : Boolean;
 var
-  Info: TSearchRec;
+  Info : TSearchRec;
 begin
   Result := True;
   aFolder := SetAsFolder(aFolder);
@@ -219,32 +219,32 @@ begin
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
+  try
+    repeat
+      Result := aFunction(aFolder, Info);
+    until (FindNextUTF8(Info) <> 0) or not Result;
+  finally
+    FindCloseUTF8(Info);
+  end;
+
+  if Recursive and Result then
+    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
     try
       repeat
-        Result := aFunction(aFolder, Info);
+        if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+          (Info.Name <> krsPreviousDirDot) and
+          ((Info.Attr and faDirectory) <> 0) then
+          Result := IterateFolderObj(aFolder + Info.Name, aFunction, True);
       until (FindNextUTF8(Info) <> 0) or not Result;
     finally
       FindCloseUTF8(Info);
     end;
-
-  if Recursive and Result then
-    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
-      try
-        repeat
-          if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
-            (Info.Name <> krsPreviousDirDot) and
-            ((Info.Attr and faDirectory) <> 0) then
-            Result := IterateFolderObj(aFolder + Info.Name, aFunction, True);
-        until (FindNextUTF8(Info) <> 0) or not Result;
-      finally
-        FindCloseUTF8(Info);
-      end;
 end;
 
-function IterateFolderFun(aFolder: string; aFunction: TItFolderFun;
-  Recursive: boolean): boolean;
+function IterateFolderFun(aFolder : string; aFunction : TItFolderFun;
+  const Recursive : Boolean) : Boolean;
 var
-  Info: TSearchRec;
+  Info : TSearchRec;
 begin
   Result := True;
   aFolder := SetAsFolder(aFolder);
@@ -254,31 +254,31 @@ begin
     Exit;
 
   if FindFirstUTF8(aFolder + AllFilesMask, faAnyFile, Info) = 0 then
+  try
+    repeat
+      Result := aFunction(aFolder, Info);
+    until (FindNextUTF8(Info) <> 0) or not Result;
+  finally
+    FindCloseUTF8(Info);
+  end;
+
+  if Recursive and Result then
+    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
     try
       repeat
-        Result := aFunction(aFolder, Info);
+        if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
+          (Info.Name <> krsPreviousDirDot) and
+          ((Info.Attr and faDirectory) <> 0) then
+          Result := IterateFolderFun(aFolder + Info.Name, aFunction, True);
       until (FindNextUTF8(Info) <> 0) or not Result;
     finally
       FindCloseUTF8(Info);
     end;
-
-  if Recursive and Result then
-    if FindFirstUTF8(aFolder + AllFilesMask, faDirectory, Info) = 0 then
-      try
-        repeat
-          if (Info.Name <> krsCurrDirDot) and (Info.Name <> EmptyStr) and
-            (Info.Name <> krsPreviousDirDot) and
-            ((Info.Attr and faDirectory) <> 0) then
-            Result := IterateFolderFun(aFolder + Info.Name, aFunction, True);
-        until (FindNextUTF8(Info) <> 0) or not Result;
-      finally
-        FindCloseUTF8(Info);
-      end;
 end;
 
-function FilesInFolder(aFolder, aFileMAsk: string): integer;
+function FilesInFolder(aFolder, aFileMAsk : string) : Integer;
 var
-  Info: TSearchRec;
+  Info : TSearchRec;
 begin
   // Podría usar IterateFolderObj pero no es plan de complicar la cosa
   Result := 0;
@@ -287,22 +287,23 @@ begin
     aFileMask := AllFilesMask;
 
   if FindFirstUTF8(aFolder + aFileMask, 0, Info) = 0 then
-    try
-      repeat
-        Inc(Result);
-      until (FindNextUTF8(Info) <> 0);
-    finally
-      FindCloseUTF8(Info);
-    end;
+  try
+    repeat
+      Inc(Result);
+    until (FindNextUTF8(Info) <> 0);
+  finally
+    FindCloseUTF8(Info);
+  end;
 end;
 
-function RemoveReadOnlyFileAttrib(aFolder: string; FileInfo: TSearchRec): boolean;
+function RemoveReadOnlyFileAttrib(const aFolder : string;
+  const FileInfo : TSearchRec) : Boolean;
 begin
   Result := True;
   FileSetAttr(aFolder + FileInfo.Name, FileInfo.Attr and not faReadOnly);
 end;
 
-procedure RemoveReadOnlyFolderRecursive(const aFolder: string);
+procedure RemoveReadOnlyFolderRecursive(const aFolder : string);
 begin
   IterateFolderFun(aFolder, @RemoveReadOnlyFileAttrib, True);
 end;

@@ -60,7 +60,6 @@ type
     procedure UpdateFolderData;
 
   public
-
     property FolderList: TStrings read FFolderList write SetFolderList;
     property CaptionList: TStrings read FCaptionList write SetCaptionList;
     property InitialFolder: string read FInitialFolder write SetInitialFolder;
@@ -109,9 +108,7 @@ end;
 
 procedure TfmCHXMultiFolderEditor.SetInitialFolder(AValue: string);
 begin
-  if FInitialFolder = AValue then
-    Exit;
-  FInitialFolder := AValue;
+  FInitialFolder := SetAsFolder(AValue);
 end;
 
 procedure TfmCHXMultiFolderEditor.lbxFolderCaptionsSelectionChange(

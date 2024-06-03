@@ -2,7 +2,7 @@ unit ufCHXProgressBar;
 
 {< TfmCHXProgressBar frame unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -63,34 +63,25 @@ type
 
   private
     FCancelable: boolean;
-    FContinue: boolean;
-    FLog: TStringList;
-    FLogFileName: string;
-    FNextTime: TDateTime;
-    FSaveLog: boolean;
-    FStartTime: TDateTime;
-    FUpdateInterval: TDateTime;
+    FLog : TStringList;
     procedure SetCancelable(AValue: boolean);
-    procedure SetContinue(AValue: boolean);
-    procedure SetLog(AValue: TStringList);
-    procedure SetLogFileName(AValue: string);
-    procedure SetNextTime(AValue: TDateTime);
-    procedure SetSaveLog(AValue: boolean);
-    procedure SetStartTime(AValue: TDateTime);
-    procedure SetUpdateInterval(AValue: TDateTime);
 
   protected
-    property StartTime: TDateTime read FStartTime write SetStartTime;
-    property NextTime: TDateTime read FNextTime write SetNextTime;
+    {property} StartTime: TDateTime;
+    {property} NextTime: TDateTime;
 
-    property Log: TStringList read FLog write SetLog;
+    property Log: TStringList read FLog;
 
     procedure DoLoadGUIConfig(aIniFile: TIniFile); override;
     procedure DoSaveGUIConfig(aIniFile: TIniFile); override;
 
   public
+    {property} Continue: boolean;
+    {property} UpdateInterval: TDateTime;
+    {property} SaveLog: boolean;
+    {property} LogFileName: string;
+
     property Cancelable: boolean read FCancelable write SetCancelable;
-    property Continue: boolean read FContinue write SetContinue;
 
     function UpdTextAndBar(const aAction, aInfo: string;
       const aValue, aMaxValue: int64; const IsCancelable: boolean): boolean;
@@ -104,13 +95,6 @@ type
 
     constructor Create(TheOwner: TComponent); override;
     destructor Destroy; override;
-
-  published
-    property UpdateInterval: TDateTime read FUpdateInterval
-      write SetUpdateInterval;
-    property SaveLog: boolean read FSaveLog write SetSaveLog;
-    property LogFileName: string read FLogFileName write SetLogFileName;
-
   end;
 
 
@@ -121,7 +105,6 @@ var
   frmCHXProgressBar: TfrmCHXForm;
   {< Singleton form. }
   fmCHXProgressBar: TfmCHXProgressBar;
-
 {< Internal CHXProgressBar of frmCHXProgressBar. }
 
 { TfmCHXProgressBar }
@@ -136,52 +119,6 @@ begin
 
   // Updating action if changed
   Application.ProcessMessages;
-end;
-
-procedure TfmCHXProgressBar.SetContinue(AValue: boolean);
-begin
-  if FContinue = AValue then
-    Exit;
-  FContinue := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetLog(AValue: TStringList);
-begin
-  if FLog = AValue then Exit;
-  FLog := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetLogFileName(AValue: string);
-begin
-  if FLogFileName = AValue then Exit;
-  FLogFileName := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetNextTime(AValue: TDateTime);
-begin
-  if FNextTime = AValue then
-    Exit;
-  FNextTime := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetSaveLog(AValue: boolean);
-begin
-  if FSaveLog = AValue then Exit;
-  FSaveLog := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetStartTime(AValue: TDateTime);
-begin
-  if FStartTime = AValue then
-    Exit;
-  FStartTime := AValue;
-end;
-
-procedure TfmCHXProgressBar.SetUpdateInterval(AValue: TDateTime);
-begin
-  if FUpdateInterval = AValue then
-    Exit;
-  FUpdateInterval := AValue;
 end;
 
 procedure TfmCHXProgressBar.DoLoadGUIConfig(aIniFile: TIniFile);

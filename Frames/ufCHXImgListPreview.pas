@@ -1,7 +1,7 @@
 unit ufCHXImgListPreview;
 {< TfmCHXImgListPreview frame unit.
 
-  Copyright (C) 2006-2023 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 

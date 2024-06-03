@@ -87,18 +87,14 @@ type
       var NodeDataSize: integer);
     procedure VSTGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+
   private
-    FCheckedList: TStringList;
+    FCheckedList : TStringList;
     FTagsFolder: string;
-    FOnCheckChange: TFuncCheckChange;
-    FTagsFileMask: string;
-    procedure SetCheckedList(AValue: TStringList);
-    procedure SetTagsFolder(AValue: string);
-    procedure SetOnCheckChange(AValue: TFuncCheckChange);
-    procedure SetTagsFileMask(AValue: string);
+    procedure SetTagsFolder(const AValue: string);
 
   protected
-    procedure SearchTagFiles(aFolder: string; aRootNode: PVirtualNode);
+    procedure SearchTagFiles(const aFolder: string; aRootNode: PVirtualNode);
 
     procedure UncheckAllFiles(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Data: Pointer; var Abort: boolean);
@@ -109,11 +105,12 @@ type
       aRootNode: PVirtualNode): PVirtualNode;
 
   public
+    {property} TagsFileMask: string;
+
+    {property} OnCheckChange: TFuncCheckChange;
+
+    property CheckedList: TStringList read FCheckedList;
     property TagsFolder: string read FTagsFolder write SetTagsFolder;
-    property TagsFileMask: string read FTagsFileMask write SetTagsFileMask;
-    property OnCheckChange: TFuncCheckChange
-      read FOnCheckChange write SetOnCheckChange;
-    property CheckedList: TStringList read FCheckedList write SetCheckedList;
 
     procedure UpdateTree;
 
@@ -246,35 +243,14 @@ begin
   end;
 end;
 
-procedure TfmCHXTagTree.SetCheckedList(AValue: TStringList);
-begin
-  if FCheckedList = AValue then
-    Exit;
-  FCheckedList := AValue;
-end;
-
-procedure TfmCHXTagTree.SetTagsFolder(AValue: string);
+procedure TfmCHXTagTree.SetTagsFolder(const AValue : string);
 begin
   FTagsFolder := SetAsFolder(AValue);
   UpdateTree;
 end;
 
-procedure TfmCHXTagTree.SetOnCheckChange(AValue: TFuncCheckChange);
-begin
-  if FOnCheckChange = AValue then
-    Exit;
-  FOnCheckChange := AValue;
-end;
-
-procedure TfmCHXTagTree.SetTagsFileMask(AValue: string);
-begin
-  if FTagsFileMask = AValue then
-    Exit;
-  FTagsFileMask := AValue;
-end;
-
-procedure TfmCHXTagTree.SearchTagFiles(aFolder: string;
-  aRootNode: PVirtualNode);
+procedure TfmCHXTagTree.SearchTagFiles(const aFolder : string;
+  aRootNode : PVirtualNode);
 var
   aList: TStringList;
   CurrNode: PVirtualNode;

@@ -11,7 +11,6 @@ inherited fmSMAskOption: TfmSMAskOption
     ClientWidth = 700
     inherited chkCloseOnSave: TCheckBox
       Left = 122
-      Width = 57
     end
     inherited bSave: TBitBtn
       Left = 301

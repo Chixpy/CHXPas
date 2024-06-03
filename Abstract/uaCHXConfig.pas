@@ -21,22 +21,16 @@ type
     procedure ResetDefaultConfig; virtual; abstract;
     {< Sets config properties to default values. }
 
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
+    constructor Create;
   end;
   {< Abstract config holder class. }
 
 implementation
 
-constructor caCHXConfig.Create(aOwner: TComponent);
+constructor caCHXConfig.Create;
 begin
-  inherited Create(aOwner);
+  inherited Create;
   ResetDefaultConfig;
-end;
-
-destructor caCHXConfig.Destroy;
-begin
-  inherited Destroy;
 end;
 
 end.

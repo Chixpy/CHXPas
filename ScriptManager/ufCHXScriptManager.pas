@@ -5,7 +5,7 @@ unit ufCHXScriptManager;
   Copyright (C) 2006-2023 Chixpy
 }
 {$mode objfpc}{$H+}
-
+{$DEFINE PS_USESSUPPORT} // Doesn't work here...
 interface
 
 uses
@@ -150,17 +150,15 @@ type
     FCurrentFile: string;
     FGUIConfigIni: string;
     FGUIIconsIni: string;
-    FScriptEngine: cCHXScriptEngine;
-    procedure SetCurrentFile(AValue: string);
-    procedure SetGUIConfigIni(AValue: string);
-    procedure SetGUIIconsIni(AValue: string);
-    procedure SetScriptEngine(AValue: cCHXScriptEngine);
+    procedure SetCurrentFile(const AValue: string);
+    procedure SetGUIConfigIni(const AValue: string);
+    procedure SetGUIIconsIni(const AValue: string);
 
   protected
-    property CurrentFile: string read FCurrentFile write SetCurrentFile;
+    {property} ScriptEngine: cCHXScriptEngine;
+    {< Child classes can create their own cCHXScriptEngine. }
 
-    property ScriptEngine: cCHXScriptEngine
-      read FScriptEngine write SetScriptEngine;
+    property CurrentFile: string read FCurrentFile write SetCurrentFile;
 
     property GUIIconsIni: string read FGUIIconsIni write SetGUIIconsIni;
     property GUIConfigIni: string read FGUIConfigIni write SetGUIConfigIni;
@@ -402,28 +400,19 @@ begin
     SynEdit.SetFocus;
 end;
 
-procedure TfmCHXScriptManager.SetCurrentFile(AValue: string);
+procedure TfmCHXScriptManager.SetCurrentFile(const AValue: string);
 begin
-  if FCurrentFile = AValue then
-    Exit;
-  FCurrentFile := AValue;
+  FCurrentFile := SetasFile(AValue);
 end;
 
-procedure TfmCHXScriptManager.SetGUIConfigIni(AValue: string);
+procedure TfmCHXScriptManager.SetGUIConfigIni(const AValue: string);
 begin
   FGUIConfigIni := SetAsFile(AValue);
 end;
 
-procedure TfmCHXScriptManager.SetGUIIconsIni(AValue: string);
+procedure TfmCHXScriptManager.SetGUIIconsIni(const AValue: string);
 begin
   FGUIIconsIni := SetAsFile(AValue);
-end;
-
-procedure TfmCHXScriptManager.SetScriptEngine(AValue: cCHXScriptEngine);
-begin
-  if FScriptEngine = AValue then
-    Exit;
-  FScriptEngine := AValue;
 end;
 
 procedure TfmCHXScriptManager.DoLoadGUIConfig(aIniFile: TIniFile);
@@ -461,7 +450,7 @@ procedure TfmCHXScriptManager.CreateCustomEngine;
 begin
   // An inherited form can override with it's own ScripEngine.
   if not assigned(ScriptEngine) then
-    FScriptEngine := cCHXScriptEngine.Create;
+    ScriptEngine := cCHXScriptEngine.Create;
 
 
   // TODO: READ TfmCHXScriptManager.Compile
@@ -677,7 +666,7 @@ end;
 destructor TfmCHXScriptManager.Destroy;
 begin
   CheckChanged;
-  FScriptEngine.Free;
+  ScriptEngine.Free;
   inherited Destroy;
 end;
 

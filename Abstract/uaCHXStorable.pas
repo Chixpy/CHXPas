@@ -16,39 +16,37 @@ uses
 type
   { caCHXStorable }
 
-  caCHXStorable = class(TComponent)
+  caCHXStorable = class(TPersistent) // TPersistent Implements IFPObserved
   private
-    FDefaultFileName: string;
-    procedure SetDefaultFileName(AValue: string);
+    FDefaultFileName : string;
+    procedure SetDefaultFileName(aValue : string);
 
   public
-    procedure LoadFromFile(const aFilename: string); virtual; abstract;
+    property DefaultFileName : string read FDefaultFileName
+      write SetDefaultFileName;
+    {< Default filename if not explicit filename is used when calling
+         Save or Load method.
+
+       This property is NOT updated when calling Load or Save with
+         it's parameter.
+    }
+
+    procedure LoadFromFile(const aFilename : string); virtual; abstract;
     {< Loads data from file.
+
+      @note(DefaultFileName property is not updated with aFilename parameter.)
 
       @param(aFilename Filename of the inifile to read from. If '', try to load
         from DefaultFileName property.)
-
-      DefaultFileName property is not updated with aFilename parameter.
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: boolean); virtual;
-      abstract;
+    procedure SaveToFile(const aFilename : string; const ClearFile : Boolean);
+      virtual; abstract;
     {< Saves data to file.
 
-      @param(aFilename Filename of the inifile to write to.)
-      @param(ClearFile False -> if File exists load its content before saving.)
+       @note(DefaultFileName property is not updated with aFilename parameter.)
 
-      DefaultFileName property is not updated with aFilename parameter.
-    }
-
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
-
-  published
-    property DefaultFileName: string read FDefaultFileName
-      write SetDefaultFileName;
-    {< Default filename if not filename is used when calling Save or Load.
-
-    This property is NOT updated when calling Load or Save with it's parameter.
+       @param(aFilename Filename of the inifile to write to.)
+       @param(ClearFile if @true, remove file content before saving.)
     }
   end;
 
@@ -57,72 +55,66 @@ type
   caCHXStorableIni = class(caCHXStorable)
   protected
   type CBIniProc =
-    procedure(aIniFile: TMemIniFile) of object;
+    procedure(aIniFile : TMemIniFile) of object;
 
-    procedure DoFileOpen(aFilename: string; aCBProc: CBIniProc;
-      FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
+    procedure DoFileOpen(aFilename : string; aCBProc : CBIniProc;
+      FileMustExists : Boolean; ClearFile : Boolean; SaveAfter : Boolean);
 
   public
-    procedure LoadFromFile(const aFilename: string); override;
+    procedure LoadFromFile(const aFilename : string); override;
     {< Loads data from file.
 
       @param(aFilename Inifile to read from.)
     }
-    procedure LoadFromIni(aIniFile: TMemIniFile); virtual; abstract;
+    procedure LoadFromIni(aIniFile : TMemIniFile); virtual; abstract;
     {< Loads data from opened .ini file.
 
       @param(aIniFile Inifile to read from.)
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: boolean);
+    procedure SaveToFile(const aFilename : string; const ClearFile : Boolean);
       override;
      {< Saves data to opened .ini file.
 
       @param(IniFile aFilename to write to.)
       @param(ClearFile Clear file content before saving.)
     }
-    procedure SaveToIni(aIniFile: TMemIniFile); virtual; abstract;
+    procedure SaveToIni(aIniFile : TMemIniFile); virtual; abstract;
     {< Saves data to opened .ini file.
 
       @param(IniFile Inifile to write to.)
     }
-
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
   { caCHXStorableTxt }
 
   caCHXStorableTxt = class(caCHXStorable)
   private
-    function GetCommaText: string;
-    procedure SetCommaText(AValue: string);
+    function GetCommaText : string;
+    procedure SetCommaText(aValue : string);
 
   protected
   type CBTxtProc =
-    procedure(aIniFile: TStrings) of object;
+    procedure(aIniFile : TStrings) of object;
 
-    procedure DoFileOpen(aFilename: string; aCBProc: CBTxtProc;
-      FileMustExists: boolean; ClearFile: boolean; SaveAfter: boolean);
+    procedure DoFileOpen(aFilename : string; aCBProc : CBTxtProc;
+      FileMustExists : Boolean; ClearFile : Boolean; SaveAfter : Boolean);
 
   public
-    property CommaText: string read GetCommaText write SetCommaText;
+    property CommaText : string read GetCommaText write SetCommaText;
 
-    procedure LoadFromFile(const aFilename: string); override;
-    procedure LoadFromStrLst(aTxtFile: TStrings); virtual; abstract;
+    procedure LoadFromFile(const aFilename : string); override;
+    procedure LoadFromStrLst(aTxtFile : TStrings); virtual; abstract;
     {< Loads data from file.
 
       @param(aTxtFile Text file to read from.)
     }
-    procedure SaveToFile(const aFilename: string; ClearFile: boolean);
+    procedure SaveToFile(const aFilename : string; const ClearFile : Boolean);
       override;
-    procedure SaveToStrLst(aTxtFile: TStrings); virtual; abstract;
+    procedure SaveToStrLst(aTxtFile : TStrings); virtual; abstract;
     {< Saves data to file.
 
       @param(aTxtFile Text file to write to.)
     }
-
-    constructor Create(aOwner: TComponent); override;
-    destructor Destroy; override;
   end;
 
 
@@ -130,29 +122,19 @@ implementation
 
 { caCHXStorable }
 
-procedure caCHXStorable.SetDefaultFileName(AValue: string);
+procedure caCHXStorable.SetDefaultFileName(aValue : string);
 begin
-  FDefaultFileName := SetAsFile(AValue);
-end;
-
-constructor caCHXStorable.Create(aOwner: TComponent);
-begin
-  inherited Create(aOwner);
-end;
-
-destructor caCHXStorable.Destroy;
-begin
-  inherited Destroy;
+  FDefaultFileName := SetAsFile(aValue);
 end;
 
 { caCHXStorableIni }
 
-procedure caCHXStorableIni.DoFileOpen(aFilename: string;
-  aCBProc: CBIniProc; FileMustExists: boolean; ClearFile: boolean;
-  SaveAfter: boolean);
+procedure caCHXStorableIni.DoFileOpen(aFilename : string;
+  aCBProc : CBIniProc; FileMustExists : Boolean; ClearFile : Boolean;
+  SaveAfter : Boolean);
 var
-  aIniFile: TMemIniFile;
-  IniFileOps: TIniFileOptions;
+  aIniFile : TMemIniFile;
+  IniFileOps : TIniFileOptions;
 begin
   if not Assigned(aCBProc) then
     Exit; // Nothing to do, so we don't waste time
@@ -191,34 +173,24 @@ begin
   end;
 end;
 
-procedure caCHXStorableIni.LoadFromFile(const aFilename: string);
+procedure caCHXStorableIni.LoadFromFile(const aFilename : string);
 begin
   DoFileOpen(aFilename, @LoadFromIni, True, False, False);
 end;
 
-procedure caCHXStorableIni.SaveToFile(const aFilename: string;
-  ClearFile: boolean);
+procedure caCHXStorableIni.SaveToFile(const aFilename : string;
+  const ClearFile : Boolean);
 begin
   DoFileOpen(aFilename, @SaveToIni, False, ClearFile, True);
 end;
 
-constructor caCHXStorableIni.Create(aOwner: TComponent);
-begin
-  inherited Create(aOwner);
-end;
-
-destructor caCHXStorableIni.Destroy;
-begin
-  inherited Destroy;
-end;
-
-procedure caCHXStorableTxt.SetCommaText(AValue: string);
+procedure caCHXStorableTxt.SetCommaText(aValue : string);
 var
-  aStringList: TStringList;
+  aStringList : TStringList;
 begin
   aStringList := TStringList.Create;
   try
-    aStringList.CommaText := AValue;
+    aStringList.CommaText := aValue;
 
     LoadFromStrLst(aStringList);
   finally
@@ -226,9 +198,9 @@ begin
   end;
 end;
 
-function caCHXStorableTxt.GetCommaText: string;
+function caCHXStorableTxt.GetCommaText : string;
 var
-  aStringList: TStringList;
+  aStringList : TStringList;
 begin
   aStringList := TStringList.Create;
   try
@@ -239,11 +211,11 @@ begin
   end;
 end;
 
-procedure caCHXStorableTxt.DoFileOpen(aFilename: string;
-  aCBProc: CBTxtProc; FileMustExists: boolean; ClearFile: boolean;
-  SaveAfter: boolean);
+procedure caCHXStorableTxt.DoFileOpen(aFilename : string;
+  aCBProc : CBTxtProc; FileMustExists : Boolean; ClearFile : Boolean;
+  SaveAfter : Boolean);
 var
-  aTxtFile: TStringList;
+  aTxtFile : TStringList;
 begin
 
   if not Assigned(aCBProc) then
@@ -279,27 +251,26 @@ begin
   end;
 end;
 
-procedure caCHXStorableTxt.LoadFromFile(const aFilename: string);
+procedure caCHXStorableTxt.LoadFromFile(const aFilename : string);
 begin
   DoFileOpen(aFilename, @LoadFromStrLst, True, False, False);
 end;
 
-procedure caCHXStorableTxt.SaveToFile(const aFilename: string;
-  ClearFile: boolean);
+procedure caCHXStorableTxt.SaveToFile(const aFilename : string;
+  const ClearFile : Boolean);
 begin
   DoFileOpen(aFilename, @SaveToStrLst, False, ClearFile, True);
 end;
 
-constructor caCHXStorableTxt.Create(aOwner: TComponent);
-begin
-  inherited Create(aOwner);
-end;
+initialization
+  RegisterClass(caCHXStorable);
+  RegisterClass(caCHXStorableIni);
+  RegisterClass(caCHXStorableTxt);
 
-destructor caCHXStorableTxt.Destroy;
-begin
-  inherited Destroy;
-end;
-
+finalization
+  UnRegisterClass(caCHXStorable);
+  UnRegisterClass(caCHXStorableIni);
+  UnRegisterClass(caCHXStorableTxt);
 end.
 {
 This source is free software; you can redistribute it and/or modify it under

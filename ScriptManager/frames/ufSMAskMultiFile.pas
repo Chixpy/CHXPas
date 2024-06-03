@@ -1,10 +1,8 @@
 unit ufSMAskMultiFile;
 {< TfmSMAskMultiFile frame unit for Pascal Script.
 
-  Copyright (C) 2017-2019 Chixpy
+  Copyright (C) 2017-2024 Chixpy
 }
-
-
 {$mode objfpc}{$H+}
 
 interface
@@ -48,6 +46,7 @@ type
     procedure actMoveFileUpExecute(Sender : TObject);
     procedure actRemoveFilesExecute(Sender : TObject);
     procedure actSortFileListExecute(Sender : TObject);
+
   private
     FOutFileList : TStrings;
     procedure SetOutFileList(AValue : TStrings);

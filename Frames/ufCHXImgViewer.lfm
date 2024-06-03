@@ -50,7 +50,7 @@ inherited fmCHXImgViewer: TfmCHXImgViewer
     end
     object tbSepZoom: TToolButton[12]
       Left = 487
-      Height = 29
+      Height = 5
       Top = 2
       Style = tbsDivider
     end

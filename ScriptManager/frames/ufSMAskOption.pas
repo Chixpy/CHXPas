@@ -1,5 +1,4 @@
 unit ufSMAskOption;
-
 {< TfmSMAskOption frame unit for Pascal Script.
 
   Copyright (C) 2017-2023 Chixpy

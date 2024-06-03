@@ -45,7 +45,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       end
       object ToolButton3: TToolButton
         Left = 30
-        Height = 8
+        Height = 28
         Top = 2
         Style = tbsSeparator
       end
@@ -61,7 +61,7 @@ inherited fmCHXChkLstPropEditor: TfmCHXChkLstPropEditor
       end
       object ToolButton6: TToolButton
         Left = 96
-        Height = 8
+        Height = 28
         Top = 2
         Style = tbsSeparator
       end

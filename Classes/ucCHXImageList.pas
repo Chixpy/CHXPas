@@ -1,7 +1,7 @@
 unit ucCHXImageList;
 {< cCHXImageList class unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -17,6 +17,7 @@ type
   cCHXImageList = class(cCHXFPGImageList)
   private
     FFileList: TStringList;
+
   protected
     property FileList: TStringList read FFileList;
 
@@ -65,9 +66,8 @@ constructor cCHXImageMap.Create(AFreeObjects: boolean);
 begin
   inherited Create(AFreeObjects);
 
-  // FIX: Sometimes Key is not found !!!???
+  // FIX: Sometimes Key is not found if not sorted!!!???
   Sorted := True;
-
 end;
 
 constructor cCHXImageMap.Create;
@@ -114,7 +114,7 @@ end;
 
 destructor cCHXImageList.Destroy;
 begin
-  FreeAndNil(FFileList);
+  FFileList.Free;
   inherited Destroy;
 end;
 

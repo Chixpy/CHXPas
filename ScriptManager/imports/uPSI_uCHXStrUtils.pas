@@ -87,8 +87,6 @@ begin
 
   S.RegisterDelphiFunction(@StandardFormatSettings, 'StandardFormatSettings', cdRegister);
   S.RegisterDelphiFunction(@StrCount, 'StrCount', cdRegister);
-  S.RegisterDelphiFunction(@StrToCardinal, 'StrToCardinal', cdRegister);
-  S.RegisterDelphiFunction(@StrToCardinalDef, 'StrToCardinalDef', cdRegister);
   S.RegisterDelphiFunction(@SecondsToFmtStr, 'SecondsToFmtStr', cdRegister);
 end;
 

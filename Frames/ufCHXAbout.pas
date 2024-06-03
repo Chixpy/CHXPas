@@ -9,8 +9,7 @@ unit ufCHXAbout;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls,
-  StrUtils,
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, StrUtils,
   // CHX units
   uCHXConst,
   // CHX forms
@@ -39,6 +38,7 @@ type
     lTitle : TLabel;
     lVersion : TLabel;
     mAditional : TMemo;
+
   private
 
   public

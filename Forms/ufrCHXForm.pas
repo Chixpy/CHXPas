@@ -35,11 +35,11 @@ type
   protected
     property FormGUIConfig : string read FFormGUIConfig write SetFormGUIConfig;
 
-    procedure DoLoadGUIConfig(aIniFile : TIniFile); virtual;
-    procedure DoSaveGUIConfig(aIniFile : TIniFile); virtual;
+    procedure DoLoadGUIConfig(aIniFile : TIniFile); virtual; //abstract;
+    procedure DoSaveGUIConfig(aIniFile : TIniFile); virtual; //abstract;
 
     procedure DoLoadGUIIcons(aIniFile : TIniFile;
-      const aBaseFolder : string); virtual;
+      const aBaseFolder : string); virtual; //abstract;
 
   public
     procedure LoadGUIConfig(const aGUIConfigIni : string);

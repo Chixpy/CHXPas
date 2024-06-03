@@ -1,7 +1,7 @@
 unit ufCHXImgViewer;
 {< TfmCHXImgViewer frame unit.
 
-  Copyright (C) 2006-2019 Chixpy
+  Copyright (C) 2006-2024 Chixpy
 }
 {$mode objfpc}{$H+}
 
@@ -22,56 +22,48 @@ type
   { TfmCHXImgViewer }
 
   TfmCHXImgViewer = class(TfmCHXFileListPreview)
-    actClose: TAction;
-    actToggleFileList: TAction;
-    actStretch: TAction;
-    actZoomOut: TAction;
-    actZoomIn: TAction;
-    actOriginalSize: TAction;
-    Image: TImage;
-    lbxFiles: TListBox;
-    sbInfo: TStatusBar;
-    sbxImage: TScrollBox;
-    splFileList: TSplitter;
-    tbTogleFileList: TToolButton;
-    tbZoomIn: TToolButton;
-    tbOriginalSize: TToolButton;
-    tbZoomOut: TToolButton;
-    tbStretch: TToolButton;
-    tbSepZoom: TToolButton;
-    procedure actOriginalSizeExecute(Sender: TObject);
-    procedure actStretchExecute(Sender: TObject);
-    procedure actToggleFileListExecute(Sender: TObject);
-    procedure actZoomInExecute(Sender: TObject);
-    procedure actZoomOutExecute(Sender: TObject);
-    procedure ImageMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure ImageMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
-    procedure ImageResize(Sender: TObject);
-    procedure lbxFilesSelectionChange(Sender: TObject; User: boolean);
-    procedure sbxImageResize(Sender: TObject);
+    actClose : TAction;
+    actToggleFileList : TAction;
+    actStretch : TAction;
+    actZoomOut : TAction;
+    actZoomIn : TAction;
+    actOriginalSize : TAction;
+    Image : TImage;
+    lbxFiles : TListBox;
+    sbInfo : TStatusBar;
+    sbxImage : TScrollBox;
+    splFileList : TSplitter;
+    tbTogleFileList : TToolButton;
+    tbZoomIn : TToolButton;
+    tbOriginalSize : TToolButton;
+    tbZoomOut : TToolButton;
+    tbStretch : TToolButton;
+    tbSepZoom : TToolButton;
+    procedure actOriginalSizeExecute(Sender : TObject);
+    procedure actStretchExecute(Sender : TObject);
+    procedure actToggleFileListExecute(Sender : TObject);
+    procedure actZoomInExecute(Sender : TObject);
+    procedure actZoomOutExecute(Sender : TObject);
+    procedure ImageMouseDown(Sender : TObject; Button : TMouseButton;
+      Shift : TShiftState; X, Y : Integer);
+    procedure ImageMouseUp(Sender : TObject; Button : TMouseButton;
+      Shift : TShiftState; X, Y : Integer);
+    procedure ImageResize(Sender : TObject);
+    procedure lbxFilesSelectionChange(Sender : TObject; User : Boolean);
+    procedure sbxImageResize(Sender : TObject);
 
   private
-    FDragBeginX: longint;
-    FDragBeginY: longint;
-    FSHA1: string;
-    FSHA1Folder: string;
-    FStartTime: TTime;
-    procedure SetDragBeginX(const aDragBeginX: longint);
-    procedure SetDragBeginY(const aDragBeginY: longint);
-    procedure SetSHA1(const aSHA1: string);
-    procedure SetSHA1Folder(const aSHA1Folder: string);
-    procedure SetStartTime(const aStartTime: TTime);
+    FSHA1Folder : string;
+    procedure SetSHA1Folder(const aSHA1Folder : string);
 
   protected
+    {property} DragBeginX : LongInt;
+    {property} DragBeginY : LongInt;
+
+    {property} SHA1 : string;
+    {property} StartTime : TTime;
+
     procedure OnCurrItemChange; override;
-
-    property DragBeginX: longint read FDragBeginX write SetDragBeginX;
-    property DragBeginY: longint read FDragBeginY write SetDragBeginY;
-
-    property SHA1: string read FSHA1 write SetSHA1;
-    property StartTime: TTime read FStartTime write SetStartTime;
 
     procedure StretchImage;
     procedure FixPosition;
@@ -82,17 +74,17 @@ type
     procedure SaveStats;
 
   public
-    property SHA1Folder: string read FSHA1Folder write SetSHA1Folder;
+    property SHA1Folder : string read FSHA1Folder write SetSHA1Folder;
     {< Folder to store picture visualization statistics. }
 
     // Creates a form with image viewer.
-    class function SimpleFormIL(aImageList: TStrings;
-      aSHA1Folder: string; aCurrItem: integer; aGUIIconsIni: string;
-      aGUIConfigIni: string): integer;
-    class function SimpleFormI(aImage: string; aSHA1Folder: string;
-      aGUIIconsIni: string; aGUIConfigIni: string): integer;
+    class function SimpleFormIL(aImageList : TStrings;
+      aSHA1Folder : string; aCurrItem : Integer; aGUIIconsIni : string;
+      aGUIConfigIni : string) : Integer;
+    class function SimpleFormI(aImage : string; aSHA1Folder : string;
+      aGUIIconsIni : string; aGUIConfigIni : string) : Integer;
 
-    constructor Create(TheOwner: TComponent); override;
+    constructor Create(TheOwner : TComponent); override;
     destructor Destroy; override;
   end;
 
@@ -102,7 +94,7 @@ implementation
 
 { TfmCHXImgViewer }
 
-procedure TfmCHXImgViewer.actOriginalSizeExecute(Sender: TObject);
+procedure TfmCHXImgViewer.actOriginalSizeExecute(Sender : TObject);
 begin
   actStretch.Checked := False;
   Image.Height := Image.Picture.Height;
@@ -112,7 +104,7 @@ begin
   sbxImage.VertScrollBar.Position := Image.Height shr 1;
 end;
 
-procedure TfmCHXImgViewer.actStretchExecute(Sender: TObject);
+procedure TfmCHXImgViewer.actStretchExecute(Sender : TObject);
 begin
   if actStretch.Checked then
     StretchImage;
@@ -120,15 +112,15 @@ begin
   FixPosition;
 end;
 
-procedure TfmCHXImgViewer.actToggleFileListExecute(Sender: TObject);
+procedure TfmCHXImgViewer.actToggleFileListExecute(Sender : TObject);
 begin
   splFileList.Visible := actToggleFileList.Checked;
   lbxFiles.Visible := actToggleFileList.Checked;
 end;
 
-procedure TfmCHXImgViewer.actZoomInExecute(Sender: TObject);
+procedure TfmCHXImgViewer.actZoomInExecute(Sender : TObject);
 var
-  CorrectX, CorrectY: integer;
+  CorrectX, CorrectY : Integer;
 begin
   actStretch.Checked := False;
   CorrectX := 0;
@@ -148,7 +140,7 @@ begin
     (sbxImage.ClientHeight shr 1);
 end;
 
-procedure TfmCHXImgViewer.actZoomOutExecute(Sender: TObject);
+procedure TfmCHXImgViewer.actZoomOutExecute(Sender : TObject);
 begin
   actStretch.Checked := False;
   sbxImage.HorzScrollBar.Position :=
@@ -160,11 +152,11 @@ begin
   FixPosition;
 end;
 
-procedure TfmCHXImgViewer.ImageMouseDown(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+procedure TfmCHXImgViewer.ImageMouseDown(Sender : TObject;
+  Button : TMouseButton; Shift : TShiftState; X, Y : Integer);
 begin
   case Button of
-    mbLeft:
+    mbLeft :
     begin
       DragBeginX := X;
       DragBeginY := Y;
@@ -174,11 +166,11 @@ begin
   end;
 end;
 
-procedure TfmCHXImgViewer.ImageMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: integer);
+procedure TfmCHXImgViewer.ImageMouseUp(Sender : TObject;
+  Button : TMouseButton; Shift : TShiftState; X, Y : Integer);
 begin
   case Button of
-    mbLeft:
+    mbLeft :
     begin
       sbxImage.VertScrollBar.Position :=
         sbxImage.VertScrollBar.Position + (DragBeginY - Y);
@@ -190,47 +182,26 @@ begin
   end;
 end;
 
-procedure TfmCHXImgViewer.ImageResize(Sender: TObject);
+procedure TfmCHXImgViewer.ImageResize(Sender : TObject);
 begin
   UpdateStatusBar;
 end;
 
-procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender: TObject;
-  User: boolean);
+procedure TfmCHXImgViewer.lbxFilesSelectionChange(Sender : TObject;
+  User : Boolean);
 begin
   if User then
     ItemIndex := lbxFiles.ItemIndex;
 end;
 
-procedure TfmCHXImgViewer.sbxImageResize(Sender: TObject);
+procedure TfmCHXImgViewer.sbxImageResize(Sender : TObject);
 begin
   if actStretch.Checked then
     StretchImage;
   FixPosition;
 end;
 
-procedure TfmCHXImgViewer.SetDragBeginX(const aDragBeginX: longint);
-begin
-  if FDragBeginX = aDragBeginX then
-    Exit;
-  FDragBeginX := aDragBeginX;
-end;
-
-procedure TfmCHXImgViewer.SetDragBeginY(const aDragBeginY: longint);
-begin
-  if FDragBeginY = aDragBeginY then
-    Exit;
-  FDragBeginY := aDragBeginY;
-end;
-
-procedure TfmCHXImgViewer.SetSHA1(const aSHA1: string);
-begin
-  if FSHA1 = aSHA1 then
-    Exit;
-  FSHA1 := aSHA1;
-end;
-
-procedure TfmCHXImgViewer.SetSHA1Folder(const aSHA1Folder: string);
+procedure TfmCHXImgViewer.SetSHA1Folder(const aSHA1Folder : string);
 begin
   if DirectoryExistsUTF8(aSHA1Folder) then
     FSHA1Folder := SetAsFolder(aSHA1Folder)
@@ -238,21 +209,14 @@ begin
     FSHA1Folder := '';
 end;
 
-procedure TfmCHXImgViewer.SetStartTime(const aStartTime: TTime);
-begin
-  if FStartTime = aStartTime then
-    Exit;
-  FStartTime := aStartTime;
-end;
-
 procedure TfmCHXImgViewer.OnCurrItemChange;
 begin
-    ChangeImage;
+  ChangeImage;
 end;
 
 procedure TfmCHXImgViewer.StretchImage;
 var
-  Factor: extended;
+  Factor : extended;
 begin
   // Factor of the stretched image
   if Image.Picture.Height = 0 then
@@ -295,7 +259,7 @@ end;
 
 procedure TfmCHXImgViewer.ChangeImage;
 var
-  aFilename: string;
+  aFilename : string;
 begin
   if (SHA1Folder <> '') then
   begin
@@ -353,10 +317,10 @@ end;
 
 procedure TfmCHXImgViewer.SaveStats;
 var
-  TimePassed: int64;
-  NTimes: int64;
-  aFileName: string;
-  aIni: TMemIniFile;
+  TimePassed : Int64;
+  NTimes : Int64;
+  aFileName : string;
+  aIni : TMemIniFile;
 begin
   if (SHA1Folder = '') or (StartTime = 0) or (SHA1 = '') then
     Exit;
@@ -380,11 +344,11 @@ begin
   end;
 end;
 
-class function TfmCHXImgViewer.SimpleFormIL(aImageList: TStrings;
-  aSHA1Folder: string; aCurrItem: integer; aGUIIconsIni: string;
-  aGUIConfigIni: string): integer;
+class function TfmCHXImgViewer.SimpleFormIL(aImageList : TStrings;
+  aSHA1Folder : string; aCurrItem : Integer; aGUIIconsIni : string;
+  aGUIConfigIni : string) : Integer;
 var
-  fmCHXImageViewer: TfmCHXImgViewer;
+  fmCHXImageViewer : TfmCHXImgViewer;
 begin
   fmCHXImageViewer := TfmCHXImgViewer.Create(nil);
 
@@ -396,10 +360,10 @@ begin
     Application.Title + ': Image Viewer', aGUIConfigIni, aGUIIconsIni);
 end;
 
-class function TfmCHXImgViewer.SimpleFormI(aImage: string;
-  aSHA1Folder: string; aGUIIconsIni: string; aGUIConfigIni: string): integer;
+class function TfmCHXImgViewer.SimpleFormI(aImage : string;
+  aSHA1Folder : string; aGUIIconsIni : string; aGUIConfigIni : string) : Integer;
 var
-  aImageList: TStringList;
+  aImageList : TStringList;
 begin
   Result := mrNone;
   if not FileExistsUTF8(aImage) then
@@ -415,7 +379,7 @@ begin
   end;
 end;
 
-constructor TfmCHXImgViewer.Create(TheOwner: TComponent);
+constructor TfmCHXImgViewer.Create(TheOwner : TComponent);
 begin
   inherited Create(TheOwner);
 end;
