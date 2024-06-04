@@ -24,12 +24,19 @@ type
 
     property Renderer : PSDL_Renderer read FRenderer;
 
+    function StringWidth(const aStr : string) : Integer; virtual; abstract;
+
   public
     property Color : TSDL_Color read FColor;
     {< Current text color. }
     property LineHeight : CInt read FLineHeight;
     {< Recommended distance between lines. }
 
+    function LinePosX(const aStr : string;
+      const aMargin : LongInt = 0) : CInt; inline;
+    {< Return the X coord position where next character will be after a string
+         with a left margin.
+    }
     function LinePosY(const aLine : LongInt;
       const aMargin : LongInt = 0) : CInt; inline;
     {< Return the Y coord position where a line of text will be from appliying
@@ -169,6 +176,12 @@ type
 implementation
 
 { caCHXSDL2Font }
+
+function caCHXSDL2Font.LinePosX(const aStr : string;
+  const aMargin : LongInt) : CInt;
+begin
+  Result := StringWidth(aStr) + aMargin;
+end;
 
 function caCHXSDL2Font.LinePosY(const aLine : LongInt;
   const aMargin : LongInt) : CInt;

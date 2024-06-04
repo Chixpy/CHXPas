@@ -1,16 +1,13 @@
-program SDLProcessing;
-// Template program simulating Processing with SDL2 Engine
-
-// USE: Project/Save as... with new program's name
-
-{< Base program for NOTC and CT <- Remove this on examples
-
-   The Coding Train Challenge #00X - Title }
+program CTC037;
+{< The Coding Train Challenge #037 - Diastic Machine }
 
 // Daniel Shiffman
 // http://codingtra.in
 // http://patreon.com/codingtrain
-// Code for:                            <- Change this
+// Code for: https://youtu.be/u-HUtrpyi1c
+
+// Modifications had to be made to port into Processing
+// Help for getting input in Processing: http://learningprocessing.com/examples/chp18/example-18-01-userinput
 // Port: (C) 2024 Chixpy https://github.com/Chixpy
 {$mode ObjFPC}{$H+}
 
@@ -39,16 +36,74 @@ type
     procedure HandleEvent(const aEvent : TSDL_Event; var Handled : Boolean;
       var ExitProg : Boolean); override;
 
+    function diastic(aSeed : string; words : TStringArray) : string;
+
   public
     { CHX: Processing global variables. }
-
+    seed : string;
+    words : TStringArray;
+    phrase : string;
   end;
 
   { cCTCEng }
+  function cCTCEng.diastic(aSeed : string; words : TStringArray) : string;
+  var
+    currentWord, i, j : Integer;
+    c : char;
+  begin
+    Result := '';
+    currentWord := 0;
+
+    { CHX: Processing port of this function is wrong, Initial values
+        of both "for" are swaped.
+
+      So original P5 version values is used here. }
+
+    { CHX: First char of a string in Pascal is at position 1.
+      Position 0 had a special meaning in old pascal, returning the
+      string length when strings were limited to 255 chars }
+    for i := 1 to aSeed.Length do
+    begin
+      c := aSeed[i];
+
+      for j := currentWord to Length(words) - 1 do
+      begin
+        if (words[j].length >= i + 1) and (words[j][i] = c) then
+        begin
+          Result += words[j] + ' ';
+          currentWord := j + 1;
+          Break; // CHX: Ough...
+        end;
+      end;
+    end;
+  end;
 
   procedure cCTCEng.Setup;
+  var
+    aFile : TStringList;
+    srctxt : string;
   begin
+    aFile := TStringList.Create;
+    aFile.LoadFromFile('Data\rainbow.txt');
 
+    { CHX: Joining lines... but with #10 and/or #13  }
+    srctxt := aFile.Text;
+    srctxt := srctxt.Replace(#10, ' ', [rfReplaceAll, rfIgnoreCase]);
+    srctxt := srctxt.Replace(#13, ' ', [rfReplaceAll, rfIgnoreCase]);
+    // Removing duplicated spaces
+    srctxt := srctxt.Replace('  ', ' ', [rfReplaceAll, rfIgnoreCase]);
+    srctxt := srctxt.Replace('  ', ' ', [rfReplaceAll, rfIgnoreCase]);
+
+    words := srctxt.Split([' ', ',', '?', '!', '.'],
+      TStringSplitOptions.ExcludeEmpty);
+
+    aFile.Free;
+
+    seed := '';
+    phrase := '';
+
+    TextInput(DefFont, seed, DefFont.LinePosX('Seed: ', 25),
+      DefFont.LinePosY(3, 40));
   end;
 
   procedure cCTCEng.Finish;
@@ -71,7 +126,11 @@ type
     SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
     SDL_RenderClear(SDLWindow.PRenderer);
 
-
+    DefFont.RenderDynStr('Enter your seed and hit enter to generate!', 25, 40);
+    DefFont.RenderDynStr('Hit enter again to enter another seed!',
+      25, DefFont.LinePosY(1, 40));
+    DefFont.RenderDynStr('Seed: ' + seed, 25, DefFont.LinePosY(3, 40));
+    DefFont.RenderDynStr(phrase, 25, DefFont.LinePosY(5, 40), WinW - 25);
   end;
 
   procedure cCTCEng.HandleEvent(const aEvent : TSDL_Event;
@@ -90,25 +149,38 @@ type
         other event disables it).
     }
 
-    //case aEvent.type_ of
-    //  SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
-    //  begin
-    //    case aEvent.key.keysym.sym of
-    //      //SDLK_UP : ;
-    //      //SDLK_DOWN : ;
-    //      //SDLK_LEFT : ;
-    //      //SDLK_RIGHT : ;
-    //      //SDLK_SPACE : ;
-    //      //SDLK_RETURN : ;
-    //    end;
-    //  end;
-    //    //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-    //    //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-    //    //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-    //    //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
-    //  else
-    //    ;
-    //end;
+    case aEvent.type_ of
+      SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+      begin
+        case aEvent.key.keysym.sym of
+          //SDLK_UP : ;
+          //SDLK_DOWN : ;
+          //SDLK_LEFT : ;
+          //SDLK_RIGHT : ;
+          //SDLK_SPACE : ;
+          SDLK_RETURN, SDLK_KP_ENTER :
+          begin
+            if phrase = '' then
+              phrase := diastic(seed, words)
+            else // CHX: Enter another word after generated one
+            begin
+              phrase := '';
+              seed := '';
+              if not IsEditingText then
+                TextInput(DefFont, seed, DefFont.LinePosX('Seed: ', 25),
+                  DefFont.LinePosY(3, 40));
+            end;
+            Handled := True;
+          end;
+        end;
+      end;
+        //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
+        //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
+        //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
+      else
+        ;
+    end;
   end;
 
   { Main program }
@@ -132,7 +204,7 @@ begin
     CTCEng := cCTCEng.Create(ApplicationName, WinW, WinH, True, False);
     CTCEng.Config.DefFontSize := WinH div 25;
     // Actually,they are less than 25 lines because of LineHeight
-    CTCEng.Config.DefFontColor := SDLColor(255,255,255,255);
+    CTCEng.Config.DefFontColor := SDLColor(255, 255, 255, 255);
     CTCEng.Config.DefFontFile := 'FreeMonoBold.ttf';
     CTCEng.ShowFrameRate := True;
     CTCEng.Init;

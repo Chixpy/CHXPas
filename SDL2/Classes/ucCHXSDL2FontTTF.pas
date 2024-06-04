@@ -26,6 +26,7 @@ type
     FPFont : PTTF_Font;
 
   protected
+    function StringWidth(const aStr : string) : Integer; override;
     property CachedTexts : cCHXSDL2TextCacheMap read FCachedTexts;
 
     function CreateStrSurface(const aStr : string;
@@ -54,10 +55,10 @@ type
     // ---------------------
 
     function RenderDynStr(const aStr : string; const aX, aY : CInt;
-      const aWidth : CInt = 0): Integer; override;
+      const aWidth : CInt = 0) : Integer; override;
     {< See @inherited. }
     function RenderDynStrClipped(const aStr : string; const aX, aY : CInt;
-      const aWidth : CInt; const aAlign : CInt = 2): Integer; override;
+      const aWidth : CInt; const aAlign : CInt = 2) : Integer; override;
     {< See @inherited. }
     procedure RenderDynText(const aText : TStringList; const aX, aY,
       aWidth : CInt; const aAlign : CInt = 0); override;
@@ -83,6 +84,15 @@ type
 implementation
 
 { cCHXSDL2FontTTF }
+
+function cCHXSDL2FontTTF.StringWidth(const aStr : string) : Integer;
+var
+  w, h : CInt;
+begin
+  Result := 0;
+  if TTF_SizeUTF8(PFont, PAnsiChar(aStr), @w, @h) = 0 then
+    Result := w;
+end;
 
 function cCHXSDL2FontTTF.CreateStrSurface(const aStr : string;
   const aWidth : CInt) : PSDL_Surface;
@@ -147,6 +157,7 @@ var
   TextTex : PSDL_Texture;
   aPos : TSDL_Rect;
 begin
+  Result := 0;
   if aStr = EmptyStr then Exit;
 
   TextSFC := CreateStrSurface(aStr, aWidth);
@@ -171,6 +182,7 @@ var
   aSPos, aTPos : TSDL_Rect;
   Offset, CWidth : Integer;
 begin
+  Result := 0;
   if aStr = EmptyStr then Exit;
   TextSFC := CreateStrSurface(aStr, 0);
 

@@ -256,7 +256,7 @@ begin
             SDL_StopTextInput;
             if not CTIUpdateLive then
               CTIStrVar^ := CurrTextInput;
-            Handled := True;
+            // Handled := True; Pass to parent handler
           end;
 
           { TODO : CTRL+X, CTRL+C, CTRL+V...
@@ -507,7 +507,7 @@ begin
   Title := aTitle;
   FShowFrameRate := False;
 
-  FConfig := cCHXSDL2Config.Create(Self);
+  FConfig := cCHXSDL2Config.Create;
   Config.WindowWidth := aWinWidth;
   Config.RendererWidth := aWinWidth;
   Config.WindowHeight := aWinHeight;
@@ -526,7 +526,7 @@ begin
   Title := aTitle;
   FShowFrameRate := False;
 
-  FConfig := cCHXSDL2Config.Create(Self);
+  FConfig := cCHXSDL2Config.Create;
   Config.DefaultFileName := aIniFile;
   Config.LoadFromFile('');
 

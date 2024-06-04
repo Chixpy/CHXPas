@@ -75,9 +75,10 @@ it shows vertical black stripes on some gfx primitives ¿?.
 | CTC034 | Diffusion-Limited Aggregation | |
 | CTC035.1 | Traveling Salesperson (Random Swap) | SDL_RenderDrawLines vs polygonColor |
 | CTC035.2 | Lexicographic Order | Well, SDL is not needed... |
-| CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this well changed to dynamic |
+| CTC035.3 | Traveling Salesperson (Lexicographic Order) | Speeding things up in compute with fixed number of itertions, some day this will be changed to dynamic. |
 | CTC035.4 | Traveling Salesperson (Genetic Algorithm) | First genetic algorittm ported |
 | CTC036 | Blobby! | I had to implement a Perlin noise algorithm...<br />This time from [Hugo Elias](http://web.archive.org/web/20160325134143/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm|) |
+| CTC037 | Diastic Machine | Implemented raw user text input. We can show console... but result is shown in SDL Window. |
 
 ## Skipped
 
@@ -133,7 +134,6 @@ Not Skipped now:
 
 | # | Name | Pre-comments |
 |---:|:---|:---|
-| CTC037 | Diastic Machine | Some way to get user text input must be implented. |
 | CTC038 | Word Interactor | First actual UI components and its events. Same as CTC037 (with an Edit component) and Button component.  |
 | CTC039 | Mad Libs Generator | URL Retrieving, maybe use local data? |
 | CTC040 | Word Counter | URL Retrieving |

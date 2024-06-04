@@ -6,7 +6,7 @@ unit ucCHXSDL2FontGFX;
 {$mode ObjFPC}{$H+}
 interface
 uses
-  Classes, SysUtils, CTypes, fgl,
+  Classes, SysUtils, CTypes, FGL,
   SDL2, SDL2_GFX,
   uaCHXSDL2Font;
 
@@ -34,6 +34,7 @@ type
     function DoWrapText(aStr : string; aWidth : CInt) : string; inline;
 
   protected
+    function StringWidth(const aStr : string) : Integer; override;
     property CachedTexts : cCHXSDL2GFXCacheMap read FCachedTexts;
 
   public
@@ -107,6 +108,11 @@ begin
     Result := aStr;
 end;
 
+function cCHXSDL2FontGFX.StringWidth(const aStr : string) : Integer;
+begin
+  Result := aStr.Length * FontWidth;
+end;
+
 procedure cCHXSDL2FontGFX.AddStaticStr(const aKey, aStr : string;
   const aWidth : CInt);
 var
@@ -175,6 +181,7 @@ end;
 function cCHXSDL2FontGFX.RenderDynStr(const aStr : string; const aX, aY : CInt;
   const aWidth : CInt) : Integer;
 begin
+  Result := 0;
   if (aStr = EmptyStr) then Exit;
 
   // Little trick :-P
@@ -213,7 +220,8 @@ begin
   RenderDynStr(aCStr, aX, aY);
 end;
 
-procedure cCHXSDL2FontGFX.RenderDynText(const aText : TStringList; const aX, aY,
+procedure cCHXSDL2FontGFX.RenderDynText(const aText : TStringList;
+  const aX, aY,
   aWidth : CInt; const aAlign : CInt);
 begin
   if not assigned(aText) then Exit;

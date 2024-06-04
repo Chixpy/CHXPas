@@ -52,7 +52,7 @@ type
     procedure LoadFromIni(aIniFile : TMemIniFile); override;
     procedure SaveToIni(aIniFile : TMemIniFile); override;
 
-    constructor Create(aOwner : TComponent); override;
+    constructor Create;
     destructor Destroy; override;
   end;
 
@@ -104,9 +104,9 @@ begin
   DefFontColor := SDLColor(255, 255, 255, 255);
 end;
 
-constructor cCHXSDL2Config.Create(aOwner : TComponent);
+constructor cCHXSDL2Config.Create;
 begin
-  inherited Create(aOwner);
+  inherited Create;
 end;
 
 destructor cCHXSDL2Config.Destroy;
