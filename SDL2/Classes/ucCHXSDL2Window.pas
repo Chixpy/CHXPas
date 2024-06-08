@@ -32,6 +32,7 @@ type
   private
     FLogHeight : CInt;
     FLogWidth : CInt;
+    FMaximized : Boolean;
     FWinHeight : CInt;
     FKeyboardFocus : Boolean;
     FMinimized : Boolean;
@@ -42,7 +43,7 @@ type
     FTitle : string;
     FWinWidth : CInt;
     FWindowID : CUInt32;
-    procedure SetTitle(const AValue : string);
+    procedure SetTitle(const aValue : string);
 
   protected
     // Internal states
@@ -66,6 +67,7 @@ type
     property WindowID : CUInt32 read FWindowID;
 
     property Shown : Boolean read FShown;
+    property Maximized : Boolean read FMaximized;
     property Minimized : Boolean read FMinimized;
     property MouseFocus : Boolean read FMouseFocus;
     property KeyboardFocus : Boolean read FKeyboardFocus;
@@ -85,7 +87,7 @@ implementation
 
 { cCHXSDL2Window }
 
-procedure cCHXSDL2Window.SetTitle(const AValue : string);
+procedure cCHXSDL2Window.SetTitle(const aValue : string);
 begin
   if FTitle = aValue then Exit;
   FTitle := aValue;
@@ -96,8 +98,9 @@ end;
 procedure cCHXSDL2Window.InitWindow;
 begin
   FullScreen := False;
-  FMinimized := False;
   FShown := False;
+  FMinimized := False;
+  FMaximized := False;
   FMouseFocus := False;
   FKeyboardFocus := False;
 
@@ -108,7 +111,7 @@ function cCHXSDL2Window.CreateWindow : Boolean;
 var
   Flags : CUInt32;
   NRend : cint32;
-  i, RendDrv : integer;
+  i, RendDrv : Integer;
   RendInfo : TSDL_RendererInfo;
 begin
   Result := False;
@@ -254,20 +257,33 @@ begin
       SDL_RenderPresent(PRenderer);
 
     //SDL_WINDOWEVENT_MOVED  : {< Window has been moved to data1; data2.}
-    //SDL_WINDOWEVENT_RESIZED: {< Window has been resized to data1xdata2.}
+    SDL_WINDOWEVENT_RESIZED : {< Window has been resized to data1xdata2.}
+    begin
+      FWinWidth := aEvent.window.data1;
+      FWinHeight := aEvent.window.data2;
+    end;
 
     SDL_WINDOWEVENT_SIZE_CHANGED : {< The window size has changed.}
       SDL_RenderPresent(PRenderer);
 
     SDL_WINDOWEVENT_MINIMIZED : {< Window has been minimized.}
+    begin
       FMinimized := True;
+      FMaximized := False;
+    end;
 
     SDL_WINDOWEVENT_MAXIMIZED : {< Window has been maximized.}
+    begin
       FMinimized := False;
+      FMaximized := True;
+    end;
 
     SDL_WINDOWEVENT_RESTORED :
       {< Window has been restored to normal size and position.}
+    begin
       FMinimized := False;
+      FMaximized := False;
+    end;
 
     SDL_WINDOWEVENT_ENTER : {< Window has gained mouse focus.}
       FMouseFocus := True;

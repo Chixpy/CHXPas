@@ -86,7 +86,7 @@ type
     aFile := TStringList.Create;
     aFile.LoadFromFile('Data\rainbow.txt');
 
-    { CHX: Joining lines... but with #10 and/or #13  }
+    { CHX: Joining lines... but with #10#13 or #10 or #13, system dependant. }
     srctxt := aFile.Text;
     srctxt := srctxt.Replace(#10, ' ', [rfReplaceAll, rfIgnoreCase]);
     srctxt := srctxt.Replace(#13, ' ', [rfReplaceAll, rfIgnoreCase]);
@@ -94,7 +94,7 @@ type
     srctxt := srctxt.Replace('  ', ' ', [rfReplaceAll, rfIgnoreCase]);
     srctxt := srctxt.Replace('  ', ' ', [rfReplaceAll, rfIgnoreCase]);
 
-    words := srctxt.Split([' ', ',', '?', '!', '.'],
+    words := srctxt.Split([' ', ',', '?', '!', '.', '[', ']'],
       TStringSplitOptions.ExcludeEmpty);
 
     aFile.Free;

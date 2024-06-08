@@ -18,19 +18,20 @@ uses
   Classes, SysUtils, CTypes, StrUtils, FileUtil, LazFileUtils, Math,
   SDL2, SDL2_GFX, SDL2_TTF, SDL2_Image,
   uCHXStrUtils,
-  ucCHXSDL2Engine, ucCHXSDL2FontTTF, uCHXSDL2Utils, uProcUtils;
+  ucCHXSDL2Engine, ucCHXSDL2FontTTF, uCHXSDL2Utils, uProcUtils,
+  uaCHXSDL2Comp, ucCHXSDL2TextEdit, ucCHXSDL2Button;
 
 const
   { CHX: Renderer scales images to actual size of the window. }
-  WinW = 800; { CHX: Window logical width. }
-  WinH = 600; { CHX: Window logical height. }
+  WinW = 640; { CHX: Window logical width. }
+  WinH = 480; { CHX: Window logical height. }
 
 type
 
   { cCTCEng }
 
   cCTCEng = class(cCHXSDL2Engine)
-  protected
+  public
     procedure Setup; override;
     procedure Finish; override;
     procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
@@ -40,7 +41,7 @@ type
       var ExitProg : Boolean); override;
 
   public
-    { CHX: Processing global variables. }
+    { CHX: Processing global variables and auxiliar functions. }
 
   end;
 
@@ -68,9 +69,8 @@ type
   procedure cCTCEng.Draw;
   begin
     // Background and frame clear.
-    SDL_SetRenderDrawColor(SDLWindow.PRenderer, 0, 0, 0, 255);
-    SDL_RenderClear(SDLWindow.PRenderer);
-
+    SDL_SetRenderDrawColor(SDL2R, 0, 0, 0, 255);
+    SDL_RenderClear(SDL2R);
 
   end;
 
@@ -129,9 +129,10 @@ begin
   StandardFormatSettings;
 
   try
+    //CTCEng := cCTCEng.Create(ApplicationName, 'SDL2.ini');
     CTCEng := cCTCEng.Create(ApplicationName, WinW, WinH, True, False);
-    CTCEng.Config.DefFontSize := WinH div 25;
-    // Actually,they are less than 25 lines because of LineHeight
+    CTCEng.Config.DefFontSize := WinH div 30;
+    // Actually, they are less than 30 lines because of LineHeight
     CTCEng.Config.DefFontColor := SDLColor(255,255,255,255);
     CTCEng.Config.DefFontFile := 'FreeMonoBold.ttf';
     CTCEng.ShowFrameRate := True;

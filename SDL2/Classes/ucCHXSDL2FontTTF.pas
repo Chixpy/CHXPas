@@ -41,14 +41,16 @@ type
 
     // Static Text methods
     //---------------------
-    procedure AddStaticStr(const aKey, aStr : string;
-      const aWidth : CInt = 0); override;
+    function AddStaticStr(const aKey, aStr : string;
+      const aWidth : CInt = 0) : Integer; override;
     {< See @inherited. }
     procedure AddStaticText(const aKey : string; const aText : TStringList;
       const aWidth : CInt; const aAlign : CInt = 0); override;
     {< See @inherited. }
     procedure RenderStatic(const aKey : string; const aX, aY : CInt);
       override;
+    {< See @inherited. }
+    procedure RemoveStatic(const aKey : string); override;
     {< See @inherited. }
 
     // Dynamic Text routines
@@ -112,15 +114,17 @@ begin
     Color, aWidth);
 end;
 
-procedure cCHXSDL2FontTTF.AddStaticStr(const aKey, aStr : string;
-  const aWidth : CInt);
+function cCHXSDL2FontTTF.AddStaticStr(const aKey, aStr : string;
+  const aWidth : CInt): Integer;
 var
   TextSFC : PSDL_Surface;
   TextCache : cCHXSDL2TextCache;
 begin
+  Result := 0;
   if (aKey = EmptyStr) or (aStr = EmptyStr) then Exit;
 
   TextSFC := CreateStrSurface(aStr, aWidth);
+  Result := TextSFC^.w;
   TextCache := cCHXSDL2TextCache.Create(Renderer, TextSFC);
   CachedTexts.Add(aKey, TextCache);
   SDL_FreeSurface(TextSFC);
@@ -148,6 +152,11 @@ begin
   TextCache := CachedTexts[aKey];
   if Assigned(TextCache) then
     TextCache.Draw(aX, aY);
+end;
+
+procedure cCHXSDL2FontTTF.RemoveStatic(const aKey : string);
+begin
+  CachedTexts.Remove(aKey);
 end;
 
 function cCHXSDL2FontTTF.RenderDynStr(const aStr : string; const aX, aY : CInt;

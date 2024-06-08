@@ -51,14 +51,16 @@ type
     // Static Text methods
     //---------------------
 
-    procedure AddStaticStr(const aKey, aStr : string; const aWidth : CInt = 0);
-      virtual; abstract;
+    function AddStaticStr(const aKey, aStr : string;
+      const aWidth : CInt = 0) : Integer; virtual; abstract;
     {< Add a cached string for faster draw.
 
        @param(aKey Key to reference the string.)
        @param(aStr String to store in cache.)
        @param(aWidth Width in pixel to wordwrap the string. `0` don't wordwrap
          the string.)
+
+       @returns(Actual width of the added text in pixels.)
     }
     procedure AddStaticText(const aKey : string; const aText : TStringList;
       const aWidth : CInt; const aAlign : CInt = 0); virtual; abstract;
@@ -89,6 +91,9 @@ type
        @param(aKey Key to reference the string.)
        @param(aX,aY Top left position to draw the text.)
     }
+
+    procedure RemoveStatic(const aKey : string); virtual; abstract;
+    {< Removes a static string/text from cache. }
 
     // Dynamic Text routines
     // ---------------------
@@ -142,7 +147,6 @@ type
          @itemLabel(3 / TTF_WRAPPED_ALIGN_RIGHT)
          @item(Right align.)
        )
-       @returns(Actual width of the rendered text in pixels.)
     }
 
     procedure ChangeFontStyle(const aColor : TSDL_Color;

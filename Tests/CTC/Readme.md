@@ -113,11 +113,11 @@ Reasons to skip:
     translations and rotations. Not sure how to implement it:
     - Manually tweak drawing of points and lines.
     - Maybe creating a stack of new rendering textures on pushMatrix. They
-      can be rotated, translated and zoomed, thed render in parent texture
+      can be rotated, translated and zoomed, then render in parent texture
       on popMatrix. But, we can't draw on negative coords
     - Or making a wrapper of all drawing function that makes all
       transformations before actual drawing.
-    - Or, Without SDL, TBGRABitmap has TBGRACanvas2D wich simulates JavaScript
+    - Or, without SDL, TBGRABitmap has TBGRACanvas2D wich simulates JavaScript
       Canvas with rotate, scale, translate, save (pushMatrix) and
       restore (popMatrix). But I need to create a new engine based on
       TBGRABitmap (and maybe I can redo all SDL examples in TBGRABitmap too

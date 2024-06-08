@@ -8,11 +8,11 @@ unit ucCHXSDL2Engine;
 interface
 
 uses
-  Classes, SysUtils, CTypes, Math,
+  Classes, SysUtils, CTypes, LazUTF8,
   // SDL2
-  SDL2, SDL2_GFX, SDL2_TTF,
+  SDL2, SDL2_GFX,
   // CHX SDL2
-  uCHXSDL2Utils,
+  uaCHXSDL2Comp,
   ucCHXSDL2Config, ucCHXSDL2Window, uaCHXSDL2Font, ucCHXSDL2FontGFX,
   ucCHXSDL2FontTTF;
 
@@ -23,31 +23,48 @@ resourcestring
 type
   { cCHXSDL2Engine }
 
-  cCHXSDL2Engine = class(TComponent)
-  private
+  cCHXSDL2Engine = class(TPersistent)
+  private // Gets and Sets
+    FCompList : cSDL2CompList;
     FConfig : cCHXSDL2Config;
     FDefFont : caCHXSDL2Font;
     FPWinPxFmt : PSDL_PixelFormat;
+    FSDL2R : PSDL_Renderer;
     FSDLWindow : cCHXSDL2Window;
     FShowFrameRate : Boolean;
+    procedure SetShowFrameRate(const aValue : Boolean);
 
+  private // Properties
     {property} SDLFrameMang : TFPSManager;
     {property} FFrameCount : QWord; // More than the age of the universe
 
-    // Current Input Text properties
-    {property} CTIFont : caCHXSDL2Font;
-    {property} CTIX : Integer;
-    {property} CTIY : Integer;
-    {property} CTIWidth : Integer;
-    {property} CTIStrVar : PString;
-    {property} CTIUpdateLive : Boolean;
+    {property} FocusedComp : caCHXSDL2Comp;
 
-    procedure SetShowFrameRate(const AValue : Boolean);
+    // Simple Input Text properties
+    {property} STIActive : Boolean;
+    {property} STIFont : caCHXSDL2Font;
+    {property} STIX : Integer;
+    {property} STIY : Integer;
+    {property} STIWidth : Integer;
+    {property} STIStrVar : PString;
+    {property} STIUpdateLive : Boolean;
+
+    // Default values for component
+    {property} DefCompBGColor : CUInt;
+    //< Background color $AABBGGRR in Intel/Windows
+    {property} DefCompBDColor : CUInt;
+    //< Border color if not focused
+    {property} DefCompHLColor : CUInt;
+    //< Border color if focused
+
+    procedure SetDefaultValues;
 
   protected
     {property} CurrTextInput : string;
 
     property SDLWindow : cCHXSDL2Window read FSDLWindow;
+    property SDL2R : PSDL_Renderer read FSDL2R;
+    //< Shortcut of SDLWindow.PRenderer
 
     property DefFont : caCHXSDL2Font read FDefFont;
     {< Default TTF font to use with the engine. A TTF file, size and color must
@@ -57,7 +74,7 @@ type
          cCHXSDL2FontTTF.ChangeFontStyle, but this not for continuous calls
          because it will remove cached glyphs and texts.
 
-       If not font is loaded, 8 bit ASCII}
+       If not font is loaded, 8 bit ASCII from SDL2_GFX will be used. }
 
     property PWinPxFmt : PSDL_PixelFormat read FPWinPxFmt;
     //< Window pixel format for new textures.
@@ -74,16 +91,7 @@ type
     {< Starts input text, so keyboard events of common keys will be disabled
       until Enter or another event stops it. }
     function IsEditingText : Boolean; inline;
-    {< are we currently editing text? }
-
-    // Virtual methods to implement in child classes
-    procedure Setup; virtual; abstract;
-    procedure Finish; virtual; abstract;
-    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
-      virtual; abstract;
-    procedure Draw; virtual; abstract;
-    procedure HandleEvent(const aEvent : TSDL_Event;
-      var Handled, ExitProg : Boolean); virtual;
+    {< Are we currently editing text? }
 
   public
     {property} Title : string;
@@ -93,11 +101,24 @@ type
 
     property Config : cCHXSDL2Config read FConfig;
 
+    property CompList : cSDL2CompList read FCompList;
+
     procedure Init;
     {< Init engine and window. }
 
     procedure Run;
     {< Run engine. }
+
+    function AddComponent(aComp: caCHXSDL2Comp): caCHXSDL2Comp;
+
+    //Virtual methods to implement in child classes.
+    procedure Setup; virtual; abstract;
+    procedure Finish; virtual; abstract;
+    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+      virtual; abstract;
+    procedure Draw; virtual; abstract;
+    procedure HandleEvent(const aEvent : TSDL_Event;
+      var Handled, ExitProg : Boolean); virtual;
 
     constructor Create(const aTitle : string;
       const aWinWidth, aWinHeight : CInt; const HWAcc : Boolean = True;
@@ -129,13 +150,24 @@ implementation
 
 { cCHXSDL2Engine }
 
-procedure cCHXSDL2Engine.SetShowFrameRate(const AValue : Boolean);
+procedure cCHXSDL2Engine.SetShowFrameRate(const aValue : Boolean);
 begin
-  if FShowFrameRate = AValue then Exit;
-  FShowFrameRate := AValue;
+  if FShowFrameRate = aValue then Exit;
+  FShowFrameRate := aValue;
 
   if assigned(SDLWindow) then
     SDLWindow.Title := Self.Title;
+end;
+
+procedure cCHXSDL2Engine.SetDefaultValues;
+begin
+  FCompList := cSDL2CompList.Create(True);
+
+  FShowFrameRate := False;
+
+  DefCompBGColor := $FF404040; //< Background color
+  DefCompBDColor := $FF808080; //< Border color if not focused
+  DefCompHLColor := $FF00FFFF; //< Border color if focused
 end;
 
 procedure cCHXSDL2Engine.PutPixel(const Base : PCUInt32; const Pitch : CInt;
@@ -197,20 +229,21 @@ begin
   // But we need a global SDL_Rect property.
   //SDL_SetTextInputRect(@SDLRect(aX,aY,aW, aFont.LineHeight));
 
-  CTIFont := aFont;
+  STIActive := True;
+  STIFont := aFont;
   CurrTextInput := aText;
-  CTIX := aX;
-  CTIY := aY;
-  CTIWidth := aWidth;
-  CTIStrVar := @aText;
-  CTIUpdateLive := UpdateLive;
+  STIX := aX;
+  STIY := aY;
+  STIWidth := aWidth;
+  STIStrVar := @aText;
+  STIUpdateLive := UpdateLive;
 
   SDL_StartTextInput;
 end;
 
 function cCHXSDL2Engine.IsEditingText : Boolean;
 begin
-  Result := SDL_IsTextInputActive;
+  Result := STIActive and SDL_IsTextInputActive;
 end;
 
 procedure cCHXSDL2Engine.HandleEvent(const aEvent : TSDL_Event; var Handled,
@@ -229,33 +262,28 @@ begin
 
   case aEvent.type_ of
 
-    SDL_WINDOWEVENT :
-      case aEvent.window.event of
-        SDL_WINDOWEVENT_EXPOSED, SDL_WINDOWEVENT_SIZE_CHANGED :
-          //< Not needed in cCHXSDL2Engine context
-          Handled := True;
-        else
-          SDLWindow.HandleEvent(aEvent, Handled);
-      end;
+    // Handled in Run method
+    // SDL_WINDOWEVENT : // (window: TSDL_WindowEvent)
 
-    //SDL_KEYUP : // (key: TSDL_KeyboardEvent);
-    SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
+    //SDL_KEYUP : // (key: TSDL_KeyboardEvent)
+    SDL_KEYDOWN : // (key: TSDL_KeyboardEvent)
     begin
-      if SDL_IsTextInputActive then
+      if STIActive and SDL_IsTextInputActive then
       begin
         case aEvent.key.keysym.sym of
           // Special keys while editing text.
           SDLK_BACKSPACE, SDLK_DELETE :
           begin
-            CurrTextInput := Copy(CurrTextInput, 1, CurrTextInput.Length - 1);
+            UTF8Delete(CurrTextInput, UTF8Length(CurrTextInput), 1);
             Handled := True;
           end;
 
           SDLK_RETURN, SDLK_KP_ENTER :
           begin
             SDL_StopTextInput;
-            if not CTIUpdateLive then
-              CTIStrVar^ := CurrTextInput;
+            STIActive := False;
+            if not STIUpdateLive then
+              STIStrVar^ := CurrTextInput;
             // Handled := True; Pass to parent handler
           end;
 
@@ -328,18 +356,18 @@ begin
       end;
     end;
 
-    SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent);
+    SDL_TEXTEDITING : // (edit: TSDL_TextEditingEvent)
     begin
       // This is called when a IME window is called (Win+.)
-      if SDL_IsTextInputActive then
+      if STIActive and SDL_IsTextInputActive then
       begin
         CurrTextInput += aEvent.edit.Text;
         Handled := True;
       end;
     end;
-    SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent);
+    SDL_TEXTEDITING_EXT : // (exitExt: TSDL_TextEditingExtEvent)
     begin
-      if SDL_IsTextInputActive then
+      if STIActive and SDL_IsTextInputActive then
       begin
         CurrTextInput += aEvent.exitExt.Text;
         // Freeing as TSDL_TextEditingExtEvent documentation says.
@@ -348,20 +376,20 @@ begin
         Handled := True;
       end;
     end;
-    SDL_TEXTINPUT : // (text: TSDL_TextInputEvent);
+    SDL_TEXTINPUT : // (text: TSDL_TextInputEvent)
     begin
-      if SDL_IsTextInputActive then
+      if STIActive and SDL_IsTextInputActive then
       begin
         CurrTextInput += aEvent.Text.Text;
-        if CTIUpdateLive then
-          CTIStrVar^ := CurrTextInput;
+        if STIUpdateLive then
+          STIStrVar^ := CurrTextInput;
         Handled := True;
       end;
     end;
-    //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent);
-    //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent);
-    //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
-    //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent);
+    //SDL_MOUSEMOTION : // (motion: TSDL_MouseMotionEvent)
+    //SDL_MOUSEBUTTONUP : // (button: TSDL_MouseButtonEvent)
+    //SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent)
+    //SDL_MOUSEWHEEL : // (wheel: TSDL_MouseWheelEvent)
 
     SDL_QUITEV : // General exit event
     begin
@@ -397,24 +425,20 @@ begin
     raise Exception.Create(rsErrSDLWinNotCreated);
   end;
 
+  FSDL2R := SDLWindow.PRenderer;
+
   FPWinPxFmt := SDL_AllocFormat(SDL_GetWindowPixelFormat(SDLWindow.PWindow));
 
-  // Creating a default TTF font or default GFX font.
+  // Creating a default TTF font.
   if FileExists(Config.DefFontFile) and (Config.DefFontSize > 0) then
-  begin
-    try
-      FDefFont := cCHXSDL2FontTTF.Create(SDLWindow.PRenderer,
-        Config.DefFontFile,
-        Config.DefFontSize, Config.DefFontColor)
-    except
-      // Fallback to SDL2_GFX
-      FDefFont := cCHXSDL2FontGFX.Create(SDLWindow.PRenderer,
-        Config.DefFontColor);
-    end;
-  end
-  else
-    FDefFont := cCHXSDL2FontGFX.Create(SDLWindow.PRenderer,
-      Config.DefFontColor);
+    FDefFont := cCHXSDL2FontTTF.Create(SDL2R, Config.DefFontFile,
+      Config.DefFontSize, Config.DefFontColor);
+
+  // Fallback to SDL2_GFX
+  if not Assigned(DefFont) then
+    FDefFont := cCHXSDL2FontGFX.Create(SDL2R, Config.DefFontColor);
+
+  STIActive := False;
 end;
 
 procedure cCHXSDL2Engine.Run;
@@ -422,7 +446,8 @@ var
   ProgExit, HandledEvent : Boolean;
   CompTime, LastFrameTime : CUInt32;
   aEvent : TSDL_Event;
-  CursorX : Integer;
+  CursorX, i : Integer;
+  aComp : caCHXSDL2Comp;
 begin
   ProgExit := False;
 
@@ -434,14 +459,18 @@ begin
 
   try
     Self.Setup;
+    for aComp in CompList do
+      aComp.Setup;
 
     while (not ProgExit) do
     begin
       Inc(FFrameCount);
 
       // COMPUTE
-      if (not ProgExit) then
-        Self.Compute(LastFrameTime, ProgExit);
+      Self.Compute(LastFrameTime, ProgExit);
+      for aComp in CompList do
+        if (not ProgExit) then
+          aComp.Compute(LastFrameTime, ProgExit);
 
       // TIMING (1)
       // Actual Compute + Events time in milliseconds.
@@ -454,6 +483,8 @@ begin
       begin
         // DRAW
         Self.Draw;
+        for aComp in CompList do
+          aComp.Draw;
 
         if ShowFrameRate and
           ((FrameCount and 31) = 0) then
@@ -461,36 +492,64 @@ begin
             [Title, LastFrameTime, CompTime]);
 
         // Drawing current editing text
-        if SDL_IsTextInputActive then
+        if STIActive and SDL_IsTextInputActive then
         begin
-          CursorX := CTIFont.RenderDynStrClipped(CurrTextInput, CTIX, CTIY,
-            CTIWidth);
+          CursorX := STIFont.RenderDynStrClipped(CurrTextInput, STIX, STIY,
+            STIWidth);
 
           // Drawing cursor
           if (FrameCount and 32) = 32 then
-            vlineRGBA(SDLWindow.PRenderer, CTIX + CursorX,
-              CTIY, CTIY + CTIFont.LineHeight, CTIFont.Color.r,
-              CTIFont.Color.g,
-              CTIFont.Color.b, CTIFont.Color.a);
+            vlineRGBA(SDL2R, STIX + CursorX,
+              STIY, STIY + STIFont.LineHeight, STIFont.Color.r,
+              STIFont.Color.g, STIFont.Color.b, STIFont.Color.a);
         end;
 
         // UPDATE RENDER
-        SDL_RenderPresent(SDLWindow.PRenderer);
+        SDL_RenderPresent(SDL2R);
       end;
 
       // TIMING (2)
       CompTime := SDL_GetTicks;
 
       // EVENTS
-
-      { NOTE : Listen window events when minimized. }
-
       // SDL_PumpEvents;
 
       while (SDL_PollEvent(@aEvent) <> 0) and (not ProgExit) do
       begin
         HandledEvent := False; // Used to see if a event is Handled
+
+        // First: Window events
+        if aEvent.type_ = SDL_WINDOWEVENT then
+        begin
+          case aEvent.window.event of
+            SDL_WINDOWEVENT_EXPOSED, SDL_WINDOWEVENT_SIZE_CHANGED :
+              //< Not needed in cCHXSDL2Engine context
+              HandledEvent := True;
+            else
+              SDLWindow.HandleEvent(aEvent, HandledEvent);
+          end;
+        end;
+
+        // Second: Pass event to current component
+        if assigned(FocusedComp) then
+          FocusedComp.HandleEvent(aEvent, HandledEvent, ProgExit);
+
+        // Third: Pass to all components
+        for aComp in CompList do
+          aComp.HandleEvent(aEvent, HandledEvent, ProgExit);
+
+        // Fourth: Fallback to engine
         Self.HandleEvent(aEvent, HandledEvent, ProgExit);
+
+        // Getting current focused component
+        FocusedComp := nil;
+        i := 0;
+        while (not assigned(FocusedComp)) and (i < CompList.Count) do
+        begin
+          if CompList[i].Focused then
+            FocusedComp := CompList[i];
+          Inc(i);
+        end;
       end;
     end;
 
@@ -499,13 +558,29 @@ begin
   end;
 end;
 
+function cCHXSDL2Engine.AddComponent(aComp : caCHXSDL2Comp) : caCHXSDL2Comp;
+begin
+  Result := aComp;
+  if not assigned(aComp) then Exit;
+
+  aComp.PRenderer := SDL2R;
+  aComp.BGColor := DefCompBGColor;
+  aComp.BDColor := DefCompBDColor;
+  aComp.HLColor := DefCompHLColor;
+
+  aComp.UnSetFocus;
+
+  CompList.Add(aComp);
+end;
+
 constructor cCHXSDL2Engine.Create(const aTitle : string; const aWinWidth,
   aWinHeight : CInt; const HWAcc : Boolean; const AutoInit : Boolean);
 begin
-  inherited Create(nil);
+  inherited Create;
+
+  SetDefaultValues;
 
   Title := aTitle;
-  FShowFrameRate := False;
 
   FConfig := cCHXSDL2Config.Create;
   Config.WindowWidth := aWinWidth;
@@ -521,10 +596,11 @@ end;
 constructor cCHXSDL2Engine.Create(const aTitle : string;
   const aIniFile : string; const AutoInit : Boolean);
 begin
-  inherited Create(nil);
+  inherited Create;
+
+  SetDefaultValues;
 
   Title := aTitle;
-  FShowFrameRate := False;
 
   FConfig := cCHXSDL2Config.Create;
   Config.DefaultFileName := aIniFile;
@@ -539,12 +615,23 @@ end;
 
 destructor cCHXSDL2Engine.Destroy;
 begin
+  CompList.Free;
+
+  // Saving normal window size
+  if (not SDLWindow.Maximized) then
+  begin
+    Config.WindowWidth := SDLWindow.WinWidth;
+    Config.WindowHeight := SDLWindow.WinHeight;
+    Config.RendererWidth := SDLWindow.LogWidth;
+    Config.RendererHeight := SDLWindow.LogHeight;
+  end;
+
   if Config.DefaultFileName <> '' then
     Config.SaveToFile('', False);
 
   Config.Free;
 
-  //This must be stopped
+  // This must be stopped?
   if SDL_IsTextInputActive then
     SDL_StopTextInput;
 

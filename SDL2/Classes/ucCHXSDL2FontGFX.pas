@@ -40,8 +40,8 @@ type
   public
     // Static Text methods
     //---------------------
-    procedure AddStaticStr(const aKey, aStr : string; const aWidth : CInt = 0);
-      override;
+    function AddStaticStr(const aKey, aStr : string;
+      const aWidth : CInt = 0) : Integer; override;
     {< See @inherited.
 
     Actually in this child of @inheritedClass, only stores the string it self
@@ -56,6 +56,9 @@ type
       `aText` lines are copied to cache.
     }
     procedure RenderStatic(const aKey : string; const aX, aY : CInt); override;
+    {< See @inherited. }
+
+    procedure RemoveStatic(const aKey : string); override;
     {< See @inherited. }
 
     // Dynamic Text routines
@@ -113,12 +116,13 @@ begin
   Result := aStr.Length * FontWidth;
 end;
 
-procedure cCHXSDL2FontGFX.AddStaticStr(const aKey, aStr : string;
-  const aWidth : CInt);
+function cCHXSDL2FontGFX.AddStaticStr(const aKey, aStr : string;
+  const aWidth : CInt) : Integer;
 var
   aSL : TStringList;
   WStr : string;
 begin
+  Result := 0;
   if (aKey = EmptyStr) or (aStr = EmptyStr) then Exit;
 
   aSL := TStringList.Create;
@@ -127,6 +131,8 @@ begin
   aSL.Text := WStr;
 
   CachedTexts.Add(aKey, aSL);
+
+  Result := aStr.Length * FontWidth;
 end;
 
 procedure cCHXSDL2FontGFX.AddStaticText(const aKey : string;
@@ -176,6 +182,11 @@ begin
 
     Inc(i);
   end;
+end;
+
+procedure cCHXSDL2FontGFX.RemoveStatic(const aKey : string);
+begin
+  CachedTexts.Remove(aKey);
 end;
 
 function cCHXSDL2FontGFX.RenderDynStr(const aStr : string; const aX, aY : CInt;
