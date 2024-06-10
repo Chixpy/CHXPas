@@ -22,8 +22,8 @@
         <DpiAware Value="True/PM_V2"/>
         <LongPathAware Value="True"/>
         <AnsiUTF8 Value="True"/>
-        <TextName Value="Chixpy.CHXSDL2.PasProc"/>
-        <TextDesc Value="Basic structure for Nature of the Code and The Coding Train tests"/>
+        <TextName Value="Chixpy.CHXSDL2.CTC021"/>
+        <TextDesc Value="The Coding Train Challenge 021"/>
       </XPManifest>
     </General>
     <VersionInfo>

@@ -42,7 +42,7 @@ type
     procedure SetSize;
 
   public
-    OnClick : procedure of object;
+    OnClick : TCompCB;
 
     property Caption : string read FCaption write SetCaption;
     property Font : caCHXSDL2Font read FFont write SetFont;
@@ -88,7 +88,7 @@ end;
 
 procedure cCHXSDL2Button.CreateCache;
 begin
-  if (not assigned(Font)) or (ID = '') or (Caption = '') then
+  if (not assigned(Font)) or (ID = '') then
   begin
     FontW := 0;
     FontH := 0;
@@ -172,7 +172,7 @@ begin
     SDL_RenderCopy(PRenderer, Glyph, nil, @TgtRect);
   end;
 
-  if Assigned(FFont) then
+  if Assigned(FFont) and (id <> '') then
     Font.RenderStatic(ID, x1, y1);
 end;
 
@@ -186,7 +186,7 @@ begin
     SDL_MOUSEBUTTONDOWN : // (button: TSDL_MouseButtonEvent);
     begin
       if Assigned(OnClick) then
-        OnClick();
+        OnClick(Self);
       Handled := True;
     end;
     SDL_KEYDOWN : // (key: TSDL_KeyboardEvent);
@@ -195,7 +195,7 @@ begin
         SDLK_SPACE, SDLK_RETURN :
         begin
           if Assigned(OnClick) then
-            OnClick();
+            OnClick(Self);
           Handled := True;
         end;
       end;

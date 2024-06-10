@@ -8,6 +8,7 @@ uses
   SDL2;
 
 type
+
   { caCHXSDL2Comp }
 
   caCHXSDL2Comp = class(TPersistent)
@@ -20,8 +21,8 @@ type
 
     {property} X : Integer;
     {property} Y : Integer;
-    {property} Width: Integer;
-    {property} Height: Integer;
+    {property} Width : Integer;
+    {property} Height : Integer;
 
     // Colors
     {property} BGColor : CUInt;
@@ -42,7 +43,8 @@ type
     procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
       virtual; abstract;
     procedure Draw; virtual; abstract;
-    procedure HandleEvent(const aEvent : TSDL_Event; var Handled, ExitProg : Boolean); virtual;
+    procedure HandleEvent(const aEvent : TSDL_Event;
+      var Handled, ExitProg : Boolean); virtual;
 
     constructor Create;
     destructor Destroy; override;
@@ -52,6 +54,11 @@ type
   cSDL2GenCompList = specialize TFPGObjectList<caCHXSDL2Comp>;
 
   cSDL2CompList = class(cSDL2GenCompList);
+
+  // Event Callbacks
+  TCompCB = procedure(const Sender : caCHXSDL2Comp) of object;
+  TCompStringCB = procedure(const Sender : caCHXSDL2Comp;
+    const aStr : string) of object;
 
 implementation
 

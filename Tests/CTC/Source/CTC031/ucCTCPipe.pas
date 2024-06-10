@@ -32,7 +32,7 @@ type
 
     function hits(b : cCTCBird) : Boolean;
 
-    constructor Create(const WWidth : integer; const WHeight : integer);
+    constructor Create(const WWidth, WHeight : integer);
     destructor Destroy; override;
   end;
 
@@ -57,7 +57,7 @@ begin
     end;
 end;
 
-constructor cCTCPipe.Create(const WWidth : integer; const WHeight : integer);
+constructor cCTCPipe.Create(const WWidth, WHeight : integer);
 begin
   WindowHeight := WHeight;
   w := 40;

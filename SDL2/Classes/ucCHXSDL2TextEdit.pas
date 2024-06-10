@@ -14,7 +14,6 @@ uses
   uaCHXSDL2Font;
 
 type
-  TAcceptEdit = procedure(aStr : string);
 
   { cCHXSDL2TextEdit
 
@@ -34,7 +33,7 @@ type
   public
     Value : string;
     {< String in the TextEdit. }
-    OnAccept : TAcceptEdit;
+    OnAccept : TCompStringCB;
 
     property Font : caCHXSDL2Font read FFont write SetFont;
 
@@ -163,7 +162,7 @@ begin
         begin
           UnsetFocus;
           if Assigned(OnAccept) then
-            OnAccept(Value);
+            OnAccept(Self, Value);
           Handled := True;
         end;
 

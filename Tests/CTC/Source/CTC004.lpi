@@ -20,8 +20,8 @@
         <DpiAware Value="True/PM_V2"/>
         <LongPathAware Value="True"/>
         <AnsiUTF8 Value="True"/>
-        <TextName Value="Chixpy.CHXSDL2.PasProc"/>
-        <TextDesc Value="Basic structure for Nature of the Code and The Coding Train"/>
+        <TextName Value="Chixpy.CHXSDL2.CTC004"/>
+        <TextDesc Value="The Coding Train Challenge 0004"/>
       </XPManifest>
     </General>
     <VersionInfo>
@@ -123,10 +123,6 @@
       </Unit>
       <Unit>
         <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Engine.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="..\..\..\SDL2\Classes\ucCHXSDL2Font.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>
