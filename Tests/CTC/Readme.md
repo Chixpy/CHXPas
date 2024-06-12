@@ -27,7 +27,7 @@ This is the main base program to simulate Processing. To use it simply open and
 in current build mode, then you must copy then to the other in project options.
 
 This is not the prefered way of using cCHXSDL2Engine, because in Pascal
-every class is in its own unit usually (unless its a package) instead
+every class is in its own unit usually (unless it's a package) instead
 creating a child class in main program file.
 
 Pascal doesn't have Garbage Collector as is, so allocated memory and objects
@@ -118,6 +118,9 @@ Reasons to skip:
 | CTC030 | PMM | Phyllotaxis |
 | CTC032.1 | PMM | Agar.io |
 | CTC032.2 | PMM & S/C | Agar.io |
+| CTC041 | SND | Clappy Bird |
+| CTC042.1 | Markov Chain |  |
+| CTC042.2 | Markov Chain Name Generator |  |
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
       OpenGL/Vulkan setup (SDL, TBGRABitmap or any other OpenGl context).
@@ -138,6 +141,8 @@ Reasons to skip:
       :-P ).
   - TXL: Use toxiclibs physics library.
   - S/C: Use of Server / Client sockets.
+  - SND: Uses microphone input. CTC041 its done, but I don't know how
+      actually interpret stream data in callback function.
 
 Not Skipped now:
 
@@ -148,7 +153,6 @@ Not Skipped now:
 
 | # | Name | Pre-comments |
 |---:|:---|:---|
-| CTC041 |  Clappy Bird | Uses microphone input |
 | CTC042 | Markov Chain Name Generator |  |
 | CTC043 | Context-Free Grammar | It uses tracery.js |
 | CTC044 | AFINN-111 Sentiment Analysis | JSON reading? It's easier read .txt file... |

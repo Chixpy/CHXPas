@@ -427,13 +427,13 @@ begin
 
   FSDL2R := SDLWindow.PRenderer;
 
+  // Pixel format of the window
   FPWinPxFmt := SDL_AllocFormat(SDL_GetWindowPixelFormat(SDLWindow.PWindow));
 
   // Creating a default TTF font.
   if FileExists(Config.DefFontFile) and (Config.DefFontSize > 0) then
     FDefFont := cCHXSDL2FontTTF.Create(SDL2R, Config.DefFontFile,
       Config.DefFontSize, Config.DefFontColor);
-
   // Fallback to SDL2_GFX
   if not Assigned(DefFont) then
     FDefFont := cCHXSDL2FontGFX.Create(SDL2R, Config.DefFontColor);
