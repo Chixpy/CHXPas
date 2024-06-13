@@ -72,12 +72,12 @@ type
     {< Angle of the vector on Y/Z plane projection. }
 
     { TODO: Set absolute angles. }
-    //function SetAngleXY: TPoint3DFType;
-    //{< Change the angle of the vector on X/Y plane projection. }
-    //function SetAngleXZ: TPoint3DFType;
-    //{< Change the angle of the vector on X/Z plane projection. }
-    //function SetAngleYZ: TPoint3DFType;
-    //{< Change the angle of the vector on Y/Z plane projection. }
+    procedure SetAngleXY(const aAngle : TPoint3DFType);
+    {< Change the angle of the vector on X/Y plane projection. }
+    procedure SetAngleXZ(const aAngle : TPoint3DFType);
+    {< Change the angle of the vector on X/Z plane projection. }
+    procedure SetAngleYZ(const aAngle : TPoint3DFType);
+    {< Change the angle of the vector on Y/Z plane projection. }
 
     procedure RotateXY(const aAngle : TPoint3DFType); overload;
     {< Rotates the counter clockwise angle of the vector on X/Y plane
@@ -289,6 +289,45 @@ end;
 function TPoint3DF.GetAngleYZ : TPoint3DFType;
 begin
   Result := ArcTan2(Self.Z, Self.Y); // Params: z, y
+end;
+
+procedure TPoint3DF.SetAngleXY(const aAngle : TPoint3DFType);
+var
+  AValue: TPoint3DFType;
+begin
+  // TODO: This is not the most optimized way
+  AValue := Self.Z;
+  Self.Z := 0;
+  Self.X := Self.GetMagnitude;
+  Self.Y := 0;
+  Self.RotateXY(aAngle);
+  Self.Z := AValue;
+end;
+
+procedure TPoint3DF.SetAngleXZ(const aAngle : TPoint3DFType);
+var
+  AValue: TPoint3DFType;
+begin
+  // TODO: This is not the most optimized way
+  AValue := Self.Y;
+  Self.Y := 0;
+  Self.X := Self.GetMagnitude;
+  Self.Z := 0;
+  Self.RotateXZ(aAngle);
+  Self.Y := AValue;
+end;
+
+procedure TPoint3DF.SetAngleYZ(const aAngle : TPoint3DFType);
+var
+  AValue: TPoint3DFType;
+begin
+  // TODO: This is not the most optimized way
+  AValue := Self.X;
+  Self.X := 0;
+  Self.Y := Self.GetMagnitude;
+  Self.Z := 0;
+  Self.RotateYZ(aAngle);
+  Self.X := AValue;
 end;
 
 procedure TPoint3DF.RotateXY(const aAngle : TPoint3DFType);

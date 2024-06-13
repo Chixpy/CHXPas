@@ -2,7 +2,7 @@
 
 Initially this ports of [The Coding Train Challenges](http://codingtra.in) 
 by Daniel Shiffman were used for testing SDL2 and creating a basic engine in
-FPC/Lazarus.
+FPC/Lazarus in [CHXPas](https://github.com/Chixpy/CHXPas).
 
 Basically, Processing code is ported "as is", althougth it is not very optimized
 or Pascal friendly. The main changes are:
@@ -88,11 +88,15 @@ Here are the coding challenges ported. Sorted by when they were ported.
 | CTC035.4 | Traveling Salesperson (Genetic Algorithm) | First genetic algorittm ported |
 | CTC036 | Blobby! | I had to implement a Perlin noise algorithm...<br />This time from [Hugo Elias](http://web.archive.org/web/20160325134143/http://freespace.virgin.net/hugo.elias/models/m_perlin.htm|) |
 | CTC037 | Diastic Machine | Implemented raw user text input. We can show console... but result is shown in SDL Window. |
-| CTC038 | Word Interactor | First actual UI components and its events. A TextEdit and a Button components.  |
+| CTC038 | Word Interactor | First actual UI components and their events. A TextEdit and a Button components.  |
 | CTC039 | Mad Libs Generator | Using Local data and no RegExp |
 | CTC040.1 | Word Counter (P5) | It's the same as CTC040.2, implemented as CTC040_2 |
 | CTC040.2 | Word Counter (Processing)| It's the same as CTC040.1 |
 | CTC040.3 | TF-IDF |  |
+| CTC042.1 | Markov Chain | Github code is a little different from the video algorithm |
+| CTC042.2 | Markov Chain Name Generator |  |
+| CTC044 | AFINN-111 Sentiment Analysis | It's easier read .txt file in Pascal. |
+| CTC046 | Asteroids | Manual tweak of PMM manipulations. |
 
 ## Skipped
 
@@ -119,11 +123,12 @@ Reasons to skip:
 | CTC032.1 | PMM | Agar.io |
 | CTC032.2 | PMM & S/C | Agar.io |
 | CTC041 | SND | Clappy Bird |
-| CTC042.1 | Markov Chain |  |
-| CTC042.2 | Markov Chain Name Generator |  |
+| CTC043 | TRC | Context-Free Grammar |
+| CTC045 | FDB | Saving p5.js Drawings to Firebase |
 
   - 3D: Not done now, because needs a 3D engine; they can be done with
       OpenGL/Vulkan setup (SDL, TBGRABitmap or any other OpenGl context).
+  - FDB: Use Firebase and personal API key, etc.
   - PMM: Not done because Processing coordinate matrix manipulations
     (pushMatrix, rotate, translate, popMatrix, etc.). They change the
     coordinate system in a stack and apply to all points to make relative
@@ -139,10 +144,12 @@ Reasons to skip:
       restore (popMatrix). But I need to create a new engine based on
       TBGRABitmap (and maybe I can redo all SDL examples in TBGRABitmap too
       :-P ).
+  - TRC: It uses tracery.js: a story-grammar generation library.
   - TXL: Use toxiclibs physics library.
   - S/C: Use of Server / Client sockets.
-  - SND: Uses microphone input. CTC041 its done, but I don't know how
-      actually interpret stream data in callback function.
+  - SND: Uses microphone input. CTC041 its nearly done, but I don't know how
+      actually interpret stream data in callback function, and extract the
+      volume as needed.
 
 Not Skipped now:
 
@@ -153,17 +160,12 @@ Not Skipped now:
 
 | # | Name | Pre-comments |
 |---:|:---|:---|
-| CTC042 | Markov Chain Name Generator |  |
-| CTC043 | Context-Free Grammar | It uses tracery.js |
-| CTC044 | AFINN-111 Sentiment Analysis | JSON reading? It's easier read .txt file... |
-| CTC045 | Saving p5.js Drawings to Firebase |  |
-| CTC046 | Asteroids |  |
-| CTC047 | Pixel Sorting in Processing |  |
-| CTC048 | White House Social Media Data Visualization |  |
-| CTC049 | Photo Mosaic with White House Social Media Images |  |
+| CTC047 | Pixel Sorting in Processing | Pixels are sorted by HUE... |
+| CTC048 | White House Social Media Data Visualization | JSON load, fcl-json |
+| CTC049 | Photo Mosaic with White House Social Media Images | Well, I must search a free set of images |
 | CTC050 | Circle Packing |  |
 | CTC051 | A* Pathfinding Algorithm |  |
-| CTC052 | Random Walker |  |
+| CTC052 | Random Walker | This is an implementation form Code of the Nature book by Shiffman, CHXPas have already one Randomwalker implemented |
 | CTC053 | Random Walker with Vectors and Lévy Flight |  |
 | CTC054 | Islamic Star Patterns |  |
 | CTC055 | Mathematical Rose Patterns |  |
