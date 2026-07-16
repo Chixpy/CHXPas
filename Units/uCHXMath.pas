@@ -92,6 +92,18 @@ const
   kHexAreaF = 2.59807621135331594029; //< HexagonArea = kHexAreaF * Side * Side
 
   { 
+    ### Physics
+  }
+  kAvogadroN = 6.02214076e23; 
+  //< mol^-1 (1/mol)= Number of particles in a mol.
+  kAvogadroV = 22.4127;
+  //< dm^3 * mol^-1 (or l / mol) = Volume 1 mol of gas 0ºC at 1 atm.
+  kBoltzmann = 1.380649e-23; 
+  //< m^2 * kg * s^-2 K^-1 (or J / -K)
+  kHP2W = 745.7; //< Horse Power to Watts
+  kCV2W = 736; //< Metric Horse Power to Watts
+
+  { 
     ### Other constants
   }
 
