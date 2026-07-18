@@ -12,7 +12,7 @@ unit uCHXPoint3DF;
 interface
 
 uses
-  Classes, SysUtils, Math;
+  Classes, SysUtils, Math, fgl;
 
 const
   krsFltValueSep = ';';
@@ -175,6 +175,8 @@ type
 
   PPoint3DF = ^TPoint3DF;
   {< Pointer to a TPoint3DF. }
+
+  cPoint3DFList = specialize TFPGList<TPoint3DF>;
 
 function Point3DF(aX, aY: TPoint3DFType; aZ : TPoint3DFType = 0) : TPoint3DF;
 {< Creates a new TPoint3DF. }
