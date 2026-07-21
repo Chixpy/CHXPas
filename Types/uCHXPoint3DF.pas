@@ -1,5 +1,8 @@
 unit uCHXPoint3DF;
-{< Unit of TPoint3DF record.
+{< ¡¡DEPRECATED!! Unit of TPoint3DF record.
+
+  @bold(USE A utCHXVec3[X].pas unit.) Actually utCHXVec3D.pas uses Double
+    as component type.
 
   Copyright (C) 2023-2024 Chixpy https://github.com/Chixpy
 }

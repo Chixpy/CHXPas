@@ -4,7 +4,7 @@ program TestCHXMatrix;
 {$mode objfpc}{$H+}
 
 uses
-  SysUtils, Math, uCHXMatrix;
+  SysUtils, Math, uTCHXMatrixD;
 
 // Procedimiento auxiliar para mostrar matrices de forma bonita en la terminal
 procedure PrintMatrix(const Name: string; const M: TCHXMatrixD);
