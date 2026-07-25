@@ -7,7 +7,7 @@ unit uCHXFileUtils;
 interface
 
 uses
-  Classes, SysUtils, crc, sha1, FileUtil, LazFileUtils, LazUTF8,
+  Classes, SysUtils, crc, sha1, FileUtil, //LazFileUtils, LazUTF8,
   // CHX units
   uCHXStrUtils;
 

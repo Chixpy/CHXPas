@@ -8,7 +8,6 @@ unit uaCHXConfig;
 interface
 
 uses
-  Classes, SysUtils, LazUTF8,
   // CHX abstracts
   uaCHXStorable;
 

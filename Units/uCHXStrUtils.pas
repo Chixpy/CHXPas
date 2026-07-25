@@ -2,13 +2,14 @@ unit uCHXStrUtils;
 
 {< Unit with some string related functions.
 
-  (C) 2011-2024 Chixpy https://github.com/Chixpy
+  (C) 2011-2026 Chixpy https://github.com/Chixpy
 }
-{$DEBUGINFO OFF}
+{$mode ObjFPC}{$H+}
+{$debuginfo OFF}
 
 interface
 
-uses Classes, SysUtils, LazFileUtils, LazUTF8, StrUtils,
+uses Classes, SysUtils, StrUtils, LazFileUtils, LazUTF8, 
   // CHX units
   uCHXConst, uCHXRscStr;
 
