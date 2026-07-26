@@ -4,10 +4,12 @@ program TestSDL3Info;
 
   ToDo:
   - Clean the code.
+  - Use SDL_Log instead WriteLn.
+  - Seems that P(Ansi)Char and Pointer Arrays don't need SDL_Free in FPC,
+    althought SDL docs say to do it. SDL_GetNumAllocations returns -1.
   - Maybe make a procedure for each unit (well, header).
-    Hints are constant strings, without any iterable list.
-    WriteProperty it's used by at least 2 units.
-  - Finish all units information.
+  - Hints are constant strings, without any iterable list.
+  - Properties are used in various units.
 }
 {$mode objfpc}{$H+}
 uses
@@ -35,21 +37,12 @@ var
   DisplayIDList, CurrDisplayID: PSDL_DisplayID;
   aSDLRect: TSDL_Rect;
   DisplayModeList, CurrDisplayMode: PPSDL_DisplayMode;
+  // SDL_audio
+  AudioDeviceIDList, CurrAudioDeviceID: PSDL_AudioDeviceID;
+  AudioSpec: TSDL_AudioSpec;
+  // SDL_power
+  PowerState: TSDL_PowerState;
 
-(*
-  SDLWin : PSDL_Window;
-  SDLRend : PSDL_Renderer;
-  SDLVersion : TSDL_Version;
-  SDLPowerState : TSDL_PowerState;
-  SDLAudioSpec : TSDL_AudioSpec;
-  SDLRect : TSDL_Rect;
-  SDLDisplayMode : TSDL_DisplayMode;
-  SDL_RendererInfo : TSDL_RendererInfo;
-  aIntA, aIntB, aIntC, aIntD : CInt;
-  aFloatA, aFloatB, aFloatC : cfloat;
-  aMin, aMax : integer;
-  aGUIDStr : string;
-*)
 
 procedure WriteSection(const aFileName: String);
 begin
@@ -163,6 +156,7 @@ begin
     // SDL_log.h
     
     WriteSection('SDL_log.h');
+    
     WriteLn('Log priorities:');
     for aInt1 := SDL_LOG_CATEGORY_APPLICATION to SDL_LOG_CATEGORY_CUSTOM do
       WritePriority(aInt1);
@@ -170,6 +164,7 @@ begin
     // SDL_version.h
 
     WriteSection('SDL_version.h');
+    
     aInt1 := SDL_VERSION;
     WriteLn(Format('SDL_VERSION (Compiled): %d (%d.%d.%d)',
       [aInt1, SDL_VERSIONNUM_MAJOR(aInt1), SDL_VERSIONNUM_MINOR(aInt1),
@@ -184,12 +179,14 @@ begin
     // SDL_revision.h
 
     WriteSection('SDL_revision.h');
+    
     Write('SDL_REVISION: ');
     WriteLn(SDL_REVISION);
 
     // SDL_locale.h
 
     WriteSection('SDL_locale.h');
+    
     LocalesList := SDL_GetPreferredLocales(@aCInt1);
     WriteLn('Number of preferred locales: ', aCInt1);
 
@@ -211,6 +208,7 @@ begin
     // SDL_hints.h
 
     WriteSection('SDL_hints.h');
+    
     WriteLn('Hints con valor asignado:');
     for aPAnsiChar in [SDL_HINT_ALLOW_ALT_TAB_WHILE_GRABBED,
     SDL_HINT_ANDROID_ALLOW_RECREATE_ACTIVITY, SDL_HINT_ANDROID_BLOCK_ON_PAUSE,
@@ -361,6 +359,7 @@ begin
     // SDL_stdinc.h-prev (unfinished)
 
     WriteSection('SDL_stdinc.h-prev');
+    
     Write('SDL_GetNumAllocations: ');
     WriteLn(SDL_GetNumAllocations);
     aInt1 := 5; // Mostramos 5 como máximo
@@ -394,6 +393,7 @@ begin
     // SDL_properties.h
 
     WriteSection('SDL_properties.h');
+    
     PropertiesID := SDL_GetGlobalProperties;
     WriteLn('SDL_GetGlobalProperties: ', PropertiesID);
     SDL_EnumerateProperties(PropertiesID, @WriteProperty, nil);
@@ -417,6 +417,7 @@ begin
     // SDL_video.h
 
     WriteSection('SDL_video.h');
+    
     aCInt1 := SDL_GetNumVideoDrivers;
     WriteLn('SDL_GetNumVideoDrivers: ', aCInt1);
     for aCInt2 := 0 to (aCInt1 - 1) do
@@ -487,10 +488,10 @@ begin
     
     WriteSection('SDL_timer.h');
 
-    WriteLn('SDL_GetTicks :', SDL_GetTicks);
-    WriteLn('SDL_GetTicksNS :', SDL_GetTicksNS);
-    WriteLn('SDL_GetPerformanceCounter :', SDL_GetPerformanceCounter);
-    WriteLn('SDL_GetPerformanceFrequency :', SDL_GetPerformanceFrequency);
+    WriteLn('SDL_GetTicks: ', SDL_GetTicks);
+    WriteLn('SDL_GetTicksNS: ', SDL_GetTicksNS);
+    WriteLn('SDL_GetPerformanceCounter: ', SDL_GetPerformanceCounter);
+    WriteLn('SDL_GetPerformanceFrequency: ', SDL_GetPerformanceFrequency);
 
     // SDL_error.h
     //WriteSection('SDL_error.h');
@@ -498,11 +499,88 @@ begin
     // SDL_power.h
 
     WriteSection('SDL_power.h');
-    
 
-    
-(*
+    PowerState := SDL_GetPowerInfo(@aCInt1, @aCInt2);
+    Write('SDL_GetPowerInfo: ');
+    case PowerState of
+      SDL_POWERSTATE_UNKNOWN: Write('Cannot determine power status');
+      SDL_POWERSTATE_ON_BATTERY: 
+        Write('Not plugged in, running on the battery');
+      SDL_POWERSTATE_NO_BATTERY: Write('Plugged in, no battery available');
+      SDL_POWERSTATE_CHARGING: Write('Plugged in, charging battery');
+      SDL_POWERSTATE_CHARGED: Write('Plugged in, battery charged');
+    otherwise // SDL_POWERSTATE_ERROR: 
+      Write('Error determining power status');
+    end;
+    WriteLn(Format(' %d%% (%d seconds left)', 
+      [aCInt2, aCInt1]));
+
     // SDL_audio.h
+
+    WriteSection('SDL_audio.h');
+
+    aCInt1 := SDL_GetNumAudioDrivers;
+    WriteLn('SDL_GetNumAudioDrivers: ', aCInt1);
+    for aCInt2 := 0 to (aCInt1 - 1) do
+      WriteLn('  SDL_GetAudioDriver(', aCInt2,'): ',
+        SDL_GetAudioDriver(aCInt2));
+    WriteLn('SDL_GetCurrentAudioDriver: ', SDL_GetCurrentAudioDriver);
+    AudioDeviceIDList := SDL_GetAudioPlaybackDevices(@aCInt1);
+    WriteLn('SDL_GetAudioPlaybackDevices: ', aCInt1);
+    CurrAudioDeviceID := AudioDeviceIDList;
+    while Assigned(CurrAudioDeviceID) and (CurrAudioDeviceID^ <> 0) do
+    begin
+      WriteLn('  SDL_GetAudioDeviceName(', CurrAudioDeviceID^,'): ',
+        SDL_GetAudioDeviceName(CurrAudioDeviceID^));
+      SDL_GetAudioDeviceFormat(CurrAudioDeviceID^, @AudioSpec, @aCInt1);
+      WriteLn('  SDL_GetAudioDeviceFormat(', CurrAudioDeviceID^,', ...): ');
+      WriteLn(Format(
+        '    Format: Bits: %d - Float: %s - Big Endian: %s - Signed: %s',
+        [SDL_AUDIO_BITSIZE(AudioSpec.Format),
+        BoolToStr(SDL_AUDIO_ISFLOAT(AudioSpec.Format) <> 0),
+        BoolToStr(SDL_AUDIO_ISBIGENDIAN(AudioSpec.Format) <> 0),
+        BoolToStr(SDL_AUDIO_ISSIGNED(AudioSpec.Format) <> 0)]));
+      WriteLn('    Channels: ', AudioSpec.Channels);
+      WriteLn('    Frequency: ', AudioSpec.Freq);
+      WriteLn('    FrameSize: ', SDL_AUDIO_FRAMESIZE(AudioSpec));
+      WriteLn('    BufferSize (samples): ', aCInt1);
+      // SDL_GetAudioDeviceChannelMap(CurrAudioDeviceID^; count: pcint): pcint
+
+      WriteLn('  SDL_IsAudioDevicePhysical(', CurrAudioDeviceID^,'): ',
+       BoolToStr(SDL_IsAudioDevicePhysical(CurrAudioDeviceID^)));
+      CurrAudioDeviceID += 1;
+    end;
+    SDL_Free(AudioDeviceIDList);
+    
+    AudioDeviceIDList := SDL_GetAudioRecordingDevices(@aCInt1);
+    WriteLn('SDL_GetAudioRecordingDevices: ', aCInt1);
+    CurrAudioDeviceID := AudioDeviceIDList;
+    while Assigned(CurrAudioDeviceID) and (CurrAudioDeviceID^ <> 0) do
+    begin
+      WriteLn('  SDL_GetAudioDeviceName(', CurrAudioDeviceID^,'): ',
+        SDL_GetAudioDeviceName(CurrAudioDeviceID^));
+      SDL_GetAudioDeviceFormat(CurrAudioDeviceID^, @AudioSpec, @aCInt1);
+      WriteLn('  SDL_GetAudioDeviceFormat(', CurrAudioDeviceID^,', ...): ');
+      WriteLn(Format(
+        '    Format: Bits: %d - Float: %s - Big Endian: %s - Signed: %s',
+        [SDL_AUDIO_BITSIZE(AudioSpec.Format),
+        BoolToStr(SDL_AUDIO_ISFLOAT(AudioSpec.Format) <> 0),
+        BoolToStr(SDL_AUDIO_ISBIGENDIAN(AudioSpec.Format) <> 0),
+        BoolToStr(SDL_AUDIO_ISSIGNED(AudioSpec.Format) <> 0)]));
+      WriteLn('    Channels: ', AudioSpec.Channels);
+      WriteLn('    Frequency: ', AudioSpec.Freq);
+      WriteLn('    FrameSize: ', SDL_AUDIO_FRAMESIZE(AudioSpec));
+      WriteLn('    BufferSize (samples): ', aCInt1);
+      // SDL_GetAudioDeviceChannelMap(CurrAudioDeviceID^; count: pcint): pcint
+
+      WriteLn('  SDL_IsAudioDevicePhysical(', CurrAudioDeviceID^,'): ',
+       BoolToStr(SDL_IsAudioDevicePhysical(CurrAudioDeviceID^)));
+      CurrAudioDeviceID += 1;
+    end;
+    SDL_Free(AudioDeviceIDList);
+
+
+(*
     // SDL_sensor.h
     // SDL_scancode.h
     // SDL_keycode.h
@@ -519,10 +597,55 @@ begin
     // SDL_gpu.h
     // SDL_render.h
     // SDL_clipboard.h
-    // SDL_cpuinfo.h
+*)
+
+  // SDL_cpuinfo.h
+
+  WriteSection('SDL_cpuinfo.h');
+
+  WriteLn('SDL_GetNumLogicalCPUCores: ', SDL_GetNumLogicalCPUCores);
+  WriteLn('SDL_GetCPUCacheLineSize: ', SDL_GetCPUCacheLineSize);
+  WriteLn('SDL_HasAltiVec : ', SDL_HasAltiVec);
+  WriteLn('SDL_HasMMX: ', SDL_HasMMX);
+  WriteLn('SDL_HasSSE: ', SDL_HasSSE);
+  WriteLn('SDL_HasSSE2: ', SDL_HasSSE2);
+  WriteLn('SDL_HasSSE3: ', SDL_HasSSE3);
+  WriteLn('SDL_HasSSE41: ', SDL_HasSSE41);
+  WriteLn('SDL_HasSSE42: ', SDL_HasSSE42);
+  WriteLn('SDL_HasAVX: ', SDL_HasAVX);
+  WriteLn('SDL_HasAVX2: ', SDL_HasAVX2);
+  WriteLn('SDL_HasAVX512F: ', SDL_HasAVX512F);
+  WriteLn('SDL_HasARMSIMD: ', SDL_HasARMSIMD);
+  WriteLn('SDL_HasNEON: ', SDL_HasNEON);
+  WriteLn('SDL_HasLSX: ',  SDL_HasLSX);
+  WriteLn('SDL_HasLASX: ',  SDL_HasLASX);
+  WriteLn('SDL_GetSystemRAM: ', SDL_GetSystemRAM);
+  WriteLn('SDL_GetSIMDAlignment: ', SDL_GetSIMDAlignment);
+  WriteLn('SDL_GetSystemPageSize: ',  SDL_GetSystemPageSize);
+
+  // In SDL2 but not in SDL3
+  //WriteLn('SDL_GetCPUCount: ', SDL_GetCPUCount);
+  //WriteLn('SDL_HasRDTSC: ', SDL_HasRDTSC);
+  //WriteLn('SDL_Has3DNow: ', SDL_Has3DNow);
+
+(*
     // SDL_dialog.h
     // SDL_messagebox.h
     // SDL_time.h
+*)
+
+  // SDL_filesystem.h
+
+  WriteSection('SDL_filesystem.h');
+
+  WriteLn('SDL_GetBasePath: ', SDL_GetBasePath);
+  WriteLn('SDL_GetPrefPath(''Chixpy'', ''TestSDL3Info''): ', 
+    SDL_GetPrefPath('Chixpy', 'TestSDL3Info'));
+  for aInt1 := 0 to (SDL_FOLDER_COUNT - 1) do
+    WriteLn('SDL_GetUserFolder(', aInt1, '): ', SDL_GetUserFolder(aInt1));
+  WriteLn('SDL_GetCurrentDirectory: ',  SDL_GetCurrentDirectory);
+
+(*
     // SDL_filesystem.h
     // SDL_atomic.h
     // SDL_hidapi.h
@@ -533,27 +656,9 @@ begin
     // SDL_storage.h
     // SDL_tray.h
     // SDL_mutex.h
+*)
 
-
-
-  // sdl_platform.h
-  WriteLn('SDL_GetPlatform: ' + SDL_GetPlatform);
-  WriteLn;
-
-  // sdl_power.h
-  SDLPowerState := SDL_GetPowerInfo(@aIntA, @aIntB);
-  WriteLn('SDL_GetPowerInfo (Battery): ', SDLPowerState,
-    ' - Life: ', aIntB, '% (', aIntA, ' seconds)');
-  WriteLn;
-
-  // sdl_timer.h
-
-  WriteLn('SDL_GetTicks: ', SDL_GetTicks, ' - SDL_GetTicks64: ',
-    SDL_GetTicks64);
-  WriteLn('SDL_GetPerformanceCounter: ', SDL_GetPerformanceCounter,
-    ' - SDL_GetPerformanceFrequency: ', SDL_GetPerformanceFrequency);
-  WriteLn;
-
+(*
   // sdl_audio.h
   aIntA := SDL_GetNumAudioDrivers;
   WriteLn('SDL_GetNumAudioDrivers: ', aIntA);
@@ -753,43 +858,12 @@ begin
     // TODO: SDL_GetTouchDeviceType
   end;
   WriteLn;
-
-  // sdl_locale.h
-  // TODO: SDL_GetPreferredLocales
-
-  // sdl_cpuinfo.h
-  WriteLn('SDL_GetCPUCount: ', SDL_GetCPUCount);
-  WriteLn('SDL_GetCPUCacheLineSize: ', SDL_GetCPUCacheLineSize);
-  WriteLn('SDL_HasRDTSC: ', SDL_HasRDTSC);
-  WriteLn('SDL_HasAltiVec : ', SDL_HasAltiVec);
-  WriteLn('SDL_HasMMX: ', SDL_HasMMX);
-  WriteLn('SDL_Has3DNow: ', SDL_Has3DNow);
-  WriteLn('SDL_HasSSE: ', SDL_HasSSE);
-  WriteLn('SDL_HasSSE2: ', SDL_HasSSE2);
-  WriteLn('SDL_HasSSE3: ', SDL_HasSSE3);
-  WriteLn('SDL_HasSSE41: ', SDL_HasSSE41);
-  WriteLn('SDL_HasSSE42: ', SDL_HasSSE42);
-  WriteLn('SDL_HasAVX: ', SDL_HasAVX);
-  WriteLn('SDL_HasAVX2: ', SDL_HasAVX2);
-  WriteLn('SDL_HasAVX512F: ', SDL_HasAVX512F);
-  WriteLn('SDL_HasARMSIMD: ', SDL_HasARMSIMD);
-  WriteLn('SDL_HasNEON: ', SDL_HasNEON);
-  WriteLn('SDL_GetSystemRAM: ', SDL_GetSystemRAM);
-  WriteLn('SDL_SIMDGetAlignment: ', SDL_SIMDGetAlignment);
-  WriteLn;
-
-  // sdl_filesystem.h
-  WriteLn('SDL_GetBasePath: ', SDL_GetBasePath);
-  WriteLn('SDL_GetPrefPath(''Chixpy'', ''SDLInfo''): ', SDL_GetBasePath);
 *)
   finally
     WriteSection('END');
     WriteLn;
     WriteLn('LAST ERROR: ', SDL_GetError);
     WriteLn('Mem not freed (must be -1): ', SDL_GetNumAllocations);
-    WriteLn;
-    WriteLn('Push [Return] to exit.');
-    ReadLn;
     SDL_Quit;
   end;
 end.

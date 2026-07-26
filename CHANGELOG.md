@@ -1,5 +1,21 @@
-## 2026-07-25 20:09
+## 2026-07-26 20:50
+### CHXSDL3Engine
 
+- **cCHXSDL3Window**:
+  - Change default Blend Mode to Blend, to handle transparency.
+- Added **cCHXSDL3FPSManager** to manage FPS while running, replacing 
+  SDL_gfx one _not_ used in SDL2:
+  - Added a test program.
+  - Added to cCHXSDL3Engine.
+- Initial basic **cCHXSDL3Renderer** to wrap `SDL_Renderer` and, in the future,
+  implement primitive drawing.
+  - Added a test program.
+  - Added as component of `cCHXSDL3Window`, so added to `cCHXSDL3Engine` too
+- More info extracted with **TestSDL3Info**.
+- Removing folder structure for simple test programs
+
+
+## 2026-07-25 20:09
 
 ### [SDL3Engine](SDL3Engine/SDL3Engine.pas)
 
@@ -24,7 +40,6 @@
   - Removing some _UTF8_ functions as FPC 3.0+ teorically handle it internally.
     For example, UTF8ToSys and SysToUTF8 don't do anything.
 - `Abstract` folder renamed `Abstracts`.
-
 
 ## 2026-07-21 18:58
 

@@ -8,7 +8,9 @@ unit ucCHXSDL3Window;
 interface
 
 uses
-  SysUtils, Classes, CTypes, SDL3;
+  SysUtils, CTypes,
+  ucCHXSDL3Renderer,
+  SDL3;
 
 type
 
@@ -26,6 +28,8 @@ type
 
     Supports creating multiple cCHXSDL3Window in the same programa,
       checking its ID in event handling.
+
+    ToDo: Create GPU renderer as option, choose driver and renderer.
   }
 
   cCHXSDL3Window = class
@@ -35,14 +39,13 @@ type
     FRenderHeight: CInt;
     FWindowWidth: CInt;
     FWindowHeight: CInt;
-    FPSDLRenderer: PSDL_Renderer;
-    FPSDLWindow: PSDL_Window;
     FWindowID: CUInt32;
     FShown: Boolean;
     FMaximized: Boolean;
     FMinimized: Boolean;
     FMouseFocus: Boolean;
     FKeyboardFocus: Boolean;
+    
     procedure SetTitle(const aValue: String);
 
   protected
@@ -52,6 +55,13 @@ type
     procedure DestroyWindow;
 
   public
+    Renderer: cCHXSDL3Renderer;
+    //< CHX Renderer of the wWindow
+    PSDLWindow: PSDL_Window;
+    //< SDL Window pointer.
+    PSDLRenderer: PSDL_Renderer;
+    //< SDL Renderer pointer.
+
     property Title: String read FTitle write SetTitle;
     //< Title of the window.
 
@@ -64,10 +74,6 @@ type
     property WindowHeight: CInt read FWindowHeight;
     //< Actual Window Height.
 
-    property PSDLWindow: PSDL_Window read FPSDLWindow;
-    //< SDL Window pointer.
-    property PSDLRenderer: PSDL_Renderer read FPSDLRenderer;
-    //< SDL Renderer pointer.
 
     property WindowID: CUInt32 read FWindowID;
     //< ID of the Window
@@ -117,8 +123,9 @@ implementation
 constructor cCHXSDL3Window.Create(const aTitle: String;
   const aRenderWidth, aRenderHeight, aWinWidth, aWinHeight: CInt);
 begin
-  FPSDLWindow := nil;
-  FPSDLRenderer := nil;
+  Renderer := nil;
+  PSDLWindow := nil;
+  PSDLRenderer := nil;
 
   // Don't call SetTitle
   FTitle := aTitle;
@@ -164,15 +171,12 @@ begin
 
   FWindowID := 0;
 
+  FreeAndNil(Renderer);
+  
   if Assigned(PSDLWindow) then
   begin
-    SDL_Free(PSDLWindow);
-    FPSDLWindow := nil;
-  end;
-  if Assigned(PSDLRenderer) then
-  begin
-    SDL_Free(PSDLRenderer);
-    FPSDLRenderer := nil;
+    SDL_DestroyWindow(PSDLWindow);
+    PSDLWindow := nil;
   end;
 end;
 
@@ -180,15 +184,20 @@ procedure cCHXSDL3Window.CreateWindow;
 var
   Flags: CUInt32;
 begin
-  DestroyWindow; // if already created and init new one
+  DestroyWindow; // if already created and want to init new one
 
   Flags := SDL_WINDOW_RESIZABLE + SDL_WINDOW_HIGH_PIXEL_DENSITY;
   { SDL_WINDOW_TRANSPARENT: ¿Window with transparent buffer? }
 
+  // ToDo: Create Window and renderer separated, to add config for both
   if not SDL_CreateWindowAndRenderer(PChar(Title), WindowWidth, WindowHeight,
-    Flags, @FPSDLWindow, @FPSDLRenderer) then
+    Flags, @PSDLWindow, @PSDLRenderer) then
     raise Exception.CreateFmt('[ERROR] SDL_CreateWindowAndRenderer: %s',
       [SDL_GetError]);
+
+  // Renderer will destroy SDL Renderer
+  // ToDo: Make Renderer Drivers configurables
+  Renderer := cCHXSDL3Renderer.Create(PSDLRenderer, True);
 
   // ToDo: Make use of integer scale configurable:
   //   (SDL_LOGICAL_PRESENTATION_INTEGER_SCALE)
@@ -197,10 +206,14 @@ begin
 
   FWindowID := SDL_GetWindowID(PSDLWindow);
 
+  // Compute transparency by default.
+  // ToDo: Change with a Renderer method
+  SDL_SetRenderDrawBlendMode(PSDLRenderer, SDL_BLENDMODE_BLEND);
   // Initial default draw color.
-  SDL_SetRenderDrawColor(PSDLRenderer, 255, 255, 255, 255);
+  Renderer.SetColor(0, 0, 0, 255);
 
-  Flags := SDL_GetWindowFlags(FPSDLWindow);
+  // Reading window flags
+  Flags := SDL_GetWindowFlags(PSDLWindow);
   FMouseFocus := (Flags and SDL_WINDOW_MOUSE_FOCUS) = SDL_WINDOW_MOUSE_FOCUS;
   FKeyboardFocus :=
     (Flags and SDL_WINDOW_INPUT_FOCUS) = SDL_WINDOW_INPUT_FOCUS;
@@ -360,7 +373,7 @@ end;
 
 destructor cCHXSDL3Window.Destroy;
 begin
-  SDL_DestroyRenderer(PSDLRenderer);
+  Renderer.Free;
   SDL_DestroyWindow(PSDLWindow);
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
 

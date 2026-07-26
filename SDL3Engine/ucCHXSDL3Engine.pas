@@ -8,22 +8,40 @@ unit ucCHXSDL3Engine;
 interface
 
 uses
-  SysUtils, CTypes, SDL3, ucCHXSDL3Config, ucCHXSDL3Window;
+  SysUtils, CTypes,
+  SDL3,
+  ucCHXSDL3Config, ucCHXSDL3Renderer, ucCHXSDL3Window, ucCHXSDL3FPSManager;
 
 type
-  { cCHXSDL3Engine }
+  {
+    cCHXSDL3Engine: A basic Game Engine in SDL3.
 
+    Descendants only have to implement abtract methods:
+
+    - Setup: Code of inicialization before enter the loop.
+    - Compute: Code for every frame.
+    - Draw: Code for draw on screen every frame.
+    - HandleEvent: Code handling events. Keyboard, Mouse, 
+    - Finish: Code after exiting the loop.
+
+    New features are implemented as needed.
+
+    - cCHXSDL3Config lets load and save configurations from a file,
+      or change them before initializins and running the engine.
+    - cCHXSDL3Window wraps SDL_video.h and handles some window events.
+
+
+  }
   cCHXSDL3Engine = class //(TPersistent)
   private // Propiedades que tienen Get o Set
     FShowFrameRate: Boolean;
     FWindow: cCHXSDL3Window;
-//    FRender: cCHXSDL3Renderer;
-    FFrameCount: QWord; // More than the age of the universe
+    FRender: cCHXSDL3Renderer;
 
   protected
     procedure SetShowFrameRate(const aValue: Boolean);
     procedure SetWindow(const aValue: cCHXSDL3Window);
-//    procedure SetRender(const aValue: cCHXSDL3Renderer);
+    procedure SetRender(const aValue: cCHXSDL3Renderer);
 
 (*
   private // Gets and Sets
@@ -34,8 +52,6 @@ type
     FWindow: cCHXSDL3Window;
 
   private // Properties
-    {property} SDLFrameMang: TFPSManager;
-    {property} FFrameCount: QWord; // More than the age of the universe
 
     {property} FocusedComp: caCHXSDL2Comp;
 
@@ -65,11 +81,12 @@ type
     SDLRenderer: PSDL_Renderer; //< Window.PSDLRenderer shorcut.
     SDLWindow: PSDL_Window; //< Window.PSDLWindow shorcut.
 
-    property Window: cCHXSDL3Window read FWindow write SetWindow;
-//    property Render: cCHXSDL3Renderer read FRender write SetRender;
+    FPSMang: cCHXSDL3FPSManager; //< FPS manager
 
-    function FrameCount: QWord; inline;
-    {< Current frame number. ToDo: Create a FrameRate Manager}
+    property Window: cCHXSDL3Window read FWindow write SetWindow;
+    property Render: cCHXSDL3Renderer read FRender write SetRender;
+
+   
 (*
     property DefFont: caCHXSDL2Font read FDefFont;
     {< Default TTF font to use with the engine. A TTF file, size and color must
@@ -98,7 +115,7 @@ type
 *)
     // Abstract methods to implement in child classes.
     procedure Setup; virtual; abstract;
-    procedure Compute(const FrameTime: CUInt32; var ExitProg: Boolean);
+    procedure Compute(var ExitProg: Boolean);
       virtual; abstract;
     procedure Draw; virtual; abstract;
     procedure HandleEvent(const aEvent: TSDL_Event;
@@ -155,6 +172,46 @@ type
 implementation
 
 { cCHXSDL3Engine }
+
+constructor cCHXSDL3Engine.Create(const aTitle: String; const aRenderWidth,
+  aRenderHeight: CInt; const AutoInit: Boolean);
+begin
+  inherited Create;
+
+  SetDefaultValues;
+
+  Title := aTitle;
+
+  Config := cCHXSDL3Config.Create;
+  Config.WindowWidth := aRenderWidth;
+  Config.RendererWidth := aRenderWidth;
+  Config.WindowHeight := aRenderHeight;
+  Config.RendererHeight := aRenderHeight;
+
+  if AutoInit then
+    Init;
+end;
+
+constructor cCHXSDL3Engine.Create(const aTitle: String;
+  const aIniFile: String; const AutoInit: Boolean);
+begin
+  inherited Create;
+
+  SetDefaultValues;
+
+  Title := aTitle;
+
+  Config := cCHXSDL3Config.Create;
+  Config.DefaultFileName := aIniFile;
+  Config.LoadFromFile('');
+
+  if AutoInit then
+    Init
+  else
+    // if Config is be changed manually then no save changes
+    Config.DefaultFileName := '';
+end;
+
 procedure cCHXSDL3Engine.SetShowFrameRate(const aValue: Boolean);
 begin
   if FShowFrameRate = aValue then Exit;
@@ -170,19 +227,17 @@ begin
   FWindow := aValue;
 
   SDLWindow := Window.PSDLWindow;
-  SDLRenderer := Window.PSDLRenderer;
-//  Render := Window.Render; // Sets SDLRender too.
+  // SDLRenderer := Window.PSDLRenderer;
+  Render := Window.Renderer; // Sets SDLRender too.
 end;
 
-(*
 procedure cCHXSDL3Engine.SetRender(const aValue: cCHXSDL3Renderer);
 begin
   if FRender = aValue then Exit;
   FRender := aValue;
 
-  SDLRender := Render.PSDLRenderer;
+  SDLRenderer := Render.SDLRenderer;
 end;
-*)
 
 procedure cCHXSDL3Engine.SetDefaultValues;
 begin
@@ -234,14 +289,6 @@ begin
   end;
 end;
 *)
-
-function cCHXSDL3Engine.FrameCount: QWord;
-begin
-  // This is reseted every time a frame is late, for example moving,
-  //   resizing, focus a window, etc.
-  //Result := SDL_getFramecount(@SDLFrameMang);
-  Result := FFrameCount;
-end;
 
 (*
 procedure cCHXSDL3Engine.TextInput(aFont: caCHXSDL2Font; var aText: String;
@@ -345,7 +392,7 @@ begin
             end;
           end;
 
-          // Keys
+          // Keys // Use ranges...
           SDLK_SPACE, SDLK_EXCLAIM, SDLK_QUOTEDBL, SDLK_HASH,
           SDLK_PERCENT, SDLK_DOLLAR, SDLK_AMPERSAND, SDLK_QUOTE,
           SDLK_LEFTPAREN, SDLK_RIGHTPAREN, SDLK_ASTERISK, SDLK_PLUS,
@@ -469,19 +516,16 @@ end;
 procedure cCHXSDL3Engine.Run;
 var
   ProgExit, HandledEvent: Boolean;
-  CompTime, LastFrameTime: CUInt32;
   aEvent: TSDL_Event;
   CursorX, i: Integer;
 //  aComp: caCHXSDL2Comp;
 begin
   ProgExit := False;
-(*
-  SDL_InitFramerate(@SDLFrameMang);
-  SDL_SetFramerate(@SDLFrameMang, 60);
-*)
-  LastFrameTime := 0;
-  CompTime := 0;
-  FFrameCount := 0;
+  FPSMang := cCHXSDL3FPSManager.Create(30);
+  {<
+    ToDo: Make FPS configurable with Config.
+      FPSMang.FPS can be changed in Setup, Compute, Draw and HandleEvent.
+  }
 
   try
     Self.Setup;
@@ -491,22 +535,16 @@ begin
 *)
     while (not ProgExit) do
     begin
-      Inc(FFrameCount);
-
       // COMPUTE
-      Self.Compute(LastFrameTime, ProgExit);
+      Self.Compute(ProgExit);
 (*
       for aComp in CompList do
         if (not ProgExit) then
           aComp.Compute(LastFrameTime, ProgExit);
 *)
-      // TIMING (1)
-      // Actual Compute + Events time in milliseconds.
-      CompTime := SDL_GetTicks - CompTime;
-      // Frame rate in milliseconds. Compute + Event + Draw + Delay
-//      LastFrameTime := SDL_framerateDelay(@SDLFrameMang);
-      LastFrameTime := 300;
-      SDL_Delay(1000);
+
+      // Wait to next frame. Result not needed.
+      FPSMang.Delay;
 
       // Don't draw if minimized
       if (not ProgExit) and (not Window.Minimized) then
@@ -518,9 +556,9 @@ begin
           aComp.Draw;
 *)
         if ShowFrameRate and
-          ((FrameCount and 31) = 0) then
+          ((FPSMang.FrameCount and 31) = 0) then
           Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
-            [Title, LastFrameTime, CompTime]);
+            [Title, FPSMang.LastFrameTime, FPSMang.LastCompTime]);
 
 (*
         // Drawing current editing text
@@ -530,32 +568,29 @@ begin
             STIWidth);
 
           // Drawing cursor
-          if (FrameCount and 32) = 32 then
+          if (FPSMang.FrameCount and 32) = 32 then
             vlineRGBA(SDLRenderer, STIX + CursorX,
               STIY, STIY + STIFont.LineHeight, STIFont.Color.r,
               STIFont.Color.g, STIFont.Color.b, STIFont.Color.a);
         end;
 *)
         // UPDATE RENDER
+        // ToDo: Use CHX Render
         SDL_RenderPresent(SDLRenderer);
       end;
-
-      // TIMING (2)
-      CompTime := SDL_GetTicks;
 
       // EVENTS
       // SDL_PumpEvents;
 
       while (not ProgExit) and SDL_PollEvent(@aEvent) do
       begin
-        
         HandledEvent := False; // Used to see if a event is Handled
 
         // First: Window events
         case aEvent.type_ of
           SDL_EVENT_WINDOW_EXPOSED, SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED,
           SDL_EVENT_WINDOW_METAL_VIEW_RESIZED : HandledEvent := True;
-          //< Not needed in cCHXSDL3Engine context
+          //< Not needed in cCHXSDL3Engine context.
         otherwise
           Window.HandleEvent(aEvent, HandledEvent);
         end;
@@ -570,7 +605,7 @@ begin
           aComp.HandleEvent(aEvent, HandledEvent, ProgExit);
 *)
         // Fourth: Fallback to engine
-        Self.HandleEvent(aEvent, HandledEvent, ProgExit);
+        HandleEvent(aEvent, HandledEvent, ProgExit);
 
 (* // Esto... ¿Dentro o fuera de loop de eventos?
         // Getting current focused component
@@ -588,6 +623,7 @@ begin
 
   finally
     Finish;
+    FPSMang.Free;
   end;
 end;
 
@@ -607,46 +643,6 @@ begin
   CompList.Add(aComp);
 end;
 *)
-
-constructor cCHXSDL3Engine.Create(const aTitle: String; const aRenderWidth,
-  aRenderHeight: CInt; const AutoInit: Boolean);
-begin
-  inherited Create;
-
-  SetDefaultValues;
-
-  Title := aTitle;
-
-  Config := cCHXSDL3Config.Create;
-  Config.WindowWidth := aRenderWidth;
-  Config.RendererWidth := aRenderWidth;
-  Config.WindowHeight := aRenderHeight;
-  Config.RendererHeight := aRenderHeight;
-
-  if AutoInit then
-    Init;
-end;
-
-constructor cCHXSDL3Engine.Create(const aTitle: String;
-  const aIniFile: String; const AutoInit: Boolean);
-begin
-  inherited Create;
-
-  SetDefaultValues;
-
-  Title := aTitle;
-
-  Config := cCHXSDL3Config.Create;
-  Config.DefaultFileName := aIniFile;
-  Config.LoadFromFile('');
-
-  if AutoInit then
-    Init
-  else
-    // if Config will be changed manually then no save changes
-    Config.DefaultFileName := '';
-end;
-
 
 destructor cCHXSDL3Engine.Destroy;
 begin
@@ -674,11 +670,20 @@ begin
   SDL_FreeFormat(FPWinPxFmt);
   FreeAndNil(FDefFont);
 *)
-  FreeAndNil(FWindow);
+  Window.Free; // Frees Render too
+
+  // Little SDL error and leak test.
+  if SDL_GetError <> '' then
+    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, SDL_GetError);
+  if SDL_GetNumAllocations >= 0 then
+     SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+       'Mem allocations not freed: %d', [SDL_GetNumAllocations]); 
+
   SDL_Quit;
 
-  inherited Destroy;
+  inherited;
 end;
+
 end.
 {< This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free

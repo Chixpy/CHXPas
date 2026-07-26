@@ -13,8 +13,9 @@ uses
 
 const
   // Renderer scales images to actual size of the window.
-  WinW = 640; { Renderer width. }
-  WinH = 480; { Renderer height. }
+  RenderW = 300; { Renderer width. }
+  RenderH = 300; { Renderer height. }
+  WindowScale = 2; { Scale of the Window. }
 
 type
 
@@ -24,13 +25,12 @@ type
   protected
     procedure Setup; override; { It's abstract. }
     procedure Finish; override; { It's abstract. }
-    procedure Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
-      override; { It's abstract. }
+    procedure Compute(var ExitProg : Boolean); override; { It's abstract. }
     procedure Draw; override; { It's abstract. }
     procedure HandleEvent(const aEvent : TSDL_Event; var Handled : Boolean;
       var ExitProg : Boolean); override; { It's virtual. }
 
-  public
+  public // or protected
     {
       Declaration of "global" variables and auxiliar methods.
     }
@@ -52,7 +52,7 @@ type
     }
   end;
 
-  procedure cSDL3Eng.Compute(const FrameTime : CUInt32; var ExitProg : Boolean);
+  procedure cSDL3Eng.Compute(var ExitProg : Boolean);
   begin
     {
       Step frame logic.
@@ -62,19 +62,39 @@ type
   end;
 
   procedure cSDL3Eng.Draw;
+  var
+    aRect: TSDL_FRect;
   begin
     {
       Draw frame logic.
     }
     // Using SDL native functions
-    SDL_SetRenderDrawColor(Window.PSDLRenderer, 80, 80, 80, 255);
+    SDL_SetRenderDrawColor(Window.PSDLRenderer, 80, 80, 140, 255);
     
     // Actually, SDLRenderer := Window.PSDLRenderer as a shorcut.
     // It can be changed if multiple windows are created.
     SDL_RenderClear(SDLRenderer);
     SDL_SetRenderDrawColor(SDLRenderer, 196, 196, 0, 255);
-    SDL_RenderDebugText(SDLRenderer, WinW * 0.5, WinH * 0.5, 'Hello, World!');
+    SDL_RenderDebugText(SDLRenderer, RenderW * 0.5 - 60,
+      RenderH * 0.5 - 4, '¡Hello, World!'); // Centering, chars are 8x8
     SDL_RenderDebugText(SDLRenderer, 10 , 10, 'Press any letter to Exit.');
+
+    // Some rectangles with transparency
+    SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(SDLRenderer, 128, 128, 128, 128);
+    aRect.X := 0; aRect.Y := 0;
+    aRect.W := RenderW / 2.5; aRect.H := RenderH / 2.5;
+    SDL_RenderFillRect(SDLRenderer, @aRect);
+    aRect.X += aRect.W * 0.5; aRect.Y += aRect.H * 0.5;
+    SDL_RenderFillRect(SDLRenderer, @aRect);
+
+    // Faster alpha, but color must be premultiplied by alpha (as float)
+    SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_BLEND_PREMULTIPLIED);
+    SDL_SetRenderDrawColor(SDLRenderer, 64, 64, 64, 128); // Premultiplied
+    aRect.X += aRect.W * 0.5; aRect.Y += aRect.H * 0.5;
+    SDL_RenderFillRect(SDLRenderer, @aRect);
+    aRect.X += aRect.W * 0.5; aRect.Y += aRect.H * 0.5;
+    SDL_RenderFillRect(SDLRenderer, @aRect);
   end;
 
   procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -128,13 +148,20 @@ var
   CTCEng : cSDL3Eng;
 
 begin
-  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', WinW, WinH);
+  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', RenderW, RenderH, False);
   try
     // We can change configuration, call init and then run the engine...
-    //CTCEng.Config.FullScreen := True;
-    //CTCEng.Init; // .. but AutoInit is set True by default.
+    CTCEng.Config.WindowWidth := Trunc(RenderW * WindowScale);
+  CTCEng.Config.WindowHeight := Trunc(RenderH * WindowScale);
+    CTCEng.Init;
     CTCEng.Run;
   finally
+    SDL_LogInfo(SDL_LOG_CATEGORY_APPLICATION, 'Program finished.');
+    if SDL_GetError <> '' then
+      SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, SDL_GetError);
+    if SDL_GetNumAllocations >= 0 then
+       SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+         'Mem allocations not freed: %d', [SDL_GetNumAllocations]); 
     CTCEng.Free;
   end;
 end.
