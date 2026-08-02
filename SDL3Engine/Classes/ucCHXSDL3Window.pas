@@ -210,7 +210,7 @@ begin
   // ToDo: Change with a Renderer method
   SDL_SetRenderDrawBlendMode(PSDLRenderer, SDL_BLENDMODE_BLEND);
   // Initial default draw color.
-  Renderer.SetColor(0, 0, 0, 255);
+  Renderer.SetDrawColor(0, 0, 0, 1);
 
   // Reading window flags
   Flags := SDL_GetWindowFlags(PSDLWindow);
