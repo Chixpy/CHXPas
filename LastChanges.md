@@ -1,4 +1,4 @@
-- Fixing _CHXSDL3Engine.pas_ test.
-- Adding `TSDL_FPointH` methods (and before ever creating _TCHXVec2[x]_...).
-- Changing order, renaming and adding some methods of `TCHXVec3[x]`.
-- Some comment format in _uCHXMath.pas_.
+- Fixing `TSDL_FPointH` huge errors.
+- Adding _fp.cfg_ and _Readme.md_ to SDL3Engine test programs to help on
+  compile. _SDL3-for-Pascal_ must be downloaded and its _units_ folder 
+  provided as parameter when compiling.

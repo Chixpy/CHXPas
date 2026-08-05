@@ -1,11 +1,19 @@
-## 2026-08-05 21:00
+## 2026-08-06 00:30
 
+- Fixing `TSDL_FPointH` huge errors.
+- Adding _fp.cfg_ and _Readme.md_ to SDL3Engine test programs to help on
+  compile. _SDL3-for-Pascal_ must be downloaded and its _units_ folder 
+  provided as parameter when compiling.
+  
+## 2026-08-05 21:00
 
 - Fixing _CHXSDL3Engine.pas_ test.
 - Adding `TSDL_FPointH` methods (and before ever creating _TCHXVec2[x]_...).
 - Changing order, renaming and adding some methods of `TCHXVec3[x]`.
 - Some comment format in _uCHXMath.pas_.
+
 ## 2026-08-02 20:31
+
 ### CHXSDL3Engine
 
 - Added some methods and initial primitives to **cCHXSDL3Renderer**:
@@ -24,8 +32,8 @@
     it's endpoints instead using a `TSDL_FRect` and calculate `X + W` and
     `Y + H` multiple times.
 
-
 ## 2026-07-26 20:50
+
 ### CHXSDL3Engine
 
 - **cCHXSDL3Window**:
@@ -40,7 +48,6 @@
   - Added as component of `cCHXSDL3Window`, so added to `cCHXSDL3Engine` too
 - More info extracted with **TestSDL3Info**.
 - Removing folder structure for simple test programs
-
 
 ## 2026-07-25 20:09
 

@@ -115,9 +115,9 @@ type
   {
     Strings
   }
-    function ToString: String;
-    procedure FromString(aString: String);
-
+    function ToString(const Delim : char = ','): String;
+    function ToStringFmt(const aFmtStr: String): String;
+    procedure FromString(const aString: String; const Delim : char = ',');
   end;
 
 {
@@ -180,7 +180,7 @@ type
     procedure Scale(const sX, sY: CFloat); inline;
     procedure Rotate(const aAngle: CFloat);
 
-    function VectProd(const P: TSDL_FPoint): TSDL_FPoint; inline;
+    function VectProd(const P: TSDL_FPoint): CFloat; inline;
     function ScalProd(const P: TSDL_FPoint): CFloat; inline;
 
     function SqrDistance(const P: TSDL_FPoint): CFloat; inline;
@@ -200,8 +200,8 @@ type
     ToDo: Overload for TSDL_Point (except Frac)
   }
 
-    function Ceiling: TSDL_FPoint;
-    //< Ceiling(-2.3, 1.3) = -2, 2 -> +inf
+    function Ceil: TSDL_FPoint;
+    //< Ceil(-2.3, 1.3) = -2, 2 -> +inf
     function Truncate: TSDL_FPoint;
     //< Truncate(-2.3, 1.3) = -2, 1 -> 0
     function Floor: TSDL_FPoint;
@@ -237,7 +237,7 @@ type
   }
 
     function ToString(const Delim : char = ','): String;
-    function ToStringFmt(const aFmtSts: String): String;
+    function ToStringFmt(const aFmtStr: String): String;
     procedure FromString(const aString: String; const Delim : char = ',');
   end;
 
@@ -256,6 +256,14 @@ type
     procedure Shrink(const aSize: CFloat);
 
     // operator = (const R1, R2: TSDL_FRect): Boolean; overload; inline;
+
+  {
+    String
+  }
+
+    function ToString(const Delim : char = ','): String;
+    function ToStringFmt(const aFmtStr: String): String;
+    procedure FromString(const aString: String; const Delim : char = ',');
   end;
 
 {
@@ -276,15 +284,15 @@ operator = (const C1, C2: TSDL_FColor): Boolean; overload;
 
 operator = (const P1, P2: TSDL_FPoint): Boolean; overload; inline;
 operator + (const P1, P2: TSDL_FPoint): TSDL_FPoint; overload; inline;
-operator - (const P1: TSDL_FPoint): TSDL_FPoint; overload; inline;
+operator - (const P: TSDL_FPoint): TSDL_FPoint; overload; inline;
 operator - (const P1, P2: TSDL_FPoint): TSDL_FPoint; overload; inline;
-operator * (const P: TSDL_FPoint; const aScale: CFloat): TSDL_FPoint; overload;
+operator * (const P: TSDL_FPoint; const aFactor: CFloat): TSDL_FPoint; overload;
   inline;
-operator * (const aScale: CFloat; const P: TSDL_FPoint): TSDL_FPoint; overload;
+operator * (const aFactor: CFloat; const P: TSDL_FPoint): TSDL_FPoint; overload;
   inline;
 operator * (const P1, P2: TSDL_FPoint): TSDL_FPoint; overload; inline;
 //< Component-wise scaling (Hadamard product)
-operator / (const P: TSDL_FPoint; const aScale: CFloat): TSDL_FPoint; overload;
+operator / (const P: TSDL_FPoint; const aFactor: CFloat): TSDL_FPoint; overload;
   inline;
 
 {
@@ -379,12 +387,12 @@ end;
 function TSDLFColorH.ToString(const Delim : Char): String;
 begin
   Result := Format('%0:g%4:s%1:g%4:s%2:g%4:s%3:g',
-    [Self.X, Self.Y, Self.W, Self.H, Delim]);
+    [Self.R, Self.G, Self.B, Self.A, Delim]);
 end;
 
 function TSDLFColorH.ToStringFmt(const aFmtStr: String): String;
 begin
-  Result := Format(aFmtStr, [Self.X, Self.Y, Self.W, Self.H]);
+  Result := Format(aFmtStr, [Self.R, Self.G, Self.B, Self.A]);
 end;
 
 procedure TSDLFColorH.FromString(const aString: String; const Delim : Char);
@@ -396,13 +404,14 @@ begin
 
   // Lazy read
   if Length(Components) < 1 then Exit;
-  Result.R := StrToSingle(Components[0]);
+  Self.R := StrToFloat(Components[0]);
   if Length(Components) < 2 then Exit;
-  Result.G := StrToSingle(Components[1]);
+  Self.G := StrToFloat(Components[1]);
   if Length(Components) < 3 then Exit;
-  Result.B := StrToSingle(Components[2]);
+  Self.B := StrToFloat(Components[2]);
   if Length(Components) < 4 then Exit;
-  Result.A := StrToSingle(Components[3]);
+  Self.A := StrToFloat(Components[3]);
+end;
 
 {
   TSDLFPointH
@@ -426,7 +435,7 @@ end;
 
 procedure TSDLFPointH.InitRandomPolar(const aMag: CFloat);
 begin
-  Self.InitPolarXY(aMag, Random * 2 * Pi);
+  Self.InitPolar(aMag, Random * 2 * Pi);
 end;
 
 function TSDLFPointH.GetAngle: CFloat;
@@ -440,7 +449,7 @@ begin
   //   aMag := GetMagnitude;
   //   Self.InitPolar(aMag, aAngle);
   // or:
-  Self.RotateXY(aAngle - Self.GetAngleXY);
+  Self.Rotate(aAngle - Self.GetAngle);
 end;
 
 function TSDLFPointH.GetSqrMag: CFloat;
@@ -463,7 +472,7 @@ end;
 function TSDLFPointH.IsZero(const aEpsilon: CFloat): Boolean;
 begin
   // aEpsilon = 0 means default Epsilon
-  Result := IsZero(Self.X, aEpsilon) and IsZero(Self.Y, aEpsilon);
+  Result := Math.IsZero(Self.X, aEpsilon) and Math.IsZero(Self.Y, aEpsilon);
 end;
 
 function TSDLFPointH.IsEqual(const P: TSDL_FPoint; const aEpsilon: CFloat):
@@ -507,21 +516,22 @@ begin
   Self.X *= P.X; Self.Y *= P.Y;
 end;
 
-procedure TSDLFPointH.Divide(const aScale: CFloat); //< Self / AScale
+procedure TSDLFPointH.Divide(const aScale: CFloat);
 begin
   Self.X /= aScale; Self.Y /= aScale;
 end;
 
-procedure TSDLFPointH.DivInv(const aScale: CFloat); //< AScale / Self
+procedure TSDLFPointH.DivInv(const aScale: CFloat);
 begin
   Self.X := aScale / Self.X; Self.Y := aScale / Self.Y;
 end;
 
 procedure TSDLFPointH.Normalize;
+begin
   if Self.IsZero then Exit; // Keep at Zero
 
   // This way we only divide once
-  Self.Multiply(1 / Self.GetMagnitude3D);
+  Self.Multiply(1 / Self.GetMagnitude);
 end;
 
 function TSDLFPointH.GetNormalized: TSDL_FPoint;
@@ -567,7 +577,7 @@ end;
 
 function TSDLFPointH.Distance(const P: TSDL_FPoint): CFloat;
 begin
-  Result := SrRt(Self.SqrDistance(P));
+  Result := SqRt(Self.SqrDistance(P));
 end;
 
 function TSDLFPointH.InDistance(const P: TSDL_FPoint; const aDistance: CFloat;
@@ -668,9 +678,9 @@ begin
 
   // Lazy read
   if Length(Components) < 1 then Exit;
-  Result.X := StrToSingle(Components[0]);
+  Self.X := StrToFloat(Components[0]);
   if Length(Components) < 2 then Exit;
-  Result.Y := StrToSingle(Components[1]);
+  Self.Y := StrToFloat(Components[1]);
 end;
 
 {
@@ -684,15 +694,37 @@ end;
 
 procedure TSDLFRectH.Shrink(const aSize: CFloat);
 begin
-  X += aSize; Y += aSize; W -= (aSize + aSize); H -= (aSize + aSize);
+  Self.X += aSize; Self.Y += aSize;
+  Self.W -= (aSize + aSize); Self.H -= (aSize + aSize);
 end;
 
-function ToString: String;
+function TSDLFRectH.ToString(const Delim : Char): String;
 begin
-  Result := Format('%0:g,%1:g,%2:g,%3:g', [X, Y, W, H]);
+  Result := Format('%0:g,%1:g,%2:g,%3:g', [Self.X, Self.Y, Self.W, Self.H]);
 end;
 
-procedure FromString(aString: String);
+function TSDLFRectH.ToStringFmt(const aFmtStr: String): String;
+begin
+  Result := Format(aFmtStr, [Self.X, Self.Y, Self.W, Self.H]);
+end;
+
+procedure TSDLFRectH.FromString(const aString: String; const Delim : Char);
+var
+  Components: array of String;
+begin
+  Components := aString.Split(Delim);
+  Self.Init(0,0,0,0);
+
+  // Lazy read
+  if Length(Components) < 1 then Exit;
+  Self.X := Components[0].ToSingle;
+  if Length(Components) < 2 then Exit;
+  Self.Y := Components[1].ToSingle;
+  if Length(Components) < 3 then Exit;
+  Self.W := Components[2].ToSingle;
+  if Length(Components) < 4 then Exit;
+  Self.H := Components[3].ToSingle;
+end;
 
 // Operators
 
@@ -708,19 +740,45 @@ end;
 
 operator = (const P1, P2: TSDL_FPoint): Boolean;
 begin
-  // ToDo: ¿Hacer estricto?
   Result := SameValue(P1.X, P2.X) and SameValue(P1.Y, P2.Y);
 end;
 
-operator + (const P1, P2: TSDL_FPoint): TSDL_FPoint
-operator - (const P1, P2: TSDL_FPoint): TSDL_FPoint;
-operator - (const P1: TSDL_FPoint): TSDL_FPoint;
-operator * (const P1, P2: TSDL_FPoint): TSDL_FPoint;
-operator * (const P1: TSDL_FPoint; aFactor: CFloat): TSDL_FPoint;
-operator * (aFactor: CFloat; const P1: TSDL_FPoint): TSDL_FPoint;
-operator / (const P1: TSDL_FPoint; aFactor: CFloat): TSDL_FPoint;
-operator := (const P: TSDL_Point): TSDL_FPoint;
+operator + (const P1, P2: TSDL_FPoint): TSDL_FPoint;
+begin
+  Result.X := P1.X + P2.X; Result.Y := P1.Y + P2.Y;
+end;
 
+operator - (const P: TSDL_FPoint): TSDL_FPoint;
+begin
+  Result.X := -P.X; Result.Y := -P.Y;
+end;
+
+operator - (const P1, P2: TSDL_FPoint): TSDL_FPoint;
+begin
+  Result.X := P1.X - P2.X; Result.Y := P1.Y - P2.Y;
+end;
+
+operator * (const P1, P2: TSDL_FPoint): TSDL_FPoint;
+begin
+  Result.X := P1.X * P2.X; Result.Y := P1.Y * P2.Y;
+end;
+
+operator * (const P: TSDL_FPoint; const aFactor: CFloat): TSDL_FPoint;
+begin
+  Result.X := P.X * aFactor; Result.Y := P.Y * aFactor;
+end;
+
+operator * (const aFactor: CFloat; const P: TSDL_FPoint): TSDL_FPoint;
+begin
+  Result.X := P.X * aFactor; Result.Y := P.Y * aFactor;
+end;
+
+operator / (const P: TSDL_FPoint; const aFactor: CFloat): TSDL_FPoint;
+begin
+  Result.X := P.X / aFactor; Result.Y := P.Y / aFactor;
+end;
+
+// TSDL_FRect operators
 
 operator = (const R1, R2: TSDL_FRect): Boolean;
 begin
@@ -728,6 +786,8 @@ begin
   Result := SameValue(R1.X, R2.X) and SameValue(R1.Y, R2.Y) 
     and SameValue(R1.W, R2.W) and SameValue(R1.H, R2.H)
 end;
+
+// TSDL_Vertex operators
 
 operator = (const V1, V2: TSDL_Vertex): Boolean;
 begin
