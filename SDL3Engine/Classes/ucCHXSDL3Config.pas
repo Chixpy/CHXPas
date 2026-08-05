@@ -44,7 +44,7 @@ type
 
     DefFontFile : String;
     DefFontSize : Integer;
-    DefFontColor : TSDL_Color;
+    DefFontColor : TSDL_FColor;
 
     procedure ResetDefaultConfig; override;
 
@@ -78,13 +78,13 @@ begin
   RendererUseHW := aIniFile.ReadBool(krsIniSectionSDL3Engine,
     krsIniKeyRendererUseHW, RendererUseHW);
 
-  // Fallback Font
-  DefFontFile := aIniFile.ReadString(krsIniSectionSDL3Engine,
-    krsIniKeyDefFontFile, DefFontFile);
-  DefFontSize := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-    krsIniKeyDefFontSize, DefFontSize);
-  DefFontColor := Str2SDLColor(aIniFile.ReadString(krsIniSectionSDL3Engine,
-    krsIniKeyDefFontColor, '255,255,255,255'));
+  // // Fallback Font
+  // DefFontFile := aIniFile.ReadString(krsIniSectionSDL3Engine,
+  //   krsIniKeyDefFontFile, DefFontFile);
+  // DefFontSize := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
+  //   krsIniKeyDefFontSize, DefFontSize);
+  // DefFontColor := Str2SDLColor(aIniFile.ReadString(krsIniSectionSDL3Engine,
+  //   krsIniKeyDefFontColor, '255,255,255,255'));
 
 end;
 
@@ -98,9 +98,9 @@ begin
   RendererHeight := 480;
   RendererUseHW := True;
 
-  DefFontFile := '';
-  DefFontSize := 10;
-  DefFontColor := SDLColor(255, 255, 255, 255);
+  // DefFontFile := '';
+  // DefFontSize := 10;
+  // DefFontColor := SDLColor(255, 255, 255, 255);
 end;
 
 constructor cCHXSDL3Config.Create;
@@ -139,13 +139,13 @@ begin
   aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyRendererUseHW,
     RendererUseHW);
 
-  // Fallback Font
-  aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontFile,
-    DefFontFile);
-  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyDefFontSize,
-    DefFontSize);
-  aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontColor,
-    SDLColor2Str(DefFontColor));
+  // // Fallback Font
+  // aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontFile,
+  //   DefFontFile);
+  // aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyDefFontSize,
+  //   DefFontSize);
+  // aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontColor,
+  //   SDLColor2Str(DefFontColor));
 end;
 
 end.

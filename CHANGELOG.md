@@ -1,3 +1,10 @@
+## 2026-08-05 21:00
+
+
+- Fixing _CHXSDL3Engine.pas_ test.
+- Adding `TSDL_FPointH` methods (and before ever creating _TCHXVec2[x]_...).
+- Changing order, renaming and adding some methods of `TCHXVec3[x]`.
+- Some comment format in _uCHXMath.pas_.
 ## 2026-08-02 20:31
 ### CHXSDL3Engine
 

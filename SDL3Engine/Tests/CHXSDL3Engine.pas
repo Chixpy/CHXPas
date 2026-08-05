@@ -6,6 +6,8 @@ program CHXSDL3Engine;
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implented in it's own unit.
+
+  (c) 2026 Chixpy
 }
 {$mode ObjFPC}{$H+}
 uses
@@ -56,8 +58,8 @@ type
   begin
     {
       Step frame logic.
-        - FrameTime: Time passed after last frames.
-        - ExitProg: if set to True, then Exit the program.
+
+      - ExitProg: if set to True, then Exit the program.
     }
   end;
 
@@ -110,6 +112,7 @@ type
 
       Parent's method handles some Window and Exit/Quit events. Some keys are
         handled too by default:
+
       - ESC: Exits the program.
       - F11: Toggle framerate display.
       - While text editing: All characters and simbols are handled.

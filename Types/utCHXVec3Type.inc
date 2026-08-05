@@ -2,6 +2,7 @@
 
   Usage: Create a unit file, replace this IDs:
 
+  ```
     unit <UnitName>;
 
     {$macro ON}
@@ -44,7 +45,7 @@
     //< function ArcSinData(Angle): TRealType;
 
     {$I '<ThisFilename>'}
-
+  ```
 
   Four types of Vec3 are implemented, for all basic float types:
     - @code(TCHXVec3S) for Single in uTCHXVec3S.pas
@@ -62,11 +63,13 @@
   
   Although primarily intended to store a 3D point or vector, it includes 
     several methods for 2D handling and other 3-component structures.
+
+  ToDo: Use "Self." in every field and method.
 *)
-{$mode objfpc}{$H+}
-{$modeswitch advancedrecords}
-{$modeswitch typehelpers}
-{$inline ON}
+{$MODE ObjFPC}{$H+}
+{$MODESWITCH AdvancedRecords}
+{$MODESWITCH TypeHelpers}
+{$INLINE ON}
 
 interface
 uses
@@ -74,12 +77,17 @@ uses
 
 type
   TCHXVec3Type = packed record
+  public
     X, Y, Z: TRealType;
-    { case Byte of }
-    {   0: (X, Y, Z: TRealType); // Standard components }
-    {   1: (R, G, B: TRealType); // Floating-point color [0..1] }
-    {   2: (Comp: array[0..2] of TRealType); // Index-based array access }
-    { end; }
+    //case Byte of
+    //  0: (X, Y, Z: TRealType); // Standard components
+    //  1: (R, G, B: TRealType); // Floating-point color [0..1]
+    //  2: (Comp: array[0..2] of TRealType); // Index-based array access
+    //end;
+
+  {
+    Init
+  }
 
     procedure Init3D(const aX: TRealType = 0; const aY: TRealType = 0;
       const aZ: TRealType = 0); inline;
@@ -87,44 +95,101 @@ type
     procedure InitXZ(const aX: TRealType = 0; const aZ: TRealType = 0); inline;
     procedure InitZY(const aZ: TRealType = 0; const aY: TRealType = 0); inline;
 
-    procedure InitPolar3D(const aMag: TRealType = 0; const aYaw: TRealType = 0;
+    procedure InitPolar3D(const aMag: TRealType; const aYaw: TRealType = 0;
       const aPitch: TRealType = 0);
     procedure InitPolarXY(const aMag: TRealType; const aAngle: TRealType = 0);
       inline;
-    procedure InitPolarXZ(const aMag: TRealType; const aAngle: TRealType = 0); 
+    procedure InitPolarXZ(const aMag: TRealType; const aAngle: TRealType = 0);
       inline;
     procedure InitPolarZY(const aMag: TRealType; const aAngle: TRealType = 0);
       inline;
+    //ToDo: InitRandom3D(const MinX, MaxX, MinY, MaxY, MinZ, MaxZ :TRealType)
+    //  and plane versions
+    procedure InitRndPolar3D(const aMag: TRealType = 1); inline;
+    procedure InitRndPolarXY(const aMag: TRealType = 1); inline;
+    procedure InitRndPolarXZ(const aMag: TRealType = 1); inline;
+    procedure InitRndPolarZY(const aMag: TRealType = 1); inline;
 
-    procedure Random3D(const aMag: TRealType = 1); inline;
-    procedure RandomXY(const aMag: TRealType = 1); inline;
-    procedure RandomXZ(const aMag: TRealType = 1); inline;
-    procedure RandomZY(const aMag: TRealType = 1); inline;
+  {
+    Polar coordinates
+  }
 
     procedure GetAngles3D(out aYaw, aPitch: TRealType);
     function GetAngleXY: TRealType; inline;
     function GetAngleXZ: TRealType; inline;
     function GetAngleZY: TRealType; inline;
-
-    function SqrMag3D: TRealType; inline;
-    function SqrMagXY: TRealType; inline;
-    function SqrMagXZ: TRealType; inline;
-    function SqrMagZY: TRealType; inline;
-    function GetMagnitude3D: TRealType; inline;
-    function GetMagnitudeXY: TRealType; inline;
-    function GetMagnitudeXZ: TRealType; inline;
-    function GetMagnitudeZY: TRealType; inline;
-    procedure Normalize;
-    function GetNormalized: TCHXVec3Type; inline;
-
-    procedure SetMagnitude(const aMag: TRealType); inline;
-
-    // ToDo: SetMagnitudeXY, SetMagnitudeXZ and SetMagnitudeZY
-
     procedure SetAngles3D(const aYaw, aPitch: TRealType); inline;
     procedure SetAngleXY(const aAngle: TRealType); inline;
     procedure SetAngleXZ(const aAngle: TRealType); inline;
     procedure SetAngleZY(const aAngle: TRealType); inline;
+
+    function GetSqrMag3D: TRealType; inline;
+    function GetSqrMagXY: TRealType; inline;
+    function GetSqrMagXZ: TRealType; inline;
+    function GetSqrMagZY: TRealType; inline;
+    function GetMagnitude3D: TRealType; inline;
+    function GetMagnitudeXY: TRealType; inline;
+    function GetMagnitudeXZ: TRealType; inline;
+    function GetMagnitudeZY: TRealType; inline;
+    procedure SetMagnitude(const aMag: TRealType); inline;
+    // ToDo: SetMagnitudeXY, SetMagnitudeXZ and SetMagnitudeZY
+
+    procedure Normalize;
+    function GetNormalized: TCHXVec3Type; inline;
+
+  {
+    Comparisons
+
+    Sigma = 0 means use default sigma value for TRealType.
+  }
+
+    function IsZero3D(const Sigma: TRealType = 0): Boolean; inline; overload;
+    function IsZeroXY(const Sigma: TRealType = 0): Boolean; inline; overload;
+    function IsZeroXZ(const Sigma: TRealType = 0): Boolean; inline; overload;
+    function IsZeroZY(const Sigma: TRealType = 0): Boolean; inline; overload;
+
+    function IsEqual3D(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+    function IsEqualXZ(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+    function IsEqualZY(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+    function IsEqualXY(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+
+    function IsOpposite(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+    function IsParallel(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
+      : Boolean; inline;
+    //< Ignore direction.
+    function IsCoaligned(const aVector: TCHXVec3Type;
+      const Sigma: TRealType = 0): Boolean; inline;
+    //< Parallel, same direction.
+    function IsAntiParallel(const aVector: TCHXVec3Type;
+      const Sigma: TRealType = 0): Boolean; inline;
+    //< Parallel, opposite direction.
+    function IsPerpendicular(const aVector: TCHXVec3Type;
+      const Sigma: TRealType = 0): Boolean; inline;
+
+  {
+    Self operations
+  }
+
+    procedure Negate;
+    //< Other names: Opposite or Invert
+    procedure Add(const aVector: TCHXVec3Type); inline;
+    procedure Subtract(const aVector: TCHXVec3Type); inline;
+    procedure Multiply(const aScale: TRealType); inline;
+    procedure Scale(const aVector: TCHXVec3Type); inline; overload;
+    procedure Divide(const aScale: TRealType); inline;
+    procedure DivInv(const aScale: TRealType); inline;
+
+  {
+    Other operations
+  }
+
+    procedure Move(const dX, dY, dZ: TRealType); inline;
+    procedure Scale(const sX, sY, sZ: TRealType); inline; overload;
 
     procedure RotateXY(const aAngle: TRealType); overload;
     procedure RotateXZ(const aAngle: TRealType); overload;
@@ -136,70 +201,8 @@ type
     procedure RotateZY(const aAngle: TRealType; const Center: TCHXVec3Type);
       overload;
 
-    class operator = (const aVec1, aVec2: TCHXVec3Type): Boolean; inline;
-    function IsZero3D: Boolean; inline; overload;
-    function IsZeroXY: Boolean; inline; overload;
-    function IsZeroXZ: Boolean; inline; overload;
-    function IsZeroZY: Boolean; inline; overload;
-    function IsZero3D(const Sigma: TRealType): Boolean; inline; overload;
-    function IsZeroXY(const Sigma: TRealType): Boolean; inline; overload;
-    function IsZeroXZ(const Sigma: TRealType): Boolean; inline; overload;
-    function IsZeroZY(const Sigma: TRealType): Boolean; inline; overload;
-    
-    function IsEqual3D(const aVector: TCHXVec3Type): Boolean; inline; overload;
-    function IsEqualXY(const aVector: TCHXVec3Type): Boolean; inline; overload;
-    function IsEqualXZ(const aVector: TCHXVec3Type): Boolean; inline; overload;
-    function IsEqualZY(const aVector: TCHXVec3Type): Boolean; inline; overload;
-    function IsEqual3D(const aVector: TCHXVec3Type; const Sigma: TRealType)
-      : Boolean; inline; overload;
-    function IsEqualXZ(const aVector: TCHXVec3Type; const Sigma: TRealType)
-      : Boolean; inline; overload;
-    function IsEqualZY(const aVector: TCHXVec3Type; const Sigma: TRealType)
-      : Boolean; inline; overload;
-    function IsEqualXY(const aVector: TCHXVec3Type; const Sigma: TRealType)
-      : Boolean; inline; overload;
-
-    function IsOpposite(const aVector: TCHXVec3Type): Boolean; inline;
-    // ToDo: Make version with Sigma
-    function IsParallel(const aVector: TCHXVec3Type): Boolean; inline;
-    //< Ignore direction.
-    //< ToDo: Make version with Sigma
-    function IsCoaligned(const aVector: TCHXVec3Type): Boolean; inline;
-    //< Parallel, same direction.
-    //< ToDo: Make version with Sigma
-    function IsAntiParallel(const aVector: TCHXVec3Type): Boolean; inline;
-    //< Parallel, opposite direction.
-    // ToDo: Make version with Sigma
-    function IsPerpendicular(const aVector: TCHXVec3Type): Boolean; inline;
-    // ToDo: Make version with Sigma
-
-    class operator -(const aVector: TCHXVec3Type): TCHXVec3Type; inline;
-    procedure Negate;
-    //< Other names: Opposite or Invert
-    class operator + (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
-    procedure Add(const aVector: TCHXVec3Type); inline;
-    class operator - (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
-    procedure Subtract(const aVector: TCHXVec3Type); inline;
-    class operator * (const aVector: TCHXVec3Type; const aScale: TRealType)
-      : TCHXVec3Type; inline;
-    class operator * (const aScale: TRealType; const aVector: TCHXVec3Type)
-      : TCHXVec3Type; inline;
-    procedure Multiply(const aScale: TRealType); inline;
-    class operator / (const aVector: TCHXVec3Type; const aScale: TRealType)
-      : TCHXVec3Type; inline;
-    procedure Divide(const aScale: TRealType); inline;
-    class operator * (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
-    //< Component-wise scaling (Hadamard product)
-    procedure Scale(const aVector: TCHXVec3Type); inline; overload;
-    class operator / (const aScale: TRealType; const aVector: TCHXVec3Type)
-      : TCHXVec3Type; inline;
-    procedure DivInv(const aScale: TRealType); inline;
-
     function VectProd(const aVector: TCHXVec3Type): TCHXVec3Type; inline;
     function ScalProd(const aVector: TCHXVec3Type): TRealType; inline;
-
-    procedure Move(const dX, dY, dZ: TRealType); inline;
-    procedure Scale(const sX, sY, sZ: TRealType); inline; overload;
 
     function SqrDistance(const aPoint: TCHXVec3Type): TRealType; inline;
     function Distance(const aPoint: TCHXVec3Type): TRealType; inline;
@@ -210,11 +213,50 @@ type
       If True, it includes the value + Precision.
       ToDo: Versión with Sigma
     }
+    function MidPoint(const aPoint: TCHXVec3Type): TCHXVec3Type; inline;
 
     function Reflect(const aNormal: TCHXVec3Type): TCHXVec3Type; inline;
     function Refract(const aNormal: TCHXVec3Type; const RefIdx: TRealType)
       : TCHXVec3Type;
 
+  {
+    Conversion to Integer coords and remainder
+
+    ToDo: Implement and, ¿TPoint or TCHXVec2?
+  }
+
+    function Ceil: TCHXVec3Type; //< Ceiling(-2.3, 1.3) = -2, 2
+    function Truncate: TCHXVec3Type; //< Truncate(-2.3, 1.3) = -2, 1
+    function Floor: TCHXVec3Type; //< Floor(-2.3, 1.3) = -3, 1
+    function Round: TCHXVec3Type;
+    function FracCeil: TCHXVec3Type; //< FracCeil(-2.3, 1.3) = -0.3, -0.7
+    function FracTrunc: TCHXVec3Type;  //< Frac(-2.3, 1.3) = -0.3, 0.3
+    function FracFloor: TCHXVec3Type; //< FracFloor(-2.3, 1.3) = 0.7, 0.3
+
+  {
+    Operators
+  }
+
+    class operator = (const aVec1, aVec2: TCHXVec3Type): Boolean; inline;
+    class operator + (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
+    class operator -(const aVector: TCHXVec3Type): TCHXVec3Type; inline;
+    class operator - (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
+    class operator * (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; inline;
+    //< Component-wise scaling (Hadamard product)
+    class operator * (const aVector: TCHXVec3Type; const aScale: TRealType)
+      : TCHXVec3Type; inline;
+    class operator * (const aScale: TRealType; const aVector: TCHXVec3Type)
+      : TCHXVec3Type; inline;
+    class operator / (const aVector: TCHXVec3Type; const aScale: TRealType)
+      : TCHXVec3Type; inline;
+    class operator / (const aScale: TRealType; const aVector: TCHXVec3Type)
+      : TCHXVec3Type; inline;
+
+  {
+    String related
+  }
+
+    // ToDo: procedure FromString(const Delim : char = ',');
     function ToString(const Delim : char = ',') : string;
     function ToStringFmt(const aStr: string) : string;
   end;
@@ -226,8 +268,8 @@ type
   PCHXVec3 = ^TCHXVec3Type;
 
   // Generic and specialized lists using FGL (Free Pascal Generics Library)
+  // ToDo: Change to Generic.Collections?
   cCHXVec3GenList = specialize TFPGList<TCHXVec3Type>;
-  
   cCHXVec3List = class(cCHXVec3GenList)
     { 
       This list could implement methods that apply operations to all 
@@ -236,13 +278,18 @@ type
     }
   end;
 
-  function CHXVec3Func(const aX: TRealType = 0; const aY: TRealType = 0;
-    const aZ: TRealType = 0): TCHXVec3Type; inline;
-  {<
-    Global function to 'create' a TCHXVec3Type. 
-    Useful to pass as a parameter without the need to explicitly 
-    create a variable: MyFunc(CHXVec3Func(1, 2, 3), ...)
-  }
+{
+  Creation function
+}
+
+function CHXVec3Func(const aX: TRealType = 0; const aY: TRealType = 0;
+  const aZ: TRealType = 0): TCHXVec3Type; inline;
+{<
+  Global function to 'create' a TCHXVec3Type.
+  
+  Useful to pass as a parameter without the need to explicitly 
+  create a variable: MyFunc(CHXVec3Func(1, 2, 3), ...)
+}
 
 implementation
 
@@ -273,13 +320,13 @@ var
   SinXZ, CosXZ, SinY, CosY: TRealType;
   ProyXZ: TRealType;
 begin
-  { 
+  {
     aMag: Distance from the origin.
     aYaw: Azimuth.
     aPitch: Inclination.
-    
+
     InitPolar(1, 0, 0) -> (0, 0, 1)
-    
+
     Think in 1st person, not as a sphere we are looking at, 
       making this consistent with coordinate initialization.
   }
@@ -307,24 +354,24 @@ begin
   X := 0; Y := aMag * Sin(aAngle); Z := aMag * Cos(aAngle);
 end;
 
-procedure TCHXVec3Type.Random3D(const aMag: TRealType); 
+procedure TCHXVec3Type.InitRndPolar3D(const aMag: TRealType); 
 begin
   // FixMe: It can never be completely vertical upwards (0, 1, 0),
   //   but it can be (0, -1, 0)
   InitPolar3D(aMag, Random * k2Pi, Random * Pi - kHalfPi);
 end;
 
-procedure TCHXVec3Type.RandomXY(const aMag: TRealType); 
+procedure TCHXVec3Type.InitRndPolarXY(const aMag: TRealType); 
 begin
   InitPolarXY(aMag, Random * k2Pi);
 end;
 
-procedure TCHXVec3Type.RandomXZ(const aMag: TRealType); 
+procedure TCHXVec3Type.InitRndPolarXZ(const aMag: TRealType); 
 begin
   InitPolarXZ(aMag, Random * k2Pi);
 end;
 
-procedure TCHXVec3Type.RandomZY(const aMag: TRealType); 
+procedure TCHXVec3Type.InitRndPolarZY(const aMag: TRealType); 
 begin
   InitPolarZY(aMag, Random * k2Pi);
 end;
@@ -336,7 +383,7 @@ begin
     aYaw := 0; aPitch := 0;
     Exit;
   end;
-  
+
   aYaw := ArcTan2Data(X, Z);
   aPitch := ArcSinData(Y / Self.GetMagnitude3D);
 end;
@@ -356,69 +403,6 @@ begin
   Result := ArcTan2Data(Y, Z);
 end;
 
-function TCHXVec3Type.SqrMag3D: TRealType; 
-begin
-  Result := X * X + Y * Y + Z * Z;
-end;
-
-function TCHXVec3Type.SqrMagXY: TRealType; 
-begin
-  Result := X * X + Y * Y;
-end;
-
-function TCHXVec3Type.SqrMagXZ: TRealType; 
-begin
-  Result := X * X + Z * Z;
-end;
-
-function TCHXVec3Type.SqrMagZY: TRealType; 
-begin
-  Result := Z * Z + Y * Y;
-end;
-
-function TCHXVec3Type.GetMagnitude3D: TRealType; 
-begin
-  Result := SqRt(Self.SqrMag3D);
-end;
-
-function TCHXVec3Type.GetMagnitudeXY: TRealType; 
-begin
-  Result := SqRt(Self.SqrMagXY);
-end;
-
-function TCHXVec3Type.GetMagnitudeXZ: TRealType; 
-begin
-  Result := SqRt(Self.SqrMagXZ);
-end;
-
-function TCHXVec3Type.GetMagnitudeZY: TRealType; 
-begin
-  Result := SqRt(Self.SqrMagZY);
-end;
-
-procedure TCHXVec3Type.Normalize;
-begin
-  if Self.IsZero3D then 
-    Exit; // Keep at Zero
-
-  // This way we only divide once
-  Self.Multiply(1 / Self.GetMagnitude3D);
-end;
-
-function TCHXVec3Type.GetNormalized: TCHXVec3Type; 
-begin
-  Result := Self;
-  Result.Normalize;
-end;
-
-procedure TCHXVec3Type.SetMagnitude(const aMag: TRealType); 
-begin
-  if Self.IsZero3D then 
-    Exit; // Keep at zero
-
-  Self.Multiply(aMag / Self.GetMagnitude3D);
-end;
-
 procedure TCHXVec3Type.SetAngles3D(const aYaw, aPitch: TRealType); 
 begin
   Self.InitPolar3D(Self.GetMagnitude3D, aYaw, aPitch);
@@ -426,20 +410,213 @@ end;
 
 procedure TCHXVec3Type.SetAngleXY(const aAngle: TRealType); 
 begin
-  // ToDo: Test is rotation more efficient than obtaining the vector magnitude
+  // ToDo: Test wich is more efficient and apply to XZ and ZY:
+  //   aMag := GetMagnitudeXY;
+  //   Self.InitPolarXY(aMag, aAngle);
+  // or:
   Self.RotateXY(aAngle - Self.GetAngleXY);
 end;
 
 procedure TCHXVec3Type.SetAngleXZ(const aAngle: TRealType); 
 begin
-  // ToDo: Test is rotation more efficient than obtaining the vector magnitude
   Self.RotateXZ(aAngle - Self.GetAngleXZ);
 end;
 
 procedure TCHXVec3Type.SetAngleZY(const aAngle: TRealType); 
 begin
-  // ToDo: Test is rotation more efficient than obtaining the vector magnitude
   Self.RotateZY(aAngle - Self.GetAngleZY);
+end;
+
+function TCHXVec3Type.GetSqrMag3D: TRealType; 
+begin
+  Result := X * X + Y * Y + Z * Z;
+end;
+
+function TCHXVec3Type.GetSqrMagXY: TRealType; 
+begin
+  Result := X * X + Y * Y;
+end;
+
+function TCHXVec3Type.GetSqrMagXZ: TRealType; 
+begin
+  Result := X * X + Z * Z;
+end;
+
+function TCHXVec3Type.GetSqrMagZY: TRealType; 
+begin
+  Result := Z * Z + Y * Y;
+end;
+
+function TCHXVec3Type.GetMagnitude3D: TRealType; 
+begin
+  Result := SqRt(Self.GetSqrMag3D);
+end;
+
+function TCHXVec3Type.GetMagnitudeXY: TRealType; 
+begin
+  Result := SqRt(Self.GetSqrMagXY);
+end;
+
+function TCHXVec3Type.GetMagnitudeXZ: TRealType; 
+begin
+  Result := SqRt(Self.GetSqrMagXZ);
+end;
+
+function TCHXVec3Type.GetMagnitudeZY: TRealType; 
+begin
+  Result := SqRt(Self.GetSqrMagZY);
+end;
+
+procedure TCHXVec3Type.SetMagnitude(const aMag: TRealType); 
+begin
+  if Self.IsZero3D then
+    Exit; // Keep at zero
+
+  Self.Multiply(aMag / Self.GetMagnitude3D);
+end;
+
+procedure TCHXVec3Type.Normalize;
+begin
+  if Self.IsZero3D then
+    Exit; // Keep at Zero
+
+  // This way we only divide once
+  Self.Multiply(1 / Self.GetMagnitude3D);
+end;
+
+function TCHXVec3Type.GetNormalized: TCHXVec3Type;
+begin
+  Result := Self;
+  Result.Normalize;
+end;
+
+function TCHXVec3Type.IsZero3D(const Sigma: TRealType): Boolean;  
+begin
+  Result := DataIsZero(X, Sigma) and DataIsZero(Y, Sigma) 
+    and DataIsZero(Z, Sigma);
+end;
+
+function TCHXVec3Type.IsZeroXY(const Sigma: TRealType): Boolean;  
+begin
+  Result := DataIsZero(X, Sigma) and DataIsZero(Y, Sigma);
+end;
+
+function TCHXVec3Type.IsZeroXZ(const Sigma: TRealType): Boolean;  
+begin
+  Result := DataIsZero(X, Sigma) and DataIsZero(Z, Sigma);
+end;
+
+function TCHXVec3Type.IsZeroZY(const Sigma: TRealType): Boolean;  
+begin
+  Result := DataIsZero(Z, Sigma) and DataIsZero(Y, Sigma);
+end;
+
+function TCHXVec3Type.IsEqual3D(const aVector: TCHXVec3Type; 
+  const Sigma: TRealType): Boolean;  
+begin
+  Result := SameValueSigma(X, aVector.X, Sigma) 
+    and SameValueSigma(Y, aVector.Y, Sigma) 
+    and SameValueSigma(Z, aVector.Z, Sigma);
+end;
+
+function TCHXVec3Type.IsEqualXY(const aVector: TCHXVec3Type; 
+  const Sigma: TRealType): Boolean;  
+begin
+  Result := SameValueSigma(X, aVector.X, Sigma) 
+    and SameValueSigma(Y, aVector.Y, Sigma);
+end;
+
+function TCHXVec3Type.IsEqualXZ(const aVector: TCHXVec3Type; 
+  const Sigma: TRealType): Boolean;  
+begin
+  Result := SameValueSigma(X, aVector.X, Sigma) 
+    and SameValueSigma(Z, aVector.Z, Sigma);
+end;
+
+function TCHXVec3Type.IsEqualZY(const aVector: TCHXVec3Type; 
+  const Sigma: TRealType): Boolean;  
+begin
+  Result := SameValueSigma(Z, aVector.Z, Sigma) 
+    and SameValueSigma(Y, aVector.Y, Sigma);
+end;
+
+function TCHXVec3Type.IsOpposite(const aVector: TCHXVec3Type;
+  const Sigma: TRealType): Boolean; 
+begin
+  Result := SameValue(Self.X, -aVector.X, Sigma)
+    and SameValue(Self.Y, -aVector.Y, Sigma)
+    and SameValue(Self.Z, -aVector.Z, Sigma);
+end;
+
+function TCHXVec3Type.IsParallel(const aVector: TCHXVec3Type;
+  const Sigma: TRealType): Boolean; 
+begin
+  Result := Self.VectProd(aVector).IsZero3D(Sigma);
+end;
+
+function TCHXVec3Type.IsCoaligned(const aVector: TCHXVec3Type;
+  const Sigma: TRealType): Boolean; 
+begin
+  Result := (Self.ScalProd(aVector) > 0)
+    and Self.IsParallel(aVector, Sigma);
+end;
+
+function TCHXVec3Type.IsAntiParallel(const aVector: TCHXVec3Type;
+  const Sigma: TRealType): Boolean; 
+begin
+  Result := (Self.ScalProd(aVector) < 0)
+    and Self.IsParallel(aVector, Sigma);
+end;
+
+function TCHXVec3Type.IsPerpendicular(const aVector: TCHXVec3Type;
+  const Sigma: TRealType): Boolean; 
+begin
+  Result := DataIsZero(Self.ScalProd(aVector), Sigma);
+end;
+
+procedure TCHXVec3Type.Negate;
+begin
+  X := -X; Y := -Y; Z := -Z;
+end;
+
+procedure TCHXVec3Type.Add(const aVector: TCHXVec3Type); 
+begin
+  X += aVector.X; Y += aVector.Y; Z += aVector.Z;
+end;
+
+procedure TCHXVec3Type.Subtract(const aVector: TCHXVec3Type); 
+begin
+  X -= aVector.X; Y -= aVector.Y; Z -= aVector.Z;
+end;
+
+procedure TCHXVec3Type.Multiply(const aScale: TRealType); 
+begin
+  X *= aScale; Y *= aScale; Z *= aScale;
+end;
+
+procedure TCHXVec3Type.Scale(const aVector: TCHXVec3Type);
+begin
+  X *= aVector.X; Y *= aVector.Y; Z *= aVector.Z;
+end;
+
+procedure TCHXVec3Type.Divide(const aScale: TRealType); 
+begin
+  X /= aScale; Y /= aScale; Z /= aScale;
+end;
+
+procedure TCHXVec3Type.DivInv(const aScale: TRealType); 
+begin
+  X := aScale / X; Y := aScale / Y; Z := aScale / Z;
+end;
+
+procedure TCHXVec3Type.Move(const dX, dY, dZ: TRealType); 
+begin
+  X += dX; Y += dY; Z += dZ;
+end;
+
+procedure TCHXVec3Type.Scale(const sX, sY, sZ: TRealType);  
+begin
+  X *= sX; Y *= sY; Z *= sZ;
 end;
 
 procedure TCHXVec3Type.RotateXY(const aAngle: TRealType); 
@@ -499,226 +676,6 @@ begin
   Self.Add(Center);
 end;
 
-function TCHXVec3Type.IsZero3D: Boolean;  
-begin
-  Result := DataIsZero(X) and DataIsZero(Y) and DataIsZero(Z);
-end;
-
-function TCHXVec3Type.IsZeroXY: Boolean;  
-begin
-  Result := DataIsZero(X) and DataIsZero(Y);
-end;
-
-function TCHXVec3Type.IsZeroXZ: Boolean;  
-begin
-  Result := DataIsZero(X) and DataIsZero(Z);
-end;
-
-function TCHXVec3Type.IsZeroZY: Boolean;  
-begin
-  Result := DataIsZero(Z) and DataIsZero(Y);
-end;
-
-function TCHXVec3Type.IsZero3D(const Sigma: TRealType): Boolean;  
-begin
-  Result := DataIsZero(X, Sigma) and DataIsZero(Y, Sigma) 
-    and DataIsZero(Z, Sigma);
-end;
-
-function TCHXVec3Type.IsZeroXY(const Sigma: TRealType): Boolean;  
-begin
-  Result := DataIsZero(X, Sigma) and DataIsZero(Y, Sigma);
-end;
-
-function TCHXVec3Type.IsZeroXZ(const Sigma: TRealType): Boolean;  
-begin
-  Result := DataIsZero(X, Sigma) and DataIsZero(Z, Sigma);
-end;
-
-function TCHXVec3Type.IsZeroZY(const Sigma: TRealType): Boolean;  
-begin
-  Result := DataIsZero(Z, Sigma) and DataIsZero(Y, Sigma);
-end;
-
-class operator TCHXVec3Type.= (const aVec1, aVec2: TCHXVec3Type): Boolean; 
-begin
-  Result := SameValueData(aVec1.X, aVec2.X) and 
-            SameValueData(aVec1.Y, aVec2.Y) and 
-            SameValueData(aVec1.Z, aVec2.Z);
-end;
-
-function TCHXVec3Type.IsEqual3D(const aVector: TCHXVec3Type): Boolean;  
-begin
-  Result := Self = aVector;
-end;
-
-function TCHXVec3Type.IsEqualXY(const aVector: TCHXVec3Type): Boolean;  
-begin
-  Result := SameValueData(X, aVector.X) and SameValueData(Y, aVector.Y);
-end;
-
-function TCHXVec3Type.IsEqualXZ(const aVector: TCHXVec3Type): Boolean;  
-begin
-  Result := SameValueData(X, aVector.X) and SameValueData(Z, aVector.Z);
-end;
-
-function TCHXVec3Type.IsEqualZY(const aVector: TCHXVec3Type): Boolean;  
-begin
-  Result := SameValueData(Z, aVector.Z) and SameValueData(Y, aVector.Y);
-end;
-
-function TCHXVec3Type.IsEqual3D(const aVector: TCHXVec3Type; 
-  const Sigma: TRealType): Boolean;  
-begin
-  Result := SameValueSigma(X, aVector.X, Sigma) 
-    and SameValueSigma(Y, aVector.Y, Sigma) 
-    and SameValueSigma(Z, aVector.Z, Sigma);
-end;
-
-function TCHXVec3Type.IsEqualXY(const aVector: TCHXVec3Type; 
-  const Sigma: TRealType): Boolean;  
-begin
-  Result := SameValueSigma(X, aVector.X, Sigma) 
-    and SameValueSigma(Y, aVector.Y, Sigma);
-end;
-
-function TCHXVec3Type.IsEqualXZ(const aVector: TCHXVec3Type; 
-  const Sigma: TRealType): Boolean;  
-begin
-  Result := SameValueSigma(X, aVector.X, Sigma) 
-    and SameValueSigma(Z, aVector.Z, Sigma);
-end;
-
-function TCHXVec3Type.IsEqualZY(const aVector: TCHXVec3Type; 
-  const Sigma: TRealType): Boolean;  
-begin
-  Result := SameValueSigma(Z, aVector.Z, Sigma) 
-    and SameValueSigma(Y, aVector.Y, Sigma);
-end;
-
-function TCHXVec3Type.IsOpposite(const aVector: TCHXVec3Type): Boolean; 
-var
-  Temp: TCHXVec3Type;
-begin
-  Temp.X := X + aVector.X;
-  Temp.Y := Y + aVector.Y;
-  Temp.Z := Z + aVector.Z;
-  Result := Temp.IsZero3D;
-end;
-
-function TCHXVec3Type.IsParallel(const aVector: TCHXVec3Type): Boolean; 
-begin
-  Result := Self.VectProd(aVector).IsZero3D;
-end;
-
-function TCHXVec3Type.IsCoaligned(const aVector: TCHXVec3Type): Boolean; 
-begin
-  Result := (Self.ScalProd(aVector) > 0) and Self.IsParallel(aVector);
-end;
-
-function TCHXVec3Type.IsAntiParallel(const aVector: TCHXVec3Type): Boolean; 
-begin
-  Result := (Self.ScalProd(aVector) < 0) and Self.IsParallel(aVector);
-end;
-
-function TCHXVec3Type.IsPerpendicular(const aVector: TCHXVec3Type): Boolean; 
-begin
-  Result := DataIsZero(Self.ScalProd(aVector));
-end;
-
-class operator TCHXVec3Type.- (const aVector: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := -aVector.X; Result.Y := -aVector.Y; Result.Z := -aVector.Z;
-end;
-
-procedure TCHXVec3Type.Negate;
-begin
-  X := -X; Y := -Y; Z := -Z;
-end;
-
-class operator TCHXVec3Type.+ (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := aVec1.X + aVec2.X;
-  Result.Y := aVec1.Y + aVec2.Y;
-  Result.Z := aVec1.Z + aVec2.Z;
-end;
-
-procedure TCHXVec3Type.Add(const aVector: TCHXVec3Type); 
-begin
-  X += aVector.X; Y += aVector.Y; Z += aVector.Z;
-end;
-
-class operator TCHXVec3Type.- (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := aVec1.X - aVec2.X;
-  Result.Y := aVec1.Y - aVec2.Y;
-  Result.Z := aVec1.Z - aVec2.Z; 
-end;
-
-procedure TCHXVec3Type.Subtract(const aVector: TCHXVec3Type); 
-begin
-  X -= aVector.X; Y -= aVector.Y; Z -= aVector.Z;
-end;
-
-class operator TCHXVec3Type.* (const aVector: TCHXVec3Type; 
-  const aScale: TRealType): TCHXVec3Type; 
-begin
-  Result.X := aVector.X * aScale;
-  Result.Y := aVector.Y * aScale;
-  Result.Z := aVector.Z * aScale;
-end;
-
-class operator TCHXVec3Type.* (const aScale: TRealType; 
-  const aVector: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := aScale * aVector.X;
-  Result.Y := aScale * aVector.Y;
-  Result.Z := aScale * aVector.Z;
-end;
-
-procedure TCHXVec3Type.Multiply(const aScale: TRealType); 
-begin
-  X *= aScale; Y *= aScale; Z *= aScale;
-end;
-
-class operator TCHXVec3Type./ (const aVector: TCHXVec3Type; 
-  const aScale: TRealType): TCHXVec3Type; 
-begin
-  Result.X := aVector.X / aScale;
-  Result.Y := aVector.Y / aScale;
-  Result.Z := aVector.Z / aScale;
-end;
-
-procedure TCHXVec3Type.Divide(const aScale: TRealType); 
-begin
-  X /= aScale; Y /= aScale; Z /= aScale;
-end;
-
-class operator TCHXVec3Type.* (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := aVec1.X * aVec2.X;
-  Result.Y := aVec1.Y * aVec2.Y;
-  Result.Z := aVec1.Z * aVec2.Z;
-end;
-
-procedure TCHXVec3Type.Scale(const aVector: TCHXVec3Type);  
-begin
-  X *= aVector.X; Y *= aVector.Y; Z *= aVector.Z;
-end;
-
-class operator TCHXVec3Type./ (const aScale: TRealType; 
-  const aVector: TCHXVec3Type): TCHXVec3Type; 
-begin
-  Result.X := aScale / aVector.X;
-  Result.Y := aScale / aVector.Y;
-  Result.Z := aScale / aVector.Z;
-end;
-
-procedure TCHXVec3Type.DivInv(const aScale: TRealType); 
-begin
-  X := aScale / X; Y := aScale / Y; Z := aScale / Z;
-end;
-
 function TCHXVec3Type.VectProd(const aVector: TCHXVec3Type): TCHXVec3Type; 
 begin
   Result.X := (Y * aVector.Z) - (Z * aVector.Y);
@@ -729,16 +686,6 @@ end;
 function TCHXVec3Type.ScalProd(const aVector: TCHXVec3Type): TRealType; 
 begin
   Result := (X * aVector.X) + (Y * aVector.Y) + (Z * aVector.Z);
-end;
-
-procedure TCHXVec3Type.Move(const dX, dY, dZ: TRealType); 
-begin
-  X += dX; Y += dY; Z += dZ;
-end;
-
-procedure TCHXVec3Type.Scale(const sX, sY, sZ: TRealType);  
-begin
-  X *= sX; Y *= sY; Z *= sZ;
 end;
 
 function TCHXVec3Type.SqrDistance(const aPoint: TCHXVec3Type): TRealType; 
@@ -768,6 +715,13 @@ begin
   Result := IncEqual and SameValueData(SqRt(aDistSq), aDistance);
 end;
 
+function TCHXVec3Type.MidPoint(const aPoint: TCHXVec3Type): TCHXVec3Type;
+begin
+  Result.X := (Self.X + aPoint.X) * 0.5;
+  Result.Y := (Self.Y + aPoint.Y) * 0.5;
+  Result.Z := (Self.Y + aPoint.Z) * 0.5;
+end;
+
 function TCHXVec3Type.Reflect(const aNormal: TCHXVec3Type): TCHXVec3Type; 
 begin
   Result := Self - 2 * (Self.ScalProd(aNormal) * aNormal);
@@ -790,6 +744,120 @@ begin
   begin
     Result := (Self * RefIdx) - (aNormal * (RefIdx * CosI + SqRt(k)));
   end;
+end;
+
+function TCHXVec3Type.Ceil: TCHXVec3Type;
+begin
+  Result.X := Math.Ceil(Self.X);
+  Result.Y := Math.Ceil(Self.Y);
+  Result.Z := Math.Ceil(Self.Z);
+end;
+
+function TCHXVec3Type.Truncate: TCHXVec3Type;
+begin
+  Result.X := Trunc(Self.X); 
+  Result.Y := Trunc(Self.Y);
+  Result.Z := Trunc(Self.Z);
+end;
+
+function TCHXVec3Type.Floor: TCHXVec3Type;
+begin
+  Result.X := Math.Floor(Self.X);
+  Result.Y := Math.Floor(Self.Y);
+  Result.Z := Math.Floor(Self.Z);
+end;
+
+function TCHXVec3Type.Round: TCHXVec3Type;
+begin
+  Result.X := System.Round(Self.X);
+  Result.Y := System.Round(Self.Y);
+  Result.Z := System.Round(Self.Z);
+end;
+
+function TCHXVec3Type.FracCeil: TCHXVec3Type;
+begin
+  Result.X := Self.X - Math.Ceil(Self.X);
+  Result.Y := Self.Y - Math.Ceil(Self.Y);
+  Result.Z := Self.Z - Math.Ceil(Self.Z);
+end;
+
+function TCHXVec3Type.FracTrunc: TCHXVec3Type;
+begin
+  Result.X := Self.X - Trunc(Self.X);
+  Result.Y := Self.Y - Trunc(Self.Y);
+  Result.Z := Self.Z - Trunc(Self.Z);
+end;
+
+function TCHXVec3Type.FracFloor: TCHXVec3Type;
+begin
+  Result.X := Self.X - Math.Floor(Self.X);
+  Result.Y := Self.Y - Math.Floor(Self.Y);
+  Result.Z := Self.Z - Math.Floor(Self.Z);
+end;
+
+class operator TCHXVec3Type.= (const aVec1, aVec2: TCHXVec3Type): Boolean; 
+begin
+  Result := SameValueData(aVec1.X, aVec2.X) and 
+            SameValueData(aVec1.Y, aVec2.Y) and 
+            SameValueData(aVec1.Z, aVec2.Z);
+end;
+
+class operator TCHXVec3Type.+ (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := aVec1.X + aVec2.X;
+  Result.Y := aVec1.Y + aVec2.Y;
+  Result.Z := aVec1.Z + aVec2.Z;
+end;
+
+class operator TCHXVec3Type.- (const aVector: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := -aVector.X; Result.Y := -aVector.Y; Result.Z := -aVector.Z;
+end;
+
+class operator TCHXVec3Type.- (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := aVec1.X - aVec2.X;
+  Result.Y := aVec1.Y - aVec2.Y;
+  Result.Z := aVec1.Z - aVec2.Z; 
+end;
+
+class operator TCHXVec3Type.* (const aVec1, aVec2: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := aVec1.X * aVec2.X;
+  Result.Y := aVec1.Y * aVec2.Y;
+  Result.Z := aVec1.Z * aVec2.Z;
+end;
+
+class operator TCHXVec3Type.* (const aVector: TCHXVec3Type; 
+  const aScale: TRealType): TCHXVec3Type; 
+begin
+  Result.X := aVector.X * aScale;
+  Result.Y := aVector.Y * aScale;
+  Result.Z := aVector.Z * aScale;
+end;
+
+class operator TCHXVec3Type.* (const aScale: TRealType; 
+  const aVector: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := aScale * aVector.X;
+  Result.Y := aScale * aVector.Y;
+  Result.Z := aScale * aVector.Z;
+end;
+
+class operator TCHXVec3Type./ (const aVector: TCHXVec3Type; 
+  const aScale: TRealType): TCHXVec3Type; 
+begin
+  Result.X := aVector.X / aScale;
+  Result.Y := aVector.Y / aScale;
+  Result.Z := aVector.Z / aScale;
+end;
+
+class operator TCHXVec3Type./ (const aScale: TRealType; 
+  const aVector: TCHXVec3Type): TCHXVec3Type; 
+begin
+  Result.X := aScale / aVector.X;
+  Result.Y := aScale / aVector.Y;
+  Result.Z := aScale / aVector.Z;
 end;
 
 function TCHXVec3Type.ToString(const Delim : char) : string;
