@@ -1,6 +1,5 @@
 unit uCHXVerInfo;
-
-{< Version info utils.
+(*< Version info utils.
 
   Highly based in uVersionSupport.pas by Mike Thompson.
 
@@ -11,8 +10,8 @@ unit uCHXVerInfo;
   // {$I %FILE%} = Current pas file
   // {$I %LINE%} = current line number
 
-  Copyright (C) 2023 Chixpy
-}
+  (c) 2023 Chixpy https://github.com/Chixpy
+*)
 {$mode objfpc}{$H+}
 
 interface

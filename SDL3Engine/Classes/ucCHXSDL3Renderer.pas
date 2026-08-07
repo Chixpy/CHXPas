@@ -185,7 +185,9 @@ type
     FreeRenderer: Boolean;
     //< Free SDL_Renderer on Destroy?;
 
-    { === Constructors === }
+  {
+    Constructors
+  }
 
     constructor Create(const PSDLWindow: PSDL_Window;
       const Drivers: PAnsiChar = nil); overload;
@@ -203,7 +205,9 @@ type
       @param FreeRenderer Free SDL_Renderer on Destroy?
     }
 
-    { === [Set/Get]DrawColor === }
+  {
+    [Set/Get]DrawColor
+  }
 
     function SetDrawColor(const aColor: TSDL_FColor): Boolean; overload; inline;
     {< Set current draw color for primitives and clear.
@@ -245,7 +249,9 @@ type
     {< Get current draw color for primitives and clear.
     }
 
-    { === Clear === }
+  {
+    Clear
+  }
 
     function Clear: Boolean; overload; inline;
     {< Clear render's target (usually a SDL_Window) with current draw color.
@@ -269,7 +275,9 @@ type
       @param Alpha Opacity in float [0..1] range. @note(Is Alpha used?)
     }
 
-    { === Point[s] === }
+  {
+    Point[s]
+  }
 
     function Point(const P: TSDL_FPoint): Boolean; overload; inline;
     {< Draw a point.
@@ -295,7 +303,9 @@ type
         `0` means until the end of the array.)
     }
 
-    { === Line[s] === }
+  {
+    Line[s]
+  }
 
     function Line(const P1, P2: TSDL_FPoint): Boolean; overload; inline;
     {< Draw a line between two points.
@@ -330,7 +340,9 @@ type
         `0` means until the end of the array.)
     }
 
-    { === Triangle[X] === }
+  {
+    Triangle[X]
+  }
 
     function Triangle(const PArr: TSDLFPointDynArray; const idxFirst: Integer;
       const BorderC, FillC: TSDL_FColor): Boolean; overload;
@@ -504,7 +516,9 @@ type
       @param Y3 Vertical coordinate of the third point.
     }
 
-    { === Rect[X]: Axis Aligned Rectangle === }
+  {
+    Rect[X]: Axis Aligned Rectangle
+  }
 
     function Rect(const aRect: TSDL_FRect; const BorderC,
       FillC: TSDL_FColor): Boolean;
@@ -535,7 +549,9 @@ type
       @param aRect Rectangle to draw.
     }
 
-    { === Quad[X]: Quadrilateral === }
+  {
+    Quad[X]: Quadrilateral
+  }
 
     function Quad(const PArr: TSDLFPointDynArray;
       const idxFirst: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
@@ -721,7 +737,9 @@ type
       @param Y4 Vertical coordinate of the fourth point.
     }
 
-    { === Polygon[X] === }
+  {
+    Polygon[X]
+  }
 
     function Polygon(const PArr: TSDLFPointDynArray; const idxFirst: Integer;
       Count: Integer; const BorderC, FillC: TSDL_FColor) : Boolean; overload;
@@ -790,7 +808,9 @@ type
       @param Count Number of points of the polygon
     }
 
-    { === RegPolyCC[X]: Regular Polygon with Circumscribed Circle === }
+  {
+    RegPolyCC[X]: Regular Polygon with Circumscribed Circle
+  }
 
     function RegPolyCC(const X, Y, R: CFloat; const NSides: Integer;
       const BorderC, FillC: TSDL_FColor; const Angle: CFloat = 0): Boolean;
@@ -846,24 +866,26 @@ type
       @param(A Rotation angle of the polygon. `0` first vertex on the right.)
     }
 
-    { === RegPolySS[X]: Regular Polygon with Side Length === }
+  {
+    RegPolySS[X]: Regular Polygon with Side Length
+  }
 
     function RegPolySS(const X, Y, SideSize: CFloat; const NSides: Integer;
       const BorderC, FillC: TSDL_FColor; const Angle: CFloat = 0): Boolean;
       inline;
-      
+
     function RegPolySSBorder(const X, Y, SideSize: CFloat;
       const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
-      
+
     function RegPolySSFilled(const X, Y, SideSize: CFloat;
       const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
 
     function RegPolySSFillOnly(const X, Y, SideSize: CFloat;
       const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
-      
 
-    { === Circle[X] === }
-
+  {
+    Circle[X]
+  }
 
     function CircleBorder(const X, Y, R: CFloat): Boolean;
     {< Draw a filled Regular Polygon without border with `NSides` defined by
@@ -877,12 +899,22 @@ type
       @param(A Rotation angle of the polygon. `0` first vertex on the right.)
     }
 
+  {
+    DebugText[F]
+  }
+    // ToDo: ¿Overload with the same name?
+    function DebugText(const X, Y: CFloat; const aStr: PAnsiChar): Boolean;
+      inline;
+    function DebugTextF(const X, Y: CFloat; const aStr: PAnsiChar;
+      Args: array of const): Boolean; inline;
 
-    // Auxiliar methods for internal use:
-    //   Implemented as needed with specific parámeters, but keep public as
-    //     they can be useful.
+  // Auxiliar methods for internal use:
+  //   Implemented as needed with specific parámeters, but keep public as
+  //     they can be useful.
 
-    { === PointMirror[X] === }
+  {
+    PointMirror[X]
+  }
 
     function PointMirrorH(const X, Y: CFloat; const OffsetX: CFloat = 0)
       : Boolean;
@@ -934,7 +966,9 @@ type
       Intended as an internal helper for complex primitive generation.
     }
 
-    { === LineMirror[X] === }
+  {
+    LineMirror[X]
+  }
 
     function LineMirrorH(const X1, Y1, X2, Y2, OffsetX: CFloat): Boolean;
       inline;
@@ -943,7 +977,9 @@ type
     function LineMirrorHV(const X1, Y1, X2, Y2, OffsetX, OffsetY: CFloat)
       : Boolean;
 
-    { === RegPoly[CC/SS]Vertices === }
+  {
+    RegPoly[CC/SS]Vertices
+  }
 
     function RegPolyCCVertices(var PArr: TSDLFPointDynArray;
       const X, Y, R: CFloat; const NSides: Integer; Angle: CFloat = 0): Boolean;
@@ -977,7 +1013,9 @@ type
       @param Angle Angle of rotation of the regular polygon.
     }
 
-    { === Destroy === }
+  {
+    Destroy
+  }
 
     destructor Destroy; override;
     {< Destructor of cCHXSDL3Renderer.
@@ -2221,6 +2259,20 @@ begin
   // Drawing diagonal angles (45°, 135°, 225°, 315°) only once
   if CurrX = CurrY then
     Result := PointMirrorHV(CurrX, CurrY, X, Y) and Result;
+end;
+
+// DebugText[F]
+
+function cCHXSDL3Renderer.DebugText(const X, Y: CFloat; const aStr: PAnsiChar)
+  : Boolean;
+begin
+  Result := SDL_RenderDebugText(SDLRenderer, X, Y, aStr);
+end;
+
+function cCHXSDL3Renderer.DebugTextF(const X, Y: CFloat; const aStr: PAnsiChar;
+  Args: array of const): Boolean;
+begin
+  Result := SDL_RenderDebugTextFormat(SDLRenderer, X, Y, aStr, Args);
 end;
 
 // Auxiliar methods for internal use

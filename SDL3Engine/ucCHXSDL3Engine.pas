@@ -1,5 +1,5 @@
 unit ucCHXSDL3Engine;
-{< Unit of cSDL3Engine class.
+{< Unit of `cSDL3Engine` class.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
@@ -14,21 +14,30 @@ uses
 
 type
   {
-    cCHXSDL3Engine: A basic Game Engine in SDL3.
+    `cCHXSDL3Engine`: A basic Game Engine in SDL3.
 
-    Descendants only have to implement abtract methods:
+    Descendants only need to implement abtract or virtual methods:
 
-    - Setup: Code of inicialization before enter the loop.
-    - Compute: Code for every frame.
-    - Draw: Code for draw on screen every frame.
-    - HandleEvent: Code handling events. Keyboard, Mouse, 
-    - Finish: Code after exiting the loop.
+    - `Setup`: Code of inicialization before enter the loop.
+    - `Compute`: Code for every frame.
+    - `Draw`: Code for draw on screen every frame.
+    - `HandleEvent`: Code handling events. Keyboard, Mouse, 
+    - `Finish`: Code after exiting the loop.
 
     New features are implemented as needed.
 
-    - cCHXSDL3Config lets load and save configurations from a file,
-      or change them before initializins and running the engine.
-    - cCHXSDL3Window wraps SDL_video.h and handles some window events.
+    - `cCHXSDL3Config` (property `Config`): Lets load and save configurations
+      from a file, or change the configuration before initializing and running
+      the engine.
+    - `cCHXSDL3Window` (property `Window`): Wraps _SDL_video.h_ and handles
+      some window events.
+    - `cCHXSDL3Renderer` (property `Render`): Wrap _SDL_render.h_ primitives
+      and adds many more.
+    - `cCHXSDL3FPSManager` (property `FPSMng`): Controls frames rate,
+      time lapsed between frames and frame count.
+
+    Of course, SDL3 native functions can be used: `PSDLRenderer` and
+    `PSDLWindow` are the pointers to SDL3 native structures.
 
 
   }
@@ -46,10 +55,8 @@ type
 (*
   private // Gets and Sets
     FCompList: cSDL2CompList;
-    Config: cCHXSDL3Config;
     FDefFont: caCHXSDL2Font;
     FPWinPxFmt: PSDL_PixelFormat;
-    FWindow: cCHXSDL3Window;
 
   private // Properties
 
@@ -81,7 +88,7 @@ type
     SDLRenderer: PSDL_Renderer; //< Window.PSDLRenderer shorcut.
     SDLWindow: PSDL_Window; //< Window.PSDLWindow shorcut.
 
-    FPSMang: cCHXSDL3FPSManager; //< FPS manager
+    FPSMng: cCHXSDL3FPSManager; //< FPS manager
 
     property Window: cCHXSDL3Window read FWindow write SetWindow;
     property Render: cCHXSDL3Renderer read FRender write SetRender;
@@ -202,14 +209,19 @@ begin
   Title := aTitle;
 
   Config := cCHXSDL3Config.Create;
-  Config.DefaultFileName := aIniFile;
-  Config.LoadFromFile('');
 
   if AutoInit then
+  begin
+    Config.DefaultFileName := aIniFile;
+    Config.LoadFromFile('');
     Init
+  end
   else
+  begin
+    Config.LoadFromFile(aIniFile);
     // if Config is be changed manually then no save changes
     Config.DefaultFileName := '';
+  end;
 end;
 
 procedure cCHXSDL3Engine.SetShowFrameRate(const aValue: Boolean);
@@ -417,9 +429,22 @@ begin
       if not Handled then
       begin
         case aEvent.key.key of
-          SDLK_F11 :
+          SDLK_F10:
+          begin
+            if FPSMng.FPS > 5 then
+               FPSMng.FPS := FPSMng.FPS - 5;
+            Handled := True;
+          end;
+
+          SDLK_F11:
           begin
             ShowFrameRate := not ShowFrameRate;
+            Handled := True;
+          end;
+
+          SDLK_F12:
+          begin
+            FPSMng.FPS := FPSMng.FPS + 5;
             Handled := True;
           end;
 
@@ -521,10 +546,10 @@ var
 //  aComp: caCHXSDL2Comp;
 begin
   ProgExit := False;
-  FPSMang := cCHXSDL3FPSManager.Create(30);
+  FPSMng := cCHXSDL3FPSManager.Create(30);
   {<
     ToDo: Make FPS configurable with Config.
-      FPSMang.FPS can be changed in Setup, Compute, Draw and HandleEvent.
+      FPSMng.FPS can be changed in Setup, Compute, Draw and HandleEvent.
   }
 
   try
@@ -544,7 +569,7 @@ begin
 *)
 
       // Wait to next frame. Result not needed.
-      FPSMang.Delay;
+      FPSMng.Delay;
 
       // Don't draw if minimized
       if (not ProgExit) and (not Window.Minimized) then
@@ -555,11 +580,17 @@ begin
         for aComp in CompList do
           aComp.Draw;
 *)
-        if ShowFrameRate and
-          ((FPSMang.FrameCount and 31) = 0) then
-          Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
-            [Title, FPSMang.LastFrameTime, FPSMang.LastCompTime]);
-
+        if ShowFrameRate
+         // and ((FPSMng.FrameCount and 31) = 0)
+          then
+        begin
+          Render.SetDrawColor(1, 0, 1, 1);
+          SDL_RenderDebugTextFormat(SDLRenderer, 0, 0,
+          '%dms (%dms)', [FPSMng.LastFrameTime, FPSMng.LastCompTime]);
+          
+          // Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
+          //   [Title, FPSMng.LastFrameTime, FPSMng.LastCompTime]);
+        end;
 (*
         // Drawing current editing text
         if STIActive and SDL_IsTextInputActive then
@@ -568,7 +599,7 @@ begin
             STIWidth);
 
           // Drawing cursor
-          if (FPSMang.FrameCount and 32) = 32 then
+          if (FPSMng.FrameCount and 32) = 32 then
             vlineRGBA(SDLRenderer, STIX + CursorX,
               STIY, STIY + STIFont.LineHeight, STIFont.Color.r,
               STIFont.Color.g, STIFont.Color.b, STIFont.Color.a);
@@ -623,7 +654,7 @@ begin
 
   finally
     Finish;
-    FPSMang.Free;
+    FPSMng.Free;
   end;
 end;
 
@@ -648,20 +679,21 @@ destructor cCHXSDL3Engine.Destroy;
 begin
 (*
   CompList.Free;
+*)
 
   // Saving normal window size
   if (not Window.Maximized) then
   begin
-    Config.WindowWidth := Window.WinWidth;
-    Config.WindowHeight := Window.WinHeight;
-    Config.RendererWidth := Window.LogWidth;
-    Config.RendererHeight := Window.LogHeight;
+    Config.WindowWidth := Window.WindowWidth;
+    Config.WindowHeight := Window.WindowHeight;
+    Config.RendererWidth := Window.RenderWidth;
+    Config.RendererHeight := Window.RenderHeight;
   end;
 
   if Config.DefaultFileName <> '' then
     Config.SaveToFile('', False);
-*)
   Config.Free;
+  
 (*
   // This must be stopped?
   if SDL_IsTextInputActive then

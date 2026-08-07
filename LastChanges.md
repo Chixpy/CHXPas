@@ -1,4 +1,8 @@
-- Fixing `TSDL_FPointH` huge errors.
-- Adding _fp.cfg_ and _Readme.md_ to SDL3Engine test programs to help on
-  compile. _SDL3-for-Pascal_ must be downloaded and its _units_ folder 
-  provided as parameter when compiling.
+## CHXSDL3Engine
+
+- `cCHXSDL3Engine` saves automatically config file if readed one and autoinit
+  is True on creation. It auto-saves config too if `Config.DefaultFileName`
+  is set in any other case (of course `Config.SaveToFile` can be used manually).
+- Added keys [F10] and [F12] to change frame rate.
+- [F10] toggles show frame info inside the window instead change window title.
+- `cCHXSDL3Renderer` added `DebugText` and `DebugTextF`.

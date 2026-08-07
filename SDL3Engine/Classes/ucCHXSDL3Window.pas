@@ -1,5 +1,5 @@
 unit ucCHXSDL3Window;
-{< Unit of cCHXSDL3Window class, a wrapper of SDL3 Window and SDL3 Renderer.
+{< Unit of cCHXSDL3Window class, a wrapper of SDL3 Window and Renderer.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
@@ -15,18 +15,24 @@ uses
 type
 
   {
-    Wrapper of SDL3 Window and SDL3 Renderer.
+    Wrapper of SDL3 Window and creates its asociated SDL3 Renderer.
 
-    Actual SDL Window and SDL Renderer are PSDLWindow and PSDLRenderer.
-      So SDL native methods can called with these pointers,
-      @code(SDL_Render[X](aWindow.PSDLRenderer, [...]);), but Render
-      (cCHXSDL3Render) wraps and expands them, @code(aWindow.Render.[X]([...])).
+    Actual `PSDL_Window` and `PSDL_Renderer` are `PSDLWindow` and
+    `PSDLRenderer` pointer properties. SDL native methods can called with
+    these pointers, `SDL_Render[X](PSDLRenderer, [...]);`.
 
-    Calls 'SDL_InitSubSystem(SDL_INIT_VIDEO)' on creation and
-    'SDL_QuitSubSystem(SDL_INIT_VIDEO)' on destruction as SDL3 keeps track of
+    `Renderer` property (`cCHXSDL3Render` class) wraps SDL3 Renderer and
+    expands it with more primitives `Renderer.[X]([...])`.
+
+    `cCHXSDL3Engine`, in its context, has the properties `Window` and `Render`
+    as "shortcuts" for both classes; and `PSDLWindow` and `PSDLRenderer` for
+    both pointers.
+
+    Calls `SDL_InitSubSystem(SDL_INIT_VIDEO)` on creation and
+    `SDL_QuitSubSystem(SDL_INIT_VIDEO)` on destruction as SDL3 keeps track of
     how many times are called each one.
 
-    Supports creating multiple cCHXSDL3Window in the same programa,
+    Supports creating multiple cCHXSDL3Window in the same program,
       checking its ID in event handling.
 
     ToDo: Create GPU renderer as option, choose driver and renderer.
@@ -45,7 +51,7 @@ type
     FMinimized: Boolean;
     FMouseFocus: Boolean;
     FKeyboardFocus: Boolean;
-    
+
     procedure SetTitle(const aValue: String);
 
   protected
@@ -56,7 +62,7 @@ type
 
   public
     Renderer: cCHXSDL3Renderer;
-    //< CHX Renderer of the wWindow
+    //< CHX Renderer of the Window
     PSDLWindow: PSDL_Window;
     //< SDL Window pointer.
     PSDLRenderer: PSDL_Renderer;
@@ -172,7 +178,7 @@ begin
   FWindowID := 0;
 
   FreeAndNil(Renderer);
-  
+
   if Assigned(PSDLWindow) then
   begin
     SDL_DestroyWindow(PSDLWindow);
@@ -230,10 +236,10 @@ end;
 procedure cCHXSDL3Window.HandleEvent(const aEvent: TSDL_Event;
   var Handled: Boolean);
 begin
-  if Handled or //< ¿Is it already handled?
-    (aEvent.type_ < SDL_EVENT_WINDOW_FIRST) or // ¿Is it a window event?
-    (aEvent.type_ > SDL_EVENT_WINDOW_LAST) or
-    (aEvent.window.windowID <> WindowID) then //< ¿Is it for this window?
+  if Handled //< ¿Is it already handled?
+    or (aEvent.type_ < SDL_EVENT_WINDOW_FIRST) //< ¿Is it a window event?
+    or (aEvent.type_ > SDL_EVENT_WINDOW_LAST)
+    or (aEvent.window.windowID <> WindowID) then //< ¿Is it for this window?
     Exit;
 
   case aEvent.window.type_ of
@@ -357,10 +363,10 @@ begin
     SDL_EVENT_WINDOW_DESTROYED:
     {<
       The window with the associated ID is being or has been destroyed. If this
-        message is being handled in an event watcher, the window handle is still
-        valid and can still be used to retrieve any properties associated with
-        the window. Otherwise, the handle has already been destroyed and all
-        resources associated with it are invalid.
+      message is being handled in an event watcher, the window handle is still
+      valid and can still be used to retrieve any properties associated with
+      the window. Otherwise, the handle has already been destroyed and all
+      resources associated with it are invalid.
     }
 
     SDL_EVENT_WINDOW_HDR_STATE_CHANGED: {< Window HDR properties have changed. }

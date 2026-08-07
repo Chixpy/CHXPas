@@ -8,11 +8,10 @@ unit ucCHXSDL3Config;
 interface
 
 uses
-  CTypes, IniFiles,SDL3,
-  // CHX abstracts
-  uaCHXConfig,
-  // CHXSDL3
-  uCHXSDL3TypeHelpers;
+  CTypes, IniFiles, // FPC
+  SDL3, // SDL3
+  uaCHXConfig, // CHX abstracts
+  uCHXSDL3TypeHelpers; // CHXSDL3
 
 const
   krsIniSectionSDL3Engine = 'SDL3Engine';
