@@ -25,8 +25,9 @@ type
 {
   ### Types
 }
+
 {
-  Struct with a pair of `SDL_FPoint`
+  Struct with a pair of `SDL_FPoint` (Float 2D points)
 
   Sometimes it's useful store it's endpoint instead using `TSDL_FRect` and 
   calculate endpoint every time adding `X + W` and `Y + H`.
@@ -41,6 +42,25 @@ type
 
     procedure Init(const aP1, aP2: TSDL_FPoint); overload; inline;
     procedure Init(const X1, Y1, X2, Y2: CFloat); overload; inline;
+
+  end;
+
+{
+  Struct with a pair of `SDL_Point` (Integer 2D Points)
+
+  Sometimes it's useful store it's endpoint instead using `TSDL_Rect` and 
+  calculate endpoint every time adding `X + W` and `Y + H`.
+}
+  TCHXSDLSegment = packed record
+  public
+    P1, P2: TSDL_Point;
+
+  {
+    Init
+  }
+
+    procedure Init(const aP1, aP2: TSDL_Point); overload; inline;
+    procedure Init(const X1, Y1, X2, Y2: Integer); overload; inline;
 
   end;
 
@@ -77,6 +97,11 @@ type
   //< Dynamic array of TSDL_FRect.
   TSDLVertexDynArray = Array of TSDL_Vertex;
   //< Dynamic array of TSDL_Vertex.
+
+  TSDLFSegmentDynArray = Array of TCHXSDLFSegment;
+  //< Dynamic array of TCHXSDLFSegment.
+  TSDLSegmentDynArray = Array of TCHXSDLSegment;
+  //< Dynamic array of TCHXSDLSegment.
 
 {
   ### Helpers for SDL types
@@ -200,13 +225,13 @@ type
     ToDo: Overload for TSDL_Point (except Frac)
   }
 
-    function Ceil: TSDL_FPoint;
+    function Ceil: TSDL_Point; overload;
     //< Ceil(-2.3, 1.3) = -2, 2 -> +inf
-    function Truncate: TSDL_FPoint;
+    function Truncate: TSDL_Point; overload;
     //< Truncate(-2.3, 1.3) = -2, 1 -> 0
-    function Floor: TSDL_FPoint;
+    function Floor: TSDL_Point; overload;
     //< Floor(-2.3, 1.3) = -3, 1 -> -inf
-    function Round: TSDL_FPoint;
+    function Round: TSDL_Point; overload;
     function FracCeil: TSDL_FPoint;
     //< FloorFrac(-2.3, 1.3) = -0.3, -0.7 -> +inf
     function FracTrunc: TSDL_FPoint;
@@ -345,6 +370,21 @@ begin
 end;
 
 procedure TCHXSDLFSegment.Init(const X1, Y1, X2, Y2: CFloat);
+begin
+  Self.P1.X := X1; Self.P1.Y := Y1;
+  Self.P2.X := X2; Self.P2.Y := Y2;
+end;
+
+{
+  TCHXSDLSegment
+}
+
+procedure TCHXSDLSegment.Init(const aP1, aP2: TSDL_Point);
+begin
+  Self.P1 := aP1; Self.P2 := aP2;
+end;
+
+procedure TCHXSDLSegment.Init(const X1, Y1, X2, Y2: Integer);
 begin
   Self.P1.X := X1; Self.P1.Y := Y1;
   Self.P2.X := X2; Self.P2.Y := Y2;
@@ -622,22 +662,22 @@ begin
   end;
 end;
 
-function TSDLFPointH.Ceil: TSDL_FPoint;
+function TSDLFPointH.Ceil: TSDL_Point;
 begin
   Result.X := Math.Ceil(Self.X); Result.Y := Math.Ceil(Self.Y);
 end;
 
-function TSDLFPointH.Truncate: TSDL_FPoint;
+function TSDLFPointH.Truncate: TSDL_Point;
 begin
   Result.X := Trunc(Self.X); Result.Y := Trunc(Self.Y);
 end;
 
-function TSDLFPointH.Floor: TSDL_FPoint;
+function TSDLFPointH.Floor: TSDL_Point;
 begin
   Result.X := Math.Floor(Self.X); Result.Y := Math.Floor(Self.Y);
 end;
 
-function TSDLFPointH.Round: TSDL_FPoint;
+function TSDLFPointH.Round: TSDL_Point;
 begin
   Result.X := System.Round(Self.X); Result.Y := System.Round(Self.Y);
 end;

@@ -682,7 +682,7 @@ begin
 *)
 
   // Saving normal window size
-  if (not Window.Maximized) then
+  if Assigned(Window) and (not Window.Maximized) then
   begin
     Config.WindowWidth := Window.WindowWidth;
     Config.WindowHeight := Window.WindowHeight;

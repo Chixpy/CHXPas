@@ -1,7 +1,32 @@
+## 2026-08-14 01:05
+
+### `cCHXSDL3Renderer`
+
+- Trying to optimize a little some methods and commenting out Logical
+  Presentation adaptation of the algorithms.
+- Added `IsValidArrayRange` to check Array subranges.
+- Added "unsafe" methods drawing with an array without range checking,
+  to be called internally when we are sure that range is valid.
+- Changed `TriangleFillOnly` and `QuadFillOnly` methods to use
+  `PolygonFillOnly`. Triangle one maybe can be optimized with its own
+  algorithm.
+- Changed `QuadFill` methods to use `PolygonFill`.
+- Fixing "Mirror" methods and adding `PointMirrorHVFilled`.
+- Fixing range checks with `X in [0..High/Length(PArr)]` if `PArr` have more
+  than 255 elements.
+- Added `Circle[X]` and `Ellipse[X]`.
+- Some test programs for primitives of `cCHXSDL3Renderer`.
+- _uCHXSDL3TypeHelpers_: Added `TCHXSDLSegment` (Pair integer points),
+  `TSDLFSegmentDynArray` and `TSDLSegmentDynArray`. Changed of `Ceil`,
+  `Truncate`, `Floor` and `Round` to return a `TSDL_Point` (Integer).
+
+### Other
+
+- Adding _fp.cfg_, _Build.bat_ and _build.sh_ to test programs.
+
 ## 2026-08-07 19:55
 
-
-## CHXSDL3Engine
+### CHXSDL3Engine
 
 - `cCHXSDL3Engine` saves automatically config file if readed one and autoinit
   is True on creation. It auto-saves config too if `Config.DefaultFileName`
@@ -9,13 +34,16 @@
 - Added keys [F10] and [F12] to change frame rate.
 - [F10] toggles show frame info inside the window instead change window title.
 - `cCHXSDL3Renderer` added `DebugText` and `DebugTextF`.
+
 ## 2026-08-06 00:30
+
+### CHXSDL3Engine
 
 - Fixing `TSDL_FPointH` huge errors.
 - Adding _fp.cfg_ and _Readme.md_ to SDL3Engine test programs to help on
   compile. _SDL3-for-Pascal_ must be downloaded and its _units_ folder 
   provided as parameter when compiling.
-  
+
 ## 2026-08-05 21:00
 
 - Fixing _CHXSDL3Engine.pas_ test.
