@@ -1,23 +1,23 @@
-unit utCHXVec3R;
+unit utCHXVec3E;
 
 {$macro ON}
-{$define TRealType := Real }
+{$define TRealType := Extended }
 //< Actual type of the components.
-{$define TCHXVec3Type := TCHXVec3R }
+{$define TCHXVec3Type := TCHXVec3E }
 //< ID for the main type.
-{$define CHXVec3Func := CHXVec3R }
+{$define CHXVec3Func := CHXVec3E }
 //< Name for the function that returns a new TCHXVec3Type.
-{$define PCHXVec3 := PCHXVec3R }
+{$define PCHXVec3 := PCHXVec3E }
 //< ID of the pointer type to TCHXVec3Type type.
 
-{$define TCHXPoint3DF := TCHXPoint3DR }
+{$define TCHXPoint3DType := TCHXPoint3DE }
 //< TCHXPoint3DF type equivalent for retrocompatibility.
-{$define TCHXColorF := TCHXColorR }
+{$define TCHXColorType := TCHXColorE }
 //< TCHXColorF type equivalent for retrocompatibility.
 
-{$define cCHXVec3GenList := cCHXVec3RGenList }
+{$define cCHXVec3GenList := cCHXVec3EGenList }
 //< ID for generic list specialized to TCHXVec3Type type.
-{$define cCHXVec3List := cCHXVec3RList }
+{$define cCHXVec3List := cCHXVec3EList }
 //< ID for a generic list descendant.
 
 {$define UnitsUsed := , Math; }

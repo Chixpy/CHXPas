@@ -10,9 +10,9 @@ unit utCHXVec3R;
 {$define PCHXVec3 := PCHXVec3R }
 //< ID of the pointer type to TCHXVec3Type type.
 
-{$define TCHXPoint3DF := TCHXPoint3DR }
+{$define TCHXPoint3DType := TCHXPoint3DR }
 //< TCHXPoint3DF type equivalent for retrocompatibility.
-{$define TCHXColorF := TCHXColorR }
+{$define TCHXColorType := TCHXColorR }
 //< TCHXColorF type equivalent for retrocompatibility.
 
 {$define cCHXVec3GenList := cCHXVec3RGenList }

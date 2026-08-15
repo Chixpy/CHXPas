@@ -93,10 +93,9 @@ type
     constructor Create(const aTitle: String;
       const aRenderWidth, aRenderHeight: CInt; const aWinWidth: CInt = 0;
       const aWinHeight: CInt = 0);
-    {<
-      Creates a new SDL Window and its associated renderer.
+    {< Create a new SDL Window and its associated renderer.
 
-      Render canvas size is automatically scaled to Window real size.
+      Render canvas size is automatically scaled to Window actual size.
 
       @param aTitle Title of the window.
       @param aRenderWidth Logical width of Renderer.
@@ -109,14 +108,45 @@ type
     //< Set the focus to this window.
 
     procedure HandleEvent(const aEvent: TSDL_Event; var Handled: Boolean);
-    {<
-      Procedure to handle some events (Resizing, Minimizing, etc.)
+    {< Procedure to handle some events (Resizing, Minimizing, etc.)
         - Only handle Window events, others are ignored.
         - If it's already handled (Handled = True), is ignored too.
 
       @param aEvent SDL Event to handle.
       @param(Handled @IN: Was it already handled?. @OUT: Is it handled by this
         function?);
+    }
+
+    procedure SetRenderSize(Width, Height: Integer;
+      const Mode: TSDL_RendererLogicalPresentation
+      = SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    {< Change render canvas size (_Logical Size_).
+
+      It can be changed at any time to render at different resolutions.
+
+      If no native `SDL_SetRenderLogicalPresentation` is used, current render
+      size can be retrieved directly with `RenderWidth` and `RenderHeight`
+      instead `SDL_GetRenderLogicalPresentation`.
+
+      @param(Width Logical width for the renderer. `<= 0` means current window
+        width.)
+      @param(Height Logical height for de renderer. `<= 0` means current window
+        height.)
+      @param(Mode Mode for mapping logical resolution to actual window
+        size. Predefined ones are (ToDo: Make shorter alias...):
+
+        - `SDL_LOGICAL_PRESENTATION_DISABLED` (0): Disable logical size.
+          (ToDo: Not sure if restores logical presentation to window size.)
+        - `SDL_LOGICAL_PRESENTATION_STRETCH` (1): Stretched to the output
+          resolution.
+        - `SDL_LOGICAL_PRESENTATION_LETTERBOX` (2): Fit to the largest
+          dimension and the other dimension is letterboxed with the clear
+          color.
+        - `SDL_LOGICAL_PRESENTATION_OVERSCAN` (3): Fit to the smallest
+          dimension and the other dimension extends beyond the output bounds.
+        - `SDL_LOGICAL_PRESENTATION_INTEGER_SCALE` (4): Scaled up by integer
+          multiples to fit the output resolution.
+      )
     }
 
     destructor Destroy; override;
@@ -138,7 +168,6 @@ begin
 
   FRenderWidth := aRenderWidth;
   FRenderHeight := aRenderHeight;
-
 
   if aWinWidth <= 0 then
     FWindowWidth := FRenderWidth
@@ -207,8 +236,7 @@ begin
 
   // ToDo: Make use of integer scale configurable:
   //   (SDL_LOGICAL_PRESENTATION_INTEGER_SCALE)
-  SDL_SetRenderLogicalPresentation(PSDLRenderer, RenderWidth, RenderHeight,
-    SDL_LOGICAL_PRESENTATION_LETTERBOX);
+  SetRenderSize(RenderWidth, RenderHeight, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
   FWindowID := SDL_GetWindowID(PSDLWindow);
 
@@ -375,6 +403,20 @@ begin
   otherwise
     Handled := False;
   end;
+end;
+
+procedure cCHXSDL3Window.SetRenderSize(Width, Height: Integer;
+  const Mode: TSDL_RendererLogicalPresentation);
+begin
+  if (Width <= 0) or (Mode = SDL_LOGICAL_PRESENTATION_DISABLED) then
+    Width := WindowWidth;
+  if (Height <= 0) or (Mode = SDL_LOGICAL_PRESENTATION_DISABLED) then
+    Height := WindowHeight;
+
+  FRenderWidth:= Width; FRenderHeight := Height;
+
+  SDL_SetRenderLogicalPresentation(PSDLRenderer, RenderWidth, RenderHeight,
+    SDL_LOGICAL_PRESENTATION_LETTERBOX);
 end;
 
 destructor cCHXSDL3Window.Destroy;

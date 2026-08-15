@@ -15,9 +15,9 @@
     {$define PCHXVec3 := <PointerID> }
     //< ID of the pointer type to TCHXVec3Type type.
 
-    {$define TCHXPoint3DF := <TCHXPoint3DFID> }
+    {$define TCHXPoint3DType := <TCHXPoint3DFID> }
     //< TCHXPoint3DF type equivalent for retrocompatibility.
-    {$define TCHXColorF := <TCHXColorFID> }
+    {$define TCHXColorType := <TCHXColorFID> }
     //< TCHXColorF type equivalent for retrocompatibility.
 
     {$define cCHXVec3GenList := <Vec3GenListID> }
@@ -78,7 +78,7 @@ uses
 type
   TCHXVec3Type = packed record
   public
-    X, Y, Z: TRealType;
+    // This goes last, keep here for fast reference
     //case Byte of
     //  0: (X, Y, Z: TRealType); // Standard components
     //  1: (R, G, B: TRealType); // Floating-point color [0..1]
@@ -95,6 +95,11 @@ type
     procedure InitXZ(const aX: TRealType = 0; const aZ: TRealType = 0); inline;
     procedure InitZY(const aZ: TRealType = 0; const aY: TRealType = 0); inline;
 
+    procedure InitRandom3D(const MinX, MaxX, MinY, MaxY, MinZ, MaxZ :TRealType);
+    procedure InitRandomXY(const MinX, MaxX, MinY, MaxY: TRealType);
+    procedure InitRandomXZ(const MinX, MaxX, MinZ, MaxZ: TRealType);
+    procedure InitRandomZY(const MinZ, MaxZ, MinY, MaxY: TRealType);
+
     procedure InitPolar3D(const aMag: TRealType; const aYaw: TRealType = 0;
       const aPitch: TRealType = 0);
     procedure InitPolarXY(const aMag: TRealType; const aAngle: TRealType = 0);
@@ -103,8 +108,7 @@ type
       inline;
     procedure InitPolarZY(const aMag: TRealType; const aAngle: TRealType = 0);
       inline;
-    //ToDo: InitRandom3D(const MinX, MaxX, MinY, MaxY, MinZ, MaxZ :TRealType)
-    //  and plane versions
+
     procedure InitRndPolar3D(const aMag: TRealType = 1); inline;
     procedure InitRndPolarXY(const aMag: TRealType = 1); inline;
     procedure InitRndPolarXZ(const aMag: TRealType = 1); inline;
@@ -222,7 +226,7 @@ type
   {
     Conversion to Integer coords and remainder
 
-    ToDo: Implement and, ¿TPoint or TCHXVec2?
+    ToDo: ¿TPoint or TCHXVec2?
   }
 
     function Ceil: TCHXVec3Type; //< Ceiling(-2.3, 1.3) = -2, 2
@@ -259,11 +263,17 @@ type
     // ToDo: procedure FromString(const Delim : char = ',');
     function ToString(const Delim : char = ',') : string;
     function ToStringFmt(const aStr: string) : string;
+
+    // P.S.: I never liked this "union" syntax, and the case without "end;"
+    case Byte of
+      0: (X, Y, Z: TRealType); // Standard components
+      1: (R, G, B: TRealType); // Floating-point color [0..1]
+      2: (Comp: array[0..2] of TRealType); // Index-based array access
   end;
 
   // Aliases for retrocompatibility and clarity
-  TCHXPoint3DF = TCHXVec3Type;
-  TCHXColorF   = TCHXVec3Type;
+  TCHXPoint3DType = TCHXVec3Type;
+  TCHXColorType   = TCHXVec3Type;
 
   PCHXVec3 = ^TCHXVec3Type;
 
@@ -271,11 +281,11 @@ type
   // ToDo: Change to Generic.Collections?
   cCHXVec3GenList = specialize TFPGList<TCHXVec3Type>;
   cCHXVec3List = class(cCHXVec3GenList)
-    { 
-      This list could implement methods that apply operations to all 
-      elements more efficiently. For example, applying rotations without 
-      having to recalculate the same sines and cosines multiple times.
-    }
+  {<
+    This list could implement methods that apply operations to all
+    elements more efficiently. For example, applying rotations without
+    having to recalculate the same sines and cosines multiple times.
+  }
   end;
 
 {
@@ -313,6 +323,35 @@ end;
 procedure TCHXVec3Type.InitZY(const aZ, aY: TRealType); 
 begin
   X := 0; Y := aY; Z := aZ;
+end;
+
+procedure TCHXVec3Type.InitRandom3D(
+  const MinX, MaxX, MinY, MaxY, MinZ, MaxZ: TRealType);
+begin
+  X := Random * (MaxX - MinX) + MinX;
+  Y := Random * (MaxY - MinY) + MinY;
+  Z := Random * (MaxZ - MinZ) + MinZ;
+end;
+
+procedure TCHXVec3Type.InitRandomXY(const MinX, MaxX, MinY, MaxY: TRealType);
+begin
+  X := Random * (MaxX - MinX) + MinX;
+  Y := Random * (MaxY - MinY) + MinY;
+  Z := 0;
+end;
+
+procedure TCHXVec3Type.InitRandomXZ(const MinX, MaxX, MinZ, MaxZ: TRealType);
+begin
+  X := Random * (MaxX - MinX) + MinX;
+  Y := 0;
+  Z := Random * (MaxZ - MinZ) + MinZ;
+end;
+
+procedure TCHXVec3Type.InitRandomZY(const MinZ, MaxZ, MinY, MaxY: TRealType);
+begin
+  X := 0;
+  Y := Random * (MaxY - MinY) + MinY;
+  Z := Random * (MaxZ - MinZ) + MinZ;
 end;
 
 procedure TCHXVec3Type.InitPolar3D(const aMag, aYaw, aPitch: TRealType);

@@ -1,26 +1,29 @@
-unit utCHXVec3S;
+unit utCHXVec3F;
+{
+  Adaptation on TCHXVec3 to use CFloat.
+}
 
 {$macro ON}
-{$define TRealType := Single }
+{$define TRealType := CFloat }
 //< Actual type of the components.
-{$define TCHXVec3Type := TCHXVec3S }
+{$define TCHXVec3Type := TCHXVec3F }
 //< ID for the main type.
-{$define CHXVec3Func := CHXVec3S }
+{$define CHXVec3Func := CHXVec3F }
 //< Name for the function that returns a new TCHXVec3Type.
-{$define PCHXVec3 := PCHXVec3S }
+{$define PCHXVec3 := PCHXVec3F }
 //< ID of the pointer type to TCHXVec3Type type.
 
-{$define TCHXPoint3DType := TCHXPoint3DS }
+{$define TCHXPoint3DType := TCHXPoint3DF }
 //< TCHXPoint3DF type equivalent for retrocompatibility.
-{$define TCHXColorType := TCHXColorS }
+{$define TCHXColorType := TCHXColorF }
 //< TCHXColorF type equivalent for retrocompatibility.
 
-{$define cCHXVec3GenList := cCHXVec3SGenList }
+{$define cCHXVec3GenList := cCHXVec3FGenList }
 //< ID for generic list specialized to TCHXVec3Type type.
-{$define cCHXVec3List := cCHXVec3SList }
+{$define cCHXVec3List := cCHXVec3FList }
 //< ID for a generic list descendant.
 
-{$define UnitsUsed := , Math; }
+{$define UnitsUsed := , CTypes, Math; }
 {<
   Units needed for TRealType, compare and mathematical functions.
   if no unit needed, must be ';'.
