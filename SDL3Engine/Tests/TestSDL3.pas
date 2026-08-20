@@ -30,11 +30,11 @@ begin
     WriteLn('Error al crear el Renderer: ', SDL_GetError);
     SDL_DestroyWindow(Window);
     SDL_Quit;
-    Halt(1);    
+    Halt(1);
   end;
 
   WriteLn('Ventana creada. ESC para salir.');
-  while Running do  
+  while Running do
   begin
     SDL_SetRenderDrawColor(Renderer, 100, 149, 237, 255);
     SDL_RenderClear(Renderer);
@@ -42,7 +42,7 @@ begin
     SDL_RenderPresent(Renderer);
 
     SDL_Delay(100);
-    
+
     while SDL_PollEvent(@Event) do
     begin
       case Event.type_ of
@@ -60,6 +60,5 @@ begin
   SDL_DestroyRenderer(Renderer);
   SDL_DestroyWindow(Window);
   SDL_Quit;
-  WriteLn('Programa finalizado correctamente.');  
+  WriteLn('Programa finalizado correctamente.');
 end.
-    

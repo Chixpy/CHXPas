@@ -38,8 +38,6 @@ type
 
     Of course, SDL3 native functions can be used: `PSDLRenderer` and
     `PSDLWindow` are the pointers to SDL3 native structures.
-
-
   }
   cCHXSDL3Engine = class //(TPersistent)
   private // Propiedades que tienen Get o Set
@@ -93,7 +91,7 @@ type
     property Window: cCHXSDL3Window read FWindow write SetWindow;
     property Render: cCHXSDL3Renderer read FRender write SetRender;
 
-   
+
 (*
     property DefFont: caCHXSDL2Font read FDefFont;
     {< Default TTF font to use with the engine. A TTF file, size and color must
@@ -137,18 +135,20 @@ type
     property ShowFrameRate: Boolean
       read FShowFrameRate write SetShowFrameRate;
 
-
 (*
     property CompList: cSDL2CompList read FCompList;
 
 *)
     constructor Create(const aTitle: String;
-      const aRenderWidth, aRenderHeight: CInt; const AutoInit: Boolean = True);
+      const aWidth : CInt = 0; const aHeight: CInt = 0; const Scale: CInt = 1;
+      const FullScreen: Boolean = False; const UseGPU: Boolean = False;
+      const AutoInit: Boolean = True);
       overload;
     {< Simple constructor.
 
       @param(aTitle Title of the window.)
-      @param(aRenderWidth, aRenderHeight Size of the window.)
+      @param(aWidth Width for the renderer.)
+      @param(aHeight Height of the renderer.)
       @param(AutoInit Init engine automatically. If @False,
          cCHXSDL3Engine.Config properties can be changed and then
          cCHXSDL3Engine.Init must be called.)
@@ -180,8 +180,9 @@ implementation
 
 { cCHXSDL3Engine }
 
-constructor cCHXSDL3Engine.Create(const aTitle: String; const aRenderWidth,
-  aRenderHeight: CInt; const AutoInit: Boolean);
+constructor cCHXSDL3Engine.Create(const aTitle: String;
+  const aWidth, aHeight, Scale: CInt;
+  const FullScreen, UseGPU, AutoInit: Boolean);
 begin
   inherited Create;
 
@@ -190,10 +191,11 @@ begin
   Title := aTitle;
 
   Config := cCHXSDL3Config.Create;
-  Config.WindowWidth := aRenderWidth;
-  Config.RendererWidth := aRenderWidth;
-  Config.WindowHeight := aRenderHeight;
-  Config.RendererHeight := aRenderHeight;
+  Config.Width := aWidth;
+  Config.Height := aHeight;
+  Config.Scale := Scale;
+  Config.FullScreen := FullScreen;
+  Config.UseGPU := UseGPU;
 
   if AutoInit then
     Init;
@@ -214,7 +216,7 @@ begin
   begin
     Config.DefaultFileName := aIniFile;
     Config.LoadFromFile('');
-    Init
+    Init;
   end
   else
   begin
@@ -517,8 +519,8 @@ begin
   FreeAndNil(FWindow);
 //  FreeAndNil(FDefFont);
 
-  aWindow := cCHXSDL3Window.Create(Title, Config.RendererWidth,
-    Config.RendererHeight, Config.WindowWidth, Config.WindowHeight);
+  aWindow := cCHXSDL3Window.Create(Title, Config.Width,
+    Config.Height, Config.Scale, Config.FullScreen, Config.UseGPU);
 
   Window := aWindow; // Sets SDLRenderer and SDLWindow
 
@@ -587,7 +589,7 @@ begin
           Render.SetDrawColor(1, 0, 1, 1);
           SDL_RenderDebugTextFormat(SDLRenderer, 0, 0,
           '%dms (%dms)', [FPSMng.LastFrameTime, FPSMng.LastCompTime]);
-          
+
           // Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
           //   [Title, FPSMng.LastFrameTime, FPSMng.LastCompTime]);
         end;
@@ -681,19 +683,20 @@ begin
   CompList.Free;
 *)
 
+(* Now not needed to save changes:
+
   // Saving normal window size
   if Assigned(Window) and (not Window.Maximized) then
   begin
-    Config.WindowWidth := Window.WindowWidth;
-    Config.WindowHeight := Window.WindowHeight;
-    Config.RendererWidth := Window.RenderWidth;
-    Config.RendererHeight := Window.RenderHeight;
+    Config.Width := Window.Width;
+    Config.Height := Window.Height;
   end;
 
   if Config.DefaultFileName <> '' then
     Config.SaveToFile('', False);
+*)
   Config.Free;
-  
+
 (*
   // This must be stopped?
   if SDL_IsTextInputActive then

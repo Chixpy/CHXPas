@@ -2,11 +2,11 @@ unit ucCHXSDL3FPSManager;
 {<
   cCHXSDL3FPSManager unit. 
 
-  SDL_gfx has some unexpected behaviours:
+  _SDL_gfx_ has some unexpected behaviours:
 
-  1. When a frame lags sets Frame Count to 0 again, so it can't be used as 
+  1. When a frame lags sets _Frame Count_ to 0 again, so it can't be used as
     timestamp or calculate difference between frames.
-  2. SDL_FrameDelay returns time elapsed without the delay itself. If engine
+  2. `SDL_FrameDelay` returns time elapsed without the delay itself. If engine
     works with deltatime we want actual total deltatime between frames.
 
   The first is useful to restore frame interpolation and get next FPS window.
@@ -18,7 +18,7 @@ unit ucCHXSDL3FPSManager;
     wich must be used as parameter of functions (although it's SDL general
     design).
   - Use an absolute frame counter independent of the one used for interpolation.
-  - Delay stores actual compute time and whole frame time (with Delay) as
+  - `Delay` stores actual compute time and whole frame time (with Delay) as
     properties and returns waited time (or miliseconds late)
 
   ToDo: May be change it to use nanoseconds.
@@ -70,8 +70,8 @@ type
 
       Changes the properties:
 
-      - LastFrameTime: Stores last computation time (without Delay).
-      - LastCompTime: Stores last total frame time (with Delay).
+      - `LastFrameTime`: Stores last computation time (without Delay).
+      - `LastCompTime`: Stores last total frame time (with Delay).
     }
   end;
 
@@ -97,7 +97,7 @@ begin
   LastTick := BaseTick;
 end;
 
-function cCHXSDL3FPSManager.TimePassed: CUInt64; 
+function cCHXSDL3FPSManager.TimePassed: CUInt64;
 begin
   Result := SDL_GetTicks - LastTick;
 end;

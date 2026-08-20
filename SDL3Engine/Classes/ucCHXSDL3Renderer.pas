@@ -1641,6 +1641,7 @@ begin
 
     // Draw horizontal spans between pairs of intersections
     aIndex := 0;
+    X2 := XList[0];
     while aIndex < High(XList) do
     begin
       X1 := XList[aIndex];
@@ -2006,12 +2007,12 @@ begin
   end;
 
   inherited Create;
-  Self.SDLRenderer := PSDLRenderer;
-  Self.FreeRenderer := FreeOnDestroy;
+  SDLRenderer := PSDLRenderer;
+  FreeRenderer := FreeOnDestroy;
 
   // Setting initial default BlendMode
   PrevBlendMode := SDL_BLENDMODE_BLEND;
-  SDL_SetRenderDrawBlendMode(Self.SDLRenderer, SDL_BLENDMODE_BLEND)
+  SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_BLEND)
 end;
 
 // SetDrawColor
@@ -3727,7 +3728,7 @@ end;
 destructor cCHXSDL3Renderer.Destroy;
 begin
   if FreeRenderer then
-    SDL_DestroyRenderer(Self.SDLRenderer);
+    SDL_DestroyRenderer(SDLRenderer);
 
   inherited;
 end;

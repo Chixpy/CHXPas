@@ -1,14 +1,11 @@
-### CHXSDL3Engine
-
-- Added `SetRenderSize` method to `cCHXSDL3Window`, to set logical size
-  to draw. Actually, it's a SDL_Renderer method, but in CHXSDL3Engine is
-  managed by Window.
-
-### Miscellaneous
-
-- `TCHXVec3[x]`:
-  - Adding alias for components so it can be used as 3D coordinates,
-    float solid color and access components by index.
-  - Changed alias for macros `TCHXColorF` to `TCHXColorType` and
-    `TCHXPoint3DF` to `TCHXPoint3DType` to avoid recursivity.
-  - Adding random initialization methods, `InitRandom[x]`, inside a box.
+- Some readme files edition.
+- Removed `NOTC` directory, moved its units to `Classes` directory and
+  update `c[x]Mover` to use `cCHXVec3[x]` instead `TCHXPoint3DF`.
+- _CHXSDL3Engine_:
+  - Adding support for Full Screen and choose between Software and GPU
+    renderer. Actually `SDL_CreateWindowAndRenderer` created a GPU renderer...
+    ¡And in my tests it is **2 times slower** than Software one! Same happened
+    with SDL2. Seems that GPU is better for `RenderGeometry[Raw]` and lots
+    of filled triangles.
+  - Changed _CHXSDL3Renderer_ (and _CHXSDL3Window_) creation parameters and
+    changing them in test programs.

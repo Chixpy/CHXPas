@@ -9,21 +9,15 @@ interface
 
 uses
   CTypes, IniFiles, // FPC
-  SDL3, // SDL3
-  uaCHXConfig, // CHX abstracts
-  uCHXSDL3TypeHelpers; // CHXSDL3
+  uaCHXConfig; // CHXPas
 
 const
   krsIniSectionSDL3Engine = 'SDL3Engine';
+  krsIniKeyWidth = 'Width';
+  krsIniKeyHeight = 'Height';
+  krsIniKeyScale = 'Scale';
   krsIniKeyFullScreen = 'FullScreen';
-  krsIniKeyWindowWidth = 'WindowWidth';
-  krsIniKeyWindowHeight = 'WindowHeight';
-  krsIniKeyRendererWidth = 'RendererWidth';
-  krsIniKeyRendererHeight = 'RendererHeight';
-  krsIniKeyRendererUseHW = 'RendererUseHW';
-  krsIniKeyDefFontFile = 'DefFontFile';
-  krsIniKeyDefFontSize = 'DefFontSize';
-  krsIniKeyDefFontColor = 'DefFontColor';
+  krsIniKeyUseGPU = 'UseGPU';
 
 type
 
@@ -31,19 +25,11 @@ type
 
   cCHXSDL3Config = class(caCHXConfig)
   public
-    // Window properties
-    WindowWidth : CInt;
-    WindowHeight : CInt;
+    Width : CInt;
+    Height : CInt;
+    Scale: CInt;
     FullScreen : Boolean;
-
-    // Renderer properties
-    RendererWidth : CInt;
-    RendererHeight : CInt;
-    RendererUseHW : Boolean;
-
-    DefFontFile : String;
-    DefFontSize : Integer;
-    DefFontColor : TSDL_FColor;
+    UseGPU : Boolean;
 
     procedure ResetDefaultConfig; override;
 
@@ -60,46 +46,25 @@ implementation
 
 procedure cCHXSDL3Config.LoadFromIni(aIniFile : TMemIniFile);
 begin
-  // Window properties
+  Width := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
+    krsIniKeyWidth, Width);
+  Height := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
+    krsIniKeyHeight, Height);
+  Scale := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
+    krsIniKeyScale, Scale);
   FullScreen := aIniFile.ReadBool(krsIniSectionSDL3Engine,
     krsIniKeyFullScreen, FullScreen);
-  WindowWidth := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-    krsIniKeyWindowWidth, WindowWidth);
-  WindowHeight := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-    krsIniKeyWindowHeight, WindowHeight);
-
-  // Renderer properties
-  // Renderer size defaults to Window size, not default config values.
-  RendererWidth := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-    krsIniKeyRendererWidth, WindowWidth);
-  RendererHeight := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-    krsIniKeyRendererHeight, WindowHeight);
-  RendererUseHW := aIniFile.ReadBool(krsIniSectionSDL3Engine,
-    krsIniKeyRendererUseHW, RendererUseHW);
-
-  // // Fallback Font
-  // DefFontFile := aIniFile.ReadString(krsIniSectionSDL3Engine,
-  //   krsIniKeyDefFontFile, DefFontFile);
-  // DefFontSize := aIniFile.ReadInteger(krsIniSectionSDL3Engine,
-  //   krsIniKeyDefFontSize, DefFontSize);
-  // DefFontColor := Str2SDLColor(aIniFile.ReadString(krsIniSectionSDL3Engine,
-  //   krsIniKeyDefFontColor, '255,255,255,255'));
-
+  UseGPU := aIniFile.ReadBool(krsIniSectionSDL3Engine,
+    krsIniKeyUseGPU, UseGPU);
 end;
 
 procedure cCHXSDL3Config.ResetDefaultConfig;
 begin
-  WindowWidth := 640;
-  WindowHeight := 480;
+  Width := 0; // 0 = Renderer use max window size
+  Height := 0;
+  Scale := 0; // 0 = Maximize the window
   FullScreen := False;
-
-  RendererWidth := 640;
-  RendererHeight := 480;
-  RendererUseHW := True;
-
-  // DefFontFile := '';
-  // DefFontSize := 10;
-  // DefFontColor := SDLColor(255, 255, 255, 255);
+  UseGPU := True;
 end;
 
 constructor cCHXSDL3Config.Create;
@@ -114,37 +79,11 @@ end;
 
 procedure cCHXSDL3Config.SaveToIni(aIniFile : TMemIniFile);
 begin
-  // Window properties
-  aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyFullScreen,
-    FullScreen);
-  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyWindowWidth,
-    WindowWidth);
-  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyWindowHeight,
-    WindowHeight);
-
-  // Renderer properties
-  if (RendererWidth <> WindowWidth) or (RendererHeight <> WindowHeight) then
-  begin
-    aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyRendererWidth,
-      RendererWidth);
-    aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyRendererHeight,
-      RendererHeight);
-  end
-  else
-  begin // Remove this keys if it has same size of the window.
-    aIniFile.DeleteKey(krsIniSectionSDL3Engine, krsIniKeyRendererWidth);
-    aIniFile.DeleteKey(krsIniSectionSDL3Engine, krsIniKeyRendererHeight);
-  end;
-  aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyRendererUseHW,
-    RendererUseHW);
-
-  // // Fallback Font
-  // aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontFile,
-  //   DefFontFile);
-  // aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyDefFontSize,
-  //   DefFontSize);
-  // aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyDefFontColor,
-  //   SDLColor2Str(DefFontColor));
+  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyWidth, Width);
+  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyHeight, Height);
+  aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyScale, Scale);
+  aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyFullScreen, FullScreen);
+  aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyUseGPU, UseGPU);
 end;
 
 end.

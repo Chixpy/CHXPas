@@ -46,16 +46,16 @@ begin
       SDL_RenderClear(Renderer);
       SDL_SetRenderDrawColor(Renderer, 255, 255, 255, 255);
       SDL_RenderDebugText(Renderer, 10 , 10, '[ESC] to exit. ');
-      SDL_RenderDebugText(Renderer, 10 , 20, 'Arrows to change FPS. ');
-      SDL_RenderDebugText(Renderer, 10 , 40, PChar('FPS: ' 
+      SDL_RenderDebugText(Renderer, 10 , 20, 'ARROWS to change FPS. ');
+      SDL_RenderDebugText(Renderer, 10 , 40, PChar('FPS: '
         + IntToStr(FPSMang.FPS)));
-      SDL_RenderDebugText(Renderer, 10 , 50, PChar('Frame Count: ' 
+      SDL_RenderDebugText(Renderer, 10 , 50, PChar('Frame Count: '
         + IntToStr(FPSMang.FrameCount)));
-      SDL_RenderDebugText(Renderer, 10 , 60, PChar('Last Frame Compute: ' 
+      SDL_RenderDebugText(Renderer, 10 , 60, PChar('Last Frame Compute: '
         + IntToStr(FPSMang.LastCompTime)));
-      SDL_RenderDebugText(Renderer, 10 , 70, PChar('Last Frame Total: ' 
+      SDL_RenderDebugText(Renderer, 10 , 70, PChar('Last Frame Total: '
         + IntToStr(FPSMang.LastFrameTime)));
-      SDL_RenderDebugText(Renderer, 10 , 80, PChar('ms ahead (- behind): ' 
+      SDL_RenderDebugText(Renderer, 10 , 80, PChar('ms ahead (- behind): '
         + IntToStr(aDelay)));
 
       SDL_RenderPresent(Renderer);
@@ -103,4 +103,3 @@ begin
     SDL_Quit;
   end;
 end.
-    

@@ -145,14 +145,24 @@ end;
 
 var
   SDL3Eng : cSDL3Eng;
-
+  ProgName: String;
 begin
+  ProgName := ExtractFileName(ParamStr(0));
+  ChDir(ExtractFilePath(ParamStr(0)));
+
+  // Aplication metadata
+  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+    PAnsiChar('com.chixpy.' + ProgName));
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
+    '(C) 2026 Chixpy');
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_URL_STRING,
+    'https://github.com/Chixpy');
+  SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
+
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    False);
+    kWindowScale);
   try
-    SDL3Eng.Config.WindowWidth := Trunc(kRenderW * kWindowScale);
-    SDL3Eng.Config.WindowHeight := Trunc(kRenderH * kWindowScale);
-    SDL3Eng.Init;
     SDL3Eng.Run;
   finally
     SDL3Eng.Free;

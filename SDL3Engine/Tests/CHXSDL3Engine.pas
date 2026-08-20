@@ -4,7 +4,7 @@ program CHXSDL3Engine;
 
   Shows a simple text with native SDL methods.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
+  `cCHXSDL3Engine` descendant is declared and implemented here.
   A better practice is that it is implented in it's own unit.
 
   (c) 2026 Chixpy
@@ -72,7 +72,7 @@ type
     }
     // Using SDL native functions
     SDL_SetRenderDrawColor(Window.PSDLRenderer, 80, 80, 140, 255);
-    
+
     // Actually, SDLRenderer := Window.PSDLRenderer as a shorcut.
     // It can be changed if multiple windows are created.
     SDL_RenderClear(SDLRenderer);
@@ -151,11 +151,13 @@ var
   CTCEng : cSDL3Eng;
 
 begin
-  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', RenderW, RenderH, False);
+  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', RenderW, RenderH, 0, False,
+    False, False);
   try
+    // With `AutoInt = False` (7th parameter)
     // We can change configuration, call init and then run the engine...
-    CTCEng.Config.WindowWidth := Trunc(RenderW * WindowScale);
-  CTCEng.Config.WindowHeight := Trunc(RenderH * WindowScale);
+    // (Scale is actually constructor's 4th parameter...)
+    CTCEng.Config.Scale := WindowScale;
     CTCEng.Init;
     CTCEng.Run;
   finally

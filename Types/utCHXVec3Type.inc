@@ -1,4 +1,5 @@
-(*< Unit Template for custom 3 component records.
+(*< Unit Template for a record with custom 3 component,
+  represent Points, Vector, Colors, etc..
 
   Usage: Create a unit file, replace this IDs:
 
