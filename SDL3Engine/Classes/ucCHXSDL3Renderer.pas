@@ -7,8 +7,8 @@ unit ucCHXSDL3Renderer;
   This way, instead of using `SDL_[...](PSDL_Renderer, [...])` functions,
   they will become direct methods of the class itself.
 
-  In the context of cCHXSDL3Engine, this class will be created by
-  cCHXSDL3Window on its creation and freed by it.
+  In the context of `cCHXSDL3Engine`, this class will be created by
+  `cCHXSDL3Window` on its creation and freed by it.
 
   ## `SDL_Renderer`:
 
@@ -31,7 +31,8 @@ unit ucCHXSDL3Renderer;
     @itemLabel([Get/Set])
     @item(Ability to retrieve the current color or blend mode.)
     @itemLabel([Float])
-    @item(SDL3 can handle float point RGBA colors in range [0..1].)
+    @item(SDL3 can handle float point RGBA colors in range [0..1]. And actually
+      is the used internal format.)
     @itemLabel([s])
     @item(Draw multiple points, lines, or rectangles stored in an
       array of `TSDL_FPoint` or `TSDL_FRect`.)
@@ -42,9 +43,11 @@ unit ucCHXSDL3Renderer;
   All drawing functions use float parameters `CFloat`, wich is
   equivalent to `Single` in FPC.
 
-  Internally, SDL3 [s] variants are actually used for drawing. Single point,
-  line or rectangle versions only create an array of TSDL_FPoint or TSDL_FRect.
-  As side note, SDL2 does the same with the adition of converting integer
+  Internally, SDL3 _[s]_ variants are actually used for drawing. Single point,
+  line or rectangle versions only create an `array of TSDL_FPoint` or 
+  `TSDL_FRect` with one element.
+  
+  As side note, SDL2 does the same with the addition of converting integer
   values to float.
 
   **For colors, SDL3 uses floats** too, while SDL2 uses Byte.
@@ -57,9 +60,9 @@ unit ucCHXSDL3Renderer;
   ## `SDL_gfx`:
 
   Initially, this unit was for `cCHXSDL2Engine` and had the purpose of remove
-  the dependency of `SDL_gfx`. As this unit is finally being created before
-  doing anything with SDL2, so the rant will be in `ucCHXSDL2Renderer` if
-  implemented. XD
+  the dependency of `SDL_gfx`. This unit was created before making anything
+  with SDL3, so the rant will be in `ucCHXSDL2Renderer` if this algorithms
+  are ported there. XD
 
   Anyways, `SDL_gfx` (and SDL native functions) can be used to draw as
   `PSDL_Renderer` is exposed with `SDLRenderer` property.
@@ -89,10 +92,10 @@ unit ucCHXSDL3Renderer;
             @item(`RArr: Array of TSDL_FRect` (`TSDLFRectDynArray`))
           )
         )
-        @item(Evaluate whether it is more efficient for these variants to call
+        @item(Evaluate whether it is more efficient for these variants: to call
           a common method or be implemented independently.)
-        @item(If a method changes current draw color internally, it restores
-          previous one.)
+        @item(If a primitive method changes current draw color internally,
+          it restores previous one.)
       )
     )
     @item(Provide methods to draw primitives:
@@ -100,24 +103,24 @@ unit ucCHXSDL3Renderer;
         @item(Border/Edges/Perimeter only.)
         @item(Full filled with a color.)
         @item(Only fill without border.)
-        @item(Border and Fill with different colors: Trying to ensure that edges
-          and fill do not overlap (wich is hard) as alpha transparencies would
+        @item(Border and Fill with different colors: Trying to ensure that
+          edges and fill do not overlap as alpha transparencies would
           accumulate.)
       )
     )
   )
 
-  Separately in uCHXSDL3TypeHelpers, several useful types and helpers for
+  Separately in `uCHXSDL3TypeHelpers`, several useful types and helpers for
   SDL data structures will be defined:
 
   @unorderedList( @itemSpacing Compact
     @item(Dynamic arrays of `TSDL_FColor`, `TSDL_FPoint`, `TSDL_FRect`, etc.:
-      TSDLFColorDynArray, TSDLFPointDynArray, etc.)
+      `TSDLFColorDynArray`, `TSDLFPointDynArray`, etc.)
     @item(ToDo: Specialized generic lists for those types, wich can be
-      inherited to add custom methods: cSDLFPointList, cSDLFRectList, etc.
+      inherited to add custom methods: `cSDLFPointList`, `cSDLFRectList`, etc.
       @unorderedList( @itemSpacing Compact
         @item(`FGL` unit returns a not found operator overload error.)
-        @item(Try with other container generics: Generics.Collections use an
+        @item(Try with other container generics: `Generics.Collections` use an
           actual array.)
       )
     )
@@ -158,9 +161,25 @@ unit ucCHXSDL3Renderer;
     @item(Remember: `T[F]Rect` doesn't include `X + W` row or `Y + H` column.)
     @item(Use `SDL_SetError` and try not to halt execution, except in
       constructors that will have Exceptions.)
-    @item(Do integer parameter overloads?)
-    @item(¿Use `procedure` instead `function`? Rarely, Result will be checked.)
+    @item(~~Do integer parameter overloads?~~ Keep as floats but create
+      variants that round to neares integer)
+    @item(¿Use `procedure` instead `function`? Rarely, `Result` of the
+      functions will be checked...)
   )
+
+  - Added previous commented out algorithms with subpixel adaptation
+    for Logical Presentation as new methods with the suffix `LP`. So both
+    versions can be used as desired.
+  - Actually, all primitive methods will have `LP` or `FP` suffix, to make
+    clear how the point `(0.3, 0.7)` will be drawn:
+    - `[X]FP`: Full Pixel rounded to nearest integer. In the example: `(0, 1)`
+    - `[X]LP`: Logical Presentation. SDL will manage it and depends on the 
+      scale (Actual Window Size / Logical Render Size) of the Logical
+      Presentation. For example:
+      - _x2_: It's spected to be drawn at `(0.5, 1)`
+      - _x3_: `(0.3, 0.6)`
+      - _x4_: `(0.4, 0.8)`
+
 
   (C) 2026 Chixpy https://github.com/Chixpy
 *)
@@ -181,8 +200,8 @@ type
   { Wrapper of SDL_Renderer and expanded to draw more primitives.
 
     It doesn't call `SDL_Init[SubSystem]` or `SDL_Quit[SubSystem]`
-    as it expects at least a `SDL_Window` already created. In cCHXSDL3Engine
-    context, this class is created by cCHXSDL3Window.
+    as it expects at least a `SDL_Window` already created. In `cCHXSDL3Engine`
+    context, this class is created by `cCHXSDL3Window`.
 
     Nearly all methods are functions with boolean Result as SDL_Renderer
     funtions are. They return @False on error and `SDL_GetError` can give
@@ -228,6 +247,15 @@ type
     function TriangleBorderUnsafe(const PArr: TSDLFPointDynArray;
       const idxFirst: Integer): Boolean; inline;
     function TriangleFilledUnsafe(const PArr: TSDLFPointDynArray;
+      const idxFirst: Integer): Boolean; inline;
+    function TriangleFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
+      const idxFirst: Integer): Boolean; inline;
+
+    function TriangleSPUnsafe(const PArr: TSDLFPointDynArray;
+      const idxFirst: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
+    function TriangleSPBorderUnsafe(const PArr: TSDLFPointDynArray;
+      const idxFirst: Integer): Boolean; inline;
+    function TriangleSPFilledUnsafe(const PArr: TSDLFPointDynArray;
       const idxFirst: Integer): Boolean; inline;
     function TriangleFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
       const idxFirst: Integer): Boolean; inline;
@@ -1030,7 +1058,7 @@ type
       @param(RY Vertical radius of the ellipse.)
     }
 
-    function EllipseFilled(const X, Y, RX, RY: CFloat): Boolean;
+    function EllipseFilled(const X, Y: CFloat; RX, RY: CFloat): Boolean;
     {< Draw a filled ellipse.
 
       @param(X Horizontal position of the ellipse's center.)
@@ -1354,7 +1382,7 @@ begin
     Result := Result
       and Self.SetDrawColor(BorderC)
       and Self.TriangleFilledUnsafe(PArr, idxFirst);
-      
+
     // Try to restore previous color anyway
     Exit(Self.SetDrawColor(TempColor) and Result);
   end;
@@ -1540,21 +1568,21 @@ function cCHXSDL3Renderer.PolygonFilledUnsafe(const PArr: TSDLFPointDynArray;
   - If (P2.Y - P1.Y) = 0: Division by zero occurs because the edge
     is completely horizontal.
   - If U NOT in [0..1]: The intersection point lies outside the physical
-    segment bounds.
+    segment/edge bounds.
 
-  Both edge cases are resolved via short-circuit logical checks prior to division:
+  Both edge cases and are resolved via logical checks prior to division:
 
-  1. Bounds check: If both endpoints (P1.Y, P2.Y) are simultaneously above or
-    below CurrY, no intersection is possible. Calculating U is skipped entirely.
-  2. Zero check: If P1.Y = P2.Y, the line is horizontal; it is ignored for
-    vertical intersection tracking to avoid division by zero (horizontal lines
-    are naturally covered by adjacent scanlines).
-  3. If both endpoint Y are less than CurrY then segment is not useful any more
-    and it can be deleted from list of segments.
+  1. Zero check: If the line is horizontal (P1.Y = P2.Y), it is ignored and
+    this helps to fix concave corners (`^` and `v`) too
+  2. Removing segments: If both endpoint Y are less than CurrY then segment
+    is not useful any more and it can be deleted from list of segments.
+  3. Bounds check: If both endpoints Y are simultaneously below
+    CurrY, no intersection is possible. Calculating U is skipped entirely.
 
-  ToDo: Optimize not drawing X < 0 and Y < 0, not sure if (0,0) in SDL can
-    be moved...  but it will be a huge feature pushing and popping coordinate
-    systems.
+  ToDo:
+
+  - Integer range
+  - Optimize not drawing if it's not visible...
 }
 var
   MinX, MaxX, MinY, MaxY, CurrY, X1, X2, xIntersect: Integer;
@@ -1584,7 +1612,7 @@ begin
 
     if P1.Y = P2.Y then
     begin
-      // Removing last position, previous values are kept.
+      // Dont'n add and removing last position, previous values are kept.
       SetLength(SegList, High(SegList));
       Continue;
     end;
@@ -1617,6 +1645,7 @@ begin
       end;
 
       // Check if the scanline intersects the segment
+      // ToDo: Remove nesting
       if ((P1.Y <= CurrY) and (P2.Y > CurrY))
         or ((P1.Y > CurrY) and (P2.Y <= CurrY)) then
       begin
@@ -1660,7 +1689,17 @@ begin
     Inc(CurrY);
   end;
 end;
-(* Adaptation to Logical Presentation
+
+function cCHXSDL3Renderer.PolygonFilledSPUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean; inline;
+{ Version of `PolygonFilledUnsafe` with subpixel adaptation.
+
+  Same algorithm, using floats (surprisingly seemd to be less problematic).
+
+  ToDo:
+
+  - Optimize not drawing if it's not visible...
+}
 var
   MinX, MaxX, MinY, MaxY, CurrY, X1, X2, xIntersect: CFloat;
   CurrSeg, aIndex: Integer;
@@ -1710,7 +1749,7 @@ begin
   begin
     SetLength(XList, 0); // Removing previous intersections
 
-    // Backwards because we wil delete not more useful segments
+    // Backwards because we will delete not more useful segments
     for CurrSeg := High(SegList) downto 0 do
     begin
       P1 := SegList[CurrSeg].P1;
@@ -1724,6 +1763,7 @@ begin
       end;
 
       // Check if the scanline intersects the segment
+      // ToDo: Remove nesting
       if ((P1.Y <= CurrY) and (P2.Y > CurrY))
         or ((P1.Y > CurrY) and (P2.Y <= CurrY)) then
       begin
@@ -1762,7 +1802,6 @@ begin
     CurrY += 1;
   end;
 end;
-*)
 
 function cCHXSDL3Renderer.PolygonFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean; inline;
@@ -1877,7 +1916,14 @@ begin
     Inc(CurrY);
   end;
 end;
-(* Adaptation to Logical Presentation
+
+function cCHXSDL3Renderer.PolygonFillOnlySPUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean; inline;
+{
+  See `cCHXSDL3Renderer.PolygonFilledUnsafe`
+
+  Modified to draw only interior without borders and Floats.
+}
 var
   MinX, MaxX, MinY, MaxY, CurrY, X1, X2, xIntersect: CFloat;
   CurrSeg, aIndex: Integer;
@@ -1981,7 +2027,6 @@ begin
     CurrY += 1;
   end;
 end;
-*)
 
 // Create
 
@@ -2112,9 +2157,10 @@ function cCHXSDL3Renderer.Points(const PArr: TSDLFPointDynArray;
 begin
   { Notes about SDL_RenderPoints:
 
-    - It doesn't draw anything with Count <= 0. No error with negatives.
-    - If Count exceeds array end, it doesn't care and draw points with
-        "invalid" data (usually 0,0). No error, but this time is logical.
+    - It doesn't draw anything with `Count <= 0`.
+    - No error with negative `Count`.
+    - If `Coun`t exceeds array end, it doesn't care and draw points with
+        "invalid" data (usually 0,0). No error.
   }
   Result := Self.IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
@@ -2143,8 +2189,9 @@ function cCHXSDL3Renderer.Lines(const PArr: TSDLFPointDynArray;
 begin
   { Notes about SDL_RenderLines:
 
-    - It doesn't draw anything with Count <= 0. No error with negatives.
-    - If Count exceeds array end, it doesn't care and draw lines with
+    - It doesn't draw anything with `Count <= 0`.
+    - No error with negative `Count`.
+    - If `Count` exceeds array end, it doesn't care and draw lines with
         "invalid" data (usually 0,0). No error, but this time is logical.
   }
   Result := Self.IsValidArrayRange(Length(PArr), idxFirst, Count,
@@ -2588,6 +2635,7 @@ begin
 
   case Count of
     // 0: Exit(Result); // It can't happen
+    
   1: Exit(Self.Point(PArr[idxFirst]));
 
   2: // Exit(Render.Line(PArr[idxFirst], PArr[idxFirst + 1]));
@@ -2790,7 +2838,11 @@ begin
     Result := PointMirrorHV(CurrX, CurrY, IntX, IntY) and Result;
 end;
 
-(* With subpixel adaptation:
+function cCHXSDL3Renderer.CircleBorderSP(const X, Y, R: CFloat): Boolean;
+{ Uses Jesko's method for circle rasterization with some modifications:
+  - Avoid redrawing pixels at cardinal/diagonal angles.
+  - Minor initialization optimization.
+  - Adapted to subpixels of Logical Presentation. }
 var
   t1, t2, CurrX, CurrY: Integer;
   FracR: CFloat; // Subpixel Radius Offset.
@@ -2833,7 +2885,6 @@ begin
   if CurrX = CurrY then
     Result := PointMirrorHV(CurrX + FracR, CurrY + FracR, X, Y) and Result;
 end;
-*)
 
 function cCHXSDL3Renderer.CircleFilled(const X, Y, R: CFloat): Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
@@ -2880,10 +2931,16 @@ begin
     Result := Self.PointMirrorHVFilled(CurrX, CurrY, True, False, IntX, IntY)
       and Result;
 end;
-(* With subpixel adaptation:
+
+function cCHXSDL3Renderer.CircleFilled(const X, Y, R: CFloat): Boolean;
+{ Uses Jesko's method for circle rasterization with some modifications:
+  - Avoid redrawing lines already drawn.
+  - Minor initialization optimization.
+  - Fill the circle with horizontal lines.
+  - Adapted to subpixels of Logical Presentation. }
 var
   t1, t2, CurrX, CurrY: Integer;
-  FracR: CFloat; // Subpixel Radius Offset. 
+  FracR: CFloat; // Subpixel Radius Offset.
 begin
   R := Abs(R);
   if R < 1 then Exit(Self.Point(X, Y));
@@ -2980,7 +3037,13 @@ begin
     Result := Self.PointMirrorHVFilled(CurrX - 1, CurrY, True, False,
       IntX, IntY) and Result;
 end;
-(* With subpixel adaptation. 
+
+function cCHXSDL3Renderer.CircleFillOnlySP(const X, Y, R: CFloat): Boolean;
+{ Uses Jesko's method for circle rasterization with some modifications:
+  - Avoid redrawing lines already drawn.
+  - Minor initialization optimization.
+  - Fill the circle with horizontal lines without border.
+  - Adapted to subpixels of Logical Presentation. }
 var
   t1, t2, CurrX, CurrY: Integer;
   DrawLine: Boolean;
@@ -3035,9 +3098,16 @@ end;
 
 function cCHXSDL3Renderer.Ellipse(const X, Y, RX, RY: CFloat;
   const BorderC, FillC: TSDL_FColor): Boolean;
+{
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
+}
 var
   TempColor: TSDL_FColor;
 begin
+
   Result := Self.GetDrawColor(TempColor);
 
   // Same color for border and fill
@@ -3075,12 +3145,22 @@ function cCHXSDL3Renderer.EllipseBorder(const X, Y, RX, RY: CFloat)
   - Special cases: `RX <= 1` or `RY <= 1`.
   - Avoid redrawing pixels at cardinal points.
   - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
 }
 var
   IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
 begin
   IntX := Round(X); IntY := Round(Y);
   IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+
+  // Not visible
+  if ((IntX + IntRX) < 0)
+    or ((IntY + IntRY) < 0)
+    then Exit;
 
   // Special cases
   if (IntRX < 1) then
@@ -3131,7 +3211,20 @@ begin
   else
     Result := Self.PointMirrorV(IntX, IntRY, IntY) and Result;
 end;
-(* With subpixel adaptation:
+
+function cCHXSDL3Renderer.EllipseBorderSP(const X, Y, RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+
+  ToDo:
+
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
+}
 var
   CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
   FracRX, FracRY: CFloat;
@@ -3191,9 +3284,8 @@ begin
   // Result := Self.PointMirrorHVFilled(FracRX, RY, True, False, X, Y)
   //   and Result;
 end;
-*)
 
-function cCHXSDL3Renderer.EllipseFilled(const X, Y, RX, RY: CFloat)
+function cCHXSDL3Renderer.EllipseFilled(const X, Y: CFloat; RX, RY: CFloat)
   : Boolean;
 { Modification of Alois Zingl's implementation (https://zingl.github.io)
   of Bresenham's algorithm:
@@ -3202,12 +3294,23 @@ function cCHXSDL3Renderer.EllipseFilled(const X, Y, RX, RY: CFloat)
   - Fails in when RY >> RX.
   - Avoid redrawing pixels at cardinal points.
   - Fill the ellipse with horizontal lines.
-  - Precalculate constant terms. }
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
+}
 var
   IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
 begin
   IntX := Round(X); IntY := Round(Y);
   IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+
+  // Not visible
+  if ((IntX + IntRX) < 0)
+    or ((IntY + IntRY) < 0)
+    then Exit;
 
   // Special cases
   if (IntRX < 1) then
@@ -3251,7 +3354,23 @@ begin
       and Result;
 end;
 
-(* With subpixel adaptation.
+function cCHXSDL3Renderer.EllipseFilledSP(const X, Y: CFloat; RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`
+  - Fails in when RY >> RX.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
+}
 var
   CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
   FracRX, FracRY: CFloat;
@@ -3298,7 +3417,7 @@ begin
     end;
   end;
 end;
-*)
+(* *)
 
 function cCHXSDL3Renderer.EllipseFillOnly(const X, Y, RX, RY: CFloat)
   : Boolean;
@@ -3309,14 +3428,24 @@ function cCHXSDL3Renderer.EllipseFillOnly(const X, Y, RX, RY: CFloat)
   - Avoid redrawing pixels at cardinal points.
   - Fill the ellipse with horizontal lines without border.
   - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+  - Check if visible `((IntX - IntRX - 1) < Width)` or 
+    `((IntY - IntRY - 1) < Height)`
 }
 var
   IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
   DrawLine: Boolean;
 begin
   IntX := Round(X); IntY := Round(Y);
-  IntRX := Round(RX); IntRY := Round(RY);
-  RX2 := Abs(IntRX); RY2 := Abs(IntRY);
+  IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+  
+  // Not visible
+  if ((IntX + IntRX) <= 0)  
+    or ((IntY + IntRY) <= 0)
+    then Exit;
 
   // Special cases
   if (RX2 < 1) or (RY2 < 1) then
@@ -3365,7 +3494,22 @@ begin
   end;
 end;
 
-(* With subpixel adaptation.
+function cCHXSDL3Renderer.EllipseFillOnly(const X, Y, RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines without border.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+
+  ToDo:
+
+  - Check if visible `((IntX - IntRX - 1) < Width)` or 
+    `((IntY - IntRY - 1) < Height)`
+}
 var
   CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
   FracRX, FracRY: CFloat;

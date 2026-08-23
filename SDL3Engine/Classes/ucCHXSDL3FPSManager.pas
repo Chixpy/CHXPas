@@ -39,8 +39,8 @@ type
 
     FFrameCount: CUInt64;
     FFPS: CUInt16;
-    FLastFrameTime: CUInt64;
-    FLastCompTime: CUInt64;
+    FLastFullTime: CUInt64;
+    FLastBusyTime: CUInt64;
 
   protected
     procedure SetFPS(const aFPS: CUInt16);
@@ -50,9 +50,9 @@ type
     //< Current (absolute) frame number or number of Delay calls.
     property FPS: CUInt16 read FFPS write SetFPS;
     //< FPS desired to achieve.
-    property LastFrameTime: CUInt64 read FLastFrameTime;
+    property LastFullTime: CUInt64 read FLastFullTime;
     //< Total last frame time in miliseconds (with Delay).
-    property LastCompTime: CUInt64 read FLastCompTime;
+    property LastBusyTime: CUInt64 read FLastBusyTime;
     //< Actual time between Delay calls (without Delay).
 
     constructor Create(const aFPS: CUInt16 = 30);
@@ -70,8 +70,8 @@ type
 
       Changes the properties:
 
-      - `LastFrameTime`: Stores last computation time (without Delay).
-      - `LastCompTime`: Stores last total frame time (with Delay).
+      - `LastFullTime`: Stores last total frame time (with Delay).
+      - `LastBusyTime`: Stores last computation time (without Delay).
     }
   end;
 
@@ -111,7 +111,7 @@ begin
   TargetTick := BaseTick + Trunc(IntFC * RateTicks);
   CurrTick := SDL_GetTicks;
 
-  FLastCompTime := CurrTick - LastTick;
+  FLastBusyTime := CurrTick - LastTick;
 
   Result := TargetTick - CurrTick;
 
@@ -119,14 +119,14 @@ begin
   begin
     SDL_Delay(Result);
     CurrTick := SDL_GetTicks;
-    FLastFrameTime := CurrTick - LastTick;
+    FLastFullTime := CurrTick - LastTick;
   end
   else
   begin
     IntFC := 0;
     // CurrTick := SDL_GetTicks; Not needed.
     BaseTick := CurrTick;
-    FLastFrameTime := FLastCompTime;
+    FLastFullTime := FLastBusyTime;
   end;
 
   LastTick := CurrTick;

@@ -544,6 +544,7 @@ procedure cCHXSDL3Engine.Run;
 var
   ProgExit, HandledEvent: Boolean;
   aEvent: TSDL_Event;
+  ComputeBegin, ComputeTime: CUInt64; //< Actual Compute only time.
   CursorX, i: Integer;
 //  aComp: caCHXSDL2Comp;
 begin
@@ -563,18 +564,20 @@ begin
     while (not ProgExit) do
     begin
       // COMPUTE
+      ComputeBegin := SDL_GetTicks;
       Self.Compute(ProgExit);
 (*
       for aComp in CompList do
         if (not ProgExit) then
           aComp.Compute(LastFrameTime, ProgExit);
 *)
+      ComputeTime := SDL_GetTicks - ComputeBegin;
 
       // Wait to next frame. Result not needed.
       FPSMng.Delay;
 
       // Don't draw if minimized
-      if (not ProgExit) and (not Window.Minimized) then
+      if not Window.Minimized then
       begin
         // DRAW
         Draw;
@@ -587,8 +590,9 @@ begin
           then
         begin
           Render.SetDrawColor(1, 0, 1, 1);
-          SDL_RenderDebugTextFormat(SDLRenderer, 0, 0,
-          '%dms (%dms)', [FPSMng.LastFrameTime, FPSMng.LastCompTime]);
+          SDL_RenderDebugTextFormat(SDLRenderer, Window.Width - 200,
+            Window.Height - 8, '%dms / %dms / %dms',
+          [FPSMng.LastFullTime, FPSMng.LastBusyTime, ComputeTime]);
 
           // Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
           //   [Title, FPSMng.LastFrameTime, FPSMng.LastCompTime]);
@@ -615,7 +619,7 @@ begin
       // EVENTS
       // SDL_PumpEvents;
 
-      while (not ProgExit) and SDL_PollEvent(@aEvent) do
+      while SDL_PollEvent(@aEvent) do
       begin
         HandledEvent := False; // Used to see if a event is Handled
 

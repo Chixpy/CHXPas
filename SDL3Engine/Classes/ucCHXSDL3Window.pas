@@ -184,7 +184,7 @@ begin
   // creation too.
   SDL_SetWindowResizable(PSDLWindow, True);
 
-  // Getting window and renderer size
+  // Setting size if normal parameters
   Maximize := (Scale <= 0) or (Width <= 0) or (Height <= 0);
   if not Maximize then
   begin

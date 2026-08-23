@@ -64,7 +64,7 @@ begin
   Height := 0;
   Scale := 0; // 0 = Maximize the window
   FullScreen := False;
-  UseGPU := True;
+  UseGPU := False;
 end;
 
 constructor cCHXSDL3Config.Create;
