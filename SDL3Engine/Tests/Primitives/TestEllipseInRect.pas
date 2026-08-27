@@ -1,6 +1,6 @@
-program TestCircle;
+program TestEllipse;
 {<
-  A simple program with cCHXSDL3Engine for testing Circle primitive.
+  A simple program with cCHXSDL3Engine for testing Ellipse primitive.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -33,13 +33,12 @@ type
   public
     Color1, Color2: TSDL_FColor;
     FillMode, ShowHelp: Boolean;
-    Radius: CFloat;
+    DiamX, DiamY: CFloat;
 
     procedure InitColors;
   end;
 
 { cSDL3Eng }
-
 
 procedure cSDL3Eng.InitColors;
 begin
@@ -51,9 +50,10 @@ procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True;
   InitColors;
-  ShowHelp := True;
   FillMode := False;
-  Radius := Round(kRenderW div 3);
+  ShowHelp := True;
+  DiamX := Round(kRenderW div 2);
+  DiamY := Round(kRenderH div 3);
 end;
 
 procedure cSDL3Eng.Finish;
@@ -67,27 +67,34 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
+var
+  aRect: TSDL_FRect;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0, 0, 0);
   Render.SetDrawColor(1, 1, 1);
+  Render.Clear(0, 0, 0);
 
-  if  FillMode then
+  aRect := SDLFRect((kRenderW - DiamX) * 0.5,
+    (kRenderH - DiamY) * 0.5, DiamX, DiamY);
+  if FillMode then
   begin
     Render.SetDrawColor(Color1);
-    Render.CircleFilled(kRenderW div 2, kRenderW div 2, Radius);
+    Render.EllipseInRectFilled(aRect);
   end
   else
-    Render.Circle(kRenderW div 2, kRenderW div 2, Radius, Color1, Color2);
+    Render.EllipseInRect(aRect, Color1, Color2);
+  Render.SetDrawColor(1, 1, 1, 0.2);
+  Render.RectBorder(aRect);
 
-  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
+  Window.SetRenderSize(400, 400);
   if ShowHelp then
   begin
-    Render.DebugTextF(0, 0, 'Radius: %g', [Radius]);
+    Render.DebugTextF(0, 0, 'DX: %g DY: %g', [DiamX, DiamY]);
     Render.DebugText(0, 10, '[C] Change color');
     Render.DebugText(0, 20, '[F] Change mode');
-    Render.DebugText(0, 30, '[UP] [DOWN] Change radius');
+    Render.DebugText(0, 30, '[<=] [=>] Change X radius');
+    Render.DebugText(0, 40, '[UP] [DOWN] Change Y radius');
   end;
 end;
 
@@ -102,19 +109,23 @@ begin
     begin
       Handled := True;
       case aEvent.key.key of
-      // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+        // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-      SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1: ShowHelp := not ShowHelp;
 
-      SDLK_UP: Radius += 0.25;
+        SDLK_UP: DiamY += 0.25;
 
-      SDLK_DOWN: Radius -= 0.25;
+        SDLK_DOWN: DiamY -= 0.25;
 
-      SDLK_C: InitColors;
+        SDLK_RIGHT: DiamX += 0.25;
 
-      SDLK_F: FillMode := not FillMode;
+        SDLK_LEFT: DiamX -= 0.25;
 
-      SDLK_Q: ExitProg := True;
+        SDLK_C: InitColors;
+
+        SDLK_F: FillMode := not FillMode;
+
+        SDLK_Q: ExitProg := True;
 
       otherwise
         Handled := False;

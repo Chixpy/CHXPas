@@ -75,10 +75,10 @@ begin
   if  FillMode then
   begin
     Render.SetDrawColor(Color1);
-    Render.EllipseFilled(kRenderW div 2, kRenderW div 2, RadiusX, RadiusY);
+    Render.EllipseFilled(kRenderW div 2, kRenderH div 2, RadiusX, RadiusY);
   end
   else
-    Render.Ellipse(kRenderW div 2, kRenderW div 2, RadiusX, RadiusY,
+    Render.Ellipse(kRenderW div 2, kRenderH div 2, RadiusX, RadiusY,
       Color1, Color2);
 
 

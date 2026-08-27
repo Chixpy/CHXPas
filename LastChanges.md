@@ -1,13 +1,16 @@
-- _CHXSDL3Renderer_: **But it will be reworked again.**
-  - Added previous commented out algorithms with subpixel adaptation
-    for Logical Presentation as new methods with the suffix `LP`. So both
-    versions can be used as desired.
-  - Actually, all primitive methods will have `LP` or `FP` suffix, to make
-    clear how the point `(0.3, 0.7)` will be drawn:
-    - `[X]FP`: Full Pixel rounded to nearest integer. In the example: `(0, 1)`
-    - `[X]LP`: Logical Presentation. SDL will manage it and depends on the 
-      scale (Actual Window Size / Logical Render Size) of the Logical
-      Presentation. For example:
-      - _x2_: It's spected to be drawn at `(0.5, 1)`
-      - _x3_: `(0.3, 0.6)`
-      - _x4_: `(0.4, 0.8)`
+### _CHXSDL3Engine_
+
+- Added `TestPoints.pas` to compare how to draw many points.
+- `CHXSDL3Renderer`:
+  - Moved primitive implementation to tematic include files.
+  - Added `EllipseInRect[x]` primitive wich, with integer coordinates,
+    let draw ellipses and circles with odd diameter. With _floats_ it's
+    a lot of easier as we can simply call `Ellipse`. _Integer algorithms_ are
+    commented out.
+  - All integer algorithms commented out, again, they can be confusing.
+  - Fixed some overdrawn pixels in _Ellipse_ and _Circle_ because of 
+    `SDL_RenderLine` changing it to `SDL_RenderRect`.
+
+### Other
+- Removing compiling notes about not inlined methods with  `{$warn 6058 OFF}`
+  in some units.

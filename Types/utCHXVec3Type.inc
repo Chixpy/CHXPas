@@ -70,7 +70,7 @@
 {$MODE ObjFPC}{$H+}
 {$MODESWITCH AdvancedRecords}
 {$MODESWITCH TypeHelpers}
-{$INLINE ON}
+{$INLINE ON}{$WARN 6058 OFF}
 
 interface
 uses
@@ -316,12 +316,12 @@ begin
   X := aX; Y := aY; Z := 0;
 end;
 
-procedure TCHXVec3Type.InitXZ(const aX, aZ: TRealType); 
+procedure TCHXVec3Type.InitXZ(const aX, aZ: TRealType);
 begin
   X := aX; Y := 0; Z := aZ;
 end;
 
-procedure TCHXVec3Type.InitZY(const aZ, aY: TRealType); 
+procedure TCHXVec3Type.InitZY(const aZ, aY: TRealType);
 begin
   X := 0; Y := aY; Z := aZ;
 end;

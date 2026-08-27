@@ -1,0 +1,967 @@
+{ Ellipse methods.
+
+  This file is part of ucCHXSDL3Renderer.
+
+  (C) 2026 Chixpy https://github.com/Chixpy
+
+  ToDo: In general in all methods:
+
+  - If Abs(`RX` or `RY`) > 46344 then overflows Integer size. (RX ^ 2).
+    CFloat perderia precisión con 8388607 (y posiblemente haciendo un loop
+    infinito al no poder restar una unidad)
+  - Check if visible `((IntX - IntRX) < Width)` or `((IntY - IntRY) < Height)`
+}
+
+// Ellipse[X]
+
+function cCHXSDL3Renderer.Ellipse(const X, Y, RX, RY: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseFilled(X, Y, RX, RY);
+    // Try to restore previous color anyway
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(FillC)
+      and EllipseFillOnly(X, Y, RX, RY);
+  end;
+
+  if BorderC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseBorder(X, Y, RX, RY);
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseBorder(const X, Y: CFloat; RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+}
+var
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  FracRX, FracRY: CFloat;
+begin
+  RX := Abs(RX); RY := Abs(RY);
+  RX2 := Floor(RX); RY2 := Floor(RY);
+  FracRX := RX - RX2; FracRY := RY - RY2;
+
+  // Special cases
+  if (RX2 < 1) or (RY2 < 1) then
+    // Draws both vertical and horizontal degenerate cases
+    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX + 1, 2 * RY + 1)));
+
+  RY2 := RY2 * RY2;
+
+  // Initialization
+  CurrX := -RX2; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := RX2 * RX2; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  if IsZero(FracRY) then
+    Result := PointMirrorH(RX, Y, X)
+  else
+    Result := RectFilled(SDLFRect(X - RX, Y - FracRY, 1, 2 * FracRY + 1))
+        and RectFilled(SDLFRect(X + RX, Y - FracRY, 1, 2 * FracRY + 1));
+
+  e2 := err * 2;
+  if e2 >= dX then
+  begin
+    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+  end;
+  if e2 <= dY then
+  begin
+    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+  end;
+
+  // Main Loop
+  while CurrX < 0 do
+  begin
+    Result := PointMirrorHV(CurrX - FracRX, CurrY + FracRY, X, Y) and Result;
+
+    e2 := err * 2;
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+    if e2 <= dY then
+    begin
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    end;
+  end;
+
+  Result := RectFilled(SDLFRect(X -FracRX, Y - RY, 2 * FracRX + 1, 1))
+    and RectFilled(SDLFRect(X -FracRX, Y + RY, 2 * FracRX + 1, 1))
+    and Result;
+end;
+
+
+function cCHXSDL3Renderer.EllipseFilled(const X, Y: CFloat; RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`
+  - Fails in when RY >> RX.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+}
+var
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  FracRX, FracRY: CFloat;
+begin
+  RX := Abs(RX); RY := Abs(RY);
+  RX2 := Floor(RX); RY2 := Floor(RY);
+  FracRX := RX - RX2; FracRY := RY - RY2;
+
+  // Special cases
+  if (RX2 <= 1) or (RY2 <= 1) then
+    // Draws both vertical and horizontal degenerate cases
+    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX + 1, 2 * RY + 1)));
+
+  RY2 := RY2 * RY2;
+
+  // Initialization
+  CurrX := -RX2; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := RX2 * RX2; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  if IsZero(FracRY) then
+    Result := PointMirrorHFilled(RX, Y, X)
+  else
+    Result := RectFilled(
+      SDLFRect(X - RX, Y - FracRY, RX * 2 + 1, FracRY * 2 + 1));
+
+  // Main Loop
+  while CurrX <= 0 do // 0 included
+  begin
+    e2 := err * 2;
+
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+
+    if e2 <= dY then
+    begin
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+      // Draw line after changing CurrY AND CurrX only.
+      Result := PointMirrorHVFilled(CurrX - FracRX, CurrY + FracRY,
+        True, False, X, Y) and Result;
+    end;
+  end;
+end;
+
+
+function cCHXSDL3Renderer.EllipseFillOnly(const X, Y: CFloat; RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines without border.
+  - Precalculate constant terms.
+  - Adaptation to Logical Presentation subpixels.
+}
+var
+  // ToDo: ¿Change to CFloat?
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  FracRX, FracRY: CFloat;
+begin
+  RX := Abs(RX); RY := Abs(RY);
+  RX2 := Floor(RX); RY2 := Floor(RY);
+  FracRX := RX - RX2; FracRY := RY - RY2;
+
+  // Special cases
+  if (RX2 <= 1) or (RY2 <= 1) then
+    Exit(True); // Nothing to fill, well it's a subpixel box
+
+  RY2 := RY2 * RY2;
+
+  // Initialization
+  CurrX := -RX2; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := RX2 * RX2; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  if IsZero(FracRY) then
+    Result := PointMirrorHFilled(RX - 1, Y, X)
+  else
+    Result := RectFilled(
+      SDLFRect(X - RX + 1, Y - FracRY, RX * 2 - 1, FracRY * 2 + 1));
+
+  // Skip first iteration
+  e2 := err * 2;
+  if e2 >= dX then
+  begin
+    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+  end;
+  if e2 <= dY then
+  begin
+    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+  end;
+
+  // Main Loop
+  while CurrX < 0 do
+  begin
+    e2 := err * 2;
+
+    if e2 <= dY then
+    begin
+      // Draw line before changing CurrY AND CurrX only.
+      Result := PointMirrorHVFilled(CurrX - FracRX + 1, CurrY + FracRY, 
+        True, False, X, Y) and Result;
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    end;
+
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+  end;
+end;
+
+(*
+function cCHXSDL3Renderer.EllipseFP(const X, Y, RX, RY: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Maybe this is faster (and use normal methods)
+  // X := Round(X); Y := Round(Y); RX := Round(RX); RY := Round(RY);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseFilledFP(X, Y, RX, RY);
+    // Try to restore previous color anyway
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(FillC)
+      and EllipseFillOnlyFP(X, Y, RX, RY);
+  end;
+
+  if BorderC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseBorderFP(X, Y, RX, RY);
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseBorderFP(const X, Y, RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+}
+var
+  IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+begin
+  IntX := Round(X); IntY := Round(Y);
+  IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+
+  // Not visible
+  if ((IntX + IntRX) < 0)
+    or ((IntY + IntRY) < 0)
+    then Exit;
+
+  // Special cases
+  if (IntRX < 1) then
+    Exit(Line(X, Y - IntRY, X, Y + IntRY));
+  if (IntRY < 1) then
+    Exit(Line(X - IntRX, Y, X + IntRX, Y));
+
+  RY2 := IntRY * IntRY;
+
+  // Initialization
+  CurrX := -IntRX; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := IntRX * IntRX; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  Result := PointMirrorH(IntRX, IntY, IntX);
+
+  e2 := err * 2;
+  if e2 >= dX then
+  begin
+    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+  end;
+  if e2 <= dY then
+  begin
+    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+  end;
+
+  // Main Loop
+  while CurrX < 0 do
+  begin
+    Result := PointMirrorHV(CurrX, CurrY, IntX, IntY) and Result;
+
+    e2 := err * 2;
+    if e2 <= dY then
+    begin
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    end;
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+  end;
+
+  // Draw last points only once
+  if CurrY < IntRY then
+    Result := LineMirrorV(IntX, CurrY, IntX, IntRY, IntY)
+      and Result
+  else
+    Result := PointMirrorV(IntX, IntRY, IntY) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseFilledFP(const X, Y, RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`
+  - Fails in when RY >> RX.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+}
+var
+  IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+begin
+  IntX := Round(X); IntY := Round(Y);
+  IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+
+  // Not visible
+  if ((IntX + IntRX) < 0)
+    or ((IntY + IntRY) < 0)
+    then Exit;
+
+  // Special cases
+  if (IntRX < 1) then
+    Exit(Line(X, Y - IntRY, X, Y + IntRY));
+  if (IntRY < 1) then
+    Exit(Line(X - IntRX, Y, X + IntRX, Y));
+
+  RY2 := IntRY * IntRY;
+
+  // Initialization
+  CurrX := -IntRX; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := IntRX * IntRX; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  Result := PointMirrorHFilled(IntRX, IntY, IntX);
+
+  // Main Loop
+  while CurrX <= 0 do // 0 included
+  begin
+    e2 := err * 2;
+
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+
+    if e2 <= dY then
+    begin
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+      // Draw line after changing CurrY only. 
+      Result := LineMirrorV(IntX - CurrX, CurrY, IntX + CurrX, CurrY, IntY)
+        // PointMirrorHVFilled(CurrX, CurrY, True, False, IntX, IntY)
+        and Result;
+    end;
+  end;
+
+  // Draw last points only once
+  if CurrY < IntRY then
+    Result := LineMirrorV(IntX, CurrY + 1, IntX, IntRY, IntY)
+      and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseFillOnlyFP(const X, Y, RX, RY: CFloat)
+  : Boolean;
+{ Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases: `RX <= 1` or `RY <= 1`.
+  - Avoid redrawing pixels at cardinal points.
+  - Fill the ellipse with horizontal lines without border.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - If `RX` or `RY` > Abs(46344,83) then overflows Integer size.
+}
+var
+  IntX, IntY, IntRX, IntRY, CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  DrawLine: Boolean;
+begin
+  IntX := Round(X); IntY := Round(Y);
+  IntRX := Abs(Round(RX)); IntRY := Abs(Round(RY));
+
+  // Not visible
+  if ((IntX + IntRX) <= 0)
+    or ((IntY + IntRY) <= 0)
+    then Exit;
+
+  // Special cases
+  if (RX2 < 1) or (RY2 < 1) then
+    Exit(True); // Nothing to fill, well it's a subpixel box
+
+  RY2 := RY2 * RY2;
+
+  // Initialization
+  CurrX := -RX2; CurrY := 0;
+  dX := (1 + CurrX * 2) * RY2; dY := RX2 * RX2; err := dX + dY;
+  RX2 := dY * 2; RY2 := RY2 * 2;
+
+  // 1st Iteration: Draw first points only once
+  //Result := PointMirrorHFilled(IntRX - 1, IntY, IntX);
+
+  Result := True;
+
+  // Skip first iteration
+  e2 := err * 2;
+  if e2 <= dY then
+  begin
+    Result := PointMirrorHFilled(IntRX - 1, IntY, IntX)
+        and Result;
+    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+  end;
+  if e2 >= dX then
+  begin
+    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+  end;
+
+  // Main Loop
+  while CurrX < 0 do
+  begin
+    e2 := err * 2;
+    DrawLine := e2 <= dY;
+    if DrawLine then
+    begin
+      Result := PointMirrorHVFilled(CurrX + 1, CurrY, True, False, IntX, IntY)
+        and Result;
+      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    end;
+    if e2 >= dX then
+    begin
+      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    end;
+  end;
+end;
+*)
+
+// EllipseInRect[x]
+
+function cCHXSDL3Renderer.EllipseInRect(const aRect: TSDL_FRect;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := EllipseInRect(aRect.X, aRect.Y, aRect.W, aRect.H, BorderC,
+    FillC);
+end;
+
+function cCHXSDL3Renderer.EllipseInRect(const X, Y, W, H: CFloat;
+ const BorderC, FillC: TSDL_FColor): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseInRectFilled(X, Y, W, H);
+    // Try to restore previous color anyway
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(FillC)
+      and EllipseInRectFillOnly(X, Y, W, H);
+   end;
+
+  if BorderC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseInRectBorder(X, Y, W, H);
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseInRectBorder(const aRect: TSDL_FRect)
+  : Boolean;
+begin
+  Result := EllipseInRectBorder(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectBorder(X, Y, W, H: CFloat)
+  : Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseBorder
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+  begin
+    W := -W; X -= W;
+  end;
+  if H < 0 then
+  begin
+    H := -H; Y -= H;
+  end;
+  W -= 1; H -= 1;
+  Result := EllipseBorder(X + (W * 0.5), Y + (H * 0.5), W * 0.5, H * 0.5);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFilled(const aRect: TSDL_FRect)
+  : Boolean;
+begin
+  Result := EllipseInRectFilled(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFilled(X, Y, W, H: CFloat): Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseBorder directly
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+  begin
+    W := -W; X -= W;
+  end;
+  if H < 0 then
+  begin
+    H := -H; Y -= H;
+  end;
+  W -= 1; H -= 1;
+  Result := EllipseFilled(X + (W * 0.5), Y + (H * 0.5), W * 0.5, H * 0.5);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFillOnly(const aRect: TSDL_FRect)
+ : Boolean;
+begin
+ Result := EllipseInRectFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFillOnly(X, Y, W, H: CFloat): Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseBorder directly
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+  begin
+    W := -W; X -= W;
+  end;
+  if H < 0 then
+  begin
+    H := -H; Y -= H;
+  end;
+  W -= 1; H -= 1;
+  Result := EllipseFillOnly(X + (W * 0.5), Y + (H * 0.5), W * 0.5, H * 0.5);
+end;
+
+(*
+function cCHXSDL3Renderer.EllipseInRectFP(const aRect: TSDL_FRect;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := EllipseInRect(aRect.X, aRect.Y, aRect.W, aRect.H, BorderC,
+    FillC);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFP(X, Y, W, H: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Maybe this is the simplest ways to do it (and call normal methods).
+  X := Round(X); Y := Round(Y); W := Round(W); H := Round(H);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and EllipseInRectFilledFP(X, Y, W, H);
+    // Try to restore previous color anyway
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+   Result := Result
+     and SetDrawColor(FillC)
+     and EllipseInRectFillOnlyFP(X, Y, W, H);
+  end;
+
+  if BorderC.A > 0 then
+  begin
+   Result := Result
+     and SetDrawColor(BorderC)
+     and EllipseInRectBorderFP(X, Y, W, H);
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseInRectBorderFP(const aRect: TSDL_FRect)
+  : Boolean;
+begin
+  Result := EllipseInRectBorder(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectBorderFP(const X, Y: CFloat;
+  W, H: CFloat): Boolean;
+{ Draw an ellipse inside a rectangle.
+
+  Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases.
+  - Avoid redrawing pixels some points.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - Untested.
+}
+var
+  X0, X1, Y0, Y1, a, b, aa, bb, b1, dX, dY, err, e2: Integer;
+begin
+  // Integer ellipse coordinates
+  if W > 0 then
+  begin
+    X0 := Round(X); X1 := Round(X + W);
+  end
+  else
+  begin
+    X0 := Round(X + W); X1 := Round(X);
+  end;
+
+  if H > 0 then
+  begin
+    Y0 := Round(Y); Y1 := Round(Y + H);
+  end
+  else
+  begin
+    Y0 := Round(Y + H); Y1 := Round(Y);
+  end;
+
+  a := X1 - X0; b := Y1 - Y0;
+
+  // Special cases
+  if (a <= 1) or (b <= 1) then
+    Exit(RectBorder(SDLFRect(X0, Y0, a, b)));
+
+  // Initialization
+  aa := a * a; bb := b * b; b1 := b mod 2;
+  dX := (1 - a) * bb * 4; dY := ((b1 + 1) * aa) * 4; err := dX + dY + b1 * aa;
+  Y0 := Y0 + (b + 1) div 2; Y1 := Y0 - b1;
+  a := aa * 8; b1 := bb * 8;
+
+  // 1st Iteration
+  if Y0 = Y1 then
+    Result := Point(X0, Y0) and Point(X1, Y1)
+  else
+    Result := Point(X0, Y0) and Point(X0, Y1) and Point(X1, Y0)
+      and Point(X1, Y1);
+
+  e2 := err * 2;
+  if e2 < dY then
+  begin
+    Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+  end;
+
+  if (e2 > dX) or ((err * 2) > dY) then
+  begin
+    Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+  end;
+
+  // Main loop
+  while X0 < X1 do
+  begin
+    Result := Point(X0, Y0) and Point(X1, Y0) and Point(X0, Y1)
+      and Point(X1, Y1) and Result;
+
+    e2 := err * 2;
+    if e2 < dY then
+    begin
+      Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+    end;
+
+    if (e2 > dX) or ((err * 2) > dY) then
+    begin
+      Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+    end;
+  end;
+
+  // Last points
+  if (X0 = X1) then
+    Result := Point(X0, Y0) and Point(X1, Y1) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFilledFP(const aRect: TSDL_FRect)
+  : Boolean;
+begin
+  Result := EllipseInRectFilled(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFilledFP(const X, Y: CFloat;
+  W, H: CFloat): Boolean;
+{ Draw an ellipse inside a rectangle.
+
+  Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases.
+  - Avoid redrawing pixels some points.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - Untested.
+}
+var
+  X0, X1, Y0, Y1, a, b, aa, bb, b1, dX, dY, err, e2: Integer;
+  DrawLine: Boolean;
+begin
+  // Integer ellipse coordinates
+  if W > 0 then
+  begin
+    X0 := Round(X); X1 := Round(X + W);
+  end
+  else
+  begin
+    X0 := Round(X + W); X1 := Round(X);
+  end;
+
+  if H > 0 then
+  begin
+    Y0 := Round(Y); Y1 := Round(Y + H);
+  end
+  else
+  begin
+    Y0 := Round(Y + H); Y1 := Round(Y);
+  end;
+
+  a := X1 - X0; b := Y1 - Y0;
+
+  // Special cases
+  if (a <= 1) or (b <= 1) then
+    Exit(RectFilled(SDLFRect(X0, Y0, a, b)));
+
+  // Initialization
+  aa := a * a; bb := b * b; b1 := b mod 2;
+  dX := (1 - a) * bb * 4; dY := ((b1 + 1) * aa) * 4; err := dX + dY + b1 * aa;
+  Y0 := Y0 + (b + 1) div 2; Y1 := Y0 - b1;
+  a := aa * 8; b1 := bb * 8;
+
+  // 1st Iteration: Nothing to fill
+  if Y0 = Y1 then
+    Result := Line(X0, Y0, X1, Y1)
+  else
+    Result := Line(X0, Y0, X1, Y0) and Line(X0, Y1, X1, Y1);
+
+  e2 := err * 2; Drawline := e2 < dY;
+  if Drawline then
+  begin
+    Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+  end;
+
+  DrawLine := (e2 > dX) or ((err * 2) > dY);
+  if DrawLine then
+  begin
+    Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+  end;
+
+  // Main loop
+  while X0 < X1 do
+  begin
+    if DrawLine then
+      Result := Line(X0, Y0, X0, Y1) and Line(X1, Y0, X1, Y1) and Result;
+
+    e2 := err * 2; Drawline := e2 < dY;
+    if Drawline then
+    begin
+      Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+    end;
+
+    DrawLine := (e2 > dX) or ((err * 2) > dY);
+    if DrawLine then
+    begin
+      Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+    end;
+  end;
+
+  // Last points
+  if DrawLine and (X0 = X1) then
+    Result := Line(X0, Y0, X1, Y1) and Result;
+end;
+
+function cCHXSDL3Renderer.EllipseInRectFillOnlyFP(const aRect: TSDL_FRect)
+ : Boolean;
+begin
+  Result := EllipseInRectFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.EllipseInRectOnlyFillFP(const X, Y, W, H: CFloat)
+  : Boolean;
+{ Draw an ellipse inside a rectangle.
+
+  Modification of Alois Zingl's implementation (https://zingl.github.io)
+  of Bresenham's algorithm:
+
+  - Special cases.
+  - Avoid redrawing pixels some points.
+  - Precalculate constant terms.
+
+  ToDo:
+
+  - Change to Draw horizontally instead vertically. It must Draw **previous**
+    line when changing Y. See `cCHXSDL3Renderer.EllipseFillOnly`.
+  - Untested.
+}
+var
+  X0, X1, Y0, Y1, a, b, aa, bb, b1, dX, dY, err, e2: Integer;
+begin
+  // Integer ellipse coordinates
+  if W > 0 then
+  begin
+    X0 := Round(X); X1 := Round(X + W);
+  end
+  else
+  begin
+    X0 := Round(X + W); X1 := Round(X);
+  end;
+
+  if H > 0 then
+  begin
+    Y0 := Round(Y); Y1 := Round(Y + H);
+  end
+  else
+  begin
+    Y0 := Round(Y + H); Y1 := Round(Y);
+  end;
+
+  a := X1 - X0; b := Y1 - Y0;
+
+  // Special cases
+  if (a <= 1) or (b <= 1) then
+    Exit(True); // Nothing to fill, but OK
+
+  // Initialization
+  aa := a * a; bb := b * b; b1 := b mod 2;
+  dX := (1 - a) * bb * 4; dY := ((b1 + 1) * aa) * 4; err := dX + dY + b1 * aa;
+  Y0 := Y0 + (b + 1) div 2; Y1 := Y0 - b1;
+  a := aa * 8; b1 := bb * 8;
+
+  // 1st Iteration: Nothing to fill, wait until change Y change.
+  Result := True;
+
+  // Skip first iteration. ToDo: Is needed to skips?
+  e2 := err * 2;
+  if e2 < dY then
+  begin
+    Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+  end;
+  if (e2 > dX) or ((err * 2) > dY) then
+  begin
+    Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+  end;
+
+  // Main loop
+  while X0 < X1 do
+  begin
+    e2 := err * 2;
+    if e2 < dY then
+    begin
+      // Draw before Y changes
+      Result := Line(X0 + 1, Y0, X1 - 1, Y0) and Line(X0 + 1, Y1, X1 - 1, Y1)
+        and Result;
+      Inc(Y0); Dec(Y1); Inc(dY, a); Inc(err, dY);
+    end;
+
+    if (e2 > dX) or ((err * 2) > dY) then
+    begin
+      Inc(X0); Dec(X1); Inc(dX, b1); Inc(err, dX);
+    end;
+  end;
+end;
+*)
+{< This source is free software; you can redistribute it and/or modify it under
+  the terms of the GNU General Public License as published by the Free
+  Software Foundation; either version 3 of the License, or (at your option)
+  any later version.
+
+  This code is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+  details.
+
+  A copy of the GNU General Public License is available on the World Wide Web
+  at <http://www.gnu.org/copyleft/gpl.html>. You can also obtain it by writing
+  to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+  MA 02111-1307, USA.
+}

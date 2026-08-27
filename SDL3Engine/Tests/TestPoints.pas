@@ -1,6 +1,20 @@
-program TestCircle;
+program TestPoints;
 {<
-  A simple program with cCHXSDL3Engine for testing Circle primitive.
+  Program to test if drawing and array of points is clearly faster than
+  drawing the points one by one and wich way is faster.
+
+  - `[F1]`: Toggle help. Writing text is expensive.
+  - `[M]`: Changes between:
+    1. Draw all points of an array one by one with `SDL_RenderPoint`.
+    2. Draw the array with `SDL_RenderPoints`.
+    3. Draw all points adding an offset, one by one.
+    4. Create an array (reseting it very frame) with displaced points, and
+      draw it.
+  - `[C]`: Changes color alpha of the points, to see if it is significant.
+  - `[R]`: Generates a new set of random points.
+
+  In personal tests, both 2 and 4 are a very little faster than 1 and 3, but
+  not _clearly_. Other users results may vary.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -12,12 +26,12 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 50; { Renderer width. }
-  kRenderH = 50; { Renderer height. }
-  kWindowScale = 16; { Scale of the Window. }
+  kProgVersion = '1.0';
+  kNPoints = 10000;
 
 type
+
+  TPointMode = (pmPixel, pmArray, pmPixelAdd, pmArrayAdd);
 
   { cSDL3Eng }
 
@@ -31,29 +45,34 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    Color1, Color2: TSDL_FColor;
-    FillMode, ShowHelp: Boolean;
-    Radius: CFloat;
+    ShowHelp: Boolean;
+    PointsMode: TPointMode;
+    Points: TSDLFPointDynArray;
+    Alpha: CFloat;
 
-    procedure InitColors;
+    procedure InitArray;
   end;
 
 { cSDL3Eng }
 
 
-procedure cSDL3Eng.InitColors;
+procedure cSDL3Eng.InitArray;
+var
+  i: Integer;
 begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  SetLength(Points, kNPoints);
+
+  for i := Low(Points) to High(Points) do
+    Points[i].Init(Random * Window.Width - 5, Random * Window.Height - 5);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True;
-  InitColors;
+  InitArray;
   ShowHelp := True;
-  FillMode := False;
-  Radius := Round(kRenderW div 3);
+  PointsMode := Low(TPointMode);
+  Alpha := 1;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -67,27 +86,53 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
+var
+  i: Integer;
+  TmpPoints: TSDLFPointDynArray;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
   Render.Clear(0, 0, 0);
-  Render.SetDrawColor(1, 1, 1);
+  Render.SetDrawColor(1, 1, 1, Alpha);
 
-  if  FillMode then
+  case PointsMode of
+
+  pmArray:
   begin
-    Render.SetDrawColor(Color1);
-    Render.CircleFilled(kRenderW div 2, kRenderW div 2, Radius);
-  end
-  else
-    Render.Circle(kRenderW div 2, kRenderW div 2, Radius, Color1, Color2);
+    SDL_RenderPoints(SDLRenderer, @Points[0], Length(Points));
+  end;
 
-  Window.SetRenderSize(400, 400);
+  pmPixelAdd:
+  begin
+    for i := Low(Points) to High(Points) do
+      SDL_RenderPoint(SDLRenderer, Points[i].X + 4, Points[i].Y + 4);
+  end;
+
+  pmArrayAdd:
+  begin
+    SetLength(TmpPoints, 0); // Reset full array
+    SetLength(TmpPoints, Length(Points));
+    for i := Low(Points) to High(Points) do
+    begin
+      TmpPoints[i].X := Points[i].X + 4;
+      TmpPoints[i].Y := Points[i].Y + 4;
+    end;
+
+    SDL_RenderPoints(SDLRenderer, @TmpPoints[0], Length(TmpPoints));
+  end;
+
+  otherwise // pmPixel1
+    for i := Low(Points) to High(Points) do
+      SDL_RenderPoint(SDLRenderer, Points[i].X, Points[i].Y);
+  end;
+
   Render.SetDrawColor(1, 0, 1);
+  Render.DebugText(0, 0, IntToStr(Ord(PointsMode)));
+
   if ShowHelp then
   begin
-    Render.DebugTextF(0, 0, 'Radius: %g', [Radius]);
-    Render.DebugText(0, 10, '[C] Change color');
-    Render.DebugText(0, 20, '[F] Change mode');
-    Render.DebugText(0, 30, '[UP] [DOWN] Change radius');
+    Render.DebugText(0, 10, '[F1] Toggle this Help');
+    Render.DebugText(0, 20, '[M] Change Mode');
+    Render.DebugText(0, 30, '[R] Change Points');
+    Render.DebugText(0, 40, '[C] Change color Alpha');
   end;
 end;
 
@@ -106,13 +151,19 @@ begin
 
       SDLK_F1: ShowHelp := not ShowHelp;
 
-      SDLK_UP: Radius += 0.25;
+      SDLK_C:
+        if Alpha = 1 then
+          Alpha := 0.5
+        else
+          Alpha := 1;
 
-      SDLK_DOWN: Radius -= 0.25;
+      SDLK_R: InitArray;
 
-      SDLK_C: InitColors;
-
-      SDLK_F: FillMode := not FillMode;
+      SDLK_M:
+        if PointsMode = High(TPointMode) then
+          PointsMode := Low(TPointMode)
+        else
+          Inc(PointsMode);
 
       SDLK_Q: ExitProg := True;
 
@@ -125,17 +176,18 @@ begin
   end;
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName, IniName: String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
+  IniName := ChangeFileExt(ProgName, '.ini');
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -144,9 +196,11 @@ begin
     'https://github.com/Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
-  SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+  SDL3Eng := cSDL3Eng.Create(ChangeFileExt(ProgName, ''), IniName);
   try
+    // Create an initial config file
+    if not FileExists(IniName) then
+      SDL3Eng.Config.SaveToFile('', False);
     SDL3Eng.Run;
   finally
     SDL3Eng.Free;
