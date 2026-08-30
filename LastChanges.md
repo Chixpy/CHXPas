@@ -1,16 +1,12 @@
-### _CHXSDL3Engine_
-
-- Added `TestPoints.pas` to compare how to draw many points.
-- `CHXSDL3Renderer`:
-  - Moved primitive implementation to tematic include files.
-  - Added `EllipseInRect[x]` primitive wich, with integer coordinates,
-    let draw ellipses and circles with odd diameter. With _floats_ it's
-    a lot of easier as we can simply call `Ellipse`. _Integer algorithms_ are
-    commented out.
-  - All integer algorithms commented out, again, they can be confusing.
-  - Fixed some overdrawn pixels in _Ellipse_ and _Circle_ because of 
-    `SDL_RenderLine` changing it to `SDL_RenderRect`.
-
-### Other
-- Removing compiling notes about not inlined methods with  `{$warn 6058 OFF}`
-  in some units.
+- _CHXVec3_: Renamed `InDistance` to `InDistance3D`; and added `InDistanceXY`,
+  `InDistanceXZ` and `InDistanceZY`.
+- _CHXMover_: `Update` method renamed to `ApplyForce`.
+- _CHXSDL3Renderer_:
+  - Added `Clear(Grey, Alpha)`.
+  - `Ellipse[x]`: Changed algorithm _Integer_ variables to _CFloat_.
+    They don't crash by overflow... but I suspect that can create an
+    infinite loop.
+- `uCHXColor`: Optimized a little `CHXFastHue`.
+- `uCHXSDL3TypeHelpers`: Added `InitFastHue[x]` to `TSDL_FColor`. And added
+  a CFloat version, but not backported to `uCHXColor` (This unit was created
+  with SDL2 in mind...).

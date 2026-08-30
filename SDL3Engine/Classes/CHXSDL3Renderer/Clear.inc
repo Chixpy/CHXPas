@@ -27,6 +27,11 @@ begin
   // Try to restore color if something failed
   Result := SetDrawColor(TempColor) and Result;
 end;
+
+function cCHXSDL3Renderer.Clear(const Grey, A: CFloat): Boolean;
+begin
+  Result := Clear(Grey, Grey, Grey, A);
+end;
 {< This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 3 of the License, or (at your option)

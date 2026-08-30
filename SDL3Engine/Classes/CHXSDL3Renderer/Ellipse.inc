@@ -59,7 +59,7 @@ function cCHXSDL3Renderer.EllipseBorder(const X, Y: CFloat; RX, RY: CFloat)
   - Adaptation to Logical Presentation subpixels.
 }
 var
-  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: CFloat;
   FracRX, FracRY: CFloat;
 begin
   RX := Abs(RX); RY := Abs(RY);
@@ -69,7 +69,7 @@ begin
   // Special cases
   if (RX2 < 1) or (RY2 < 1) then
     // Draws both vertical and horizontal degenerate cases
-    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX + 1, 2 * RY + 1)));
+    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX, 2 * RY)));
 
   RY2 := RY2 * RY2;
 
@@ -88,11 +88,11 @@ begin
   e2 := err * 2;
   if e2 >= dX then
   begin
-    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    CurrX += 1; dX += RY2; err += dX;
   end;
   if e2 <= dY then
   begin
-    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    CurrY += 1; dY += RX2; err += dY;
   end;
 
   // Main Loop
@@ -103,11 +103,11 @@ begin
     e2 := err * 2;
     if e2 >= dX then
     begin
-      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+      CurrX += 1; dX += RY2; err += dX;
     end;
     if e2 <= dY then
     begin
-      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+      CurrY += 1; dY += RX2; err += dY;
     end;
   end;
 
@@ -130,7 +130,7 @@ function cCHXSDL3Renderer.EllipseFilled(const X, Y: CFloat; RX, RY: CFloat)
   - Adaptation to Logical Presentation subpixels.
 }
 var
-  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: CFloat;
   FracRX, FracRY: CFloat;
 begin
   RX := Abs(RX); RY := Abs(RY);
@@ -140,7 +140,7 @@ begin
   // Special cases
   if (RX2 <= 1) or (RY2 <= 1) then
     // Draws both vertical and horizontal degenerate cases
-    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX + 1, 2 * RY + 1)));
+    Exit(RectFilled(SDLFRect(X - RX, Y - RY, 2 * RX , 2 * RY)));
 
   RY2 := RY2 * RY2;
 
@@ -163,12 +163,12 @@ begin
 
     if e2 >= dX then
     begin
-      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+      CurrX += 1; dX += RY2; err += dX;
     end;
 
     if e2 <= dY then
     begin
-      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+      CurrY += 1; dY += RX2; err += dY;
       // Draw line after changing CurrY AND CurrX only.
       Result := PointMirrorHVFilled(CurrX - FracRX, CurrY + FracRY,
         True, False, X, Y) and Result;
@@ -189,8 +189,7 @@ function cCHXSDL3Renderer.EllipseFillOnly(const X, Y: CFloat; RX, RY: CFloat)
   - Adaptation to Logical Presentation subpixels.
 }
 var
-  // ToDo: ¿Change to CFloat?
-  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: Integer;
+  CurrX, CurrY, dX, dY, err, e2, RX2, RY2: CFloat;
   FracRX, FracRY: CFloat;
 begin
   RX := Abs(RX); RY := Abs(RY);
@@ -219,11 +218,11 @@ begin
   e2 := err * 2;
   if e2 >= dX then
   begin
-    Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+    CurrX += 1; dX += RY2; err += dX;
   end;
   if e2 <= dY then
   begin
-    Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+    CurrY += 1; dY += RX2; err += dY;
   end;
 
   // Main Loop
@@ -236,12 +235,12 @@ begin
       // Draw line before changing CurrY AND CurrX only.
       Result := PointMirrorHVFilled(CurrX - FracRX + 1, CurrY + FracRY, 
         True, False, X, Y) and Result;
-      Inc(CurrY); Inc(dY, RX2); Inc(err, dY);
+      CurrX += 1; dX += RY2; err += dX;
     end;
 
     if e2 >= dX then
     begin
-      Inc(CurrX); Inc(dX, RY2); Inc(err, dX);
+      CurrY += 1; dY += RX2; err += dY;
     end;
   end;
 end;

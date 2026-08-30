@@ -55,17 +55,17 @@ type
     {< Velocity of the entity. }
     Acceleration : TCHXVec3Type;
     {< Arbitrary acceleration without any force that will be applyed on
-         Update call.
+         ApplyForce call.
     }
     Force : TCHXVec3Type;
-    {< Final force that will be applyed on Update call. }
+    {< Final force that will be applyed on ApplyForce call. }
 
     constructor Create;
 
     procedure AddForce(aForce : TCHXVec3Type);
     {< Adds a force to the entity. }
 
-    procedure Update;
+    procedure ApplyForce;
     {< Apply the force (adding the result to acceleration), updating velocity
          and position.
 
@@ -91,7 +91,7 @@ begin
   Force.Add(aForce);
 end;
 
-procedure cCHXMoverType.Update;
+procedure cCHXMoverType.ApplyForce;
 begin
   if Mass <> 0 then
     Acceleration.Add(Force / Mass);

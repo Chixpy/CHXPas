@@ -38,7 +38,7 @@ unit uCHXColor;
   6. Saturation:
     - If L <= 1/2: S := (max - min) / (max + min) = (max - min) / 2L
     - If L > 1/2:  S := (max - min) / (2 - (max + min)) = (max - min) / (2 - 2L)
-  
+
   Implemented Optimizations & Custom Tweaks:
   - Avoid normalizing R, G, B or their difference to [0..1] float range
     initially. This saves 3 or 4 divisions at the cost of adding a
@@ -53,12 +53,12 @@ unit uCHXColor;
     both HSV and HSI logic.
 
   Fast HUE to RGB Function (CHXFastHue):
-  - Returns a RGB color from a HUE in [0..255] range faster than GraphUtil, 
-    without Saturation or Lightness parameters. Useful for representing 8-bit 
+  - Returns a RGB color from a HUE in [0..255] range faster than GraphUtil,
+    without Saturation or Lightness parameters. Useful for representing 8-bit
     values that would normally be rendered in grayscale.
-  - Logic: Vary 1 component while another is at max (255) and the last one is 
-    at min (0). 
-  - Note: It is slightly imprecise because 256 is not perfectly divisible by 6, 
+  - Logic: Vary 1 component while another is at max (255) and the last one is
+    at min (0).
+  - Note: It is slightly imprecise because 256 is not perfectly divisible by 6,
     but using integers only makes it worthwhile.
     - HUE 360:   0    60     120    180    240    300    360=0
     - HUE 256:   0   42.66  85.33   128   170.66 213.33  256=0
@@ -155,7 +155,8 @@ begin
       H := Round(((G - B) / cDif) * 60);
 end;
 
-procedure RGB2HSL(const R, G, B: Byte; out H: Word; out S, L: Byte); inline; overload;
+procedure RGB2HSL(const R, G, B: Byte; out H: Word; out S, L: Byte); inline;
+  overload;
 var
   cMax, cMin, cDif: Byte;
   cSum: Integer;
@@ -163,7 +164,7 @@ begin
   IntRGB2Hue(R, G, B, H, cMax, cMin, cDif);
   cSum := cMax + cMin;
 
-  { 
+  {
     Actually is:
       L = ((cMax / 255) + (cMin / 255)) / 2 --> In range [0..1]
     To change it to [0..100]:
@@ -179,15 +180,16 @@ begin
       S := Round((cDif / cSum) * 100)
     else
       S := Round((cDif / (510 - cSum)) * 100);
-  end;  
+  end;
 end;
 
-procedure RGB2HSV(const R, G, B: Byte; out H: Word; out S, V: Byte); inline; overload;
+procedure RGB2HSV(const R, G, B: Byte; out H: Word; out S, V: Byte); inline;
+  overload;
 var
   cMax, cMin, cDif: Byte;
 begin
   IntRGB2Hue(R, G, B, H, cMax, cMin, cDif);
-  
+
   // V = (cMax / 255) * 100 --> cMax * (100 / 255)
   V := System.Round(cMax * 0.392156863);
 
@@ -197,7 +199,8 @@ begin
     S := System.Round((cDif / cMax) * 100);
 end;
 
-procedure RGB2HSI(const R, G, B: Byte; out H: Word; out S, I: Byte); inline; overload;
+procedure RGB2HSI(const R, G, B: Byte; out H: Word; out S, I: Byte); inline;
+  overload;
 var
   cMax, cMin, cDif: Byte;
   cSum: Integer;
@@ -238,22 +241,25 @@ end;
 procedure CHXFastHue(const Hue: Byte; out R, G, B: Byte); inline; overload;
 begin
   case Hue of
-    0..42: 
+    0..42:
       begin R := 255; G := Hue * 6; B := 0; end;
-    43: 
+    43:
       begin R := 255; G := 255; B := 0; end;
-    44..85: 
-      begin R := 255 - ((Hue - 43) * 6); G := 255; B := 0; end;
-    86..127: 
+    44..85:
+      // 255 - ((Hue - 43) * 6) => 513 - 6 * Hue
+      begin R := 513 - 6 * Hue; G := 255; B := 0; end;
+    86..127:
       begin R := 0; G := 255; B := (Hue - 85) * 6; end;
-    128..170: 
-      begin R := 0; G := 255 - ((Hue - 128) * 6); B := 255; end;
-    171: 
+    128..170:
+      // 255 - ((Hue - 128) * 6) => 1023 - 6 * Hue
+      begin R := 0; G := 1023 - 6 * Hue; B := 255; end;
+    171:
       begin R := 0; G := 0; B := 255; end;
-    172..213: 
+    172..213:
       begin R := (Hue - 171) * 6; G := 0; B := 255; end;
-    214..255: 
-      begin R := 255; G := 0; B := 255 - ((Hue - 213) * 6); end;
+    214..255:
+      // 255 - ((Hue - 128) * 6) => 1278 - 6 * Hue
+      begin R := 255; G := 0; B := 1278 - 6 * Hue; end;
   end;
 end;
 

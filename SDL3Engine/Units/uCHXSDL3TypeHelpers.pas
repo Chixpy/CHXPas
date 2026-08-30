@@ -125,6 +125,33 @@ type
       inline;
     procedure InitByte(const Grey: Byte; const aA: Byte = 255); overload;
 
+    procedure InitFastHUE(Hue: CFloat; const Alpha: CFloat = 1);
+    {< Init the colors from a HUE with range [0..1) at full brightness.
+
+      It can be useful for:
+
+      - Give some color to boring greyscales... but cyclic ones,
+        For range scales, we can use a gradient from black to one component or
+        use a rainbow one (red -> green -> violet).
+      - Select random colors without worrying about dark colors.
+
+      @warning(It's a dirty fast imprecise algorithm addapted from 
+        InitFastHUEByte.)
+    }
+    procedure InitFastHUEByte(const Hue: Byte; const Alpha: Byte = 255);
+    {< Init the colors from a HUE with 255 degrees at full brightness.
+
+      It can be useful for:
+
+      - Give some color to boring greyscales... but cyclic ones,
+        For range scales, we can use a gradient from black to one component or
+        use a rainbow one (red -> green -> violet).
+      - Select random colors without worrying about dark colors.
+
+      @warning(It's a dirty fast imprecise algorithm. See CHXPas' `uCHXColor`
+        unit for more info about algorithm.)
+    }
+
   {
     Comparisons
   }
@@ -222,7 +249,7 @@ type
   {
     Conversion to integer coords and remainder.
 
-    ToDo: Overload for TSDL_Point (except Frac)
+    ToDo: Overload for TSDL_FPoint (except Frac, as itself is TSDL_FPoint)
   }
 
     function Ceil: TSDL_Point; overload;
@@ -232,12 +259,13 @@ type
     function Floor: TSDL_Point; overload;
     //< Floor(-2.3, 1.3) = -3, 1 -> -inf
     function Round: TSDL_Point; overload;
+    //< Round to nearest integer.
     function FracCeil: TSDL_FPoint;
-    //< FloorFrac(-2.3, 1.3) = -0.3, -0.7 -> +inf
+    //< FracCeil(-2.3, 1.3) = -0.3, -0.7 -> +inf
     function FracTrunc: TSDL_FPoint;
-    //< Frac(-2.3, 1.3) = -0.3, 0.3 -> 0 -> 0
+    //< FracTrunc(-2.3, 1.3) = -0.3, 0.3 -> 0
     function FracFloor: TSDL_FPoint;
-    //< FloorFrac(-2.3, 1.3) = 0.7, 0.3 - -inf
+    //< FracFloor(-2.3, 1.3) = 0.7, 0.3 - -inf
 
   {
     Operators (They can't be in a helper as FPC 3.3.1)
@@ -347,7 +375,15 @@ function SDLFColor(const Grey: CFloat; const A: CFloat = 1): TSDL_FColor;
   overload; inline;
 {< Create a TSDL_FColor with a Grey value.}
 
-function SDLFPoint(const X, Y: CFloat): TSDL_FPoint; inline;
+function SDLFColorFastHUE(const Hue: CFloat; const Alpha: CFloat = 1)
+  : TSDL_FColor; inline;
+{< Create a TSDL_FColor using InitFastHUE. }
+function SDLFColorFastHUEByte(const Hue: Byte; const Alpha: Byte = 255)
+  : TSDL_FColor; inline;
+{< Create a TSDL_FColor using InitFastHUEByte. }
+
+function SDLFPoint(const X: CFloat = 0; const Y: CFloat = 0): TSDL_FPoint;
+  inline;
 {< Create a TSDL_FPoint.}
 
 function SDLFRect(const X, Y, W, H: CFloat): TSDL_FRect; inline;
@@ -414,6 +450,78 @@ var
 begin
   aGrey := Grey * kInv255;
   Self.Init(aGrey, aGrey, aGrey, aA * kInv255);
+end;
+
+procedure TSDLFColorH.InitFastHUE(Hue: CFloat; const Alpha: CFloat);
+const
+  // Preprocessing this values, althought I'm nearly sure that compiler
+  // will evaluate it as constants if used directly.
+  k1_6 = 1 / 6; k2_6 = 2 / 6; k3_6 = 3 / 6; k4_6 = 4 / 6; k5_6 = 5 / 6;
+begin
+  // FloorFrac -> Range [1..0] and continuous with negatives.
+  // Abs(TruncFrac) will be inverse color order with negatives.
+  Hue := Hue - Floor(Hue);
+
+  if Hue < k1_6 then
+  begin
+    Self.R := 1; Self.G := Hue * 6; Self.B := 0;
+  end
+  else if Hue < k2_6 then
+  begin
+    // 1 - ((Hue - 1 / 6) * 6) => 2 - 6 * Hue
+    Self.R := 2 - 6 * Hue; Self.G := 1; Self.B := 0;
+  end
+  else if Hue < k3_6 then
+  begin
+    // (Hue - 2 / 6) * 6 => 6 * Hue - 2
+    Self.R := 0; Self.G := 1; Self.B := 6 * Hue - 2;
+  end
+  else if Hue < k4_6 then
+  begin
+    // 1 - ((Hue - 3 / 6) * 6) => 4 - 6 * Hue
+    Self.R := 0; Self.G := 4 - 6 * Hue; Self.B := 1;
+  end
+  else if Hue < k5_6 then
+    // (Hue - 4 / 6) * 6 => 6 * Hue - 4
+  begin
+    Self.R := 6 * Hue - 4; Self.G := 0; Self.B := 1;
+  end
+  else // [k5_6..1) range
+  begin
+    // 1 - ((Hue - 5 / 6) * 6) => 6 - 6 * Hue => 6 * (1 - Hue)
+    Self.R := 1; Self.G := 0; B := 6 - 6 * Hue;
+  end;
+
+  Self.A := Alpha;
+end;
+
+procedure TSDLFColorH.InitFastHUEByte(const Hue, Alpha: Byte);
+begin
+  case Hue of
+    0..42:
+      begin R := 1; G := (Hue * 6) * kInv255; B := 0; end;
+    43:
+      begin R := 1; G := 1; B := 0; end;
+    44..85:
+      // 255 - ((Hue - 43) * 6) => 513 - 6 * Hue
+      begin R := (513 - 6 * Hue) * kInv255; G := 1; B := 0; end;
+    86..127:
+      // (Hue - 85) * 6 => 6 * Hue - 510
+      begin R := 0; G := 1; B := ((Hue - 85) * 6) * kInv255; end;
+    128..170:
+      // 255 - ((Hue - 128) * 6) => 1023 - 6 * Hue
+      begin R := 0; G := (1023 - 6 * Hue) * kInv255; B := 1; end;
+    171:
+      begin R := 0; G := 0; B := 1; end;
+    172..213:
+      // (Hue - 171) * 6 => 6 * Hue - 1026
+      begin R := ((Hue - 171) * 6) * kInv255; G := 0; B := 1; end;
+    214..255:
+      // 255 - ((Hue - 128) * 6) => 1278 - 6 * Hue
+      begin R := 1; G := 0; B := (1278 - 6 * Hue) * kInv255; end;
+  end;
+
+  A := Alpha * kInv255;
 end;
 
 function TSDLFColorH.IsEqual(const aColor: TSDL_FColor): Boolean;
@@ -835,8 +943,6 @@ begin
     and (V1.Tex_Coord = V2.Tex_Coord);
 end;
 
-
-
 // Type creation functions
 
 function SDLFColor(const R, G, B, A: CFloat): TSDL_FColor;
@@ -847,6 +953,16 @@ end;
 function SDLFColor(const Grey, A: CFloat): TSDL_FColor;
 begin
   Result.R := Grey; Result.G := Grey; Result.B := Grey; Result.A := A;
+end;
+
+function SDLFColorFastHUE(const Hue, Alpha: CFloat): TSDL_FColor;
+begin
+  Result.InitFastHUE(Hue, Alpha);
+end;
+
+function SDLFColorFastHUEByte(const Hue, Alpha: Byte): TSDL_FColor;
+begin
+  Result.InitFastHUEByte(Hue, Alpha);
 end;
 
 function SDLFPoint(const X, Y: CFloat): TSDL_FPoint;

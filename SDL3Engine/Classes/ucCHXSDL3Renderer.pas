@@ -275,6 +275,8 @@ type
     function Clear(const aColor: TSDL_FColor): Boolean; overload; inline;
     function Clear(const R, G, B: CFloat; const A: CFloat = 1): Boolean;
       overload;
+    function Clear(const Grey: CFloat; const A: CFloat = 1): Boolean;
+      overload;
     {< Clear render's target (usually a SDL_Window).
 
       Restores previous draw color.
@@ -284,7 +286,9 @@ type
       @param(R Red in float [0..1] range.)
       @param(G Green in float [0..1] range.)
       @param(B Blue in float [0..1] range.)
-      @param(Alpha Opacity in float [0..1] range. ToDo: ¿Is Alpha used?)
+      @param(A Opacity/Alpha in float [0..1] range. ToDo: ¿Is Alpha used?)
+      
+      @param(Grey Grey in float [0..1] range.)
     }
 
   {
