@@ -2,10 +2,20 @@
 
   This file is part of ucCHXSDL3Renderer.
 
+  ToDo:
+
+  - Negative radious see RndRect.
+  - We can simplify a little see RndRect too (and Ellipse)
+
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 
 // Circle[X]
+
+const
+  kMinCircleSides = 8;
+  kMaxCircleSides = 64;
+  kTimesSqRtRadius = 3.1416;
 
 function cCHXSDL3Renderer.Circle(const X, Y, R: CFloat;
   const BorderC, FillC: TSDL_FColor): Boolean;
@@ -64,10 +74,10 @@ begin
   if IsZero(FracR) then
     Result := PointMirrorV(X, R, Y) and PointMirrorH(R, Y, X)
   else
-    Result := RectFilled(SDLFRect(X - FracR, Y - R, FracR * 2 + 1, 1))
-     and RectFilled(SDLFRect(X - FracR, Y + R, FracR * 2 + 1, 1))
-     and RectFilled(SDLFRect(X - R, Y - FracR, 1, FracR * 2 + 1))
-     and RectFilled(SDLFRect(X + R, Y - FracR, 1, FracR * 2 + 1));
+    Result := RectFilled(X - FracR, Y - R, FracR * 2 + 1, 1)
+     and RectFilled(X - FracR, Y + R, FracR * 2 + 1, 1)
+     and RectFilled(X - R, Y - FracR, 1, FracR * 2 + 1)
+     and RectFilled(X + R, Y - FracR, 1, FracR * 2 + 1);
 
   CurrY := 1; t1 := 1 + (CurrX div 16); t2 := t1 - CurrX;
   if t2 >= 0 then
@@ -92,6 +102,18 @@ begin
   // Drawing diagonal angles (45°, 135°, 225°, 315°) only once
   if CurrX = CurrY then
     Result := PointMirrorHV(CurrX + FracR, CurrY + FracR, X, Y) and Result;
+end;
+
+function cCHXSDL3Renderer.TCircleBorder(const X, Y, R: CFloat;
+  NSides: Integer): Boolean;
+begin
+  if NSides <= kMinCircleSides then
+    NSides := Round(kTimesSqRtRadius * SqRt(Abs(R)));
+
+  if NSides < kMinCircleSides then NSides := kMinCircleSides
+  else if NSides > kMaxCircleSides then NSides := kMaxCircleSides;
+
+  Result := TRegPolyCCBorder(X, Y, R, NSides);
 end;
 
 function cCHXSDL3Renderer.CircleFilled(const X, Y: CFloat; R: CFloat)
@@ -151,6 +173,18 @@ begin
   if (t2 >= 0) and (CurrY = CurrX) then
     Result := PointMirrorHVFilled(CurrX + FracR, CurrY + FracR,
       True, False, X, Y) and Result;
+end;
+
+function cCHXSDL3Renderer.TCircleFilled(const X, Y, R: CFloat;
+  NSides : Integer): Boolean;
+begin
+  if NSides <= kMinCircleSides then
+    NSides := Round(kTimesSqRtRadius * SqRt(Abs(R)));
+
+  if NSides < kMinCircleSides then NSides := kMinCircleSides
+  else if NSides > kMaxCircleSides then NSides := kMaxCircleSides;
+
+  Result := TRegPolyCCFilled(X, Y, R, NSides);
 end;
 
 

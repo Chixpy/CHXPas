@@ -1,6 +1,6 @@
 program TestPoint;
 {<
-  A simple program with cCHXSDL3Engine for testing cCHXSDL3Engine.Clear.
+  A simple program with cCHXSDL3Engine for testing cCHXSDL3Engine.Point
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -16,6 +16,8 @@ const
   kRenderW = 100; { Renderer width. }
   kRenderH = 100; { Renderer height. }
   kWindowScale = 8; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -31,63 +33,77 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
 
+    procedure DrawHelp;
   end;
 
-  { cSDL3Eng }
-  procedure cSDL3Eng.Setup;
-  begin
-    FPSMng.FPS := 4; // FPS
-  end;
+{ cSDL3Eng }
+procedure cSDL3Eng.Setup;
+begin
+  ShowFrameRate := True; ShowHelp := True;
+  FPSMng.FPS := 4; // FPS
+end;
 
-  procedure cSDL3Eng.Finish;
-  begin
+procedure cSDL3Eng.Finish;
+begin
 
-  end;
+end;
 
-  procedure cSDL3Eng.Compute(var ExitProg : Boolean);
-  begin
+procedure cSDL3Eng.Compute(var ExitProg : Boolean);
+begin
 
-  end;
+end;
 
-  procedure cSDL3Eng.Draw;
-  begin
-    // Draw random points with diferent colors
-    Render.SetDrawColor(Random, Random, Random, Random);
-    Render.Point(Random * kRenderW, Random * kRenderH);
+procedure cSDL3Eng.Draw;
+begin
+  Window.SetRenderSize(kRenderW, kRenderH);
+  // Draw random points with diferent colors
+  Render.SetDrawColor(Random, Random, Random, Random);
+  Render.Point(Random * kRenderW, Random * kRenderH);
 
-    Render.SetDrawColor(1, 0, 1);
-    Render.DebugTextF(2, 10, 'Scale: x%d', [kWindowScale]);
-    Render.DebugText(2, 20, '[C] Clear');
-  end;
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
+  if ShowHelp then DrawHelp;
+end;
 
-  procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
-  var Handled : Boolean; var ExitProg : Boolean);
-  begin
-    inherited;
-    if ExitProg or Handled then Exit;
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugTextF(0, 0, 'Scale: x%d', [kWindowScale]);
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Clear');
+end;
 
-    case aEvent.type_ of
-      SDL_EVENT_KEY_DOWN:
-      begin
-        Handled := True;
-        case aEvent.key.key of
-          // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
+var Handled : Boolean; var ExitProg : Boolean);
+begin
+  inherited;
+  if ExitProg or Handled then Exit;
 
-          SDLK_C: Render.Clear(0, 0, 0);
+  case aEvent.type_ of
+    SDL_EVENT_KEY_DOWN:
+    begin
+      Handled := True;
+      case aEvent.key.key of
+        // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-          SDLK_Q: ExitProg := True;
+        SDLK_F1: ShowHelp := not ShowHelp;
 
-        otherwise
-          Handled := False;
-        end;
+        SDLK_C: Render.Clear(0, 0, 0);
+
+        SDLK_Q: ExitProg := True;
+
+      otherwise
+        Handled := False;
       end;
-    otherwise
-      ;
     end;
+  otherwise
+    ;
   end;
+end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;
@@ -107,7 +123,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

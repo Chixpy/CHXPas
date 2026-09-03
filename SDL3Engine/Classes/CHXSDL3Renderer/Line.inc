@@ -9,26 +9,95 @@
 
 function cCHXSDL3Renderer.Line(const P1, P2: TSDL_FPoint): Boolean;
 begin
-  Result := SDL_RenderLine(SDLRenderer, P1.X, P1.Y, P2.X, P2.Y);
+  Result := Line(P1.X, P1.Y, P2.X, P2.Y);
+end;
+
+function cCHXSDL3Renderer.TLine(const P1, P2: TSDL_FPoint): Boolean;
+begin
+  Result := Line(P1.X, P1.Y, P2.X, P2.Y);
 end;
 
 function cCHXSDL3Renderer.Line(const X1, Y1, X2, Y2: CFloat): Boolean;
+{
+  Renderer Logical Presentation draw it _smooth_, with 1 logical
+  pixel of width. If Lenght < 2, 2 logical pixels will overlap their
+  opacity. This was fixed for Horizontal and Vertical lines.
+}
 begin
-  Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
+  if SameValue(X1, X2) then // Vertical Line
+  begin
+    if SameValue(Y1, Y2) then // Actually a Point
+      Exit(Point(X1, Y2));
+
+    if Y1 < Y2 then
+      Exit(RectFilled(X1, Y1, 1, Y2 - Y1 + 1))
+    else
+      Exit(RectFilled(X1, Y1 + 1, 1, Y2 - Y1 - 1));
+  end
+  else if SameValue(Y1, Y2) then // Horizontal Line
+  begin
+    if X1 < X2 then
+      Exit(RectFilled(X1, Y1, X2 - X1 + 1, 1))
+    else
+      Exit(RectFilled(X1 + 1, Y1, X2 - X1 - 1, 1));
+  end
+  else // Diagonal line
+    Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
+end;
+
+function cCHXSDL3Renderer.TLine(const X1, Y1, X2, Y2: CFloat): Boolean;
+{
+  Renderer Logical Presentation draw it _smooth_, with 1 logical
+  pixel of width. If Lenght < 2, 2 logical pixels will overlap their
+  opacity. This was fixed for Horizontal and Vertical lines.
+}
+begin
+  if SameValue(X1, X2) then // Vertical Line
+  begin
+    if SameValue(Y1, Y2) then // Actually a Point
+      Exit(TPoint(X1, Y2));
+
+    if Y1 < Y2 then
+      Exit(TRectFilled(X1, Y1, 1, Y2 - Y1 + 1))
+    else
+      Exit(TRectFilled(X1, Y1 + 1, 1, Y2 - Y1 - 1));
+  end
+  else if SameValue(Y1, Y2) then // Horizontal Line
+  begin
+    if X1 < X2 then
+      Exit(TRectFilled(X1, Y1, X2 - X1 + 1, 1))
+    else
+      Exit(TRectFilled(X1 + 1, Y1, X2 - X1 - 1, 1));
+  end
+  else // Diagonal line
+    Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
 end;
 
 // Lines
 
 function cCHXSDL3Renderer.LinesUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
-begin
-  { Notes about SDL_RenderLines:
+{ Notes about SDL_RenderLines:
 
-    - It doesn't draw anything with `Count <= 0`.
-    - No error with negative `Count`.
-    - If `Count` exceeds array end, it doesn't care and draw lines with
-        "invalid" data (usually 0,0). No error, but this time is logical.
-  }
+  - It doesn't draw anything with `Count <= 0`.
+  - No error with negative `Count`.
+  - If `Count` exceeds array end, it doesn't care and draw lines with
+      "invalid" data (usually 0,0). No error, but this time is logical.
+}
+begin
+  Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
+end;
+
+function cCHXSDL3Renderer.TLinesUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean;
+{ Notes about SDL_RenderLines:
+
+  - It doesn't draw anything with `Count <= 0`.
+  - No error with negative `Count`.
+  - If `Count` exceeds array end, it doesn't care and draw lines with
+      "invalid" data (usually 0,0). No error, but this time is logical.
+}
+begin
   Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
 end;
 
@@ -44,6 +113,20 @@ begin
     Exit(Point(PArr[idxFirst]) and Result);
   if Count > 1 then
     Exit(LinesUnsafe(PArr, idxFirst, Count) and Result);
+end;
+
+function cCHXSDL3Renderer.TLines(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+
+  if Count <= 0 then Exit(Result);
+  // Try to draw although Result = False
+  if Count = 1 then
+    Exit(TPoint(PArr[idxFirst]) and Result);
+  if Count > 1 then
+    Exit(TLinesUnsafe(PArr, idxFirst, Count) and Result);
 end;
 
 // LineMirror[x]

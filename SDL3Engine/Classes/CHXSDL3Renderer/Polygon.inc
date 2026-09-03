@@ -66,6 +66,14 @@ begin
     and Line(PArr[idxFirst + Count - 1], PArr[idxFirst]);
 end;
 
+function cCHXSDL3Renderer.TPolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean;
+begin
+  { ToDo: Probar si dibujar triangulo es mas rapido que las lineas }
+  Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
+    and Line(PArr[idxFirst + Count - 1], PArr[idxFirst]);
+end;
+
 function cCHXSDL3Renderer.PolygonBorder(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
 begin
@@ -74,16 +82,27 @@ begin
   if Count <= 0 then Exit(Result);
 
   case Count of
-    // 0: Exit(True); It can't happen
-    1: Result := Point(PArr[idxFirst]);
-    2: // Result := Render.Line(PArr[idxFirst], PArr[idxFirst + 1]);
-      Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], 2);
+  // 0: Exit(True); It can't happen
+  1: Result := Point(PArr[idxFirst]);
+  2: Result := LinesUnsafe(PArr, idxFirst, Count);
   otherwise
-    begin
-      // Result := Lines(PArr[idxFirst], Count) and...
-      Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
-        and Line(PArr[idxFirst + Count - 1], PArr[idxFirst]);
-    end;
+    Result := PolygonBorderUnsafe(PArr, idxFirst, Count);
+  end;
+end;
+
+function cCHXSDL3Renderer.TPolygonBorder(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+  if Count <= 0 then Exit(Result);
+
+  case Count of
+  // 0: Exit(True); It can't happen
+  1: Result := TPoint(PArr[idxFirst]);
+  2: Result := TLines(@PArr[idxFirst], Count);
+  otherwise
+    Result := TPolygonBorderUnsafe(PArr, idxFirst, Count);
   end;
 end;
 

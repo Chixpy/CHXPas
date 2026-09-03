@@ -15,8 +15,7 @@ unit ucCHXSDL3FPSManager;
   This unit and class:
 
   - Encapsulate all functionallity inside a class, instead of using a record
-    wich must be used as parameter of functions (although it's SDL general
-    design).
+    wich must be used as parameter of functions (it's SDL general design).
   - Use an absolute frame counter independent of the one used for interpolation.
   - `Delay` stores actual compute time and whole frame time (with Delay) as
     properties and returns waited time (or miliseconds late)
@@ -30,7 +29,7 @@ uses
   CTypes, SDL3;
 
 type
-  cCHXSDL3FPSManager = class
+  cCHXSDL3FPSManager = class //(TPersistent)
   private
     IntFC: CUInt64;    //< Internal frame counter for interpolation.
     BaseTick: CUInt64; //< Initial tick for interpolation.
@@ -65,7 +64,7 @@ type
 
     function Delay: CInt64;
     {<
-      Waits for next frame window and returns time delayed, in other words 
+      Waits for next frame window and returns time delayed, in other words
         milisecond ahead (positive) o behind (negative) of frame window.
 
       Changes the properties:

@@ -16,6 +16,8 @@ const
   kRenderW = 200; { Renderer width. }
   kRenderH = 200; { Renderer height. }
   kWindowScale = 4; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -31,11 +33,14 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
+
     Color1, Color2: TSDL_FColor;
     FillMode: Boolean;
     RadiusX, RadiusY: CFloat;
 
     procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -49,7 +54,7 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
 
   InitColors;
   FillMode := False;
@@ -69,6 +74,7 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
@@ -81,12 +87,19 @@ begin
     Render.Ellipse(kRenderW div 2, kRenderH div 2, RadiusX, RadiusY,
       Color1, Color2);
 
-
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(2, 10, '[C] Change color');
-  Render.DebugText(2, 20, '[F] Change mode');
-  Render.DebugText(2, 30, '[<=] [=>] Change X radius');
-  Render.DebugText(2, 40, '[UP] [DOWN] Change Y radius');
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[<=] [=>] Change X radius');
+  Render.DebugText(0, 50, '[UP] [DOWN] Change Y radius');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -101,6 +114,8 @@ begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+
+        SDLK_F1: ShowHelp := not ShowHelp;
 
         SDLK_UP: RadiusY += 1;
 
@@ -145,7 +160,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

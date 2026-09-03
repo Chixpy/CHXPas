@@ -149,6 +149,9 @@ type
       @param(aTitle Title of the window.)
       @param(aWidth Width for the renderer.)
       @param(aHeight Height of the renderer.)
+      @param(Scale Scale of the window.)
+      @param(FullScreen Create a full screen.)
+      @param(UseGPU Use GPU Renderer.)
       @param(AutoInit Init engine automatically. If @False,
          cCHXSDL3Engine.Config properties can be changed and then
          cCHXSDL3Engine.Init must be called.)

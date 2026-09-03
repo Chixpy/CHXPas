@@ -17,6 +17,8 @@ const
   kRenderW = 200; { Renderer width. }
   kRenderH = 200; { Renderer height. }
   kWindowScale = 4; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -32,6 +34,7 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
     Points: Array of TSDL_FPoint;
     Color1, Color2: TSDL_FColor;
     FillMode: Boolean;
@@ -39,6 +42,7 @@ type
     procedure InitPoints;
     procedure InitColors;
 
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -59,12 +63,12 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
 
   SetLength(Points, kNPoints);
   InitPoints;
   InitColors;
-  
+
   FillMode := False;
 end;
 
@@ -80,6 +84,7 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
@@ -92,10 +97,18 @@ begin
     Render.Polygon(Points, Color1, Color2);
 
 
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(2, 10, '[C] Change color');
-  Render.DebugText(2, 20, '[P] Change points');
-  Render.DebugText(2, 30, '[F] Change mode');
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, ' [C] Change color');
+  Render.DebugText(0, 30, ' [P] Change points');
+  Render.DebugText(0, 40, ' [F] Change mode');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -111,10 +124,12 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
+        SDLK_F1: ShowHelp := not ShowHelp;
+
         SDLK_C: InitColors;
 
         SDLK_P: InitPoints;
-        
+
         SDLK_F: FillMode := not FillMode;
 
         SDLK_Q: ExitProg := True;
@@ -148,7 +163,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

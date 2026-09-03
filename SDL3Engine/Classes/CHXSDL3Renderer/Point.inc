@@ -12,9 +12,9 @@ begin
   Result := SDL_RenderPoint(SDLRenderer, X, Y);
 end;
 
-function cCHXSDL3Renderer.Point(const P: TSDL_FPoint): Boolean;
+function cCHXSDL3Renderer.TPoint(const X, Y: CFloat): Boolean;
 begin
-  Result := SDL_RenderPoints(SDLRenderer, @P, 1);
+  Result := SDL_RenderPoint(SDLRenderer, X, Y);
 end;
 
 (*
@@ -22,7 +22,19 @@ function cCHXSDL3Renderer.PointFP(const X, Y: CFloat): Boolean;
 begin
   Result := SDL_RenderPoint(SDLRenderer, Round(X), Round(Y));
 end;
+*)
 
+function cCHXSDL3Renderer.Point(const P: TSDL_FPoint): Boolean;
+begin
+  Result := SDL_RenderPoints(SDLRenderer, @P, 1);
+end;
+
+function cCHXSDL3Renderer.TPoint(const P: TSDL_FPoint): Boolean;
+begin
+  Result := SDL_RenderPoints(SDLRenderer, @P, 1);
+end;
+
+(*
 function cCHXSDL3Renderer.PointFP(const P: TSDL_FPoint): Boolean;
 begin
   Result := SDL_RenderPoint(SDLRenderer, Round(P.X), Round(P.Y));

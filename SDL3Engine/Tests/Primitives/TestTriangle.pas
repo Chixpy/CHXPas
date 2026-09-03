@@ -12,13 +12,17 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNPoints = 30;
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kNPoints = 60;
+
+  kRenderW = 100; { Renderer width. }
+  kRenderH = 100; { Renderer height. }
+  kWindowScale = 800 div kRenderH; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
+
+  TState = (stNormal, stFilled, stBorderFilled);
 
   { cSDL3Eng }
 
@@ -32,13 +36,19 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
+
     Points: Array of TSDL_FPoint;
     Colors: Array of TSDL_FColor;
-    FillMode: Boolean;
+
+    State: TState;
+    sState: String;
 
     procedure InitPoints;
     procedure InitColors;
+    procedure ChangeState;
 
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -59,16 +69,34 @@ begin
     Colors[i].Init(Random, Random, Random, Random);
 end;
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  stNormal: sState := 'Border + OnlyFill';
+  stFilled: sState := 'Filled';
+  stBorderFilled: sState := 'Border + Filled';
+  otherwise
+    ;
+  end;
+end;
+
+
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
 
   SetLength(Points, kNPoints);
   InitPoints;
   SetLength(Colors, kNPoints);
   InitColors;
-  
-  FillMode := False;
+
+  State := High(TState);
+  ChangeState; // Set sState
 end;
 
 procedure cSDL3Eng.Finish;
@@ -85,27 +113,64 @@ procedure cSDL3Eng.Draw;
 var
   i: Integer;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
-  i := 0;
-  while i < (High(Points) - 2) do
+  case State of
+  stNormal:
   begin
-    if  FillMode then
+    i := 0;
+    while i < (High(Points) - 2) do
+    begin
+      Render.Triangle(Points[i], Points[i + 1], Points[i + 2],
+              Colors[i], Colors[i + 1]);
+      Inc(i, 3);
+    end;
+  end;
+
+  stFilled:
+  begin
+    i := 0;
+    while i < (High(Points) - 2) do
     begin
       Render.SetDrawColor(Colors[i]);
       Render.TriangleFilled(Points[i], Points[i + 1], Points[i + 2]);
-    end
-    else
-      Render.Triangle(Points[i], Points[i + 1], Points[i + 2],
-        Colors[i], Colors[i + 1]);
-    Inc(i, 3);
+      Inc(i, 3);
+    end;
+
   end;
 
+  stBorderFilled:
+  begin
+    i := 0;
+    while i < (High(Points) - 2) do
+    begin
+      Render.SetDrawColor(Colors[i]);
+      Render.TriangleBorder(Points[i], Points[i + 1], Points[i + 2]);
+      Render.SetDrawColor(Colors[i + 1]);
+      Render.TriangleFilled(Points[i], Points[i + 1], Points[i + 2]);
+      Inc(i, 3);
+    end;
+  end;
+
+  otherwise
+    ;
+  end;
+
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(2, 10, '[C] Change color');
-  Render.DebugText(2, 20, '[P] Change points');
-  Render.DebugText(2, 30, '[F] Change mode');
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 0, sState);
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[P] Change points');
+  Render.DebugText(0, 40, '[F] Change mode');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -121,11 +186,13 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
+        SDLK_F1: ShowHelp := not ShowHelp;
+
         SDLK_C: InitColors;
 
         SDLK_P: InitPoints;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_F: ChangeState;
 
         SDLK_Q: ExitProg := True;
 
@@ -158,7 +225,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

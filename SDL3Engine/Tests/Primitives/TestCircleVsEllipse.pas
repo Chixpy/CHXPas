@@ -17,6 +17,8 @@ const
   kRenderW = 100; { Renderer width. }
   kRenderH = 100; { Renderer height. }
   kWindowScale = 8; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -38,6 +40,7 @@ type
     ShowHelp, ShowCircle, ShowEllipse: Boolean;
 
     procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -51,12 +54,11 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
 
   InitColors;
   FillMode := False;
   Radius := kRenderW div 3;
-  ShowHelp := True;
   ShowCircle := True;
   ShowEllipse := True;
 end;
@@ -73,6 +75,7 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
@@ -93,16 +96,20 @@ begin
       Render.Circle(kRenderW div 2, kRenderW div 2, Radius, Color1, Color2);
   end;
 
-  if ShowHelp then
-  begin
-    Render.SetDrawColor(1, 0, 1);
-    Render.DebugText(2, 10, '[F1] Toggle help');
-    Render.DebugText(2, 20, '[C] Change color');
-    Render.DebugText(2, 30, '[F] Change mode');
-    Render.DebugText(2, 40, '[UP] [DOWN] Change radius');
-    Render.DebugText(2, 50, '[E] Toggle ellipse');
-    Render.DebugText(2, 60, '[D] Toggle circle');
-  end;
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[UP] [DOWN] Change radius');
+  Render.DebugText(0, 50, '[E] Toggle ellipse');
+  Render.DebugText(0, 60, '[D] Toggle circle');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -117,6 +124,8 @@ begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+
+        SDLK_F1: ShowHelp := not ShowHelp;
 
         SDLK_UP: Radius += 1;
 
@@ -163,7 +172,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

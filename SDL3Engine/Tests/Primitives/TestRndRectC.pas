@@ -1,6 +1,7 @@
-program TestRect;
+program TestRndRectC;
 {<
-  A simple program with cCHXSDL3Engine for testing Rect primitive.
+  A simple program with cCHXSDL3Engine for testing Rounded Rectangle with
+    Circle primitive.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -12,11 +13,10 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNRects = 30;
 
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderW = 200; { Renderer width. Window.Width is prefered to get it. }
+  kRenderH = 200; { Renderer height. Window.Height is prefered to get it. }
+  kWindowScale = 800 div kRenderH; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
@@ -35,11 +35,10 @@ type
 
   public
     ShowHelp: Boolean;
-    Rects: Array of TSDL_FRect;
-    Colors: Array of TSDL_FColor;
-    FillMode: Boolean;
+    Color1, Color2: TSDL_FColor;
+    FillMode, ShowCircle: Boolean;
+    RWidth, RHeight, Radius: CFloat;
 
-    procedure InitRects;
     procedure InitColors;
 
     procedure DrawHelp;
@@ -47,36 +46,21 @@ type
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.InitRects;
-var
-  i: Integer;
-  X, Y: CFloat;
-begin
-  for i := Low(Rects) to High(Rects) do
-  begin
-    X := Random * kRenderW; Y := Random * kRenderH;
-    Rects[i].Init(X, Y, Random * (kRenderW - X), Random * (kRenderH - Y));
-  end;
-end;
-
 procedure cSDL3Eng.InitColors;
-var
-  i: Integer;
 begin
-  for i := Low(Colors) to High(Colors) do
-    Colors[i].Init(Random, Random, Random, Random);
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-
-  SetLength(Rects, kNRects);
-  InitRects;
-  SetLength(Colors, kNRects + 1);
   InitColors;
-
   FillMode := False;
+  ShowCircle := True;
+  RWidth := Round(kRenderW * 0.75);
+  RHeight := Round(kRenderH * 0.5);
+  Radius := Round(kRenderH * 0.25);
 end;
 
 procedure cSDL3Eng.Finish;
@@ -91,24 +75,33 @@ end;
 
 procedure cSDL3Eng.Draw;
 var
-  i: Integer;
+  aRect: TSDL_FRect;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.05);
 
-  i := 0;
-  while i <= High(Rects) do
+  aRect := SDLFRect((kRenderW - RWidth) * 0.5,
+    (kRenderH - RHeight) * 0.5, RWidth, RHeight);
+  if FillMode then
   begin
-    if  FillMode then
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.RectFilled(Rects[i]);
-    end
-    else
-      Render.Rect(Rects[i], Colors[i], Colors[i + 1]);
-    Inc(i);
+    Render.SetDrawColor(Color1);
+    Render.RndRectCFilled(aRect, Radius);
+    if ShowCircle then
+      Render.CircleFilled((kRenderW - 1) * 0.5, (kRenderW - 1) * 0.5, Radius);
+  end
+  else
+  begin
+    Render.RndRectC(aRect, Radius, Color1, Color2);
+    if ShowCircle then
+      Render.Circle((kRenderW - 1) * 0.5, (kRenderW - 1) * 0.5,
+        Radius, Color1, Color2);
   end;
+
+  Render.SetDrawColor(1, 1, 1, 0.1);
+  // Texting Rect too...
+  Render.RectBorder(aRect);
+  SDL_RenderRect(SDLRenderer, @aRect);
 
   // Render size and color for FPS and Help
   Window.SetRenderSize(400, 400);
@@ -118,10 +111,14 @@ end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Render.DebugTextF(0, 0, 'DX: %g DY: %g R: %g', [RWidth, RHeight, Radius]);
   Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[R] Change rectangles');
-  Render.DebugText(0, 40, '[F] Change mode');
+  Render.DebugText(0, 20, '[F] Change mode');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[<=] [=>] Change width');
+  Render.DebugText(0, 50, '[UP] [DOWN] Change height');
+  Render.DebugText(0, 60, '[A] [Z] Change radius');
+  Render.DebugText(0, 70, '[B] Toggle circle');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -139,11 +136,23 @@ begin
 
         SDLK_F1: ShowHelp := not ShowHelp;
 
+        SDLK_UP: RHeight += 0.25;
+
+        SDLK_DOWN: RHeight -= 0.25;
+
+        SDLK_RIGHT: RWidth += 0.25;
+
+        SDLK_LEFT: RWidth -= 0.25;
+
+        SDLK_A: Radius += 1; // Actually is rounded
+
+        SDLK_Z: Radius -= 1;
+
         SDLK_C: InitColors;
 
-        SDLK_R: InitRects;
-
         SDLK_F: FillMode := not FillMode;
+
+        SDLK_B: ShowCircle := not ShowCircle;
 
         SDLK_Q: ExitProg := True;
 

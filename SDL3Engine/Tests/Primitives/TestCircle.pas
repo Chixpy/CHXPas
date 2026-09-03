@@ -13,11 +13,15 @@ uses
 
 const
   // In actual programs use Window.Render[Width/Height]
-  kRenderW = 50; { Renderer width. }
-  kRenderH = 50; { Renderer height. }
-  kWindowScale = 16; { Scale of the Window. }
+  kRenderW = 150; { Renderer width. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
+
+  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -31,11 +35,16 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
     Color1, Color2: TSDL_FColor;
-    FillMode, ShowHelp: Boolean;
     Radius: CFloat;
 
+    State: TState;
+    sState: String;
+
     procedure InitColors;
+    procedure ChangeState;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -47,13 +56,31 @@ begin
   Color2.Init(Random, Random, Random, Random);
 end;
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+    stAll: sState := 'Border + OnlyFill';
+    stBorder: sState := 'Border';
+    stTBorder: sState := 'Triangle Border';
+    stFilled: sState := 'Filled';
+    stTFilled: sState := 'Triangle Filled';
+  otherwise
+    ;
+  end;
+end;
+
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
   InitColors;
-  ShowHelp := True;
-  FillMode := False;
-  Radius := Round(kRenderW div 3);
+  State := High(TState);
+  ChangeState;
+  Radius := kRenderH * 0.40;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -67,28 +94,44 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
+var
+  X, Y: CFloat;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0, 0, 0);
-  Render.SetDrawColor(1, 1, 1);
+  Render.Clear(0.05);
+  Render.SetDrawColor(1);
 
-  if  FillMode then
-  begin
-    Render.SetDrawColor(Color1);
-    Render.CircleFilled(kRenderW div 2, kRenderW div 2, Radius);
-  end
-  else
-    Render.Circle(kRenderW div 2, kRenderW div 2, Radius, Color1, Color2);
+  X := kRenderW * 0.5; Y := kRenderW * 0.5;
+  Render.SetDrawColor(Color1);
 
+  case State of
+  stAll: Render.Circle(X, Y, Radius, Color1, Color2);
+
+  stBorder: Render.CircleBorder(X, Y, Radius);
+
+  stTBorder: Render.TCircleBorder(X, Y, Radius);
+
+  stFilled: Render.CircleFilled(X, Y, Radius);
+
+  stTFilled: Render.TCircleFilled(X, Y, Radius);
+
+  otherwise
+    ;
+  end;
+
+  // Render size and color for FPS and Help
   Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  if ShowHelp then
-  begin
-    Render.DebugTextF(0, 0, 'Radius: %g', [Radius]);
-    Render.DebugText(0, 10, '[C] Change color');
-    Render.DebugText(0, 20, '[F] Change mode');
-    Render.DebugText(0, 30, '[UP] [DOWN] Change radius');
-  end;
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugTextF(0, 0, '%s - Radius: %g', [sState, Radius]);
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[UP] [DOWN] Change radius');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -106,13 +149,13 @@ begin
 
       SDLK_F1: ShowHelp := not ShowHelp;
 
+      SDLK_C: InitColors;
+
+      SDLK_F: ChangeState;
+
       SDLK_UP: Radius += 0.25;
 
       SDLK_DOWN: Radius -= 0.25;
-
-      SDLK_C: InitColors;
-
-      SDLK_F: FillMode := not FillMode;
 
       SDLK_Q: ExitProg := True;
 
@@ -145,7 +188,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

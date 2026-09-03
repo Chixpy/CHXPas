@@ -3,9 +3,9 @@
 pushd "$(dirname "$0")" > /dev/null
 
 mkdir -p bin
-mkdir -p lib
+mkdir -p ../../tmp/lib
 
-fpc @fp.cfg $@
+fpc @fpcfg.cfg $@
 ERRCOMP=$?
 
 popd > /dev/null

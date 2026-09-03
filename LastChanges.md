@@ -1,12 +1,15 @@
-- _CHXVec3_: Renamed `InDistance` to `InDistance3D`; and added `InDistanceXY`,
-  `InDistanceXZ` and `InDistanceZY`.
-- _CHXMover_: `Update` method renamed to `ApplyForce`.
-- _CHXSDL3Renderer_:
-  - Added `Clear(Grey, Alpha)`.
-  - `Ellipse[x]`: Changed algorithm _Integer_ variables to _CFloat_.
-    They don't crash by overflow... but I suspect that can create an
-    infinite loop.
-- `uCHXColor`: Optimized a little `CHXFastHue`.
-- `uCHXSDL3TypeHelpers`: Added `InitFastHue[x]` to `TSDL_FColor`. And added
-  a CFloat version, but not backported to `uCHXColor` (This unit was created
-  with SDL2 in mind...).
+### CHXSDL3Engine
+
+- Changed default `lib` directory and fixing `fpcfg.cfg` files. Adding a `lib`
+  directory.
+- Added `RndRect[x]` and `Frame[x]` primitives.
+- Added `Rect[x]` with `(X, Y, W, H)` parameters.
+- Added `TSDL_FRect.Normalize` and `TSDL_FRect.Normalized` methods 
+- Added tests `TestPointVsRect.pas` and `TestLineVsRect.pas`.
+- Created `CheatSheet.md`
+- ¿Optimized? drawing lines and rects.
+- Added some experimental `T[x]` methods. This methods will draw primitives
+  using triangles and `RenderGeometryRaw`. They have full subpixel precision,
+  but, for example with _Circle_ primitive, time is consumed with matematical
+  functions and, actuallt it's a regular polygon of many sides.
+- Many other tweaks, fixes and modifications.

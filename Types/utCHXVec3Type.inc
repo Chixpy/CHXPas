@@ -595,27 +595,27 @@ begin
 end;
 
 function TCHXVec3Type.IsParallel(const aVector: TCHXVec3Type;
-  const Sigma: TRealType): Boolean; 
+  const Sigma: TRealType): Boolean;
 begin
   Result := Self.VectProd(aVector).IsZero3D(Sigma);
 end;
 
 function TCHXVec3Type.IsCoaligned(const aVector: TCHXVec3Type;
-  const Sigma: TRealType): Boolean; 
+  const Sigma: TRealType): Boolean;
 begin
   Result := (Self.ScalProd(aVector) > 0)
     and Self.IsParallel(aVector, Sigma);
 end;
 
 function TCHXVec3Type.IsAntiParallel(const aVector: TCHXVec3Type;
-  const Sigma: TRealType): Boolean; 
+  const Sigma: TRealType): Boolean;
 begin
   Result := (Self.ScalProd(aVector) < 0)
     and Self.IsParallel(aVector, Sigma);
 end;
 
 function TCHXVec3Type.IsPerpendicular(const aVector: TCHXVec3Type;
-  const Sigma: TRealType): Boolean; 
+  const Sigma: TRealType): Boolean;
 begin
   Result := DataIsZero(Self.ScalProd(aVector), Sigma);
 end;

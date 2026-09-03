@@ -1,6 +1,6 @@
-program TestRect;
+program TestFrame;
 {<
-  A simple program with cCHXSDL3Engine for testing Rect primitive.
+  A simple program with cCHXSDL3Engine for testing primitives.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -12,15 +12,17 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNRects = 30;
-
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderW = 100; { Renderer width. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH ; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
+  kStepSize = 1;
+
 type
+
+  TState = (stAll, stFilled);
 
   { cSDL3Eng }
 
@@ -35,48 +37,50 @@ type
 
   public
     ShowHelp: Boolean;
-    Rects: Array of TSDL_FRect;
-    Colors: Array of TSDL_FColor;
-    FillMode: Boolean;
+    State: TState; sState: String;
+    Color1, Color2: TSDL_FColor;
 
-    procedure InitRects;
+    Width, Height, BorderW: CFloat;
+
+    Rectangle: TSDL_FRect;
+
+    procedure ChangeState;
     procedure InitColors;
-
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.InitRects;
-var
-  i: Integer;
-  X, Y: CFloat;
+procedure cSDL3Eng.ChangeState;
 begin
-  for i := Low(Rects) to High(Rects) do
-  begin
-    X := Random * kRenderW; Y := Random * kRenderH;
-    Rects[i].Init(X, Y, Random * (kRenderW - X), Random * (kRenderH - Y));
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  stAll: sState := 'Border + Only Fill';
+  stFilled: sState := 'Full filled';
+  otherwise
+    ;
   end;
 end;
 
 procedure cSDL3Eng.InitColors;
-var
-  i: Integer;
 begin
-  for i := Low(Colors) to High(Colors) do
-    Colors[i].Init(Random, Random, Random, Random);
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-
-  SetLength(Rects, kNRects);
-  InitRects;
-  SetLength(Colors, kNRects + 1);
+  State := High(TState); ChangeState;
   InitColors;
 
-  FillMode := False;
+  Width := Round(kRenderW * 0.75);
+  Height := Round(kRenderH * 0.50);
+  BorderW := Round(kRenderH * 0.10);
 end;
 
 procedure cSDL3Eng.Finish;
@@ -86,28 +90,25 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-
+  Rectangle.Init((kRenderW - Width) * 0.5,
+      (kRenderH - Height) * 0.5, Width, Height);
 end;
 
 procedure cSDL3Eng.Draw;
-var
-  i: Integer;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
-  i := 0;
-  while i <= High(Rects) do
-  begin
-    if  FillMode then
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.RectFilled(Rects[i]);
-    end
-    else
-      Render.Rect(Rects[i], Colors[i], Colors[i + 1]);
-    Inc(i);
+  Render.SetDrawColor(Color1);
+  case State of
+
+  stAll: Render.Frame(Rectangle, BorderW, Color1, Color2);
+
+  stFilled: Render.FrameFilled(Rectangle, BorderW);
+
+  otherwise
+    ;
   end;
 
   // Render size and color for FPS and Help
@@ -118,10 +119,13 @@ end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Render.DebugTextF(0, 0, 'W: %g H: %g R: %g', [Width, Height, BorderW]);
   Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[R] Change rectangles');
-  Render.DebugText(0, 40, '[F] Change mode');
+  Render.DebugText(0, 20, '[F] Change mode');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[<=] [=>] Change width');
+  Render.DebugText(0, 50, '[UP] [DOWN] Change height');
+  Render.DebugText(0, 60, '[A] [Z] Change Border width');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -139,13 +143,23 @@ begin
 
         SDLK_F1: ShowHelp := not ShowHelp;
 
+        SDLK_F: ChangeState;
+
         SDLK_C: InitColors;
 
-        SDLK_R: InitRects;
-
-        SDLK_F: FillMode := not FillMode;
-
         SDLK_Q: ExitProg := True;
+
+        SDLK_UP: Height += kStepSize;
+
+        SDLK_DOWN: Height -= kStepSize;
+
+        SDLK_RIGHT: Width += kStepSize;
+
+        SDLK_LEFT: Width -= kStepSize;
+
+        SDLK_A: BorderW += kStepSize;
+
+        SDLK_Z: BorderW -= kStepSize;
 
       otherwise
         Handled := False;
@@ -156,7 +170,7 @@ begin
   end;
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;

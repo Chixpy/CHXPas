@@ -27,10 +27,8 @@ begin
   dAng := (2.0 * Pi) / NSides;
   for i := 0 to High(PArr) do
   begin
-    // Actually must be SinCos(Angle, aSin, aCos) but this way the polygon
-    //  has a vertex at the top for better look.
-    SinCos(Angle, aCos, aSin);
-    PArr[i].Init(aCos * R + X, aSin * R + Y);
+    SinCos(Angle, aSin, aCos);
+    PArr[i].Init(aSin * R + X, -aCos * R + Y);
     Angle += dAng;
   end;
 
@@ -56,6 +54,15 @@ begin
     and PolygonBorder(PArr);
 end;
 
+function cCHXSDL3Renderer.TRegPolyCCBorder(const X, Y, R: CFloat;
+  const NSides: Integer; const Angle: CFloat): Boolean;
+var
+  PArr: TSDLFPointDynArray;
+begin
+  Result := RegPolyCCVertices(PArr, X, Y, R, NSides, Angle)
+    and TPolygonBorder(PArr);
+end;
+
 function cCHXSDL3Renderer.RegPolyCCFilled(const X, Y, R: CFloat;
   const NSides: Integer; const Angle: CFloat): Boolean;
 var
@@ -63,6 +70,40 @@ var
 begin
   Result := RegPolyCCVertices(PArr, X, Y, R, NSides, Angle)
     and PolygonFilled(PArr);
+end;
+
+function cCHXSDL3Renderer.TRegPolyCCFilled(const X, Y, R: CFloat;
+  const NSides: Integer; const Angle: CFloat): Boolean;
+var
+  PArr: TSDLFPointDynArray;
+  Indices: Array of Byte;
+  FColor: TSDL_FColor;
+  i, j: Integer;
+begin
+  if not RegPolyCCVertices(PArr, X, Y, R, NSides, Angle) then Exit(False);
+
+  SetLength(Indices, NSides * 3);
+  SetLength(PArr, Length(PArr) + 1);
+  PArr[High(PArr)] := SDLFPoint(X, Y);
+
+  for i := 0 to (NSides - 2) do
+  begin
+    j := i * 3;
+    Indices[j] := High(PArr);
+    Indices[j + 1] := i;
+    Indices[j + 2] := i + 1;
+  end;
+  j := (NSides - 1) * 3;
+  Indices[j] := High(PArr);
+  Indices[j + 1] := High(PArr) - 1;
+  Indices[j + 2] := Low(PArr);
+
+  Result := GetDrawColor(FColor)
+    and SDL_RenderGeometryRaw(SDLRenderer, nil,
+      @PArr[0], SizeOf(TSDL_FPoint), // Puntos
+      @FColor, 0, // Colores
+      nil, 0, // uv
+      Length(PArr), @Indices[0], NSides * 3, 1); // Indices
 end;
 
 function cCHXSDL3Renderer.RegPolyCCFillOnly(const X, Y, R: CFloat;

@@ -16,6 +16,8 @@ const
   kRenderW = 200; { Renderer width. }
   kRenderH = 200; { Renderer height. }
   kWindowScale = 4; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -31,73 +33,92 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
     ClearColor: TSDL_FColor;
     ToggleClear: Boolean;
+
+    procedure DrawHelp;
   end;
 
-  { cSDL3Eng }
-  procedure cSDL3Eng.Setup;
-  begin
-    ShowFrameRate := True;
-    FPSMng.FPS := 4; // FPS
+{
+  cSDL3Eng
+}
 
-    ClearColor.Init(0, 0, 0);
-    ToggleClear := True;
-  end;
+procedure cSDL3Eng.Setup;
+begin
+  ShowFrameRate := True; ShowHelp := True;
+  FPSMng.FPS := 4; // FPS
 
-  procedure cSDL3Eng.Finish;
-  begin
+  ClearColor.Init(0, 0, 0);
+  ToggleClear := True;
+end;
 
-  end;
+procedure cSDL3Eng.Finish;
+begin
 
-  procedure cSDL3Eng.Compute(var ExitProg : Boolean);
-  begin
+end;
 
-  end;
+procedure cSDL3Eng.Compute(var ExitProg : Boolean);
+begin
 
-  procedure cSDL3Eng.Draw;
-  begin
-    if ToggleClear then
-      Render.Clear(ClearColor);
+end;
 
-    // Draw something
-    Render.SetDrawColor(1, 1, 1);
-    Render.Point(Random * kRenderW, Random * kRenderH);
+procedure cSDL3Eng.Draw;
+begin
+  Window.SetRenderSize(kRenderW, kRenderH);
+  if ToggleClear then
+    Render.Clear(ClearColor);
 
-    Render.SetDrawColor(1, 0, 1);
-    Render.DebugText(2, 10, '[C] Change clear color.');
-    Render.DebugText(2, 20, '[T] Toggle clear.');
-  end;
+  // Draw something
+  Render.SetDrawColor(1, 1, 1);
+  Render.Point(Random * kRenderW, Random * kRenderH);
 
-  procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
-  var Handled : Boolean; var ExitProg : Boolean);
-  begin
-    inherited;
-    if ExitProg or Handled then Exit;
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
+  if ShowHelp then DrawHelp;
+end;
 
-    case aEvent.type_ of
-      SDL_EVENT_KEY_DOWN:
-      begin
-        Handled := True;
-        case aEvent.key.key of
-          // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change clear color.');
+  Render.DebugText(0, 30, '[T] Toggle clear.');
+end;
 
-          SDLK_C: ClearColor.Init(Random, Random, Random);
+procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
+var Handled : Boolean; var ExitProg : Boolean);
+begin
+  inherited;
+  if ExitProg or Handled then Exit;
 
-          SDLK_T: ToggleClear := not ToggleClear;
+  case aEvent.type_ of
+    SDL_EVENT_KEY_DOWN:
+    begin
+      Handled := True;
+      case aEvent.key.key of
+        // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-          SDLK_Q: ExitProg := True;
+        SDLK_F1: ShowHelp := not ShowHelp;
 
-        otherwise
-          Handled := False;
-        end;
+        SDLK_C: ClearColor.Init(Random, Random, Random);
+
+        SDLK_T: ToggleClear := not ToggleClear;
+
+        SDLK_Q: ExitProg := True;
+
+      otherwise
+        Handled := False;
       end;
-    otherwise
-      ;
     end;
+  otherwise
+    ;
   end;
+end;
 
-  { Main program }
+{
+  Main program
+}
 
 var
   SDL3Eng : cSDL3Eng;
@@ -117,7 +138,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

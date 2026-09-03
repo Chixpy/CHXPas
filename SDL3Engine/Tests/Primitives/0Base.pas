@@ -12,12 +12,15 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
   kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH ; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
+
+  TState = (stAll, stFilled);
 
   { cSDL3Eng }
 
@@ -31,14 +34,44 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
+    State: TState; sState: String;
+    Color1, Color2: TSDL_FColor;
 
+    procedure ChangeState;
+    procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  stAll: sState := 'Border + Only Fill';
+  stFilled: sState := 'Full filled';
+  otherwise
+    ;
+  end;
+end;
+
+procedure cSDL3Eng.InitColors;
+begin
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
+end;
+
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
+  InitColors;
+
 
 end;
 
@@ -54,12 +87,31 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
+  case State of
 
+  stAll: Render.
+
+  stFilled: Render.
+
+  otherwise
+    ;
+  end;
+
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(2, 10, 'Help');
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[F] Change mode');
+  Render.DebugText(0, 30, '[C] Change colors');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -75,7 +127,13 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_A..SDLK_Z: ExitProg := True;
+        SDLK_F1: ShowHelp := not ShowHelp;
+
+        SDLK_F: ChangeState;
+
+        SDLK_C: InitColors;
+
+        SDLK_Q: ExitProg := True;
 
       otherwise
         Handled := False;
@@ -106,7 +164,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

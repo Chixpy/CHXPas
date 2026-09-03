@@ -16,6 +16,8 @@ const
   kRenderW = 50; { Renderer width. }
   kRenderH = 50; { Renderer height. }
   kWindowScale = 16; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -31,11 +33,13 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
     Color1, Color2: TSDL_FColor;
-    FillMode, ShowHelp: Boolean;
+    FillMode: Boolean;
     DiamX, DiamY: CFloat;
 
     procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -48,10 +52,9 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
   InitColors;
   FillMode := False;
-  ShowHelp := True;
   DiamX := Round(kRenderW div 2);
   DiamY := Round(kRenderH div 3);
 end;
@@ -86,16 +89,20 @@ begin
   Render.SetDrawColor(1, 1, 1, 0.2);
   Render.RectBorder(aRect);
 
-  Render.SetDrawColor(1, 0, 1);
+  // Render size and color for FPS and Help
   Window.SetRenderSize(400, 400);
-  if ShowHelp then
-  begin
-    Render.DebugTextF(0, 0, 'DX: %g DY: %g', [DiamX, DiamY]);
-    Render.DebugText(0, 10, '[C] Change color');
-    Render.DebugText(0, 20, '[F] Change mode');
-    Render.DebugText(0, 30, '[<=] [=>] Change X radius');
-    Render.DebugText(0, 40, '[UP] [DOWN] Change Y radius');
-  end;
+  Render.SetDrawColor(1, 0, 1);
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugTextF(0, 0, 'DX: %g DY: %g', [DiamX, DiamY]);
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[<=] [=>] Change X radius');
+  Render.DebugText(0, 50, '[UP] [DOWN] Change Y radius');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -156,7 +163,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

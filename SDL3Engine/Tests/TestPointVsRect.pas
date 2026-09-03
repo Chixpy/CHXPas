@@ -1,6 +1,9 @@
-program TestRect;
+program TestPointVsRect;
 {<
-  A simple program with cCHXSDL3Engine for testing Rect primitive.
+  A simple program with cCHXSDL3Engine that compares SDL_RenderPoint
+  and SDL_RenderFilledRect[s] when Logical Presentation is used.
+
+  @note(I suspect that SDL actually use Rects to draw points.)
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -12,15 +15,19 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNRects = 30;
+  // In actual programs use Window.Render[Width/Height]
+  kRenderW = 100; // Renderer width.
+  kRenderH = 100; // Renderer height.
+  kWindowScale = 8; // Scale of the Window.
+  kFullScree = False;
+  kUseGPU = False; // Soft or GPU renderer
 
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
-  kFullScreen = False;
-  kUseGPU = False;
+  kNPoints = 2000;
 
 type
+
+  TState = (stPoint, stPoints, stRectPoint, stRectsPoints,
+    stRectRects, stRectsRects);
 
   { cSDL3Eng }
 
@@ -34,49 +41,48 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    Color: TSDL_FColor;
     ShowHelp: Boolean;
-    Rects: Array of TSDL_FRect;
-    Colors: Array of TSDL_FColor;
-    FillMode: Boolean;
 
-    procedure InitRects;
+    State: TState;
+    Points: TSDLFPointDynArray;
+    Rects: TSDLFRectDynArray;
+
     procedure InitColors;
-
-    procedure DrawHelp;
+    procedure InitPoints;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.InitRects;
-var
-  i: Integer;
-  X, Y: CFloat;
-begin
-  for i := Low(Rects) to High(Rects) do
-  begin
-    X := Random * kRenderW; Y := Random * kRenderH;
-    Rects[i].Init(X, Y, Random * (kRenderW - X), Random * (kRenderH - Y));
-  end;
-end;
 
 procedure cSDL3Eng.InitColors;
+begin
+  Color.Init(Random, Random, Random, Random);
+end;
+
+procedure cSDL3Eng.InitPoints;
 var
   i: Integer;
 begin
-  for i := Low(Colors) to High(Colors) do
-    Colors[i].Init(Random, Random, Random, Random);
+  SetLength(Points, kNPoints);
+  SetLength(Rects, kNPoints);
+  for i := 0 to (kNPoints - 1) do
+  begin
+    Points[i].InitRandom(0, kRenderW, 0, kRenderH);
+    Rects[i] := SDLFRect(Points[i].X, Points[i].Y, 1, 1);
+  end;
 end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True; ShowHelp := True;
+  ShowFrameRate := True;
 
-  SetLength(Rects, kNRects);
-  InitRects;
-  SetLength(Colors, kNRects + 1);
+  State := Low(TState);
+
   InitColors;
+  InitPoints;
 
-  FillMode := False;
+  ShowHelp := True;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -91,37 +97,81 @@ end;
 
 procedure cSDL3Eng.Draw;
 var
+  aPoint: TSDL_FPoint;
+  aRect: TSDL_FRect;
   i: Integer;
+  sMode: String;
 begin
+  // To show framerate at very small render size (2)
   Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
-  i := 0;
-  while i <= High(Rects) do
+  Render.SetDrawColor(Color);
+
+  case State of
+  stPoint:
   begin
-    if  FillMode then
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.RectFilled(Rects[i]);
-    end
-    else
-      Render.Rect(Rects[i], Colors[i], Colors[i + 1]);
-    Inc(i);
+    sMode := 'Individual Points';
+    for aPoint in Points do
+      SDL_RenderPoint(SDLRenderer, aPoint.X, aPoint.Y);
   end;
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
-  if ShowHelp then DrawHelp;
-end;
+  stPoints:
+  begin
+    sMode := 'Array of Points';
+    SDL_RenderPoints(SDLRenderer, @Points[0], Length(Points));
+  end;
 
-procedure cSDL3Eng.DrawHelp;
-begin
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[R] Change rectangles');
-  Render.DebugText(0, 40, '[F] Change mode');
+  stRectPoint:
+  begin
+    sMode := 'Individual Points to Rect';
+    for aPoint in Points do
+    begin
+      aRect := SDLFRect(aPoint.X, aPoint.Y, 1, 1);
+      SDL_RenderFillRect(SDLRenderer, @aRect);
+    end;
+  end;
+
+  stRectsPoints:
+  begin
+    sMode := 'Array of Points to Array of Rects';
+    SetLength(Rects, 0);
+    SetLength(Rects, Length(Points));
+    for i := 0 to (Length(Points) - 1) do
+      Rects[i] := SDLFRect(Points[i].X, Points[i].Y, 1, 1);
+
+    SDL_RenderFillRects(SDLRenderer, @Rects[0], Length(Rects));
+  end;
+
+  stRectRects:
+  begin
+    sMode := 'Individual Rects';
+    for aRect in Rects do
+      SDL_RenderFillRect(SDLRenderer, @aRect);
+  end;
+
+  stRectsRects:
+  begin
+    sMode := 'Array of Rects';
+    SDL_RenderFillRects(SDLRenderer, @Rects[0], Length(Rects));
+  end;
+
+  otherwise
+    ;
+  end;
+
+  // To show framerate at very small render size (1)
+  Window.SetRenderSize(400, 400);
+  if ShowHelp then
+  begin
+    Render.SetDrawColor(1, 0, 1);
+    Render.DebugText(0, 0, PAnsiChar(sMode));
+    Render.DebugText(0, 10, '[F1] Toggle help');
+    Render.DebugText(0, 20, '[C] Change color');
+    Render.DebugText(0, 30, '[P] Change Points');
+    Render.DebugText(0, 40, '[M] Change Mode');
+  end;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -141,9 +191,13 @@ begin
 
         SDLK_C: InitColors;
 
-        SDLK_R: InitRects;
+        SDLK_P: InitPoints;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_M:
+          if State = High(TState) then
+            State := Low(TState)
+          else
+            Inc(State);
 
         SDLK_Q: ExitProg := True;
 
@@ -156,7 +210,7 @@ begin
   end;
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;
@@ -176,7 +230,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWindowScale, kFullScree, kUseGPU);
   try
     SDL3Eng.Run;
   finally

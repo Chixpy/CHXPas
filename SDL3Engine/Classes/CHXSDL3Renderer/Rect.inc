@@ -7,8 +7,17 @@
 
 // Rect[angle]
 
-function cCHXSDL3Renderer.Rect(const aRect: TSDL_FRect; const BorderC,
-  FillC: TSDL_FColor): Boolean;
+function cCHXSDL3Renderer.Rect(const X, Y, W, H: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+var
+  aRect: TSDL_FRect;
+begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := Rect(aRect, BorderC, FillC);
+end;
+
+function cCHXSDL3Renderer.Rect(const aRect: TSDL_FRect;
+  const BorderC, FillC: TSDL_FColor): Boolean;
 var
   TempColor: TSDL_FColor;
 begin
@@ -42,26 +51,132 @@ begin
   Result := SetDrawColor(TempColor) and Result;
 end;
 
-function cCHXSDL3Renderer.RectBorder(const aRect: TSDL_FRect): Boolean;
+function cCHXSDL3Renderer.RectBorder(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
 begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectBorder(aRect);
+end;
+
+function cCHXSDL3Renderer.RectBorder(aRect: TSDL_FRect): Boolean;
+begin
+  {$IFDEF InvertDraw}
+  // Crazy hack:
+  //   In my tests, drawing with negative Rects is faster that normalized ones.
+  if aRect.W > 0 then
+    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
+  if aRect.H > 0 then
+    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
+  {$ENDIF}
+
   Result := SDL_RenderRect(SDLRenderer, @aRect);
 end;
 
-function cCHXSDL3Renderer.RectFilled(const aRect: TSDL_FRect): Boolean;
+function cCHXSDL3Renderer.TRectBorder(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
 begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectBorder(aRect);
+end;
+
+function cCHXSDL3Renderer.TRectBorder(aRect: TSDL_FRect): Boolean;
+begin
+  {$IFDEF InvertDraw}
+  // Crazy hack:
+  //   In my tests, drawing with negative Rects is faster that normalized ones.
+  if aRect.W > 0 then
+    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
+  if aRect.H > 0 then
+    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
+  {$ENDIF}
+
+  Result := SDL_RenderRect(SDLRenderer, @aRect);
+end;
+
+function cCHXSDL3Renderer.RectFilled(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
+begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectFilled(aRect);
+end;
+
+function cCHXSDL3Renderer.RectFilled(aRect: TSDL_FRect): Boolean;
+begin
+  {$IFDEF InvertDraw}
+  // Crazy hack:
+  //   In my tests, drawing with negative Rects is faster that normalized ones.
+  if aRect.W > 0 then
+    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
+  if aRect.H > 0 then
+    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
+  {$ENDIF}
+
   Result := SDL_RenderFillRect(SDLRenderer, @aRect);
+end;
+
+function cCHXSDL3Renderer.TRectFilled(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
+begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectFilled(aRect);
+end;
+
+function cCHXSDL3Renderer.TRectFilled(aRect: TSDL_FRect): Boolean;
+begin
+  {$IFDEF InvertDraw}
+  // Crazy hack:
+  //   In my tests, drawing with negative Rects is faster that normalized ones.
+  if aRect.W > 0 then
+    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
+  if aRect.H > 0 then
+    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
+  {$ENDIF}
+
+  Result := SDL_RenderFillRect(SDLRenderer, @aRect);
+end;
+
+function cCHXSDL3Renderer.RectFillOnly(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
+begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectFillOnly(aRect);
 end;
 
 function cCHXSDL3Renderer.RectFillOnly(aRect: TSDL_FRect): Boolean;
 begin
-  if (aRect.W <= 2) or (aRect.H <= 2) then
-    Exit(False); // ToDo: ¿False?
+  {$IFDEF InvertDraw}
+    // Crazy hack:
+    // In my tests, drawing with negative Rects is faster that normalized ones.
+    if aRect.W > 0 then
+      begin aRect.X += aRect.W; aRect.W := -aRect.W end;
+    if aRect.H > 0 then
+      begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
 
-  aRect.X += 1; aRect.Y += 1; aRect.W -= 2;  aRect.H -= 2;
+    if (aRect.W >= -2) or (aRect.H >= -2) then
+      Exit(True);
+    aRect.X -= 1; aRect.Y -= 1; aRect.W += 2;  aRect.H += 2;
+  {$ELSE}
+    if (Abs(aRect.W) <= 2) or (Abs(aRect.H) <= 2) then
+      Exit(True);
+
+    aRect.X += 1; aRect.Y += 1; aRect.W -= 2;  aRect.H -= 2;
+  {$ENDIF}
+
   Result := SDL_RenderFillRect(SDLRenderer, @aRect);
 end;
 
 // Rect[angle]s
+
+{
+  ToDo: ¿"Optimize" Rects?
+  It doesn't seem to be worth copying and modifying an array.
+  But more testing is needed.
+}
 
 function cCHXSDL3Renderer.RectsBorderUnsafe(const RArr: TSDLFRectDynArray;
   const idxFirst, Count: Integer): Boolean;

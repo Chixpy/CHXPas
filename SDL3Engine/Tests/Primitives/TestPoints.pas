@@ -17,6 +17,8 @@ const
   kRenderW = 200; { Renderer width. }
   kRenderH = 200; { Renderer height. }
   kWindowScale = 4; { Scale of the Window. }
+  kFullScreen = False;
+  kUseGPU = False;
 
 type
 
@@ -32,11 +34,12 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
+    ShowHelp: Boolean;
     PointColor: TSDL_FColor;
     Points: Array of TSDL_FPoint;
 
     procedure InitPoints;
-
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -51,7 +54,7 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
 
   PointColor.Init(Random, Random, Random, Random * 0.5 + 0.5);
 
@@ -71,15 +74,24 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
+  Window.SetRenderSize(kRenderW, kRenderH);
   Render.SetDrawColor(1, 1, 1);
   Render.Clear(0, 0, 0);
 
   Render.SetDrawColor(PointColor);
   Render.Points(Points);
 
+  // Render size and color for FPS and Help
+  Window.SetRenderSize(400, 400);
   Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(2, 10, '[C] Change color');
-  Render.DebugText(2, 20, '[P] Change points');
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, ' [C] Change color');
+  Render.DebugText(0, 30, ' [P] Change points');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -94,6 +106,8 @@ begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+
+        SDLK_F1: ShowHelp := not ShowHelp;
 
         SDLK_C: PointColor.Init(Random, Random, Random, Random);
 
@@ -130,7 +144,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale);
+    kWindowScale, kFullScreen, kUseGPU);
   try
     SDL3Eng.Run;
   finally

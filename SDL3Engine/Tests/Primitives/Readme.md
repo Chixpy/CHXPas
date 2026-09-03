@@ -40,12 +40,12 @@ Both script files simply do the following:
 
 1. Change to script directory.
 2. Create FPC output directories.
-3. Run `fpc @fp.cfg {Program}.pas [OtherParameters]`
+3. Run `fpc @fpcfg.cfg {Program}.pas [OtherParameters]`
 
 So,
 
 - Aditional FPC parameters can be passed to scripts to add or override
-  _fp.cfg_ ones.
+  _fpcfg.cfg_ ones.
 - Parameter `-dRELEASE` generates a smart linked, stripped and optimized
   executable. By default, debug one will be created with debug info, error
   checking fallback and `heaptrc` unit for memory leaks.
