@@ -1,28 +1,25 @@
-program TestRegPoly;
+program TestComponents;
 {<
-  A simple program with cCHXSDL3Engine for testing RegPoly primitive.
+  A simple program with cCHXSDL3Engine for testing visual components.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
-  SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
+  SysUtils, CTypes, SDL3, uCHXSDL3TypeHelpers, ucCHXSDL3Engine,
+  ucCHXSDL3Button;
 
 const
-  kRenderW = 200; { Renderer width. }
+  kRenderW = 100; { Renderer width. }
   kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH ; { Scale of the Window. }
+  kWindowScale = 900 div kRenderH; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
-  kStepRadius = 0.5;
-
 type
-
-  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -37,55 +34,17 @@ type
 
   public
     ShowHelp: Boolean;
-    State: TState; sState: String;
-    Color1, Color2: TSDL_FColor;
 
-    NSides: Integer;
-    CenterX, CenterY: CFloat;
-    Radius, Angle: CFloat;
-
-    procedure ChangeState;
-    procedure InitColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
-
-procedure cSDL3Eng.ChangeState;
-begin
-  if State = High(TState) then
-    State := Low(TState)
-  else
-    Inc(State);
-
-  case State of
-  stAll: sState := 'Border + Only Fill';
-  stBorder: sState := 'Border';
-  stTBorder: sState := 'Triangles Border';
-  stFilled: sState := 'Full filled';
-  stTFilled: sState := 'Triangles Filled';
-  otherwise
-    ;
-  end;
-end;
-
-procedure cSDL3Eng.InitColors;
-begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
-end;
-
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-  State := High(TState); ChangeState;
-  InitColors;
 
-  NSides := 5;
-  CenterX := kRenderW * 0.5;
-  CenterY := kRenderH * 0.5;
-  Radius := kRenderH * 0.4;
-  Angle := 0;
+  AddComponent(cCHXSDL3Button.Create('Button 1', 20, 20, 40, 20));
+  AddComponent(cCHXSDL3Button.Create('Button 2', 20, 50, 40, 20));
 end;
 
 procedure cSDL3Eng.Finish;
@@ -95,47 +54,23 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-  Angle += 0.01;
+
 end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0.01);
+  Render.Clear(0.05);
 
-  Render.SetDrawColor(Color1);
-
-  case State of
-
-  stAll: Render.RegPolyCC(CenterX, CenterY, Radius, NSides,
-    Color1, Color2, Angle);
-
-  stBorder: Render.RegPolyCCBorder(CenterX, CenterY, Radius, NSides, Angle);
-
-  stTBorder: ; //Render.
-
-  stFilled: Render.RegPolyCCFilled(CenterX, CenterY, Radius, NSides, Angle);
-
-  stTFilled: ; //Render.
-
-  otherwise
-    ;
-  end;
-
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
-  Render.DebugTextF(0, 0, '%s', [sState]);
+  Window.PushRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
   Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[<=] [=>] Change sides');
-  Render.DebugText(0, 50, '[UP] [DOWN] Change radius');
+  Render.DebugText(0, 20, '[CLICK] Select / Activate component');
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -152,18 +87,6 @@ begin
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
         SDLK_F1: ShowHelp := not ShowHelp;
-
-        SDLK_LEFT: if NSides > 1 then Dec(NSides);
-
-        SDLK_RIGHT: Inc(NSides);
-
-        SDLK_UP: Radius += kStepRadius;
-
-        SDLK_DOWN: Radius -= kStepRadius;
-
-        SDLK_C: InitColors;
-
-        SDLK_F: ChangeState;
 
         SDLK_Q: ExitProg := True;
 

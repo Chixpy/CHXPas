@@ -67,10 +67,9 @@
 
   ToDo: Use "Self." in every field and method.
 *)
-{$MODE ObjFPC}{$H+}
+{$MODE ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 {$MODESWITCH AdvancedRecords}
 {$MODESWITCH TypeHelpers}
-{$INLINE ON}{$WARN 6058 OFF}
 
 interface
 uses

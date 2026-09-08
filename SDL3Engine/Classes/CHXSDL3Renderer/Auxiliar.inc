@@ -12,10 +12,10 @@ begin
   if ArrLength <= 0 then
   begin
     if Count = 0 then
-      Exit(True)
+      Exit(True) // Empty array but Count is 0 too
     else
     begin
-      SDL_SetError('%s(%s) %s: Empty array',
+      SDL_SetError('%s(%s) %s: Empty array and Count <> 0',
         [PAnsiChar({$I %FILE%}), PAnsiChar(LineNumber), PAnsiChar(FuncName)]);
       Count := -1;
       Exit(False);

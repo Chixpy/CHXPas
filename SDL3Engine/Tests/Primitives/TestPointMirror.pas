@@ -1,6 +1,6 @@
-program TestRegPoly;
+program TestPointMirror;
 {<
-  A simple program with cCHXSDL3Engine for testing RegPoly primitive.
+  A simple program with cCHXSDL3Engine for testing Point Mirror primitives.
 
   cCHXSDL3Engine descendant is declared and implemented here.
   A better practice is that it is implemented in it's own unit.
@@ -12,17 +12,17 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kRenderW = 200; { Renderer width. }
+  kMoveStep = 0.25;
+
+  kRenderW = 50; { Renderer width. }
   kRenderH = kRenderW; { Renderer height. }
   kWindowScale = 900 div kRenderH ; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
-  kStepRadius = 0.5;
-
 type
 
-  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
+  TState = (stPoint, stHMirror, stVMirror, stHVMirror, stHVMirrorF);
 
   { cSDL3Eng }
 
@@ -40,9 +40,9 @@ type
     State: TState; sState: String;
     Color1, Color2: TSDL_FColor;
 
-    NSides: Integer;
-    CenterX, CenterY: CFloat;
-    Radius, Angle: CFloat;
+    X, Y, X0, Y0, ProjX, ProjY: CFloat;
+
+    DrawHLine, DrawVLine: Boolean;
 
     procedure ChangeState;
     procedure InitColors;
@@ -59,11 +59,11 @@ begin
     Inc(State);
 
   case State of
-  stAll: sState := 'Border + Only Fill';
-  stBorder: sState := 'Border';
-  stTBorder: sState := 'Triangles Border';
-  stFilled: sState := 'Full filled';
-  stTFilled: sState := 'Triangles Filled';
+  stPoint: sState := 'Point';
+  stHMirror: sState := 'H Mirror';
+  stVMirror: sState := 'V Mirror';
+  stHVMirror: sState := 'HV Mirror';
+  stHVMirrorF: sState := 'HV Mirror Filled';
   otherwise
     ;
   end;
@@ -72,7 +72,7 @@ end;
 procedure cSDL3Eng.InitColors;
 begin
   Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  //Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
@@ -81,11 +81,9 @@ begin
   State := High(TState); ChangeState;
   InitColors;
 
-  NSides := 5;
-  CenterX := kRenderW * 0.5;
-  CenterY := kRenderH * 0.5;
-  Radius := kRenderH * 0.4;
-  Angle := 0;
+  X := kRenderW * 0.25; Y := kRenderH * 0.25;
+  X0 := kRenderW * 0.5; Y0 := kRenderH * 0.5;
+  DrawHLine := False; DrawVLine := False;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -95,7 +93,7 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-  Angle += 0.01;
+  ProjX := X0 + X; ProjY := Y0 + Y;
 end;
 
 procedure cSDL3Eng.Draw;
@@ -103,23 +101,32 @@ begin
   Window.SetRenderSize(kRenderW, kRenderH);
   Render.Clear(0.01);
 
+  Render.SetDrawColor(1, 0.3);
+  Render.Line(X0, 0, X0, kRenderH);
+  Render.Line(0, Y0, kRenderH, Y0);
+
   Render.SetDrawColor(Color1);
-
   case State of
+    stPoint: Render.Point(ProjX, ProjY);
 
-  stAll: Render.RegPolyCC(CenterX, CenterY, Radius, NSides,
-    Color1, Color2, Angle);
+    stHMirror:
+      if DrawHLine then
+        Render.PointMirrorHFilled(X, ProjY, X0)
+      else
+        Render.PointMirrorH(X, ProjY, X0);
 
-  stBorder: Render.RegPolyCCBorder(CenterX, CenterY, Radius, NSides, Angle);
+    stVMirror:
+      if DrawVLine then
+        Render.PointMirrorVFilled(ProjX, Y, Y0)
+      else
+        Render.PointMirrorV(ProjX, Y, Y0);
 
-  stTBorder: ; //Render.
+    stHVMirror: Render.PointMirrorHV(X, Y, X0, Y0);
 
-  stFilled: Render.RegPolyCCFilled(CenterX, CenterY, Radius, NSides, Angle);
+    stHVMirrorF: Render.PointMirrorHVFilled(X, Y,
+      DrawHLine, DrawVLine, X0, Y0);
 
-  stTFilled: ; //Render.
-
-  otherwise
-    ;
+    otherwise ;
   end;
 
   // Render size and color for FPS and Help
@@ -132,10 +139,11 @@ procedure cSDL3Eng.DrawHelp;
 begin
   Render.DebugTextF(0, 0, '%s', [sState]);
   Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[<=] [=>] Change sides');
-  Render.DebugText(0, 50, '[UP] [DOWN] Change radius');
+  Render.DebugText(0, 20, '[F] Change mode');
+  Render.DebugText(0, 30, '[C] Change colors');
+  Render.DebugText(0, 40, '[ARROWS] Move point');
+  Render.DebugText(0, 50, '[H] Horizontal lines');
+  Render.DebugText(0, 60, '[V] Vertical lines');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -153,17 +161,18 @@ begin
 
         SDLK_F1: ShowHelp := not ShowHelp;
 
-        SDLK_LEFT: if NSides > 1 then Dec(NSides);
-
-        SDLK_RIGHT: Inc(NSides);
-
-        SDLK_UP: Radius += kStepRadius;
-
-        SDLK_DOWN: Radius -= kStepRadius;
+        SDLK_F: ChangeState;
 
         SDLK_C: InitColors;
 
-        SDLK_F: ChangeState;
+        SDLK_UP: Y -= kMoveStep;
+        SDLK_DOWN: Y += kMoveStep;
+        SDLK_LEFT: X -= kMoveStep;
+        SDLK_RIGHT: X += kMoveStep;
+
+        SDLK_H: DrawHLine := not DrawHLine;
+
+        SDLK_V: DrawVLine := not DrawVLine;
 
         SDLK_Q: ExitProg := True;
 
@@ -176,7 +185,7 @@ begin
   end;
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;

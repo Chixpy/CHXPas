@@ -189,6 +189,7 @@ function cCHXSDL3Renderer.RectsBorder(const RArr: TSDLFRectDynArray;
 begin
   Result := IsValidArrayRange(Length(RArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
+  if Count <= 0 then Exit;
   // Draw althougth Result = False.
   Result := RectsBorderUnsafe(RArr, idxFirst, Count) and Result;
 end;
@@ -204,6 +205,7 @@ function cCHXSDL3Renderer.RectsFilled(const RArr: TSDLFRectDynArray;
 begin
   Result := IsValidArrayRange(Length(RArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
+  if Count <= 0 then Exit;
   // Draw althougth Result = False.
   Result := RectsFilledUnsafe(RArr, idxFirst, Count) and Result;
 end;

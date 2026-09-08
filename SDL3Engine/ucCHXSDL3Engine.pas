@@ -3,20 +3,22 @@ unit ucCHXSDL3Engine;
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 
 interface
 
 uses
   SysUtils, CTypes,
   SDL3,
-  ucCHXSDL3Config, ucCHXSDL3Renderer, ucCHXSDL3Window, ucCHXSDL3FPSManager;
+  uCHXSDL3TypeHelpers,
+  ucCHXSDL3Config, ucCHXSDL3Renderer, ucCHXSDL3Window, ucCHXSDL3FPSManager,
+  uaCHXSDL3Component;
 
 type
   {
     `cCHXSDL3Engine`: A basic Game Engine in SDL3.
 
-    Descendants only need to implement abtract or virtual methods:
+    Descendants only need to implement next methods:
 
     - `Setup`: Code of inicialization before enter the loop.
     - `Compute`: Code for every frame.
@@ -40,25 +42,21 @@ type
     `PSDLWindow` are the pointers to SDL3 native structures.
   }
   cCHXSDL3Engine = class //(TPersistent)
-  private // Propiedades que tienen Get o Set
+  private // Get properties
     FShowFrameRate: Boolean;
     FWindow: cCHXSDL3Window;
     FRender: cCHXSDL3Renderer;
 
   protected
+
     procedure SetShowFrameRate(const aValue: Boolean);
     procedure SetWindow(const aValue: cCHXSDL3Window);
     procedure SetRender(const aValue: cCHXSDL3Renderer);
 
 (*
   private // Gets and Sets
-    FCompList: cSDL2CompList;
     FDefFont: caCHXSDL2Font;
     FPWinPxFmt: PSDL_PixelFormat;
-
-  private // Properties
-
-    {property} FocusedComp: caCHXSDL2Comp;
 
     // Simple Input Text properties
     {property} STIActive: Boolean;
@@ -69,16 +67,7 @@ type
     {property} STIStrVar: PString;
     {property} STIUpdateLive: Boolean;
 
-    // Default values for component
-    {property} DefCompBGColor: CUInt;
-    //< Background color $AABBGGRR in Intel/Windows
-    {property} DefCompBDColor: CUInt;
-    //< Border color if not focused
-    {property} DefCompHLColor: CUInt;
-    //< Border color if focused
 *)
-
-    procedure SetDefaultValues;
 
   protected
     CurrTextInput: String;
@@ -88,9 +77,18 @@ type
 
     FPSMng: cCHXSDL3FPSManager; //< FPS manager
 
-    property Window: cCHXSDL3Window read FWindow write SetWindow;
-    property Render: cCHXSDL3Renderer read FRender write SetRender;
+    CompList: cSDL3ComponentList;
+    //< List of component
+    FocusedComp: caCHXSDL3Component;
+    //< Focus component
+    DefCompBGColor, DefCompBDColor, DefCompHLColor: TSDL_FColor;
+    {<< Default colors for background and border (Inactive and Active)
+      components.
+    }
 
+    function AddComponent(const aComp: caCHXSDL3Component): caCHXSDL3Component;
+
+    procedure SetDefaultValues;
 
 (*
     property DefFont: caCHXSDL2Font read FDefFont;
@@ -130,18 +128,17 @@ type
 
   public
     Title: String;
+
     Config: cCHXSDL3Config;
+    property Window: cCHXSDL3Window read FWindow write SetWindow;
+    property Render: cCHXSDL3Renderer read FRender write SetRender;
 
     property ShowFrameRate: Boolean
       read FShowFrameRate write SetShowFrameRate;
 
-(*
-    property CompList: cSDL2CompList read FCompList;
-
-*)
     constructor Create(const aTitle: String;
       const aWidth : CInt = 0; const aHeight: CInt = 0; const Scale: CInt = 1;
-      const FullScreen: Boolean = False; const UseGPU: Boolean = False;
+      const FullScreen: Boolean = False; const RenderDrivers: String = '';
       const AutoInit: Boolean = True);
       overload;
     {< Simple constructor.
@@ -151,7 +148,7 @@ type
       @param(aHeight Height of the renderer.)
       @param(Scale Scale of the window.)
       @param(FullScreen Create a full screen.)
-      @param(UseGPU Use GPU Renderer.)
+      @param(Render Use GPU Renderer.)
       @param(AutoInit Init engine automatically. If @False,
          cCHXSDL3Engine.Config properties can be changed and then
          cCHXSDL3Engine.Init must be called.)
@@ -167,14 +164,10 @@ type
          cCHXSDL3Engine.Init must be called.)
     }
     procedure Init;
-    {< Init engine and window. }
+    {< Init the engine and window. }
 
     procedure Run;
-    {< Run engine. }
-
-(*
-    function AddComponent(aComp: caCHXSDL2Comp): caCHXSDL2Comp;
-*)
+    {< Run the engine. }
 
     destructor Destroy; override;
   end;
@@ -183,50 +176,29 @@ implementation
 
 { cCHXSDL3Engine }
 
-constructor cCHXSDL3Engine.Create(const aTitle: String;
-  const aWidth, aHeight, Scale: CInt;
-  const FullScreen, UseGPU, AutoInit: Boolean);
+function cCHXSDL3Engine.AddComponent(const aComp: caCHXSDL3Component)
+  : caCHXSDL3Component;
 begin
-  inherited Create;
+  Result := aComp;
+  if not assigned(aComp) then Exit;
 
-  SetDefaultValues;
+  aComp.BGColor := DefCompBGColor;
+  aComp.BDColor := DefCompBDColor;
+  aComp.HLColor := DefCompHLColor;
+  aComp.Setup;
+  aComp.UnSetFocus;
 
-  Title := aTitle;
-
-  Config := cCHXSDL3Config.Create;
-  Config.Width := aWidth;
-  Config.Height := aHeight;
-  Config.Scale := Scale;
-  Config.FullScreen := FullScreen;
-  Config.UseGPU := UseGPU;
-
-  if AutoInit then
-    Init;
+  CompList.Add(aComp);
 end;
 
-constructor cCHXSDL3Engine.Create(const aTitle: String;
-  const aIniFile: String; const AutoInit: Boolean);
+procedure cCHXSDL3Engine.SetDefaultValues;
 begin
-  inherited Create;
+  FShowFrameRate := False;
 
-  SetDefaultValues;
-
-  Title := aTitle;
-
-  Config := cCHXSDL3Config.Create;
-
-  if AutoInit then
-  begin
-    Config.DefaultFileName := aIniFile;
-    Config.LoadFromFile('');
-    Init;
-  end
-  else
-  begin
-    Config.LoadFromFile(aIniFile);
-    // if Config is be changed manually then no save changes
-    Config.DefaultFileName := '';
-  end;
+  CompList := cSDL3ComponentList.Create(True);
+  DefCompBGColor := SDLFColor(0.5); //< Background color
+  DefCompBDColor := SDLFColor(0.25); //< Border color if not focused
+  DefCompHLColor := SDLFColor(1, 1, 0); //< Border color if focused
 end;
 
 procedure cCHXSDL3Engine.SetShowFrameRate(const aValue: Boolean);
@@ -254,19 +226,6 @@ begin
   FRender := aValue;
 
   SDLRenderer := Render.SDLRenderer;
-end;
-
-procedure cCHXSDL3Engine.SetDefaultValues;
-begin
-(*
-  FCompList := cSDL2CompList.Create(True);
-*)
-  FShowFrameRate := False;
-(*
-  DefCompBGColor := $FF404040; //< Background color
-  DefCompBDColor := $FF808080; //< Border color if not focused
-  DefCompHLColor := $FF00FFFF; //< Border color if focused
-*)
 end;
 
 (*
@@ -343,24 +302,23 @@ end;
 
 procedure cCHXSDL3Engine.HandleEvent(const aEvent: TSDL_Event; var Handled,
   ExitProg: Boolean);
-begin
-  if Handled then
-    Exit;
+{
+  - Window and general quit events are handled automatically.
+  - ESC: Exits the program.
+  - F10 / F11 / F12: Decreases / Toggles / Increases framerate.
 
-  // Some events are listed and commented out to have an easy reference.
-  // - Window and general quit events are handled automatically.
-  // - ESC: Exits the program.
-  // - F11: Toggles framerate.
-  // When TextInput is active handles character keys automatically too,
-  //   but SDL_KEYDOWN and SDL_KEYUP are sended too, so all keys are
-  //   handled.
+  When TextInput is active handles character keys automatically too,
+  but SDL_KEYDOWN and SDL_KEYUP are sended too, so all keys are
+  handled.
+}
+begin
+  if Handled or ExitProg then Exit;
+
 
   case aEvent.type_ of
-
-    // Handled in Run method
+    // Handled in by Window in Run method
     // SDL_WINDOWEVENT: // (window: TSDL_WindowEvent)
-
-    //SDL_KEYUP: // (key: TSDL_KeyboardEvent)
+    
     SDL_EVENT_KEY_DOWN: // (key: TSDL_KeyboardEvent)
     begin
 (*
@@ -458,8 +416,8 @@ begin
             ExitProg := True; // Exit
             Handled := True;
           end;
-          else
-            ;
+        otherwise
+            Handled := False;
         end;
       end;
     end;
@@ -494,10 +452,6 @@ begin
         Handled := True;
       end;
     end;
-    //SDL_MOUSEMOTION: // (motion: TSDL_MouseMotionEvent)
-    //SDL_MOUSEBUTTONUP: // (button: TSDL_MouseButtonEvent)
-    //SDL_MOUSEBUTTONDOWN: // (button: TSDL_MouseButtonEvent)
-    //SDL_MOUSEWHEEL: // (wheel: TSDL_MouseWheelEvent)
 *)
     SDL_EVENT_QUIT: // General exit event
     begin
@@ -505,7 +459,53 @@ begin
       Handled := True;
     end;
     otherwise
-      ;
+      Handled := False;
+  end;
+end;
+
+constructor cCHXSDL3Engine.Create(const aTitle : String;
+  const aWidth, aHeight, Scale : CInt; const FullScreen : Boolean;
+  const RenderDrivers : String; const AutoInit : Boolean);
+begin
+  inherited Create;
+
+  SetDefaultValues;
+
+  Title := aTitle;
+
+  Config := cCHXSDL3Config.Create;
+  Config.Width := aWidth;
+  Config.Height := aHeight;
+  Config.Scale := Scale;
+  Config.FullScreen := FullScreen;
+  Config.Render := RenderDrivers;
+
+  if AutoInit then
+    Init;
+end;
+
+constructor cCHXSDL3Engine.Create(const aTitle: String;
+  const aIniFile: String; const AutoInit: Boolean);
+begin
+  inherited Create;
+
+  SetDefaultValues;
+
+  Title := aTitle;
+
+  Config := cCHXSDL3Config.Create;
+
+  if AutoInit then
+  begin
+    Config.DefaultFileName := aIniFile;
+    Config.LoadFromFile('');
+    Init;
+  end
+  else
+  begin
+    Config.LoadFromFile(aIniFile);
+    // if Config is be changed manually then no save changes
+    Config.DefaultFileName := '';
   end;
 end;
 
@@ -523,7 +523,7 @@ begin
 //  FreeAndNil(FDefFont);
 
   aWindow := cCHXSDL3Window.Create(Title, Config.Width,
-    Config.Height, Config.Scale, Config.FullScreen, Config.UseGPU);
+    Config.Height, Config.Scale, Config.FullScreen, Config.Render);
 
   Window := aWindow; // Sets SDLRenderer and SDLWindow
 
@@ -546,34 +546,36 @@ end;
 procedure cCHXSDL3Engine.Run;
 var
   ProgExit, HandledEvent: Boolean;
-  aEvent: TSDL_Event;
+  aEvent, LPEvent: TSDL_Event;
   ComputeBegin, ComputeTime: CUInt64; //< Actual Compute only time.
   CursorX, i: Integer;
-//  aComp: caCHXSDL2Comp;
+  aComp: caCHXSDL3Component;
 begin
   ProgExit := False;
   FPSMng := cCHXSDL3FPSManager.Create(30);
   {<
     ToDo: Make FPS configurable with Config.
-      FPSMng.FPS can be changed in Setup, Compute, Draw and HandleEvent.
   }
 
   try
     Self.Setup;
-(*
+
+    // If added before running...
     for aComp in CompList do
       aComp.Setup;
-*)
+
     while (not ProgExit) do
     begin
       // COMPUTE
       ComputeBegin := SDL_GetTicks;
       Self.Compute(ProgExit);
-(*
+
       for aComp in CompList do
-        if (not ProgExit) then
-          aComp.Compute(LastFrameTime, ProgExit);
-*)
+      begin
+        if ProgExit then Break;
+        aComp.Compute(FPSMng.LastFullTime, ProgExit);
+      end;
+
       ComputeTime := SDL_GetTicks - ComputeBegin;
 
       // Wait to next frame. Result not needed.
@@ -584,18 +586,27 @@ begin
       begin
         // DRAW
         Draw;
-(*
+
         for aComp in CompList do
-          aComp.Draw;
-*)
+        begin
+          Window.PushRenderSize(aComp.LogPresW, aComp.LogPresH, aComp.LogPresH);
+          aComp.Draw(Render);
+          Window.PopRenderSize;
+        end;
+
         if ShowFrameRate
-         // and ((FPSMng.FrameCount and 31) = 0)
+          // and ((FPSMng.FrameCount and 31) = 0)
           then
         begin
-          Render.SetDrawColor(1, 0, 1, 1);
-          SDL_RenderDebugTextFormat(SDLRenderer, Window.Width - 200,
-            Window.Height - 8, '%dms / %dms / %dms',
-          [FPSMng.LastFullTime, FPSMng.LastBusyTime, ComputeTime]);
+          Window.PushRenderSize(Window.WindowWidth, Window.WindowHeight,
+            SDL_LOGICAL_PRESENTATION_DISABLED);
+          Render.PushDrawColor(1, 0, 1, 1);
+          SDL_RenderDebugTextFormat(SDLRenderer,
+            Window.WindowWidth - 192, Window.WindowHeight - 8,
+            '[F11] %4d / %4d / %4d',
+            [FPSMng.LastFullTime, FPSMng.LastBusyTime, ComputeTime]);
+          Render.PopDrawColor;
+          Window.PopRenderSize;
 
           // Window.Title := Format('%0:s: %1:d ms (%2:d ms)',
           //   [Title, FPSMng.LastFrameTime, FPSMng.LastCompTime]);
@@ -614,8 +625,8 @@ begin
               STIFont.Color.g, STIFont.Color.b, STIFont.Color.a);
         end;
 *)
+
         // UPDATE RENDER
-        // ToDo: Use CHX Render
         SDL_RenderPresent(SDLRenderer);
       end;
 
@@ -635,60 +646,61 @@ begin
           Window.HandleEvent(aEvent, HandledEvent);
         end;
 
-(*
         // Second: Pass event to current component
-        if assigned(FocusedComp) then
-          FocusedComp.HandleEvent(aEvent, HandledEvent, ProgExit);
+        if Assigned(FocusedComp) then
+        begin
+          Window.PushRenderSize(FocusedComp.LogPresW, FocusedComp.LogPresH,
+            FocusedComp.LogPresH);
+          LPEvent := aEvent;
+          SDL_ConvertEventToRenderCoordinates(SDLRenderer, @LPEvent);
+          FocusedComp.HandleEvent(LPEvent, HandledEvent, ProgExit);
+          Window.PopRenderSize;
+        end;
 
         // Third: Pass to all components
         for aComp in CompList do
-          aComp.HandleEvent(aEvent, HandledEvent, ProgExit);
-*)
-        // Fourth: Fallback to engine
-        HandleEvent(aEvent, HandledEvent, ProgExit);
-
-(* // Esto... ¿Dentro o fuera de loop de eventos?
-        // Getting current focused component
-        FocusedComp := nil;
-        i := 0;
-        while (not assigned(FocusedComp)) and (i < CompList.Count) do
         begin
-          if CompList[i].Focused then
-            FocusedComp := CompList[i];
-          Inc(i);
+          if aComp = FocusedComp then Continue;
+          Window.PushRenderSize(aComp.LogPresW, aComp.LogPresH,
+            aComp.LogPresH);
+          LPEvent := aEvent;
+          SDL_ConvertEventToRenderCoordinates(SDLRenderer, @LPEvent);
+          aComp.HandleEvent(LPEvent, HandledEvent, ProgExit);
+          Window.PopRenderSize;
         end;
-*)
+
+        // Fourth: Fallback to engine
+        LPEvent := aEvent;
+        SDL_ConvertEventToRenderCoordinates(SDLRenderer, @LPEvent);
+        HandleEvent(LPEvent, HandledEvent, ProgExit);
       end;
+
+      // Getting current focused component
+      FocusedComp := nil;
+      i := 0;
+      while (not assigned(FocusedComp)) and (i < CompList.Count) do
+      begin
+        if CompList[i].Focused then
+          FocusedComp := CompList[i];
+        Inc(i);
+      end;
+
+      // Restoring to initial Logical Presentation
+      Window.PopRenderSize(-1);
     end;
 
   finally
+
     Finish;
+    for aComp in CompList do
+      aComp.Finish;
     FPSMng.Free;
   end;
 end;
 
-(*
-function cCHXSDL3Engine.AddComponent(aComp: caCHXSDL2Comp): caCHXSDL2Comp;
-begin
-  Result := aComp;
-  if not assigned(aComp) then Exit;
-
-  aComp.PRenderer := SDLRenderer;
-  aComp.BGColor := DefCompBGColor;
-  aComp.BDColor := DefCompBDColor;
-  aComp.HLColor := DefCompHLColor;
-
-  aComp.UnSetFocus;
-
-  CompList.Add(aComp);
-end;
-*)
-
 destructor cCHXSDL3Engine.Destroy;
 begin
-(*
   CompList.Free;
-*)
 
 (* Now not needed to save changes:
 
@@ -723,7 +735,7 @@ begin
 
   SDL_Quit;
 
-  inherited;
+  inherited Destroy;
 end;
 
 end.

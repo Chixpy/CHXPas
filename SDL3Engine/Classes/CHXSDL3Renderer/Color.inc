@@ -31,6 +31,8 @@ begin
       and SDL_GetRenderDrawBlendMode(SDLRenderer, @PrevBlendMode)
       and SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_NONE);
 
+  ColorStack[High(ColorStack)] := SDLFColor(R, G, B, A);
+
   // Try to set color anyways if something before fails
   Result := SDL_SetRenderDrawColorFloat(SDLRenderer, R, G, B, A)
     and Result;
@@ -58,6 +60,38 @@ end;
 function cCHXSDL3Renderer.GetDrawColor(out R, G, B, A: CFloat): Boolean;
 begin
   Result := SDL_GetRenderDrawColorFloat(SDLRenderer, @R, @G, @B, @A);
+end;
+
+// PushDrawColor
+
+function cCHXSDL3Renderer.PushDrawColor(const aColor: TSDL_FColor): Boolean;
+begin
+  Result := PushDrawColor(aColor.R, aColor.G, aColor.B, aColor.A);
+end;
+
+function cCHXSDL3Renderer.PushDrawColor(const R, G, B, A: CFloat): Boolean;
+begin
+  SetLength(ColorStack, Length(ColorStack) + 1);
+  Result := SetDrawColor(R, G, B, A);
+end;
+
+function cCHXSDL3Renderer.PushDrawColor(const Grey, A: CFloat): Boolean;
+begin
+  Result := PushDrawColor(Grey, Grey, Grey, A);
+end;
+
+// PopDrawColor
+
+function cCHXSDL3Renderer.PopDrawColor(const PopCount: Integer) : Boolean;
+var
+  Size: Integer;
+begin
+  if (PopCount > 0) and (Length(ColorStack) > PopCount) then
+    Size := Length(ColorStack) - PopCount
+  else
+    Size := 1;
+  SetLength(ColorStack, Size);
+  Result := SetDrawColor(ColorStack[High(ColorStack)]);
 end;
 
 {< This source is free software; you can redistribute it and/or modify it under

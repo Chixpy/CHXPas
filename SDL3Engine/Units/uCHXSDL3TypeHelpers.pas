@@ -74,7 +74,7 @@ type
     P1, P2: TSDL_Point;
 
   {
-    Init
+    TCHXSDLSegment.Init
   }
 
     procedure Init(const aP1, aP2: TSDL_Point); overload; inline;
@@ -111,7 +111,11 @@ type
   //< Dynamic array of TSDL_FColor.
   TSDLFPointDynArray = Array of TSDL_FPoint;
   //< Dynamic array of TSDL_FPoint.
+  TSDLPointDynArray = Array of TSDL_Point;
+  //< Dynamic array of TSDL_FPoint.
   TSDLFRectDynArray = Array of TSDL_FRect;
+  //< Dynamic array of TSDL_FRect.
+  TSDLRectDynArray = Array of TSDL_Rect;
   //< Dynamic array of TSDL_FRect.
   TSDLVertexDynArray = Array of TSDL_Vertex;
   //< Dynamic array of TSDL_Vertex.
@@ -132,7 +136,7 @@ type
   TSDLFColorH = record helper for TSDL_FColor
   public
   {
-    Init
+    TSDLFColorH Init
   }
 
     procedure Init(const aR, aG, aB: CFloat; const aA: CFloat = 1); overload;
@@ -171,13 +175,13 @@ type
     }
 
   {
-    Comparisons
+    TSDLFColorH Comparisons
   }
 
     function IsEqual(const aColor: TSDL_FColor): Boolean;
 
   {
-    Operators (They can't be in a helper as FPC 3.3.1)
+    TSDLFColorH Operators (They can't be in a helper as FPC 3.3.1)
   }
 
     // operator = (const C1, C2: TSDL_FColor): Boolean; overload;
@@ -197,7 +201,7 @@ type
   TSDLColorH = record helper for TSDL_Color
   public
   {
-    Init
+    TSDLColorH Init
   }
 
     procedure Init(const aR, aG, aB: Byte; const aA: Byte = 255); overload;
@@ -219,13 +223,13 @@ type
     }
 
   {
-    Comparisons
+    TSDLColorH Comparisons
   }
 
     function IsEqual(const aColor: TSDL_Color): Boolean;
 
   {
-    Operators (They can't be in a helper as FPC 3.3.1)
+    TSDLColorH Operators (They can't be in a helper as FPC 3.3.1)
   }
 
     // operator = (const C1, C2: TSDL_FColor): Boolean; overload;
@@ -245,7 +249,7 @@ type
   TSDLFPointH = record helper for TSDL_FPoint
   public
   {
-    Init
+    TSDLFPointH Init
   }
     procedure Init(const aX, aY: CFloat); inline;
     procedure InitPolar(const aMag, aAngle: CFloat); inline;
@@ -253,7 +257,7 @@ type
     procedure InitRandomPolar(const aMag: CFloat = 1); inline;
 
   {
-    Polar data
+    TSDLFPointH Polar data
   }
 
     function GetAngle: CFloat; inline;
@@ -264,7 +268,7 @@ type
     procedure SetMagnitude(const aMag: CFloat);
 
   {
-    Comparisons
+    TSDLFPointH Comparisons
   }
 
     function IsZero(const aEpsilon: CFloat = 0): Boolean; inline;
@@ -286,7 +290,7 @@ type
       : Boolean; inline;
 
   {
-    Self operations
+    TSDLFPointH Self operations
   }
 
     procedure Negate; //< Other posible names: Opposite or Invert
@@ -299,7 +303,7 @@ type
     procedure DivInv(const aScale: CFloat); inline; //< AScale / Self
 
   {
-    Common operations (as Point or Vector)
+    TSDLFPointH Common operations (as Point or Vector)
   }
 
     procedure Normalize;
@@ -543,6 +547,12 @@ operator = (const R1, R2: TSDL_FRect): Boolean; overload; inline;
 }
 
 operator = (const V1, V2: TSDL_Vertex): Boolean; overload; inline;
+
+{
+  #### Misc operators.
+}
+
+operator := (const Src: TSDL_Point): TSDL_FPoint;
 
 {
   ### Type creation functions.
@@ -1607,6 +1617,14 @@ operator = (const V1, V2: TSDL_Vertex): Boolean;
 begin
   Result := (V1.Position = V2.Position) and (V1.Color = V2.Color) 
     and (V1.Tex_Coord = V2.Tex_Coord);
+end;
+
+{
+  ##### Misc operators
+}
+operator := (const Src: TSDL_Point): TSDL_FPoint;
+begin
+  Result.X := Src.X; Result.Y := Src.Y;
 end;
 
 {

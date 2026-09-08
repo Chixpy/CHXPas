@@ -61,17 +61,27 @@ end;
 
 function cCHXSDL3Renderer.PolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
+var
+  PArr2: TSDLFPointDynArray;
 begin
-  Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
-    and Line(PArr[idxFirst + Count - 1], PArr[idxFirst]);
+  // Closing the polygon
+  PArr2 := Copy(PArr, idxFirst, Count);
+  SetLength(PArr2, Length(PArr2) + 1);
+  PArr2[High(PArr2)] := PArr2[0];
+  Result := LinesUnsafe(PArr2, 0, Length(PArr2));
 end;
 
 function cCHXSDL3Renderer.TPolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
+{ ToDo: Probar si dibujar triangulo es mas rapido que las lineas }
+var
+  PArr2: TSDLFPointDynArray;
 begin
-  { ToDo: Probar si dibujar triangulo es mas rapido que las lineas }
-  Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
-    and Line(PArr[idxFirst + Count - 1], PArr[idxFirst]);
+  // Closing the polygon
+  PArr2 := Copy(PArr, idxFirst, Count);
+  SetLength(PArr2, Length(PArr2) + 1);
+  PArr2[High(PArr2)] := PArr2[0];
+  Result := LinesUnsafe(PArr2, 0, Length(PArr2));
 end;
 
 function cCHXSDL3Renderer.PolygonBorder(const PArr: TSDLFPointDynArray;
@@ -100,7 +110,7 @@ begin
   case Count of
   // 0: Exit(True); It can't happen
   1: Result := TPoint(PArr[idxFirst]);
-  2: Result := TLines(@PArr[idxFirst], Count);
+  2: Result := TLines(PArr, idxFirst, Count);
   otherwise
     Result := TPolygonBorderUnsafe(PArr, idxFirst, Count);
   end;
@@ -262,8 +272,6 @@ end;
 
 function cCHXSDL3Renderer.PolygonFilled(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
-var
-  FColor: TSDL_FColor;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
@@ -272,19 +280,24 @@ begin
   case Count of
   // 0: Exit(Result); // It can't happen
 
-  1: Exit(Point(PArr[idxFirst]));
+  1: Result := Point(PArr[idxFirst]);
 
-  2: // Exit(Render.Line(PArr[idxFirst], PArr[idxFirst + 1]));
-    Exit(SDL_RenderLines(SDLRenderer, @PArr[idxFirst], 2));
+  2: Result := LinesUnsafe(PArr, idxFirst, 2);
 
-  3: // Exit(TriangleFilledUnsafe(PArr, idxFirst));
-    Exit(GetDrawColor(FColor)
-      and SDL_RenderGeometryRaw(SDLRenderer, nil, @PArr[idxFirst],
-        SizeOf(TSDL_FPoint), @FColor, 0, nil, 0, 3, nil, 0, 0));
+  3: Result := TriangleFilledUnsafe(PArr, idxFirst);
 
+  //4: ToDo: This can have an optimized fill too?
+  //   Result := QuadFilledUnsafe(PArr, idxFirst);
   otherwise
     Result := PolygonFilledUnsafe(PArr, idxFirst, Count);
   end;
+end;
+
+function cCHXSDL3Renderer.TPolygonFilled(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  // ToDo: Make a proper Triangle Polygon Filled
+  Result := PolygonFilled(PArr, idxFirst, Count);
 end;
 
 // PolygonFillOnly

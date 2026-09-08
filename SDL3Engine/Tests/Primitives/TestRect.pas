@@ -14,9 +14,9 @@ uses
 const
   kNRects = 30;
 
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderW = 100; { Renderer width. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
@@ -93,9 +93,8 @@ procedure cSDL3Eng.Draw;
 var
   i: Integer;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.1);
+  Render.SetDrawColor(1);
 
   i := 0;
   while i <= High(Rects) do
@@ -111,17 +110,18 @@ begin
   end;
 
   // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change color');
   Render.DebugText(0, 30, '[R] Change rectangles');
   Render.DebugText(0, 40, '[F] Change mode');
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;

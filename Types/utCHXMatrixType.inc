@@ -707,24 +707,24 @@ begin
 end;
 
 class operator TCHXMatrixType.Copy(constref Src: TCHXMatrixType; var Dst: TCHXMatrixType);
+{
+  Deep copy of the multi-dimensional dynamic array structure.
+
+  In Pascal, assigning a record copies its fields. However, since dynamic
+    arrays are used internally, only the pointer reference would be copied
+    by default. Overloading this operator forces FPC to perform a deep copy
+    of the array content.
+
+  Tecnically you can't do:
+    class operator :=(const Src: aType): aType; // Both are the same type
+
+  With FPC 3.1.1, you can redefine this management operator to change the
+    behavior of ":=". The usual solution was to create a method
+    CopyFrom(Source) or CopyTo(Target).
+}
 var
   i: Integer;
 begin
-  { 
-    Deep copy of the multi-dimensional dynamic array structure.
-
-    In Pascal, assigning a record copies its fields. However, since dynamic
-      arrays are used internally, only the pointer reference would be copied
-      by default. Overloading this operator forces FPC to perform a deep copy
-      of the array content.
-
-    Tecnically you can't do:
-      class operator :=(const Src: aType): aType; // Both are the same type
-
-    With FPC 3.1.1, you can redefine this management operator to change the
-      behavior of ":=". The usual solution was to create a method
-      CopyFrom(Source) or CopyTo(Target).
-}
   SetLength(Dst.Data, Length(Src.Data));
 
   for i := 0 to High(Src.Data) do

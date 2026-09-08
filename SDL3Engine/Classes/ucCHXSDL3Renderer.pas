@@ -73,7 +73,10 @@ unit ucCHXSDL3Renderer;
 
   - Encapsulate `TSDL_Renderer` drawing functions within a dedicated class.
   - Add significant primitive drawing functions.
-  - Try to adapt _integer algorithm_ methods to SDL Logical Presentation.
+  - Alternative methods to different kind of drawing:
+    - _Integer rasterization algorithms_ that rounds coord to whole pixel.
+    - Adaptation of this methods to SDL Logical Presentation subpixel.
+    - Try to draw (well, fill) primitives with triangles, rects and lines.
   - Add some Quality of Life features:
     - Overloaded variants of functions for various parameter types:
       - Point: `P: TSDL_FPoint` <=> `X, Y: CFloat`
@@ -108,8 +111,8 @@ unit ucCHXSDL3Renderer;
   ## ToDo:
 
   - Make alternative methods:
-    - FP[x]: Classic integer algorithms with rounded coords.
-    - T[x]: Draw all with filled triangles or rectangles. Lines too.
+    - R[x]: Classic integer algorithms with rounded coords.
+    - T[x]: Draw all with filled Triangles, Rectangles or Lines.
       Points... more testing needed.
   - Logical Presentation quirks with _Integer Algorithms_:
     - _Points_ are drawn at subpixel position with scale size. Lines
@@ -147,7 +150,7 @@ interface
 uses
   SysUtils, CTypes, Math, // FPC RTL
   SDL3, // SDL3
-  uCHXSDL3TypeHelpers; // CHXSDL3engine
+  uCHXMath, uCHXSDL3TypeHelpers; // CHXSDL3engine
 
 resourcestring
   rsCHXSDL3RendererNilError = 'cCHXSDL3Renderer.Create: %s is nil.';
@@ -166,6 +169,8 @@ type
   }
   cCHXSDL3Renderer = class //(TPersistent)
   protected
+    ColorStack: TSDLFColorDynArray;
+    //< Stack of pushed Colors, pushed with PushDrawColor.
 
   {
     Auxiliar functions
@@ -196,7 +201,7 @@ type
     //< Previous blend mode when changing color.
 
   {
-    Constructors
+    Constructors and Destructor
   }
 
     constructor Create(const PSDLWindow: PSDL_Window;
@@ -213,6 +218,12 @@ type
 
       @param(PSDLRenderer SDL_Renderer to use.)
       @param(FreeRenderer ¿Free SDL_Renderer on Destroy?)
+    }
+
+    destructor Destroy; override;
+    {< Destructor of cCHXSDL3Renderer.
+
+      if FreeRenderer is @True, destroys SDL_Renderer too.
     }
 
   {
@@ -254,6 +265,31 @@ type
       @param(G Returned Green in float [0..1] range.)
       @param(B Returned Blue in float [0..1] range.)
       @param(Alpha Returned Opacity in float [0..1] range.)
+    }
+
+    function PushDrawColor(const aColor: TSDL_FColor): Boolean; overload;
+      inline;
+    function PushDrawColor(const R, G, B: CFloat; const A: CFloat = 1): Boolean;
+      overload;
+    function PushDrawColor(const Grey: CFloat; const A: CFloat = 1): Boolean;
+      overload; inline;
+    {<< Push current draw color into a stack, so previous color(s) can
+        restored with PopDrawColor.
+
+      @param(aColor Color with components in float [0..1] range.)
+
+      @param(R Red in float [0..1] range.)
+      @param(G Green in float [0..1] range.)
+      @param(B Blue in float [0..1] range.)
+      @param(Alpha Opacity in float [0..1] range.)
+
+      @param(Grey Grey in float [0..1] range.)
+    }
+
+    function PopDrawColor(const PopCount: Integer = 1) : Boolean;
+    {< Restore previous color.
+
+      @param(PopCount Number of colors to pop out.)
     }
 
   {
@@ -443,7 +479,7 @@ type
     function TLine(const X1, Y1, X2, Y2: CFloat): Boolean; overload;
     {< Draw a line with current draw color.
 
-      If `(Abs(X1 - X2) < 1) or (Abs(Y1 - Y2) < 1)`, it draws a full pixel. 
+      If `(Abs(X1 - X2) < 1) or (Abs(Y1 - Y2) < 1)`, it draws a full pixel.
 
       @note(Renderer Logical Presentation draw it _smooth_, with 1 logical
         pixel of width. If Lenght < 2, 2 logical pixels will overlap their
@@ -700,8 +736,8 @@ type
       const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
     function Frame(const X, Y, W, H, BWidth: CFloat;
       const BorderC, FillC: TSDL_FColor): Boolean; overload;
-    {<< Draw a filled Axis Aligned Rectangle with rounded corners with a Circle
-      and its border with different colors.
+    {<< Draw a filled Axis aligned rectangle with a rectangle hole in
+      the middle and its border with different colors.
 
       @param(X Horizontal position of the top left "corner".)
       @param(Y Vertical position of the top left "corner".)
@@ -947,6 +983,8 @@ type
       const idxFirst, Count: Integer): Boolean;
     function PolygonFilled(const PArr: TSDLFPointDynArray;
       const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function TPolygonFilled(const PArr: TSDLFPointDynArray;
+      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
     {<< Draw a filled polygon with current color.
 
       With idxFirst and Count can select wich points will be used from a
@@ -1168,6 +1206,9 @@ type
     [T]Circle[X]: Circle / Circunference.
   }
 
+    procedure TCircleVertices(var PArr: TSDLFPointDynArray;
+      const X, Y, R: CFloat; OctPoints: Integer = -1);
+
     function Circle(const X, Y, R: CFloat; const BorderC, FillC: TSDL_FColor)
       : Boolean;
     {< Draw a circle and a its circunference with different colors.
@@ -1180,8 +1221,8 @@ type
     }
 
     function CircleBorder(const X, Y: CFloat; R: CFloat): Boolean;
-    function TCircleBorder(const X, Y, R: CFloat; NSides : Integer = -1)
-      : Boolean;
+    function TCircleBorder(const X, Y, R: CFloat;
+      const OctPoints : Integer = -1): Boolean;
     {< Draw a circunference with current color.
 
       @param(X Horizontal position of the center of the circunference.)
@@ -1190,8 +1231,8 @@ type
     }
 
     function CircleFilled(const X, Y: CFloat; R: CFloat): Boolean;
-    function TCircleFilled(const X, Y, R: CFloat; NSides : Integer = -1)
-      : Boolean;
+    function TCircleFilled(const X, Y, R: CFloat;
+      const OctPoints : Integer = -1): Boolean;
     {< Draw a circle with current color.
 
       @param(X Horizontal position of the center of the circle.)
@@ -1215,6 +1256,9 @@ type
     Ellipse[X]: Axis Aligned Ellipse.
   }
 
+    procedure TEllipseVertices(var PArr: TSDLFPointDynArray;
+      const X, Y, RX, RY: CFloat; QuadPoints: Integer = -1);
+
     function Ellipse(const X, Y, RX, RY: CFloat;
       const BorderC, FillC: TSDL_FColor): Boolean;
     {< Draw a filled Axis Aligned Ellipse and its border with different colors
@@ -1229,6 +1273,9 @@ type
     }
 
     function EllipseBorder(const X, Y: CFloat; RX, RY: CFloat): Boolean;
+      overload;
+    function TEllipseBorder(const X, Y, RX, RY: CFloat;
+      const QuadPoints : Integer = -1): Boolean; overload;
     {< Draw an Axis Aligned Ellipse border with current draw color
       described by its center and radii.
 
@@ -1239,6 +1286,9 @@ type
     }
 
     function EllipseFilled(const X, Y: CFloat; RX, RY: CFloat): Boolean;
+      overload;
+    function TEllipseFilled(const X, Y, RX, RY: CFloat;
+      const QuadPoints : Integer = -1): Boolean; overload;
     {< Draw a filled Axis Aligned Ellipse with current draw color
       described by its center and radii.
 
@@ -1422,15 +1472,6 @@ type
     function DebugTextF(const X, Y: CFloat; const aFmtStr: String;
       const Args: Array of Const): Boolean;
 
-  {
-    Destructor
-  }
-
-    destructor Destroy; override;
-    {< Destructor of cCHXSDL3Renderer.
-
-      if FreeRenderer is @True, destroys SDL_Renderer too.
-    }
   end;
 
 implementation
@@ -1464,7 +1505,18 @@ begin
 
   // Setting initial default BlendMode
   PrevBlendMode := SDL_BLENDMODE_BLEND;
-  SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_BLEND)
+  SDL_SetRenderDrawBlendMode(SDLRenderer, SDL_BLENDMODE_BLEND);
+
+  SetLength(ColorStack, 1);
+  SetDrawColor(1);
+end;
+
+destructor cCHXSDL3Renderer.Destroy;
+begin
+  if FreeRenderer then
+    SDL_DestroyRenderer(SDLRenderer);
+
+  inherited;
 end;
 
 {$MACRO ON}
@@ -1508,16 +1560,6 @@ begin
   //   PAnsiChar(aStr), Args);
   Result := SDL_RenderDebugText(Self.SDLRenderer, X, Y,
   PAnsiChar(Format(aFmtStr, Args)));
-end;
-
-// Destroy
-
-destructor cCHXSDL3Renderer.Destroy;
-begin
-  if FreeRenderer then
-    SDL_DestroyRenderer(SDLRenderer);
-
-  inherited;
 end;
 
 end.

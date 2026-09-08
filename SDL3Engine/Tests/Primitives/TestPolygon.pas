@@ -12,15 +12,17 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNPoints = 8;
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderW = 50; { Renderer width. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
+  kNPoints = 10;
+
 type
+
+  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -35,13 +37,15 @@ type
 
   public
     ShowHelp: Boolean;
-    Points: Array of TSDL_FPoint;
+    State: TState;
+    sState: String;
     Color1, Color2: TSDL_FColor;
-    FillMode: Boolean;
+
+    Points: Array of TSDL_FPoint;
 
     procedure InitPoints;
     procedure InitColors;
-
+    procedure ChangeState;
     procedure DrawHelp;
   end;
 
@@ -61,15 +65,33 @@ begin
   Color2.Init(Random, Random, Random, Random);
 end;
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+    stAll: sState := 'Border + OnlyFill';
+    stBorder: sState := 'Border';
+    stTBorder: sState := 'Triangle Border';
+    stFilled: sState := 'Filled';
+    stTFilled: sState := 'Triangle Filled';
+  otherwise
+    ;
+  end;
+end;
+
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+  InitColors;
+  State := High(TState);
+  ChangeState;
 
   SetLength(Points, kNPoints);
   InitPoints;
-  InitColors;
-
-  FillMode := False;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -85,17 +107,23 @@ end;
 procedure cSDL3Eng.Draw;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.05);
 
-  if  FillMode then
-  begin
-    Render.SetDrawColor(Color1);
-    Render.PolygonFilled(Points);
-  end
-  else
-    Render.Polygon(Points, Color1, Color2);
+  Render.SetDrawColor(Color1);
+  case State of
+  stAll: Render.Polygon(Points, Color1, Color2);
 
+  stBorder: Render.PolygonBorder(Points);
+
+  stTBorder: Render.TPolygonBorder(Points);
+
+  stFilled: Render.PolygonFilled(Points);
+
+  stTFilled: Render.TPolygonFilled(Points);
+
+  otherwise
+    ;
+  end;
 
   // Render size and color for FPS and Help
   Window.SetRenderSize(400, 400);
@@ -105,10 +133,11 @@ end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Render.DebugTextF(0, 0, '%s ', [sState]);
   Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, ' [C] Change color');
-  Render.DebugText(0, 30, ' [P] Change points');
-  Render.DebugText(0, 40, ' [F] Change mode');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[P] Change points');
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -130,7 +159,7 @@ begin
 
         SDLK_P: InitPoints;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_F: ChangeState;
 
         SDLK_Q: ExitProg := True;
 

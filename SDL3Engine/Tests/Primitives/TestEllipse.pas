@@ -7,19 +7,22 @@ program TestEllipse;
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderW = 50; { Renderer width. }
+  kRenderH = kRenderW; { Renderer height. }
+  kWindowScale = 900 div kRenderH; { Scale of the Window. }
   kFullScreen = False;
   kUseGPU = False;
 
+  kRadiusStep = 0.5;
+
 type
+
+  TState = (stBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -34,17 +37,18 @@ type
 
   public
     ShowHelp: Boolean;
-
+    State: TState;
+    sState: String;
     Color1, Color2: TSDL_FColor;
-    FillMode: Boolean;
+
     RadiusX, RadiusY: CFloat;
 
     procedure InitColors;
+    procedure ChangeState;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
-
 
 procedure cSDL3Eng.InitColors;
 begin
@@ -52,14 +56,33 @@ begin
   Color2.Init(Random, Random, Random, Random);
 end;
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+    stBorFill: sState := 'Border + OnlyFill';
+    stBorder: sState := 'Border';
+    stTBorder: sState := 'Triangle Border';
+    stFilled: sState := 'Filled';
+    stTFilled: sState := 'Triangle Filled';
+  otherwise
+    ;
+  end;
+end;
+
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-
   InitColors;
-  FillMode := False;
-  RadiusX := Round(kRenderW div 3);
-  RadiusY := Round(kRenderH div 4);
+  State := High(TState);
+  ChangeState;
+
+  RadiusX := kRenderW * 0.4;
+  RadiusY := kRenderH * 0.3;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -73,33 +96,45 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
+var
+  X, Y: CFloat;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.05);
 
-  if  FillMode then
-  begin
-    Render.SetDrawColor(Color1);
-    Render.EllipseFilled(kRenderW div 2, kRenderH div 2, RadiusX, RadiusY);
-  end
-  else
-    Render.Ellipse(kRenderW div 2, kRenderH div 2, RadiusX, RadiusY,
-      Color1, Color2);
+  X := kRenderW * 0.5; Y := kRenderW * 0.5;
+  Render.SetDrawColor(Color1);
+
+  case State of
+  stBorFill: Render.Ellipse(X, Y, RadiusX, RadiusY, Color1, Color2);
+
+  stBorder: Render.EllipseBorder(X, Y, RadiusX, RadiusY);
+
+  stTBorder: Render.TEllipseBorder(X, Y, RadiusX, RadiusY);
+
+  stFilled: Render.EllipseFilled(X, Y, RadiusX, RadiusY);
+
+  stTFilled: Render.TEllipseFilled(X, Y, RadiusX, RadiusY);
+
+  otherwise
+    ;
+  end;
 
   // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(400, 400);
+  Render.SetDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s - Radius: %g, %g', [sState, RadiusX, RadiusY]);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change color');
   Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[<=] [=>] Change X radius');
+  Render.DebugText(0, 40, '[LEFT] [RIGHT] Change X radius');
   Render.DebugText(0, 50, '[UP] [DOWN] Change Y radius');
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -117,17 +152,17 @@ begin
 
         SDLK_F1: ShowHelp := not ShowHelp;
 
-        SDLK_UP: RadiusY += 1;
+        SDLK_UP: RadiusY += kRadiusStep;
 
-        SDLK_DOWN: RadiusY -= 1;
+        SDLK_DOWN: RadiusY -= kRadiusStep;
 
-        SDLK_LEFT: RadiusX -= 1;
+        SDLK_LEFT: RadiusX -= kRadiusStep;
 
-        SDLK_RIGHT: RadiusX += 1;
+        SDLK_RIGHT: RadiusX += kRadiusStep;
 
         SDLK_C: InitColors;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_F: ChangeState;
 
         SDLK_Q: ExitProg := True;
 

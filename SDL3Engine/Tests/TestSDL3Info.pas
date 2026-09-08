@@ -417,7 +417,7 @@ begin
     // SDL_video.h
 
     WriteSection('SDL_video.h');
-    
+
     aCInt1 := SDL_GetNumVideoDrivers;
     WriteLn('SDL_GetNumVideoDrivers: ', aCInt1);
     for aCInt2 := 0 to (aCInt1 - 1) do

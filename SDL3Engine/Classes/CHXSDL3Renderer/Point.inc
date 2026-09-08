@@ -18,7 +18,7 @@ begin
 end;
 
 (*
-function cCHXSDL3Renderer.PointFP(const X, Y: CFloat): Boolean;
+function cCHXSDL3Renderer.FPPoint(const X, Y: CFloat): Boolean;
 begin
   Result := SDL_RenderPoint(SDLRenderer, Round(X), Round(Y));
 end;
@@ -35,7 +35,7 @@ begin
 end;
 
 (*
-function cCHXSDL3Renderer.PointFP(const P: TSDL_FPoint): Boolean;
+function cCHXSDL3Renderer.FPPoint(const P: TSDL_FPoint): Boolean;
 begin
   Result := SDL_RenderPoint(SDLRenderer, Round(P.X), Round(P.Y));
 end;
@@ -61,10 +61,9 @@ function cCHXSDL3Renderer.Points(const PArr: TSDLFPointDynArray;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
-
+  if Count <= 0 then Exit;
   // Try to draw although Result = False
-  if Count > 0 then
-    Exit(PointsUnsafe(PArr, idxFirst, Count) and Result);
+  Result := PointsUnsafe(PArr, idxFirst, Count) and Result;
 end;
 
 (*
@@ -110,17 +109,17 @@ var
   PArr: array[0..1] of TSDL_FPoint;
 begin
   if IsZero(X) then
-    Exit(SDL_RenderPoint(SDLRenderer, OffsetX, Y));
+    Exit(Point(OffsetX, Y));
   PArr[0].X := OffsetX - X; PArr[0].Y := Y;
   PArr[1].X := OffsetX + X; PArr[1].Y := Y;
-  Result := SDL_RenderPoints(SDLRenderer, @PArr[0], 2);
+  Result := PointsUnsafe(PArr, 0, 2);
 end;
 
 function cCHXSDL3Renderer.PointMirrorHFilled(const X, Y, OffsetX: CFloat)
   : Boolean;
 begin
   if IsZero(X) then
-    Exit(SDL_RenderPoint(SDLRenderer, OffsetX, Y));
+    Exit(Point(OffsetX, Y));
   Result := Line(OffsetX - X, Y, OffsetX + X, Y);
 end;
 
@@ -129,17 +128,17 @@ var
   PArr: array[0..1] of TSDL_FPoint;
 begin
   if IsZero(Y) then
-    Exit(SDL_RenderPoint(SDLRenderer, X, OffsetY));
+    Exit(Point(X, OffsetY));
   PArr[0].X := X; PArr[0].Y := OffsetY - Y;
   PArr[1].X := X; PArr[1].Y := OffsetY + Y;
-  Result := SDL_RenderPoints(SDLRenderer, @PArr[0], 2);
+  Result := PointsUnsafe(PArr, 0, 2);
 end;
 
 function cCHXSDL3Renderer.PointMirrorVFilled(const X, Y, OffsetY: CFloat)
   : Boolean;
 begin
   if IsZero(Y) then
-    Exit(SDL_RenderPoint(SDLRenderer, X, OffsetY));
+    Exit(Point(X, OffsetY));
   Result := Line(X, OffsetY - Y, X, OffsetY + Y);
 end;
 
@@ -158,7 +157,7 @@ begin
   PArr[2].X := PArr[0].X;   PArr[2].Y := OffsetY + Y; // .+
   PArr[3].X := PArr[1].X;   PArr[3].Y := PArr[2].Y;   //  +.
 
-  Result := SDL_RenderPoints(SDLRenderer, @PArr[0], 4);
+  Result := PointsUnsafe(PArr, 0, 4);
 end;
 
 function cCHXSDL3Renderer.PointMirrorHVFilled(const X, Y: CFloat;
@@ -187,18 +186,19 @@ begin
   begin
     PArr[4] := PArr[0];
     if FillH then // HV
-      Result := SDL_RenderLines(SDLRenderer, @PArr[0], 5)
+      // ToDo: Change with RectBorder?
+      Result := LinesUnsafe(PArr, 0, 5)
     else // V
-      Result := SDL_RenderLines(SDLRenderer, @PArr[1], 2)
-        and SDL_RenderLines(SDLRenderer, @PArr[3], 2);
+      Result := LinesUnsafe(PArr, 1, 2)
+        and LinesUnsafe(PArr, 3, 2);
   end
   else
   begin
     if FillH then // H
-      Result := SDL_RenderLines(SDLRenderer, @PArr[0], 2)
-        and SDL_RenderLines(SDLRenderer, @PArr[2], 2)
+      Result := LinesUnsafe(PArr, 0, 2)
+        and LinesUnsafe(PArr, 2, 2)
     else // No Fill
-      Result := SDL_RenderPoints(SDLRenderer, @PArr[0], 4)
+      Result := PointsUnsafe(PArr, 0, 4)
   end;
 end;
 {< This source is free software; you can redistribute it and/or modify it under

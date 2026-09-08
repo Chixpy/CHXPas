@@ -14,6 +14,12 @@ uses
 
 type
 
+  TLogicalPresentation = record
+    Width, Height: CInt;
+    Mode: TSDL_RendererLogicalPresentation;
+  end;
+  {< Struct stored in the stack when Logical Presentation is pushed. }
+
   {
     Wrapper of SDL3 Window and creates its asociated SDL3 Renderer.
 
@@ -26,7 +32,7 @@ type
     expands it with more primitives `Renderer.[X]([...])`.
 
     `cCHXSDL3Engine`, in its context, has the properties `Window` and `Render`
-    as "shortcuts" for both classes; and `PSDLWindow` and `PSDLRenderer` for
+    as "shortcuts" for both classes; and `SDLWindow` and `SDLRenderer` for
     both pointers.
 
     Calls `SDL_InitSubSystem(SDL_INIT_VIDEO)` on creation and
@@ -35,8 +41,6 @@ type
 
     Supports creating multiple cCHXSDL3Window in the same program,
       checking its ID in event handling.
-
-    ToDo: Choose driver of the renderer.
   }
 
   cCHXSDL3Window = class
@@ -53,6 +57,10 @@ type
     FMinimized: Boolean;
     FMouseFocus: Boolean;
     FKeyboardFocus: Boolean;
+
+  protected
+    LogPresStack: Array of TLogicalPresentation;
+    //< Stack of pushed Logical Presentations pushed with PushRenderSize.
 
   public // Public setters, why not?
     procedure SetTitle(const aValue: String);
@@ -91,7 +99,7 @@ type
     constructor Create(const aTitle: String;
       const aWidth: CInt = 0; const aHeight: CInt = 0;
       Scale: CInt = 0; const aFullScreen: Boolean = False;
-      const aUseGPU: Boolean = False);
+      const RenderDrivers: String = '');
     {< Create a new SDL Window and its associated renderer.
 
       Render canvas size is automatically scaled to Window actual size.
@@ -101,9 +109,11 @@ type
       @param aHeight Logical height of Renderer.
       @param(Scale Scale window size. `0 = Maximized window.`
       @param aFullScreen Create full screen window.
-      @param(aUseGPU Use a GPU renderer. As CHXSDL2Engine, in my tests, GPU
-        renderer is **2 times slower** than software one in SDL3 too.) 
+      @param(RenderDrivers Comma separated drivers to try for renderer.
+        Empty try SDL preference.) 
     }
+
+    destructor Destroy; override;
 
     procedure Focus;
     //< Set the focus to this window.
@@ -118,9 +128,9 @@ type
         function?);
     }
 
-    procedure SetRenderSize(aWidth, aHeight: Integer;
+    function SetRenderSize(aWidth, aHeight: Integer;
       const Mode: TSDL_RendererLogicalPresentation
-      = SDL_LOGICAL_PRESENTATION_LETTERBOX);
+      = SDL_LOGICAL_PRESENTATION_LETTERBOX) : Boolean;
     {< Change render canvas size (_Logical Size_).
 
       It can be changed at any time to render at different resolutions.
@@ -137,7 +147,8 @@ type
         size. Predefined ones are (ToDo: Make shorter alias...):
 
         - `SDL_LOGICAL_PRESENTATION_DISABLED` (0): Disable logical size.
-          (ToDo: Not sure if restores logical presentation to window size.)
+          Restores coordinates to actual window ones ignoring previous
+          parameters.
         - `SDL_LOGICAL_PRESENTATION_STRETCH` (1): Stretched to the output
           resolution.
         - `SDL_LOGICAL_PRESENTATION_LETTERBOX` (2): Fit to the largest
@@ -149,24 +160,47 @@ type
           multiples to fit the output resolution.
       )
     }
+    function PushRenderSize(const aWidth, aHeight: Integer;
+      const Mode: TSDL_RendererLogicalPresentation
+      = SDL_LOGICAL_PRESENTATION_LETTERBOX) : Boolean;
+    {< Change render canvas size (_Logical Size_) and stores current in a stack.
 
-    destructor Destroy; override;
+      Same as SetRenderSize but pushe current config into a stack to restore
+      it with PopRenderSize.
+    }
+    function PopRenderSize(const PopCount: Integer = 1) : Boolean;
+    {< Restore previous Logical Presentation configuration.
+
+      @param(PopCount Number of Logical Presentations to pop out.)
+    }
+
+    function GetSupportedVideos : String;
+    { Get a comma separated list of the supported Video drivers. }
+
+    function GetSupportedRenderers : String;
+    { Get a comma separated list of the supported Renderer drivers. }
   end;
 
 implementation
 
 { cCHXSDL3Window }
 
-constructor cCHXSDL3Window.Create(const aTitle: String;
-  const aWidth, aHeight: CInt; Scale: CInt;
-  const aFullScreen, aUseGPU: Boolean);
+constructor cCHXSDL3Window.Create(const aTitle : String;
+  const aWidth, aHeight : CInt; Scale: CInt;
+  const aFullScreen : Boolean; const RenderDrivers : String);
 var
-  Flags: TSDL_WindowFlags;
-  Maximize: Boolean;
+  Flags : TSDL_WindowFlags;
+  Maximize : Boolean;
+  TempInt1, TempInt2 : CInt;
 begin
   if not SDL_InitSubSystem(SDL_INIT_VIDEO) then
     raise Exception.CreateFmt('[ERROR] SDL_InitSubSystem: %s',
       [SDL_GetError]);
+
+  // Some info
+  SDL_Log('== %s ==', [PAnsiChar(aTitle)]);
+  SDL_Log('Video Drivers: %s', [PAnsiChar(GetSupportedVideos)]);
+  SDL_Log('Supported Render Drivers: %s', [PAnsiChar(GetSupportedRenderers)]);
 
   FTitle := aTitle; // Don't call SetTitle
   FWidth := aWidth;
@@ -195,9 +229,6 @@ begin
       SDL_WINDOWPOS_CENTERED);
   end;
 
-// writeln(WindowWidth.ToString + 'x' + WindowHeight.ToString);
-// writeln(Width.ToString + 'x' + Height.ToString + '(x' + Scale.ToString + ')');
-
   SDL_ShowWindow(PSDLWindow);
 
   if FullScreen or Maximize then
@@ -216,9 +247,6 @@ begin
     // ToDo: Must be client size?
     SDL_GetWindowSizeInPixels(PSDLWindow, @FWindowWidth, @FWindowHeight);
 
-// writeln(WindowWidth.ToString + 'x' + WindowHeight.ToString);
-// writeln(Width.ToString + 'x' + Height.ToString + '(x' + Scale.ToString + ')');
-
     if Scale < 1 then
       Scale := 1;
 
@@ -227,46 +255,44 @@ begin
       FWidth := FWindowWidth div Scale;
       FHeight := FWindowHeight div Scale;
     end;
-
-// writeln(WindowWidth.ToString + 'x' + WindowHeight.ToString);
-// writeln(Width.ToString + 'x' + Height.ToString + '(x' + Scale.ToString + ')');
-
   end;
 
   FWindowID := SDL_GetWindowID(PSDLWindow);
 
-  // ToDo: Make Renderer Drivers configurables
-  if aUseGPU then
-    PSDLRenderer := SDL_CreateGPURenderer(nil, PSDLWindow)
-  else
-    PSDLRenderer := SDL_CreateRenderer(PSDLWindow, nil);
+  PSDLRenderer := SDL_CreateRenderer(PSDLWindow, PAnsiChar(RenderDrivers));
   if not Assigned(PSDLRenderer) then
-    raise Exception.CreateFmt('[ERROR] SDL_Create{GPU}Renderer: %s',
-      [SDL_GetError]);
+    raise Exception.CreateFmt('[ERROR] SDL_CreateRenderer(''%s''): %s',
+      [RenderDrivers, SDL_GetError]);
 
   // Renderer will destroy SDL Renderer
   Renderer := cCHXSDL3Renderer.Create(PSDLRenderer, True);
 
   // ToDo: Make use of integer scale configurable:
   //   (SDL_LOGICAL_PRESENTATION_INTEGER_SCALE)
+  SetLength(LogPresStack, 1);
   SetRenderSize(Width, Height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-
-  // Initial clear default draw color.
-  Renderer.SetDrawColor(0, 0, 0, 1);
-  Renderer.Clear;
-  Renderer.SetDrawColor(1, 1, 1, 1);
 
   // Reading window flags to set properties
   Flags := SDL_GetWindowFlags(PSDLWindow);
   FMouseFocus := (Flags and SDL_WINDOW_MOUSE_FOCUS) = SDL_WINDOW_MOUSE_FOCUS;
-  FKeyboardFocus :=
-    (Flags and SDL_WINDOW_INPUT_FOCUS) = SDL_WINDOW_INPUT_FOCUS;
+  FKeyboardFocus := (Flags and SDL_WINDOW_INPUT_FOCUS) = SDL_WINDOW_INPUT_FOCUS;
   FShown := ((not Flags) and SDL_WINDOW_HIDDEN) = SDL_WINDOW_HIDDEN;
 
-  SDL_Log('== %s ==', [PAnsiChar(Title)]);
-  SDL_Log('Window  (%s): %dx%d',
-    [PAnsiChar(Title), WindowWidth, WindowHeight]);
-  SDL_Log('Renderer (GPU %d): %dx%d (x%d)', [aUseGPU, Width, Height, Scale]);
+  SDL_GetRenderOutputSize(PSDLRenderer, @TempInt1, @TempInt2);
+  SDL_Log('Window (%s): %d x %d (Must be %d x %d)',
+    [SDL_GetCurrentVideoDriver, WindowWidth, WindowHeight, TempInt1, TempInt2]);
+
+  SDL_Log('Renderer %s: %d x %d (x%d)',
+    [SDL_GetRendererName(PSDLRenderer), Width, Height, Scale]);
+end;
+
+destructor cCHXSDL3Window.Destroy;
+begin
+  Renderer.Free;
+  SDL_DestroyWindow(PSDLWindow);
+  SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+  inherited Destroy;
 end;
 
 procedure cCHXSDL3Window.SetTitle(const aValue: String);
@@ -325,7 +351,10 @@ begin
 
   SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
   {< The pixel size of the window has changed to data1xdata2. }
+  begin
+    SDL_Log('SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED');
     SDL_RenderPresent(PSDLRenderer);
+  end;
 
   SDL_EVENT_WINDOW_METAL_VIEW_RESIZED:
   {< The pixel size of a Metal view associated with the window has changed. }
@@ -410,35 +439,76 @@ begin
   end;
 end;
 
-procedure cCHXSDL3Window.SetRenderSize(aWidth, aHeight: Integer;
-  const Mode: TSDL_RendererLogicalPresentation);
+function cCHXSDL3Window.SetRenderSize(aWidth, aHeight: Integer;
+  const Mode: TSDL_RendererLogicalPresentation): Boolean;
 begin
+  Result := True;
   if (aWidth <= 0) or (Mode = SDL_LOGICAL_PRESENTATION_DISABLED) then
   begin
     if FullScreen then
-      SDL_GetWindowSize(PSDLWindow, @FWindowWidth, nil);
+      Result := SDL_GetWindowSize(PSDLWindow, @FWindowWidth, nil);
     aWidth := WindowWidth;
   end;
 
   if (aHeight <= 0) or (Mode = SDL_LOGICAL_PRESENTATION_DISABLED) then
   begin
     if FullScreen then
-      SDL_GetWindowSize(PSDLWindow, nil, @FWindowHeight);
+      Result := SDL_GetWindowSize(PSDLWindow, nil, @FWindowHeight)
+        and Result;
     aHeight := WindowHeight;
   end;
 
+  LogPresStack[High(LogPresStack)].Width := aWidth;
+  LogPresStack[High(LogPresStack)].Height := aHeight;
+  LogPresStack[High(LogPresStack)].Mode := Mode;
   FWidth:= aWidth; FHeight := aHeight;
 
-  SDL_SetRenderLogicalPresentation(PSDLRenderer, Width, Height, Mode);
+  Result :=
+    SDL_SetRenderLogicalPresentation(PSDLRenderer, aWidth, aHeight, Mode)
+    and Result;
 end;
 
-destructor cCHXSDL3Window.Destroy;
+function cCHXSDL3Window.PushRenderSize(const aWidth, aHeight: Integer;
+  const Mode: TSDL_RendererLogicalPresentation): Boolean;
 begin
-  Renderer.Free;
-  SDL_DestroyWindow(PSDLWindow);
-  SDL_QuitSubSystem(SDL_INIT_VIDEO);
+  SetLength(LogPresStack, Length(LogPresStack) + 1);
+  Result := SetRenderSize(aWidth, aHeight, Mode);
+end;
 
-  inherited Destroy;
+function cCHXSDL3Window.PopRenderSize(const PopCount: Integer): Boolean;
+var
+  Size: Integer;
+begin
+  if (PopCount > 0) and (Length(LogPresStack) > PopCount) then
+    Size := Length(LogPresStack) - PopCount
+  else
+    Size := 1;
+  SetLength(LogPresStack, Size);
+  Result := SetRenderSize(LogPresStack[High(LogPresStack)].Width,
+    LogPresStack[High(LogPresStack)].Height,
+    LogPresStack[High(LogPresStack)].Mode);
+end;
+
+function cCHXSDL3Window.GetSupportedRenderers : String;
+var
+  RCount, i: CInt;
+begin
+  RCount := SDL_GetNumRenderDrivers;
+  if RCount <= 0 then Exit('');
+  Result := SDL_GetRenderDriver(0);
+  for i := 1 to (RCount - 1) do
+    Result += ', ' + SDL_GetRenderDriver(i);
+end;
+
+function cCHXSDL3Window.GetSupportedVideos : String;
+var
+  RCount, i: CInt;
+begin
+  RCount := SDL_GetNumVideoDrivers;
+  if RCount <= 0 then Exit('');
+  Result := SDL_GetVideoDriver(0);
+  for i := 1 to (RCount - 1) do
+    Result += ', ' + SDL_GetVideoDriver(i);
 end;
 
 end.

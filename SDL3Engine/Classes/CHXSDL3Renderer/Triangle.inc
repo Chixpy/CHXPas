@@ -178,8 +178,8 @@ end;
 function cCHXSDL3Renderer.TriangleFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer): Boolean;
 begin
-  // ToDo: Maybe there is an optimized method for triangles.
-  Result := PolygonFillOnlyUnsafe(PArr, idxFirst, 3);
+  // ToDo: Change to an optimized method
+  Result := PolygonFilledUnsafe(PArr, idxFirst, 3);
 end;
 
 function cCHXSDL3Renderer.TriangleFillOnly(const PArr: TSDLFPointDynArray;

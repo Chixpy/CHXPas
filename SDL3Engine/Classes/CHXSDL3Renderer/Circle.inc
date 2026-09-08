@@ -5,17 +5,68 @@
   ToDo:
 
   - Negative radious see RndRect.
-  - We can simplify a little see RndRect too (and Ellipse)
+  - We can simplify a little see RndRect too (and Ellipse maybe)
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 
 // Circle[X]
 
+procedure cCHXSDL3Renderer.TCircleVertices(var PArr: TSDLFPointDynArray;
+  const X, Y, R: CFloat; OctPoints: Integer);
 const
-  kMinCircleSides = 8;
-  kMaxCircleSides = 64;
-  kTimesSqRtRadius = 3.1416;
+  kMinTCircle = 0; // Additional vertices for each octant of the circle
+  kMaxTCircle = 7; //
+  kTCircleRatio = {2 * } Pi / 8;
+var
+  Angle, dAng, aSin, aCos: CFloat;
+  i, k: Integer;
+begin
+  if OctPoints < kMinTCircle then
+    OctPoints := Round(kTCircleRatio * SqRt(Abs(R)));
+
+  if OctPoints < kMinTCircle then OctPoints := kMinTCircle
+  else if OctPoints > kMaxTCircle then OctPoints := kMaxTCircle;
+
+  SetLength(PArr, (OctPoints + 1) * 8);
+
+  // Basic points
+  aSin := kSin45 * R; // Temp var for 45º position
+  k := (OctPoints + 1);
+  PArr[0].Init(X + R, Y);
+  PArr[k].Init(X + aSin, Y - aSin);
+  PArr[k * 2].Init(X, Y - R);
+  PArr[k * 3].Init(X - aSin, Y - aSin);
+  PArr[k * 4].Init(X - R, Y);
+  PArr[k * 5].Init(X - aSin, Y + aSin);
+  PArr[k * 6].Init(X, Y + R);
+  PArr[k * 7].Init(X + aSin, Y + aSin);
+
+  if OctPoints <= 0 then Exit;
+
+  // Rest of the points.
+  Angle := 0;
+  dAng := (2 * Pi) / Length(PArr);
+  // k := (OctPoints + 1); // Already set
+  for i := 1 to OctPoints do
+  begin
+    Angle += dAng;
+    SinCos(Angle, aSin, aCos);
+    aSin *= R; aCos *= R;
+
+    PArr[i].Init(X + aCos, Y - aSin);
+    PArr[Length(PArr) - i].Init(X + aCos, Y + aSin);
+
+    PArr[(k * 2) - i].Init(X + aSin, Y - aCos);
+    PArr[(k * 2) + i].Init(X - aSin, Y - aCos);
+
+    PArr[(k * 4) - i].Init(X - aCos, Y - aSin);
+    PArr[(k * 4) + i].Init(X - aCos, Y + aSin);
+
+    PArr[(k * 6) - i].Init(X - aSin, Y + aCos);
+    PArr[(k * 6) + i].Init(X + aSin, Y + aCos);
+  end;
+end;
 
 function cCHXSDL3Renderer.Circle(const X, Y, R: CFloat;
   const BorderC, FillC: TSDL_FColor): Boolean;
@@ -105,15 +156,12 @@ begin
 end;
 
 function cCHXSDL3Renderer.TCircleBorder(const X, Y, R: CFloat;
-  NSides: Integer): Boolean;
+  const OctPoints: Integer): Boolean;
+var
+  PArr: TSDLFPointDynArray;
 begin
-  if NSides <= kMinCircleSides then
-    NSides := Round(kTimesSqRtRadius * SqRt(Abs(R)));
-
-  if NSides < kMinCircleSides then NSides := kMinCircleSides
-  else if NSides > kMaxCircleSides then NSides := kMaxCircleSides;
-
-  Result := TRegPolyCCBorder(X, Y, R, NSides);
+  TCircleVertices(PArr, X, Y, R, OctPoints);
+  Result := TPolygonBorder(PArr);
 end;
 
 function cCHXSDL3Renderer.CircleFilled(const X, Y: CFloat; R: CFloat)
@@ -176,15 +224,39 @@ begin
 end;
 
 function cCHXSDL3Renderer.TCircleFilled(const X, Y, R: CFloat;
-  NSides : Integer): Boolean;
+  const OctPoints : Integer): Boolean;
+var
+  PArr: TSDLFPointDynArray;
+  Indices: Array of Byte;
+  FColor: TSDL_FColor;
+  i, j: Integer;
 begin
-  if NSides <= kMinCircleSides then
-    NSides := Round(kTimesSqRtRadius * SqRt(Abs(R)));
+  TCircleVertices(PArr, X, Y, R, OctPoints);
 
-  if NSides < kMinCircleSides then NSides := kMinCircleSides
-  else if NSides > kMaxCircleSides then NSides := kMaxCircleSides;
+  SetLength(Indices, Length(PArr) * 3);
 
-  Result := TRegPolyCCFilled(X, Y, R, NSides);
+  // Adding center point for creating triangles
+  SetLength(PArr, Length(PArr) + 1);
+  PArr[High(PArr)] := SDLFPoint(X, Y);
+
+  for i := 0 to (High(PArr) - 2) do
+  begin
+    j := i * 3;
+    Indices[j] := High(PArr);
+    Indices[j + 1] := i;
+    Indices[j + 2] := i + 1;
+  end;
+  j := (High(PArr) - 1) * 3;
+  Indices[j] := High(PArr);
+  Indices[j + 1] := High(PArr) - 1;
+  Indices[j + 2] := Low(PArr);
+
+  Result := GetDrawColor(FColor)
+    and SDL_RenderGeometryRaw(SDLRenderer, nil,
+      @PArr[0], SizeOf(TSDL_FPoint), // Puntos
+      @FColor, 0, // Colores
+      nil, 0, // uv
+      Length(PArr), @Indices[0], Length(Indices), 1); // Indices
 end;
 
 
@@ -286,7 +358,9 @@ begin
   if CurrX = CurrY then
     Result := PointMirrorHV(CurrX, CurrY, IntX, IntY) and Result;
 end;
+*)
 
+(*
 function cCHXSDL3Renderer.CircleFilledFP(const X, Y, R: CFloat): Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing lines already drawn.

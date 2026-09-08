@@ -19,6 +19,8 @@ const
   kFullScreen = False;
   kUseGPU = False;
 
+  kRadiusStep = 0.25;
+
 type
 
   TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
@@ -153,9 +155,9 @@ begin
 
       SDLK_F: ChangeState;
 
-      SDLK_UP: Radius += 0.25;
+      SDLK_UP: Radius += kRadiusStep;
 
-      SDLK_DOWN: Radius -= 0.25;
+      SDLK_DOWN: Radius -= kRadiusStep;
 
       SDLK_Q: ExitProg := True;
 

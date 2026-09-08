@@ -44,7 +44,7 @@ const
   kHalfPi = Pi * 0.5;
   kQuarterPi = Pi * 0.25;
   k360Degree = Pi / 180;
-  k400Degree = Pi / 200; // Yep, this exists 
+  k400Degree = Pi / 400; // Yep, this exists 
 
 {
   Roots and Inverses
@@ -65,6 +65,13 @@ const
   kInvCbRt3 = 1 / kCbRt3; //< = 1 / Power(3, 1/3)
   kInv4Rt5  = 1 / k4Rt5;  //< = 1 / Power(5, 1/4)
   kInv12Rt2 = 1 / k12Rt2; //< = 1 / Power(2, 1/12)
+
+{
+  Sinus and Cosinus
+}
+  kSin45 = SqRt(2) * 0.5;
+  kSin30 = 0.5;
+  kSin15 = (SqRt(6) - SqRt(2)) * 0.25;
 
 {
   Golden / Silver Ratios
@@ -123,8 +130,7 @@ const
     479001600, 6227020800, 87178291200, 1307674368000, 20922789888000,
     355687428096000, 6402373705728000, 121645100408832000,
     2432902008176640000);
-  {<
-    Fastest Factorial "function" I know.
+  {< Fastest Factorial "function" I know.
 
     Limits:
     - QWord < 20!
@@ -140,8 +146,7 @@ const
     2178309, 3524578, 5702887, 9227465, 14930352, 24157817,
     39088169, 63245986, 102334155, 165580141, 267914296, 433494437,
     701408733, 1836311903, 2971215073);
-  {<
-    Fastest Fibonacci "function" I know.
+  {< Fastest Fibonacci "function" I know.
 
     Limits:
     - ToDo: Extend to  QWord
@@ -162,7 +167,7 @@ function LCM(const aValue1, aValue2: Int64): Int64;
 {< Least Common Multiple between two values.
 }
 
-{ 
+{
   Interpolation functions
 }
 
@@ -349,7 +354,7 @@ begin
   // ToDo: Raise Exception?
   if (aValue1 = 0) or (aValue2 = 0) then Exit(0);
   // ToDo: Return absolute value?
-  Result := aValue2 * (aValue1 div GCD(aValue1, aValue2)); 
+  Result := aValue2 * (aValue1 div GCD(aValue1, aValue2));
 end;
 
 function InterpolateLinear(const aValue, aStart, aEnd: Double) : Double;

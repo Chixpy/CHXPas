@@ -20,7 +20,7 @@ const
 
 type
 
-  TState = (stAll, stFilled);
+  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -54,7 +54,10 @@ begin
 
   case State of
   stAll: sState := 'Border + Only Fill';
+  stBorder: sState := 'Border';
+  stTBorder: sState := 'Triangles Border';
   stFilled: sState := 'Full filled';
+  stTFilled: sState := 'Triangles Filled';
   otherwise
     ;
   end;
@@ -88,14 +91,21 @@ end;
 procedure cSDL3Eng.Draw;
 begin
   Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.01);
+
+  Render.SetDrawColor(Color1);
 
   case State of
 
   stAll: Render.
 
+  stBorder: Render.
+
+  stTBorder: Render.
+
   stFilled: Render.
+
+  stTFilled: Render.
 
   otherwise
     ;
@@ -109,6 +119,7 @@ end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Render.DebugTextF(0, 0, '%s', [sState]);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[F] Change mode');
   Render.DebugText(0, 30, '[C] Change colors');

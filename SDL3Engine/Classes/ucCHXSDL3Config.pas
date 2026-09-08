@@ -17,7 +17,7 @@ const
   krsIniKeyHeight = 'Height';
   krsIniKeyScale = 'Scale';
   krsIniKeyFullScreen = 'FullScreen';
-  krsIniKeyUseGPU = 'UseGPU';
+  krsIniKeyRender = 'Render';
 
 type
 
@@ -29,7 +29,7 @@ type
     Height : CInt;
     Scale: CInt;
     FullScreen : Boolean;
-    UseGPU : Boolean;
+    Render : String;
 
     procedure ResetDefaultConfig; override;
 
@@ -54,8 +54,8 @@ begin
     krsIniKeyScale, Scale);
   FullScreen := aIniFile.ReadBool(krsIniSectionSDL3Engine,
     krsIniKeyFullScreen, FullScreen);
-  UseGPU := aIniFile.ReadBool(krsIniSectionSDL3Engine,
-    krsIniKeyUseGPU, UseGPU);
+  Render := aIniFile.ReadString(krsIniSectionSDL3Engine,
+    krsIniKeyRender, Render);
 end;
 
 procedure cCHXSDL3Config.ResetDefaultConfig;
@@ -64,7 +64,7 @@ begin
   Height := 0;
   Scale := 0; // 0 = Maximize the window
   FullScreen := False;
-  UseGPU := False;
+  Render := '';
 end;
 
 constructor cCHXSDL3Config.Create;
@@ -83,7 +83,7 @@ begin
   aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyHeight, Height);
   aIniFile.WriteInteger(krsIniSectionSDL3Engine, krsIniKeyScale, Scale);
   aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyFullScreen, FullScreen);
-  aIniFile.WriteBool(krsIniSectionSDL3Engine, krsIniKeyUseGPU, UseGPU);
+  aIniFile.WriteString(krsIniSectionSDL3Engine, krsIniKeyRender, Render);
 end;
 
 end.
