@@ -2,22 +2,19 @@ program TestPoint;
 {<
   A simple program with cCHXSDL3Engine for testing cCHXSDL3Engine.Point
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 100; { Renderer width. }
-  kRenderH = 100; { Renderer height. }
-  kWindowScale = 8; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -42,6 +39,7 @@ type
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+
   FPSMng.FPS := 4; // FPS
 end;
 
@@ -57,22 +55,22 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
   // Draw random points with diferent colors
   Render.SetDrawColor(Random, Random, Random, Random);
   Render.Point(Random * kRenderW, Random * kRenderH);
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
-  Render.DebugTextF(0, 0, 'Scale: x%d', [kWindowScale]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Clear');
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, 'Scale: x%d', [kWinScale]);
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[C] Clear');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -113,7 +111,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -123,7 +121,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

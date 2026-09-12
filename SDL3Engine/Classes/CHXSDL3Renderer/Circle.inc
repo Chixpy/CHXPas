@@ -231,7 +231,8 @@ var
   FColor: TSDL_FColor;
   i, j: Integer;
 begin
-  TCircleVertices(PArr, X, Y, R, OctPoints);
+  // Adding border size
+  TCircleVertices(PArr, X + 0.5, Y + 0.5, R + 0.5, OctPoints);
 
   SetLength(Indices, Length(PArr) * 3);
 

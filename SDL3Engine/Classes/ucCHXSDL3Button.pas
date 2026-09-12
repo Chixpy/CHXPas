@@ -194,8 +194,6 @@ var
   TgtRect : TSDL_Rect;
 *)
 begin
-  inherited Draw(Render);
-  
   if Focused then aColor := HLColor
   else aColor := BDColor;
 

@@ -101,6 +101,41 @@ begin
   Result := SetDrawColor(TempColor) and Result;
 end;
 
+function cCHXSDL3Renderer.TEllipse(const X, Y, RX, RY: CFloat;
+  const BorderC, FillC: TSDL_FColor; const QuadPoints: Integer): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and TEllipseFilled(X, Y, RX, RY, QuadPoints);
+    // Try to restore previous color anyway
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(FillC)
+      and TEllipseFillOnly(X, Y, RX, RY, QuadPoints);
+  end;
+
+  if BorderC.A > 0 then
+  begin
+    Result := Result
+      and SetDrawColor(BorderC)
+      and TEllipseBorder(X, Y, RX, RY, QuadPoints);
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
 function cCHXSDL3Renderer.EllipseBorder(const X, Y: CFloat; RX, RY: CFloat)
   : Boolean;
 { Modification of Alois Zingl's implementation (https://zingl.github.io)
@@ -368,6 +403,16 @@ begin
     end;
   end;
 end;
+
+function cCHXSDL3Renderer.TEllipseFillOnly(const X, Y: CFloat; RX, RY: CFloat;
+  const QuadPoints: Integer): Boolean;
+begin
+  RX := Abs(RX); RY := Abs(RY);
+  if (RX <= 1) or (RY <= 1) then
+    Exit(True);
+  Result := TEllipseFilled(X, Y, RX - 1, RY - 1, QuadPoints);
+end;
+
 (*
 function cCHXSDL3Renderer.EllipseFP(const X, Y, RX, RY: CFloat;
   const BorderC, FillC: TSDL_FColor): Boolean;
@@ -631,6 +676,13 @@ begin
     FillC);
 end;
 
+function cCHXSDL3Renderer.TEllipseInRect(const aRect: TSDL_FRect;
+  const BorderC, FillC: TSDL_FColor; const QuadPoints: Integer): Boolean;
+begin
+  Result := TEllipseInRect(aRect.X, aRect.Y, aRect.W, aRect.H, BorderC,
+    FillC, QuadPoints);
+end;
+
 function cCHXSDL3Renderer.EllipseInRect(const X, Y, W, H: CFloat;
  const BorderC, FillC: TSDL_FColor): Boolean;
 var
@@ -666,10 +718,52 @@ begin
   Result := SetDrawColor(TempColor) and Result;
 end;
 
+function cCHXSDL3Renderer.TEllipseInRect(const X, Y, W, H: CFloat;
+ const BorderC, FillC: TSDL_FColor; const QuadPoints: Integer): Boolean;
+var
+  TempColor: TSDL_FColor;
+begin
+  Result := GetDrawColor(TempColor);
+
+  // Same color for border and fill
+  if BorderC = FillC then
+  begin
+    Result := SetDrawColor(BorderC)
+      and TEllipseInRectFilled(X, Y, W, H, QuadPoints)
+      and Result;
+
+    Exit(SetDrawColor(TempColor) and Result);
+  end;
+
+  if FillC.A > 0 then
+  begin
+    Result := SetDrawColor(FillC)
+      and TEllipseInRectFillOnly(X, Y, W, H, QuadPoints)
+      and Result;
+   end;
+
+  if BorderC.A > 0 then
+  begin
+    Result := SetDrawColor(BorderC)
+      and TEllipseInRectBorder(X, Y, W, H, QuadPoints)
+      and Result;
+  end;
+
+  // Try to restore previous color anyway
+  Result := SetDrawColor(TempColor) and Result;
+end;
+
 function cCHXSDL3Renderer.EllipseInRectBorder(const aRect: TSDL_FRect)
   : Boolean;
 begin
   Result := EllipseInRectBorder(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectBorder(const aRect: TSDL_FRect;
+  const QuadPoints: Integer) : Boolean;
+begin
+  Result := TEllipseInRectBorder(aRect.X, aRect.Y, aRect.W, aRect.H,
+    QuadPoints);
 end;
 
 function cCHXSDL3Renderer.EllipseInRectBorder(X, Y, W, H: CFloat)
@@ -681,17 +775,40 @@ function cCHXSDL3Renderer.EllipseInRectBorder(X, Y, W, H: CFloat)
 begin
   // Normalizing rectangle coordinates
   if W < 0 then
-    begin W := -W; X -= W; end;
+    begin W := -W + 2; X -= W - 1; end;
   if H < 0 then
-    begin H := -H; Y -= H; end;
-  W := (W - 1) * 0.5; H := (W - 1) * 0.5;
-  Result := EllipseFilled(X + W, Y + H, W, H);
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
+  Result := EllipseBorder(X + W, Y + H, W, H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectBorder(X, Y, W, H: CFloat;
+  const QuadPoints: Integer) : Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseBorder with tweaked parameters.
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+    begin W := -W + 2; X -= W - 1; end;
+  if H < 0 then
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
+  Result := TEllipseBorder(X + W, Y + H, W, H, QuadPoints);
 end;
 
 function cCHXSDL3Renderer.EllipseInRectFilled(const aRect: TSDL_FRect)
   : Boolean;
 begin
   Result := EllipseInRectFilled(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectFilled(const aRect: TSDL_FRect;
+  const QuadPoints: Integer) : Boolean;
+begin
+  Result := TEllipseInRectFilled(aRect.X, aRect.Y, aRect.W, aRect.H,
+    QuadPoints);
 end;
 
 function cCHXSDL3Renderer.EllipseInRectFilled(X, Y, W, H: CFloat): Boolean;
@@ -702,17 +819,40 @@ function cCHXSDL3Renderer.EllipseInRectFilled(X, Y, W, H: CFloat): Boolean;
 begin
   // Normalizing rectangle coordinates
   if W < 0 then
-    begin W := -W; X -= W; end;
+    begin W := -W + 2; X -= W - 1; end;
   if H < 0 then
-    begin H := -H; Y -= H; end;
-  W := (W - 1) * 0.5; H := (W - 1) * 0.5;
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
   Result := EllipseFilled(X + W, Y + H, W, H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectFilled(X, Y, W, H: CFloat;
+  const QuadPoints: Integer): Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseFilled with tweaked parameters.
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+    begin W := -W + 2; X -= W - 1; end;
+  if H < 0 then
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
+  Result := TEllipseFilled(X + W, Y + H, W, H, QuadPoints);
 end;
 
 function cCHXSDL3Renderer.EllipseInRectFillOnly(const aRect: TSDL_FRect)
  : Boolean;
 begin
   Result := EllipseInRectFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectFillOnly(const aRect: TSDL_FRect;
+  const QuadPoints: Integer) : Boolean;
+begin
+  Result := TEllipseInRectFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H,
+    QuadPoints);
 end;
 
 function cCHXSDL3Renderer.EllipseInRectFillOnly(X, Y, W, H: CFloat): Boolean;
@@ -723,11 +863,27 @@ function cCHXSDL3Renderer.EllipseInRectFillOnly(X, Y, W, H: CFloat): Boolean;
 begin
   // Normalizing rectangle coordinates
   if W < 0 then
-    begin W := -W; X -= W; end;
+    begin W := -W + 2; X -= W - 1; end;
   if H < 0 then
-    begin H := -H; Y -= H; end;
-  W := (W - 1) * 0.5; H := (W - 1) * 0.5;
-  Result := EllipseFilled(X + W, Y + H, W, H);
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
+  Result := EllipseFillOnly(X + W, Y + H, W, H);
+end;
+
+function cCHXSDL3Renderer.TEllipseInRectFillOnly(X, Y, W, H: CFloat;
+  const QuadPoints: Integer): Boolean;
+{ With integers there are algorithms to rasterize this ellipses.
+
+  With floats... we can call EllipseFillOnly with tweaked parameters.
+}
+begin
+  // Normalizing rectangle coordinates
+  if W < 0 then
+    begin W := -W + 2; X -= W - 1; end;
+  if H < 0 then
+    begin H := -H + 2; Y -= H - 1; end;
+  W := (W - 1) * 0.5; H := (H - 1) * 0.5;
+  Result := TEllipseFillOnly(X + W, Y + H, W, H, QuadPoints);
 end;
 (*
 function cCHXSDL3Renderer.EllipseInRectFP(const aRect: TSDL_FRect;

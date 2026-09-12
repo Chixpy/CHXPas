@@ -2,22 +2,20 @@ program TestComponents;
 {<
   A simple program with cCHXSDL3Engine for testing visual components.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 {$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, uCHXSDL3TypeHelpers, ucCHXSDL3Engine,
-  ucCHXSDL3Button;
+  uaCHXSDL3Component, ucCHXSDL3Button;
 
 const
-  kRenderW = 100; { Renderer width. }
-  kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH; { Scale of the Window. }
+  kRenderH = 200;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -35,21 +33,42 @@ type
   public
     ShowHelp: Boolean;
 
+    sButtonPushed: String;
+
     procedure DrawHelp;
+
+    procedure OnButtonClick(const Sender : caCHXSDL3Component);
   end;
 
 { cSDL3Eng }
+
+procedure cSDL3Eng.OnButtonClick(const Sender : caCHXSDL3Component);
+begin
+  if Sender is cCHXSDL3Button then
+    sButtonPushed := Sender.ID
+  else
+    sButtonPushed := '';
+end;
+
 procedure cSDL3Eng.Setup;
+var
+  aButton : cCHXSDL3Button;
 begin
   ShowFrameRate := True; ShowHelp := True;
 
-  AddComponent(cCHXSDL3Button.Create('Button 1', 20, 20, 40, 20));
-  AddComponent(cCHXSDL3Button.Create('Button 2', 20, 50, 40, 20));
+  aButton := cCHXSDL3Button.Create('Button 1', 20, 20, 40, 20);
+  aButton.OnClick := @OnButtonClick;
+  AddComponent(aButton);
+  aButton := cCHXSDL3Button.Create('Button 2', 20, 50, 40, 20);
+  aButton.OnClick := @OnButtonClick;
+  AddComponent(aButton);
+
+  sButtonPushed := '';
 end;
 
 procedure cSDL3Eng.Finish;
 begin
-
+  // Components added are destroyed by cSDL3Engine.
 end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
@@ -61,16 +80,33 @@ procedure cSDL3Eng.Draw;
 begin
   Render.Clear(0.05);
 
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1);
+
+    if Assigned(FocusedComp) then
+      Render.DebugTextF(0, 0, 'Focused: %s', [FocusedComp.ID]);
+
+    Render.DebugTextF(0, kRenderH - (8 * 3), 'Button Pushed: %s',
+      [sButtonPushed]);
+
+  Window.PopRenderSize;
+  Render.PopDrawColor;
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
+const
+  NLinesHelp = 25;
+var
+  Factor: Integer;
 begin
-  Window.PushRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[CLICK] Select / Activate component');
   Window.PopRenderSize;
+  Render.PopDrawColor;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -109,7 +145,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -119,7 +155,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

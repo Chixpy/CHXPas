@@ -3,24 +3,26 @@ program TestRndRectC;
   A simple program with cCHXSDL3Engine for testing Rounded Rectangle with
     Circle primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
+  kLenStep = 0.25;
+  kRadStep = 0.25;
 
-  kRenderW = 200; { Renderer width. Window.Width is prefered to get it. }
-  kRenderH = 200; { Renderer height. Window.Height is prefered to get it. }
-  kWindowScale = 800 div kRenderH; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
+
+  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -35,16 +37,37 @@ type
 
   public
     ShowHelp: Boolean;
+    State: TState; sState: String;
     Color1, Color2: TSDL_FColor;
-    FillMode, ShowCircle: Boolean;
+
+    ShowGuide: Boolean;
     RWidth, RHeight, Radius: CFloat;
 
+    procedure ChangeState;
     procedure InitColors;
-
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
+
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+    stBorFill : sState := 'Border + Only Fill';
+    stTBorFill : sState := 'Triangles Border + Only Fill';
+    stBorder : sState := 'Border';
+    stTBorder : sState := 'Triangles Border';
+    stFilled : sState := 'Full Filled';
+    stTFilled : sState := 'Triangles Filled';
+  otherwise
+    sState := '<Undefined>';
+  end;
+end;
 
 procedure cSDL3Eng.InitColors;
 begin
@@ -55,12 +78,13 @@ end;
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
   InitColors;
-  FillMode := False;
-  ShowCircle := True;
-  RWidth := Round(kRenderW * 0.75);
-  RHeight := Round(kRenderH * 0.5);
-  Radius := Round(kRenderH * 0.25);
+
+  ShowGuide := False;
+  RWidth := kRenderW * 0.8;
+  RHeight := kRenderH * 0.6;
+  Radius := kRenderH * 0.25;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -76,49 +100,101 @@ end;
 procedure cSDL3Eng.Draw;
 var
   aRect: TSDL_FRect;
+  CX, CY: CFloat;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
   Render.Clear(0.05);
+  Render.SetDrawColor(Color1);
 
   aRect := SDLFRect((kRenderW - RWidth) * 0.5,
     (kRenderH - RHeight) * 0.5, RWidth, RHeight);
-  if FillMode then
-  begin
-    Render.SetDrawColor(Color1);
-    Render.RndRectCFilled(aRect, Radius);
-    if ShowCircle then
-      Render.CircleFilled((kRenderW - 1) * 0.5, (kRenderW - 1) * 0.5, Radius);
-  end
-  else
-  begin
-    Render.RndRectC(aRect, Radius, Color1, Color2);
-    if ShowCircle then
-      Render.Circle((kRenderW - 1) * 0.5, (kRenderW - 1) * 0.5,
-        Radius, Color1, Color2);
-  end;
+  CX := (kRenderW - 1) * 0.5; CY := (kRenderH - 1) * 0.5;
 
-  Render.SetDrawColor(1, 1, 1, 0.1);
-  // Texting Rect too...
-  Render.RectBorder(aRect);
-  SDL_RenderRect(SDLRenderer, @aRect);
+  case State of
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+    stBorFill :
+    begin
+      Render.RndRectC(aRect, Radius, Color1, Color2);
+      if ShowGuide then
+      begin
+        Render.Rect(aRect, SDLFColor(1, 0.1), SDLFColor(1, 0.05));
+        Render.Circle(CX, CY, Radius,  SDLFColor(1, 0.1), SDLFColor(1, 0.05));
+      end;
+    end;
+
+    // stTBorFill :
+    // begin
+    //   Render.TRndRectC(aRect, Radius, Color1, Color2);
+    //   if ShowGuide then
+    //   begin
+    //     Render.TRect(aRect, Color1, Color2);
+    //     Render.TCircle(CX, CY, Radius, Color1, Color2);
+    //   end;
+    // end;
+
+    stBorder :
+    begin
+      Render.RndRectCBorder(aRect, Radius);
+      if ShowGuide then
+      begin
+        Render.SetDrawColor(1, 0.3);
+        Render.RectBorder(aRect);
+        Render.CircleBorder(CX, CY, Radius);
+      end;
+    end;
+
+    // stTBorder :
+    // begin
+    //   Render.TRndRectCBorder(aRect, Radius);
+    //   if ShowGuide then
+    //   begin
+    //     Render.SetDrawColor(1, 0.3);
+    //     Render.TRectBorder(aRect);
+    //     Render.TCircleBorder(CX, CY, Radius);
+    //   end;
+    // end;
+
+    stFilled :
+    begin
+      Render.RndRectCFilled(aRect, Radius);
+      if ShowGuide then
+      begin
+        Render.SetDrawColor(1, 0.3);
+        Render.RectFilled(aRect);
+        Render.CircleFilled(CX, CY, Radius);
+      end;
+    end;
+
+    // stTFilled :
+    // begin
+    //   Render.TRndRectCFilled(aRect, Radius);
+    //   if ShowGuide then
+    //   begin
+    //     Render.SetDrawColor(1, 0.3);
+    //     Render.TRectFilled(aRect);
+    //     Render.TCircleFilled(CX, CY, Radius);
+    //   end;
+    // end;
+
+  end; // case State of
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
-  Render.DebugTextF(0, 0, 'DX: %g DY: %g R: %g', [RWidth, RHeight, Radius]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[F] Change mode');
-  Render.DebugText(0, 30, '[C] Change color');
-  Render.DebugText(0, 40, '[<=] [=>] Change width');
-  Render.DebugText(0, 50, '[UP] [DOWN] Change height');
-  Render.DebugText(0, 60, '[A] [Z] Change radius');
-  Render.DebugText(0, 70, '[B] Toggle circle');
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugTextF(0,10, 'DX: %g DY: %g R: %g', [RWidth, RHeight, Radius]);
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[C] Change color');
+  Render.DebugText(0, 50, '[<=] [=>] Change width');
+  Render.DebugText(0, 60, '[UP] [DOWN] Change height');
+  Render.DebugText(0, 70, '[A] [Z] Change radius');
+  Render.DebugText(0, 80, '[B] Toggle guides');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -136,23 +212,23 @@ begin
 
         SDLK_F1: ShowHelp := not ShowHelp;
 
-        SDLK_UP: RHeight += 0.25;
+        SDLK_UP: RHeight += kLenStep;
 
-        SDLK_DOWN: RHeight -= 0.25;
+        SDLK_DOWN: RHeight -= kLenStep;
 
-        SDLK_RIGHT: RWidth += 0.25;
+        SDLK_RIGHT: RWidth += kLenStep;
 
-        SDLK_LEFT: RWidth -= 0.25;
+        SDLK_LEFT: RWidth -= kLenStep;
 
-        SDLK_A: Radius += 1; // Actually is rounded
+        SDLK_A: Radius += kRadStep; // Actually is rounded
 
-        SDLK_Z: Radius -= 1;
+        SDLK_Z: Radius -= kRadStep;
 
         SDLK_C: InitColors;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_F: ChangeState;
 
-        SDLK_B: ShowCircle := not ShowCircle;
+        SDLK_B: ShowGuide := not ShowGuide;
 
         SDLK_Q: ExitProg := True;
 
@@ -175,7 +251,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -185,7 +261,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

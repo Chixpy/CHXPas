@@ -5,14 +5,11 @@
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 
-// Line
+{
+  Line
+}
 
 function cCHXSDL3Renderer.Line(const P1, P2: TSDL_FPoint): Boolean;
-begin
-  Result := Line(P1.X, P1.Y, P2.X, P2.Y);
-end;
-
-function cCHXSDL3Renderer.TLine(const P1, P2: TSDL_FPoint): Boolean;
 begin
   Result := Line(P1.X, P1.Y, P2.X, P2.Y);
 end;
@@ -45,6 +42,20 @@ begin
     Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
 end;
 
+function cCHXSDL3Renderer.Line(const Seg : TCHXSDLFSegment) : Boolean;
+begin
+  Result := Line(Seg.P1.X, Seg.P1.Y, Seg.P2.X, Seg.P2.Y);
+end;
+
+{
+  TLine
+}
+
+function cCHXSDL3Renderer.TLine(const P1, P2: TSDL_FPoint): Boolean;
+begin
+  Result := Line(P1.X, P1.Y, P2.X, P2.Y);
+end;
+
 function cCHXSDL3Renderer.TLine(const X1, Y1, X2, Y2: CFloat): Boolean;
 {
   Renderer Logical Presentation draw it _smooth_, with 1 logical
@@ -73,7 +84,14 @@ begin
     Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
 end;
 
-// Lines
+function cCHXSDL3Renderer.TLine(const Seg : TCHXSDLFSegment) : Boolean;
+begin
+  Result := TLine(Seg.P1.X, Seg.P1.Y, Seg.P2.X, Seg.P2.Y);
+end;
+
+{
+  Lines
+}
 
 function cCHXSDL3Renderer.LinesUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
@@ -82,11 +100,29 @@ function cCHXSDL3Renderer.LinesUnsafe(const PArr: TSDLFPointDynArray;
   - It doesn't draw anything with `Count <= 0`.
   - No error with negative `Count`.
   - If `Count` exceeds array end, it doesn't care and draw lines with
-      "invalid" data (usually 0,0). No error, but this time is logical.
+    "invalid" data (usually 0,0). No error, but this time is logical.
 }
 begin
   Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
 end;
+
+function cCHXSDL3Renderer.Lines(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+
+  if Count <= 0 then Exit;
+  // Try to draw although Result = False
+  if Count = 1 then
+    Exit(Point(PArr[idxFirst]) and Result);
+
+  Result := LinesUnsafe(PArr, idxFirst, Count) and Result;
+end;
+
+{
+  TLines
+}
 
 function cCHXSDL3Renderer.TLinesUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
@@ -101,35 +137,24 @@ begin
   Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
 end;
 
-function cCHXSDL3Renderer.Lines(const PArr: TSDLFPointDynArray;
-  const idxFirst: Integer; Count: Integer): Boolean;
-begin
-  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
-    {$I %LINE%}, {$I %CURRENTROUTINE%});
-
-  if Count <= 0 then Exit(Result);
-  // Try to draw although Result = False
-  if Count = 1 then
-    Exit(Point(PArr[idxFirst]) and Result);
-  if Count > 1 then
-    Exit(LinesUnsafe(PArr, idxFirst, Count) and Result);
-end;
-
 function cCHXSDL3Renderer.TLines(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
 
-  if Count <= 0 then Exit(Result);
+  if Count <= 0 then Exit;
+  
   // Try to draw although Result = False
   if Count = 1 then
     Exit(TPoint(PArr[idxFirst]) and Result);
-  if Count > 1 then
-    Exit(TLinesUnsafe(PArr, idxFirst, Count) and Result);
+
+  Result := TLinesUnsafe(PArr, idxFirst, Count) and Result;
 end;
 
-// LineMirror[x]
+{
+  LineMirror[x]
+}
 
 function cCHXSDL3Renderer.LineMirrorH(const X1, Y1, X2, Y2, OffsetX: CFloat)
   : Boolean;
@@ -166,6 +191,100 @@ begin
 
   Result := Line(P1XL, P1YU, P2XL, P2YU) and Line(P1XR, P1YU, P2XR, P2YU)
         and Line(P1XL, P1YD, P2XL, P2YD) and Line(P1XR, P1YD, P2XR, P2YD);
+end;
+
+{
+  Segments[X]: For one segment use Line
+}
+
+function cCHXSDL3Renderer.SegmentsUnsafe(const SegArr : TSDLFSegmentDynArray;
+  const idxFirst, Count : Integer) : Boolean;
+var
+  i : Integer;
+begin
+  Result := True;
+  for i := idxFirst to (idxFirst + Count - 1) do
+    Result := Line(SegArr[i]) and Result;
+end;
+
+function cCHXSDL3Renderer.SegmentsUnsafe(const PArr : TSDLFPointDynArray;
+  const idxFirst, PairCount : Integer) : Boolean;
+var
+  i : Integer;
+begin
+  Result := True;
+  for i := 0 to (PairCount - 1) do
+    Result := Line(PArr[idxFirst + i * 2], PArr[idxFirst + i * 2 + 1])
+      and Result;
+end;
+
+function cCHXSDL3Renderer.Segments(const SegArr : TSDLFSegmentDynArray;
+  const idxFirst : Integer; Count : Integer) : Boolean;
+begin
+  Result := IsValidArrayRange(Length(SegArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+
+  if Count <= 0 then Exit;
+
+  Result := SegmentsUnsafe(SegArr, idxFirst, Count) and Result;
+end;
+
+function cCHXSDL3Renderer.Segments(const PArr : TSDLFPointDynArray;
+  const idxFirst : Integer; PairCount : Integer) : Boolean;
+var
+  MaxCount: integer;
+begin
+  Result := True;
+  if Length(PArr) <= 0 then
+  begin
+    if PairCount = 0 then
+      Exit(True) // Empty array but Count is 0 too
+    else
+    begin
+      SDL_SetError('%s(%s) %s: Empty array and PairCount <> 0',
+        [PAnsiChar({$I %FILE%}), PAnsiChar({$I %LINE%}),
+        PAnsiChar({$I %CURRENTROUTINE%})]);
+      Exit(False);
+    end;
+  end;
+
+  if (idxFirst < 0) or (idxFirst > High(PArr)) or (PairCount < 0) then
+  begin
+    SDL_SetError(
+      '%s(%s) %s: (Index(%d) not in [0..%d]) or (PairCount(%d) < 0)',
+      [PAnsiChar({$I %FILE%}), PAnsiChar({$I %LINE%}),
+        PAnsiChar({$I %CURRENTROUTINE%}), idxFirst, High(PArr), PairCount]);
+    Exit(False);
+  end;
+
+  MaxCount := (Length(PArr) - idxFirst) div 2;
+
+  if PairCount = 0 then
+    PairCount := MaxCount
+  else if PairCount > MaxCount then
+  begin
+    SDL_SetError(
+      '%s(%s) %s: (Index(%d) + PairCount(%d) * 2) > Array Length(%d)',
+      [PAnsiChar({$I %FILE%}), PAnsiChar({$I %LINE%}),
+        PAnsiChar({$I %CURRENTROUTINE%}), idxFirst, PairCount, Length(PArr)]);
+    PairCount := MaxCount;
+    Result := False;
+  end;
+
+  if PairCount <= 0 then Exit;
+
+  if Odd(PairCount) then
+  begin
+    SDL_SetError('%s(%s) %s: Odd number of points (%d)',
+      [PAnsiChar({$I %FILE%}), {$I %LINE%}, {$I %CURRENTROUTINE%},
+      PairCount]);
+    Dec(PairCount);
+
+    Result := False;
+    if PairCount <= 0 then Exit;
+  end;
+
+  Result := SegmentsUnsafe(PArr, idxFirst, PairCount) and Result;
 end;
 {< This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free

@@ -5,9 +5,9 @@ program CHXSDL3Engine;
   Shows a simple text with native SDL methods.
 
   `cCHXSDL3Engine` descendant is declared and implemented here.
-  A better practice is that it is implented in it's own unit.
+  A better practice is that it would be in it's own unit.
 
-  (c) 2026 Chixpy
+  (C) 2026 Chixpy https://github.com/Chixpy
 }
 {$mode ObjFPC}{$H+}
 uses
@@ -15,9 +15,11 @@ uses
 
 const
   // Renderer scales images to actual size of the window.
-  RenderW = 300; { Renderer width. }
-  RenderH = 300; { Renderer height. }
-  WindowScale = 2; { Scale of the Window. }
+  kRenderH = 200;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
+  kFullScreen = False;
+  kRDriver = '';
 
 type
 
@@ -151,13 +153,13 @@ var
   CTCEng : cSDL3Eng;
 
 begin
-  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', RenderW, RenderH, 0, False,
-    False, False);
+  CTCEng := cSDL3Eng.Create('CHXSDL3Engine Test', RenderW, RenderH, 0,
+    kFullScreen, kRDriver);
   try
     // With `AutoInt = False` (7th parameter)
-    // We can change configuration, call init and then run the engine...
+    // We can change configuration, call Init and then Run the engine...
     // (Scale is actually constructor's 4th parameter...)
-    CTCEng.Config.Scale := WindowScale;
+    CTCEng.Config.Scale := kWinScale;
     CTCEng.Init;
     CTCEng.Run;
   finally

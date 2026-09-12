@@ -142,8 +142,13 @@ unit ucCHXSDL3Renderer;
 
   (C) 2026 Chixpy https://github.com/Chixpy
 *)
-{$MODE ObjFPC}{$H+}
-{$INLINE ON}{$WARN 6058 OFF}
+{$MODE ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
+{$MACRO ON}
+{.$DEFINE InvertDraw }
+{< Crazy hack: In my tests, drawing right to left or down to up lines,
+  and rects with negative width and height is %50 faster than the
+  other way. This define will force "inverted" drawing of lines and rects.
+}
 
 interface
 
@@ -169,15 +174,15 @@ type
   }
   cCHXSDL3Renderer = class //(TPersistent)
   protected
-    ColorStack: TSDLFColorDynArray;
+    ColorStack : TSDLFColorDynArray;
     //< Stack of pushed Colors, pushed with PushDrawColor.
 
   {
     Auxiliar functions
   }
 
-    function IsValidArrayRange(const ArrLength, idxFirst: Integer;
-      var Count: Integer; const LineNumber, FuncName: String): Boolean;
+    function IsValidArrayRange(const ArrLength, idxFirst : Integer;
+      var Count : Integer; const LineNumber, FuncName : String) : Boolean;
     (*< Check if `[idxFirst..(idxFirst+Count-1)]` is a valid range inside
       `[0..(ArrLength-1)]`.
 
@@ -193,27 +198,27 @@ type
     *)
 
   public
-    SDLRenderer: PSDL_Renderer;
+    SDLRenderer : PSDL_Renderer;
     //< Actual SDL_Renderer pointer.
-    FreeRenderer: Boolean;
+    FreeRenderer : Boolean;
     //< ¿Free SDL_Renderer on Destroy?;
-    PrevBlendMode: TSDL_BlendMode;
+    PrevBlendMode : TSDL_BlendMode;
     //< Previous blend mode when changing color.
 
   {
     Constructors and Destructor
   }
 
-    constructor Create(const PSDLWindow: PSDL_Window;
-      const Drivers: PAnsiChar = nil); overload;
+    constructor Create(const PSDLWindow : PSDL_Window;
+      const Drivers : PAnsiChar = nil); overload;
     {< Create a cCHXSDL3Renderer with a new SDL_Renderer and assign
        the SDL_Window to it.
 
       @param(PSDLWindow SDL_Window that will asociated be to SDL_Renderer.)
       @param(Drivers Space separated list of drivers to try to use.)
     }
-    constructor Create(const PSDLRenderer: PSDL_Renderer;
-      const FreeOnDestroy: Boolean); overload;
+    constructor Create(const PSDLRenderer : PSDL_Renderer;
+      const FreeOnDestroy : Boolean); overload;
     {< Create a cCHXSDL3Renderer with an already created SDL_Renderer.
 
       @param(PSDLRenderer SDL_Renderer to use.)
@@ -230,11 +235,11 @@ type
     [Get|Set]DrawColor
   }
 
-    function SetDrawColor(const aColor: TSDL_FColor): Boolean; overload;
+    function SetDrawColor(const aColor : TSDL_FColor) : Boolean; overload;
       inline;
-    function SetDrawColor(const R, G, B: CFloat; const A: CFloat = 1): Boolean;
-      overload;
-    function SetDrawColor(const Grey: CFloat; const A: CFloat = 1): Boolean;
+    function SetDrawColor(const R, G, B : CFloat; const A : CFloat = 1)
+      : Boolean; overload;
+    function SetDrawColor(const Grey : CFloat; const A : CFloat = 1) : Boolean;
       overload; inline;
     {<< Set current draw color for primitives and `Clear`.
 
@@ -248,15 +253,16 @@ type
       @param(Grey Grey in float [0..1] range.)
     }
 
-    function GetDrawColor: TSDL_FColor; overload; inline;
+    function GetDrawColor : TSDL_FColor; overload; inline;
     {< Get current draw color.
 
       Ignores SDL errors, to return the color as result.
 
       @returns(Color with components in float [0..1] range.)
     }
-    function GetDrawColor(out aColor: TSDL_FColor): Boolean; overload; inline;
-    function GetDrawColor(out R, G, B, A: CFloat): Boolean; overload; inline;
+    function GetDrawColor(out aColor : TSDL_FColor) : Boolean; overload;
+      inline;
+    function GetDrawColor(out R, G, B, A : CFloat) : Boolean; overload; inline;
     {<< Get current draw color.
 
       @param(aColor Returned color with components in float [0..1] range.)
@@ -267,12 +273,12 @@ type
       @param(Alpha Returned Opacity in float [0..1] range.)
     }
 
-    function PushDrawColor(const aColor: TSDL_FColor): Boolean; overload;
+    function PushDrawColor(const aColor : TSDL_FColor) : Boolean; overload;
       inline;
-    function PushDrawColor(const R, G, B: CFloat; const A: CFloat = 1): Boolean;
-      overload;
-    function PushDrawColor(const Grey: CFloat; const A: CFloat = 1): Boolean;
-      overload; inline;
+    function PushDrawColor(const R, G, B : CFloat; const A : CFloat = 1)
+      : Boolean; overload;
+    function PushDrawColor(const Grey : CFloat; const A : CFloat = 1)
+      : Boolean; overload; inline;
     {<< Push current draw color into a stack, so previous color(s) can
         restored with PopDrawColor.
 
@@ -286,7 +292,7 @@ type
       @param(Grey Grey in float [0..1] range.)
     }
 
-    function PopDrawColor(const PopCount: Integer = 1) : Boolean;
+    function PopDrawColor(const PopCount : Integer = 1) : Boolean;
     {< Restore previous color.
 
       @param(PopCount Number of colors to pop out.)
@@ -296,13 +302,13 @@ type
     Clear
   }
 
-    function Clear: Boolean; overload; inline;
+    function Clear : Boolean; overload; inline;
     {< Clear render's target (usually a SDL_Window) with current color.
     }
-    function Clear(const aColor: TSDL_FColor): Boolean; overload; inline;
-    function Clear(const R, G, B: CFloat; const A: CFloat = 1): Boolean;
+    function Clear(const aColor : TSDL_FColor) : Boolean; overload; inline;
+    function Clear(const R, G, B : CFloat; const A : CFloat = 1) : Boolean;
       overload;
-    function Clear(const Grey: CFloat; const A: CFloat = 1): Boolean;
+    function Clear(const Grey : CFloat; const A : CFloat = 1) : Boolean;
       overload;
     {< Clear render's target (usually a SDL_Window).
 
@@ -322,12 +328,12 @@ type
     Point[s][FP]
   }
 
-    function Point(const X, Y: CFloat): Boolean; overload; inline;
-    function Point(const P: TSDL_FPoint): Boolean; overload; inline;
-    function TPoint(const X, Y: CFloat): Boolean; overload; inline;
-    function TPoint(const P: TSDL_FPoint): Boolean; overload; inline;
-    // function FPPoint(const X, Y: CFloat): Boolean; overload; inline;
-    // function FPPoint(const P: TSDL_FPoint): Boolean; overload; inline;
+    function Point(const X, Y : CFloat) : Boolean; overload; inline;
+    function Point(const P : TSDL_FPoint) : Boolean; overload; inline;
+    function TPoint(const X, Y : CFloat) : Boolean; overload; inline;
+    function TPoint(const P : TSDL_FPoint) : Boolean; overload; inline;
+    // function FPPoint(const X, Y : CFloat) : Boolean; overload; inline;
+    // function FPPoint(const P : TSDL_FPoint) : Boolean; overload; inline;
     {< Draw a point with current draw color.
 
       @note(Renderer Logical Presentation draw it as a rect with 1 logical
@@ -340,14 +346,14 @@ type
     }
 
 
-    function PointsUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function Points(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
-    // function PointsUnsafeFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst, Count: Integer): Boolean;
-    // function PointsFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function PointsUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function Points(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
+    // function PointsUnsafeFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst, Count : Integer) : Boolean;
+    // function PointsFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw an array of points with current draw color.
 
       @note(Renderer Logical Presentation draw them as a rect with 1 logical
@@ -363,7 +369,7 @@ type
     PointMirror[X]
   }
 
-    function PointMirrorH(const X, Y: CFloat; const OffsetX: CFloat = 0)
+    function PointMirrorH(const X, Y : CFloat; const OffsetX : CFloat = 0)
       : Boolean;
     {< Draw a point and its horizontal reflection relative to `X=0`, and then
       shifted by OffsetX.
@@ -377,8 +383,8 @@ type
       @param(OffsetX Horizontal offset.)
     }
 
-    function PointMirrorHFilled(const X, Y: CFloat; const OffsetX: CFloat = 0)
-      : Boolean;
+    function PointMirrorHFilled(const X, Y : CFloat;
+      const OffsetX : CFloat = 0) : Boolean;
     {< Draw a line between the point and its horizontal reflection relative
       to `X=0`, and then shifted by OffsetX.
 
@@ -391,7 +397,7 @@ type
       @param(OffsetX Horizontal offset.)
     }
 
-    function PointMirrorV(const X, Y: CFloat; const OffsetY: CFloat = 0)
+    function PointMirrorV(const X, Y : CFloat; const OffsetY : CFloat = 0)
       : Boolean;
     {< Draw a point and its vertical reflection relative to `Y=0`, and then
       shifted by OffsetY.
@@ -405,8 +411,8 @@ type
       @param(OffsetY Vertical offset.)
     }
 
-    function PointMirrorVFilled(const X, Y: CFloat; const OffsetY: CFloat = 0)
-      : Boolean;
+    function PointMirrorVFilled(const X, Y : CFloat;
+      const OffsetY : CFloat = 0) : Boolean;
     {< Draw a line between the point and its vertical reflection relative
       to `Y=0`, and then shifted by OffsetY.
 
@@ -419,8 +425,8 @@ type
       @param(OffsetY Vertical offset.)
     }
 
-    function PointMirrorHV(const X, Y: CFloat; const OffsetX: CFloat = 0;
-      const OffsetY: CFloat = 0): Boolean;
+    function PointMirrorHV(const X, Y : CFloat; const OffsetX : CFloat = 0;
+      const OffsetY : CFloat = 0) : Boolean;
     {< Draw a point and its horizontal and vertical reflections relative to
       `X=0` and `Y=0`, and then shifted by `OffsetX` and `OffsetY`.
 
@@ -434,9 +440,9 @@ type
       @param(OffsetY Vertical offset.)
     }
 
-    function PointMirrorHVFilled(const X, Y: CFloat;
-      const FillH: Boolean = True; const FillV: Boolean = True;
-      const OffsetX: CFloat = 0; const OffsetY: CFloat = 0): Boolean;
+    function PointMirrorHVFilled(const X, Y : CFloat;
+      const FillH : Boolean = True; const FillV : Boolean = True;
+      const OffsetX : CFloat = 0; const OffsetY : CFloat = 0) : Boolean;
     {< Draw lines between a point and its horizontal and vertical reflections
       relative to `X=0` and `Y=0`, and then shifted by `OffsetX` and `OffsetY`.
 
@@ -473,10 +479,12 @@ type
     Line[s]
   }
 
-    function Line(const P1, P2: TSDL_FPoint): Boolean; overload; inline;
-    function Line(const X1, Y1, X2, Y2: CFloat): Boolean; overload;
-    function TLine(const P1, P2: TSDL_FPoint): Boolean; overload; inline;
-    function TLine(const X1, Y1, X2, Y2: CFloat): Boolean; overload;
+    function Line(const P1, P2 : TSDL_FPoint) : Boolean; overload; inline;
+    function Line(const X1, Y1, X2, Y2 : CFloat) : Boolean; overload;
+    function Line(const Seg : TCHXSDLFSegment) : Boolean; overload; inline;
+    function TLine(const P1, P2 : TSDL_FPoint) : Boolean; overload; inline;
+    function TLine(const X1, Y1, X2, Y2 : CFloat) : Boolean; overload;
+    function TLine(const Seg : TCHXSDLFSegment) : Boolean; overload; inline;
     {< Draw a line with current draw color.
 
       If `(Abs(X1 - X2) < 1) or (Abs(Y1 - Y2) < 1)`, it draws a full pixel.
@@ -492,17 +500,19 @@ type
       @param(Y1 Vertical coordinate of the first point.)
       @param(X2 Horizontal coordinate of the second point.)
       @param(Y2 Vertical coordinate of the second point.)
+
+      @param(Seg TCHXSDLFSegment to draw.)
     }
 
-    function LinesUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function Lines(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
-    function TLinesUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function TLines(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
-    {< Draw an array of concatenated lines with current draw color.
+    function LinesUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function Lines(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
+    function TLinesUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function TLines(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
+    {<< Draw an array of concatenated lines with current draw color.
 
       @note(Renderer Logical Presentation draw it _smooth_, with 1 logical
         pixel of width. If Lenght < 2, 2 logical pixels will overlap their
@@ -518,25 +528,54 @@ type
     LineMirror[X]
   }
 
-    function LineMirrorH(const X1, Y1, X2, Y2, OffsetX: CFloat): Boolean;
-    function LineMirrorV(const X1, Y1, X2, Y2, OffsetY: CFloat): Boolean;
-    function LineMirrorHV(const X1, Y1, X2, Y2, OffsetX, OffsetY: CFloat)
+    function LineMirrorH(const X1, Y1, X2, Y2, OffsetX : CFloat) : Boolean;
+    function LineMirrorV(const X1, Y1, X2, Y2, OffsetY : CFloat) : Boolean;
+    function LineMirrorHV(const X1, Y1, X2, Y2, OffsetX, OffsetY : CFloat)
       : Boolean;
+
+  {
+    Segments[X]: For one segment use Line
+  }
+
+    function SegmentsUnsafe(const SegArr : TSDLFSegmentDynArray;
+      const idxFirst, Count : Integer) : Boolean; overload;
+    function SegmentsUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, PairCount : Integer) : Boolean; overload;
+    function Segments(const SegArr : TSDLFSegmentDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean; overload;
+    function Segments(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; PairCount : Integer = 0) : Boolean;
+      overload;
+    {<< Draw an array of segments, not concatenated, with current draw color.
+
+      @note(Renderer Logical Presentation draw it _smooth_, with 1 logical
+        pixel of width. If Lenght < 2, 2 logical pixels will overlap their
+        opacity.)
+
+      @param(SegArr Array of points.)
+      @param(PArr Array of points.)
+      @param(idxFirst First segment or point of the first segment.)
+      @param(Count Number of segments used to draw. `0` means until
+        the end of the array.)
+      @param(PairCount Number of pairs of points to be used to draw segments.
+        `0` means until the end of the array.)
+    }
 
   {
     Triangle[X]
   }
 
-    function TriangleUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
-    function Triangle(const PArr: TSDLFPointDynArray; const idxFirst: Integer;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
-    function Triangle(const PArr: TSDLFPointDynArray;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    function Triangle(const P1, P2, P3: TSDL_FPoint;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
-    function Triangle(const X1, Y1, X2, Y2, X3, Y3: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
+    function TriangleUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer; const BorderC, FillC : TSDL_FColor) : Boolean;
+    function Triangle(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer; const BorderC, FillC : TSDL_FColor) : Boolean;
+      overload;
+    function Triangle(const PArr : TSDLFPointDynArray;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function Triangle(const P1, P2, P3 : TSDL_FPoint;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    function Triangle(const X1, Y1, X2, Y2, X3, Y3 : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
     {<< Draw a filled triangle and its border with different colors.
 
       With idxFirst, three contiguous points can be used from a bigger array.
@@ -562,12 +601,13 @@ type
       @param(FillC Color for fill.)
     }
 
-    function TriangleBorderUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function TriangleBorder(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function TriangleBorder(const P1, P2, P3: TSDL_FPoint): Boolean; overload;
-    function TriangleBorder(const X1, Y1, X2, Y2, X3, Y3: CFloat): Boolean;
+    function TriangleBorderUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function TriangleBorder(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function TriangleBorder(const P1, P2, P3 : TSDL_FPoint) : Boolean;
+      overload;
+    function TriangleBorder(const X1, Y1, X2, Y2, X3, Y3 : CFloat) : Boolean;
       overload;
     {<< Draw a triangle border with current draw color.
 
@@ -591,12 +631,13 @@ type
       @param(Y3 Vertical coordinate of the third point.)
     }
 
-    function TriangleFilledUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function TriangleFilled(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function TriangleFilled(const P1, P2, P3: TSDL_FPoint): Boolean; overload;
-    function TriangleFilled(const X1, Y1, X2, Y2, X3, Y3: CFloat): Boolean;
+    function TriangleFilledUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function TriangleFilled(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function TriangleFilled(const P1, P2, P3 : TSDL_FPoint) : Boolean;
+      overload;
+    function TriangleFilled(const X1, Y1, X2, Y2, X3, Y3 : CFloat) : Boolean;
       overload;
     {<< Draw a filled triangle with current draw color.
 
@@ -620,13 +661,13 @@ type
       @param(Y3 Vertical coordinate of the third point.)
     }
 
-    function TriangleFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function TriangleFillOnly(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function TriangleFillOnly(const P1, P2, P3: TSDL_FPoint): Boolean;
+    function TriangleFillOnlyUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function TriangleFillOnly(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function TriangleFillOnly(const P1, P2, P3 : TSDL_FPoint) : Boolean;
       overload;
-    function TriangleFillOnly(const X1, Y1, X2, Y2, X3, Y3: CFloat): Boolean;
+    function TriangleFillOnly(const X1, Y1, X2, Y2, X3, Y3 : CFloat) : Boolean;
       overload;
     {<< Draw the fill of a triangle with current draw color.
 
@@ -651,10 +692,10 @@ type
     Rect[s][X]: Axis Aligned Rectangle.
   }
 
-    function Rect(const aRect: TSDL_FRect; const BorderC, FillC: TSDL_FColor)
+    function Rect(const aRect : TSDL_FRect; const BorderC, FillC : TSDL_FColor)
       : Boolean; overload;
-    function Rect(const X, Y, W, H: CFloat; const BorderC, FillC: TSDL_FColor)
-      : Boolean; overload;
+    function Rect(const X, Y, W, H : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
     {<< Draw a filled Axis Aligned Rectangle and its border with
        different colors.
 
@@ -667,10 +708,10 @@ type
       @param(FillC Color for fill.)
     }
 
-    function RectBorder(aRect: TSDL_FRect): Boolean; inline; overload;
-    function RectBorder(const X, Y, W, H: CFloat): Boolean; overload;
-    function TRectBorder(aRect: TSDL_FRect): Boolean; inline; overload;
-    function TRectBorder(const X, Y, W, H: CFloat): Boolean; overload;
+    function RectBorder(aRect : TSDL_FRect) : Boolean; inline; overload;
+    function RectBorder(const X, Y, W, H : CFloat) : Boolean; overload;
+    function TRectBorder(aRect : TSDL_FRect) : Boolean; inline; overload;
+    function TRectBorder(const X, Y, W, H : CFloat) : Boolean; overload;
     {<< Draw an Axis Aligned Rectangle border with current color.
 
       @param(aRect Rectangle to draw.)
@@ -680,10 +721,10 @@ type
       @param(H Height of the rectangle.)
     }
 
-    function RectFilled(aRect: TSDL_FRect): Boolean; inline; overload;
-    function RectFilled(const X, Y, W, H: CFloat): Boolean; overload;
-    function TRectFilled(aRect: TSDL_FRect): Boolean; inline; overload;
-    function TRectFilled(const X, Y, W, H: CFloat): Boolean; overload;
+    function RectFilled(aRect : TSDL_FRect) : Boolean; inline; overload;
+    function RectFilled(const X, Y, W, H : CFloat) : Boolean; overload;
+    function TRectFilled(aRect : TSDL_FRect) : Boolean; inline; overload;
+    function TRectFilled(const X, Y, W, H : CFloat) : Boolean; overload;
     {<< Draw a filled Axis Aligned Rectangle with current color.
 
       @param(aRect Rectangle to draw.)
@@ -693,8 +734,8 @@ type
       @param(H Height of the rectangle.)
     }
 
-    function RectFillOnly(aRect: TSDL_FRect): Boolean; overload;
-    function RectFillOnly(const X, Y, W, H: CFloat): Boolean; overload;
+    function RectFillOnly(aRect : TSDL_FRect) : Boolean; overload;
+    function RectFillOnly(const X, Y, W, H : CFloat) : Boolean; overload;
     {<< Draw the fill of Axis Aligned Rectangle with current color.
 
       @param(aRect Rectangle to draw.)
@@ -704,10 +745,10 @@ type
       @param(H Height of the rectangle.)
     }
 
-    function RectsBorderUnsafe(const RArr: TSDLFRectDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function RectsBorder(const RArr: TSDLFRectDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function RectsBorderUnsafe(const RArr : TSDLFRectDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function RectsBorder(const RArr : TSDLFRectDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw an array of Axis Aligned Rectangle borders with current color.
 
       @param(RArr Array of rectangles.)
@@ -716,10 +757,10 @@ type
         the array.)
     }
 
-    function RectsFilledUnsafe(const RArr: TSDLFRectDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function RectsFilled(const RArr: TSDLFRectDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function RectsFilledUnsafe(const RArr : TSDLFRectDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function RectsFilled(const RArr : TSDLFRectDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw an array of filled Axis Aligned Rectangles with current color.
 
       @param(RArr Array of rectangles.)
@@ -732,10 +773,10 @@ type
     Frame[x]: Axis aligned rectangle with a rectangle hole in the middle.
   }
 
-    function Frame(const aRect: TSDL_FRect; const BWidth: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    function Frame(const X, Y, W, H, BWidth: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
+    function Frame(const aRect : TSDL_FRect; const BWidth : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function Frame(const X, Y, W, H, BWidth : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
     {<< Draw a filled Axis aligned rectangle with a rectangle hole in
       the middle and its border with different colors.
 
@@ -748,25 +789,9 @@ type
       @param(FillC Color for fill.)
     }
 
-    function FrameBorder(const aRect: TSDL_FRect; const BWidth: CFloat)
+    function FrameBorder(const aRect : TSDL_FRect; const BWidth : CFloat)
       : Boolean; overload;
-    function FrameBorder(const X, Y, W, H, BWidth: CFloat): Boolean; overload;
-       inline;
-    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
-      with a Circle.
-
-      @param(aRect Rectangle to Draw.)
-
-      @param(X Horizontal position of the top left "corner".)
-      @param(Y Vertical position of the top left "corner".)
-      @param(W Width of the rectangle.)
-      @param(H Height of the rectangle.)
-      @param(R Radius of the corners.)
-    }
-
-    function FrameFilled(const aRect: TSDL_FRect; BWidth: CFloat)
-      : Boolean; overload;
-    function FrameFilled(const X, Y, W, H, BWidth: CFloat): Boolean;
+    function FrameBorder(const X, Y, W, H, BWidth : CFloat) : Boolean;
       overload; inline;
     {<< Draw the border of a Axis Aligned Rectangle with rounded corners
       with a Circle.
@@ -780,9 +805,25 @@ type
       @param(R Radius of the corners.)
     }
 
-    function FrameFillOnly(aRect: TSDL_FRect; const BWidth: CFloat)
+    function FrameFilled(const aRect : TSDL_FRect; BWidth : CFloat)
+      : Boolean; overload;
+    function FrameFilled(const X, Y, W, H, BWidth : CFloat) : Boolean;
+      overload; inline;
+    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
+      with a Circle.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+      @param(R Radius of the corners.)
+    }
+
+    function FrameFillOnly(aRect : TSDL_FRect; const BWidth : CFloat)
       : Boolean; overload; inline;
-    function FrameFillOnly(const X, Y, W, H, BWidth: CFloat): Boolean;
+    function FrameFillOnly(const X, Y, W, H, BWidth : CFloat) : Boolean;
       overload; inline;
     {<< Draw the border of a Axis Aligned Rectangle with rounded corners
       with a Circle.
@@ -800,17 +841,17 @@ type
     Quad[X]: Quadrilateral.
   }
 
-    function QuadUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
-    function Quad(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
+    function QuadUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer; const BorderC, FillC : TSDL_FColor) : Boolean;
+    function Quad(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer; const BorderC, FillC : TSDL_FColor) : Boolean;
       overload;
-    function Quad(const PArr: TSDLFPointDynArray;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    function Quad(const P1, P2, P3, P4: TSDL_FPoint;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
-    function Quad(const X1, Y1, X2, Y2, X3, Y3, X4, Y4: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
+    function Quad(const PArr : TSDLFPointDynArray;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function Quad(const P1, P2, P3, P4 : TSDL_FPoint;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    function Quad(const X1, Y1, X2, Y2, X3, Y3, X4, Y4 : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
     {<< Draw a filled quadrilateral and its border with different colors.
 
       With idxFirst, four contiguous points can be used from a bigger array.
@@ -839,13 +880,13 @@ type
       @param(FillC Color for fill.)
     }
 
-    function QuadBorderUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function QuadBorder(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function QuadBorder(const P1, P2, P3, P4: TSDL_FPoint): Boolean;
+    function QuadBorderUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function QuadBorder(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function QuadBorder(const P1, P2, P3, P4 : TSDL_FPoint) : Boolean;
       overload;
-    function QuadBorder(const X1, Y1, X2, Y2, X3, Y3, X4, Y4: CFloat)
+    function QuadBorder(const X1, Y1, X2, Y2, X3, Y3, X4, Y4 : CFloat)
       : Boolean; overload;
     {<< Draw a quadrilateral border with current color.
 
@@ -872,13 +913,14 @@ type
       @param(Y4 Vertical coordinate of the fourth point.)
     }
 
-    function QuadFilledUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function QuadFilled(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function QuadFilled(const P1, P2, P3, P4: TSDL_FPoint): Boolean; overload;
-    function QuadFilled(const X1, Y1, X2, Y2, X3, Y3, X4, Y4: CFloat): Boolean;
-       overload;
+    function QuadFilledUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function QuadFilled(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function QuadFilled(const P1, P2, P3, P4 : TSDL_FPoint) : Boolean;
+      overload;
+    function QuadFilled(const X1, Y1, X2, Y2, X3, Y3, X4, Y4 : CFloat)
+      : Boolean; overload;
     {<< Draw a filled quadrilateral with current color.
 
       With idxFirst, four contiguous points can be used from a bigger array.
@@ -901,13 +943,13 @@ type
       @param(Y4 Vertical coordinate of the fourth point.)
     }
 
-    function QuadFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer): Boolean; inline;
-    function QuadFillOnly(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0): Boolean; overload;
-    function QuadFillOnly(const P1, P2, P3, P4: TSDL_FPoint): Boolean;
+    function QuadFillOnlyUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer) : Boolean; inline;
+    function QuadFillOnly(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0) : Boolean; overload;
+    function QuadFillOnly(const P1, P2, P3, P4 : TSDL_FPoint) : Boolean;
       overload;
-    function QuadFillOnly(const X1, Y1, X2, Y2, X3, Y3, X4, Y4: CFloat):
+    function QuadFillOnly(const X1, Y1, X2, Y2, X3, Y3, X4, Y4 : CFloat):
       Boolean; overload;
     {<< Draw the fill of a quadrilateral with current color.
 
@@ -935,13 +977,13 @@ type
     Polygon[X]: Polygon
   }
 
-    function PolygonUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer;
-      const BorderC, FillC: TSDL_FColor): Boolean;
-    function Polygon(const PArr: TSDLFPointDynArray; const idxFirst: Integer;
-      Count: Integer; const BorderC, FillC: TSDL_FColor) : Boolean; overload;
-    function Polygon(const PArr: TSDLFPointDynArray;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
+    function PolygonUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer;
+      const BorderC, FillC : TSDL_FColor) : Boolean;
+    function Polygon(const PArr : TSDLFPointDynArray; const idxFirst : Integer;
+      Count : Integer; const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    function Polygon(const PArr : TSDLFPointDynArray;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
     {<< Draw a filled polygon and its border with different colors.
 
       With idxFirst and Count can select wich points will be used from a
@@ -958,14 +1000,14 @@ type
       @param(FillC Color for fill.)
     }
 
-    function PolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function TPolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean; inline;
-    function PolygonBorder(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
-    function TPolygonBorder(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function PolygonBorderUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function TPolygonBorderUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean; inline;
+    function PolygonBorder(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
+    function TPolygonBorder(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw a polygon border with current color.
 
       With idxFirst and Count can select wich points will be used from a
@@ -979,12 +1021,12 @@ type
         `0` means until array's end.)
     }
 
-    function PolygonFilledUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean;
-    function PolygonFilled(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
-    function TPolygonFilled(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function PolygonFilledUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean;
+    function PolygonFilled(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
+    function TPolygonFilled(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw a filled polygon with current color.
 
       With idxFirst and Count can select wich points will be used from a
@@ -996,10 +1038,10 @@ type
         `0` means until array's end.)
     }
 
-    function PolygonFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
-      const idxFirst, Count: Integer): Boolean;
-    function PolygonFillOnly(const PArr: TSDLFPointDynArray;
-      const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    function PolygonFillOnlyUnsafe(const PArr : TSDLFPointDynArray;
+      const idxFirst, Count : Integer) : Boolean;
+    function PolygonFillOnly(const PArr : TSDLFPointDynArray;
+      const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw the fill of a polygon with current color.
 
       With idxFirst and Count can select wich points will be used from a
@@ -1011,10 +1053,10 @@ type
         `0` means until array's end.)
     }
 
-    // function PolygonFilledUnsafeFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst, Count: Integer): Boolean;
-    // function PolygonFilledFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    // function PolygonFilledUnsafeFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst, Count : Integer) : Boolean;
+    // function PolygonFilledFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw a filled polygon with current color with rounded coordinates.
 
       With idxFirst and Count can select wich points will be used from a
@@ -1026,10 +1068,10 @@ type
         `0` means until array's end.)
     }
 
-    // function PolygonFillOnlyUnsafeFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst, Count: Integer): Boolean;
-    // function PolygonFillOnlyFP(const PArr: TSDLFPointDynArray;
-    //   const idxFirst: Integer = 0; Count: Integer = 0): Boolean;
+    // function PolygonFillOnlyUnsafeFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst, Count : Integer) : Boolean;
+    // function PolygonFillOnlyFP(const PArr : TSDLFPointDynArray;
+    //   const idxFirst : Integer = 0; Count : Integer = 0) : Boolean;
     {<< Draw the fill of a polygon with current color with rounded coordinates.
 
       With idxFirst and Count can select wich points will be used from a
@@ -1045,8 +1087,9 @@ type
     RegPolyCC[X]: Regular Polygon by its Circumscribed Circle.
   }
 
-    function RegPolyCCVertices(out PArr: TSDLFPointDynArray;
-      const X, Y, R: CFloat; const NSides: Integer; Angle: CFloat = 0): Boolean;
+    function RegPolyCCVertices(out PArr : TSDLFPointDynArray;
+      const X, Y, R : CFloat; const NSides : Integer; Angle : CFloat = 0)
+      : Boolean;
     {< Populate `PArr` with the vertices of a Regular Polygon with `NSides`
       defined by it's circumscribed circunference and rotated an `Angle`.
 
@@ -1061,8 +1104,8 @@ type
       @param(Angle Angle of rotation of the regular polygon.)
     }
 
-    function RegPolyCC(const X, Y, R: CFloat; const NSides: Integer;
-      const BorderC, FillC: TSDL_FColor; const Angle: CFloat = 0): Boolean;
+    function RegPolyCC(const X, Y, R : CFloat; const NSides : Integer;
+      const BorderC, FillC : TSDL_FColor; const Angle : CFloat = 0) : Boolean;
     {< Draw a filled regular polygon and its border with different colors
       described by its circumscribed circunference.
 
@@ -1079,10 +1122,10 @@ type
       @param(FillC Color for fill.)
     }
 
-    function RegPolyCCBorder(const X, Y, R: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
-    function TRegPolyCCBorder(const X, Y, R: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
+    function RegPolyCCBorder(const X, Y, R : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
+    function TRegPolyCCBorder(const X, Y, R : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
     {< Draw a regular polygon border with current draw color described by
       its circumscribed circunference.
 
@@ -1097,10 +1140,10 @@ type
       @param(Angle Rotation angle of the polygon. `0` first vertex at top.)
     }
 
-    function RegPolyCCFilled(const X, Y, R: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
-    function TRegPolyCCFilled(const X, Y, R: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
+    function RegPolyCCFilled(const X, Y, R : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
+    function TRegPolyCCFilled(const X, Y, R : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
     {< Draw a filled regular polygon with current draw color described by
       its circumscribed circunference.
 
@@ -1113,8 +1156,8 @@ type
       @param(Angle Rotation angle of the polygon. `0` first vertex at top.)
     }
 
-    function RegPolyCCFillOnly(const X, Y, R: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
+    function RegPolyCCFillOnly(const X, Y, R : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
     {< Draw the fill of a regular polygon with current draw color described by
       its circumscribed circunference.
 
@@ -1131,9 +1174,9 @@ type
     RegPolySS[X]: Regular Polygon by its Side Lenght.
   }
 
-    function RegPolySSVertices(out PArr: TSDLFPointDynArray;
-      const X, Y, SideSize: CFloat; const NSides: Integer;
-      const Angle: CFloat = 0): Boolean;
+    function RegPolySSVertices(out PArr : TSDLFPointDynArray;
+      const X, Y, SideSize : CFloat; const NSides : Integer;
+      const Angle : CFloat = 0) : Boolean;
     {< Populate `PArr` with the vertices of a Regular Polygon with `NSides`
       defined by Side lenght and rotated an `Angle`.
 
@@ -1147,8 +1190,8 @@ type
       @param(Angle Angle of rotation of the regular polygon.)
     }
 
-    function RegPolySS(const X, Y, SideSize: CFloat; const NSides: Integer;
-      const BorderC, FillC: TSDL_FColor; const Angle: CFloat = 0): Boolean;
+    function RegPolySS(const X, Y, SideSize : CFloat; const NSides : Integer;
+      const BorderC, FillC : TSDL_FColor; const Angle : CFloat = 0) : Boolean;
       inline;
     {< Draw a filled regular polygon and its border with different colors
       described by its center and side length.
@@ -1164,8 +1207,8 @@ type
       @param(FillC Color for fill.)
     }
 
-    function RegPolySSBorder(const X, Y, SideSize: CFloat;
-      const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
+    function RegPolySSBorder(const X, Y, SideSize : CFloat;
+      const NSides : Integer; const Angle : CFloat = 0) : Boolean; inline;
     {< Draw a regular polygon border with current color
       described by its center and side length.
 
@@ -1178,8 +1221,8 @@ type
       @param(Angle Rotation angle of the polygon. `0` first vertex at top.)
     }
 
-    function RegPolySSFilled(const X, Y, SideSize: CFloat;
-      const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
+    function RegPolySSFilled(const X, Y, SideSize : CFloat;
+      const NSides : Integer; const Angle : CFloat = 0) : Boolean; inline;
     {< Draw a filled regular polygon with current color
       described by its center and side length.
 
@@ -1190,8 +1233,8 @@ type
       @param(Angle Rotation angle of the polygon. `0` first vertex at top.)
     }
 
-    function RegPolySSFillOnly(const X, Y, SideSize: CFloat;
-      const NSides: Integer; const Angle: CFloat = 0): Boolean; inline;
+    function RegPolySSFillOnly(const X, Y, SideSize : CFloat;
+      const NSides : Integer; const Angle : CFloat = 0) : Boolean; inline;
     {< Draw the fill of a regular polygon with current color
       described by its center and side length.
 
@@ -1206,10 +1249,10 @@ type
     [T]Circle[X]: Circle / Circunference.
   }
 
-    procedure TCircleVertices(var PArr: TSDLFPointDynArray;
-      const X, Y, R: CFloat; OctPoints: Integer = -1);
+    procedure TCircleVertices(var PArr : TSDLFPointDynArray;
+      const X, Y, R : CFloat; OctPoints : Integer = -1);
 
-    function Circle(const X, Y, R: CFloat; const BorderC, FillC: TSDL_FColor)
+    function Circle(const X, Y, R : CFloat; const BorderC, FillC : TSDL_FColor)
       : Boolean;
     {< Draw a circle and a its circunference with different colors.
 
@@ -1220,9 +1263,9 @@ type
       @param(FillC Color for fill.)
     }
 
-    function CircleBorder(const X, Y: CFloat; R: CFloat): Boolean;
-    function TCircleBorder(const X, Y, R: CFloat;
-      const OctPoints : Integer = -1): Boolean;
+    function CircleBorder(const X, Y : CFloat; R : CFloat) : Boolean;
+    function TCircleBorder(const X, Y, R : CFloat;
+      const OctPoints : Integer = -1) : Boolean;
     {< Draw a circunference with current color.
 
       @param(X Horizontal position of the center of the circunference.)
@@ -1230,9 +1273,9 @@ type
       @param(R Radius of the circunference.)
     }
 
-    function CircleFilled(const X, Y: CFloat; R: CFloat): Boolean;
-    function TCircleFilled(const X, Y, R: CFloat;
-      const OctPoints : Integer = -1): Boolean;
+    function CircleFilled(const X, Y : CFloat; R : CFloat) : Boolean;
+    function TCircleFilled(const X, Y, R : CFloat;
+      const OctPoints : Integer = -1) : Boolean;
     {< Draw a circle with current color.
 
       @param(X Horizontal position of the center of the circle.)
@@ -1240,7 +1283,7 @@ type
       @param(R Radius of the circle.)
     }
 
-    function CircleFillOnly(const X, Y: CFloat; R: CFloat): Boolean;
+    function CircleFillOnly(const X, Y : CFloat; R : CFloat) : Boolean;
     {< Draw the fill of a circle with current color.
 
       @param(X Horizontal position of the center of the circle.)
@@ -1248,19 +1291,22 @@ type
       @param(R Radius of the circle.)
     }
 
-    // function CircleBorderFP(const X, Y, R: CFloat): Boolean;
-    // function CircleFilledFP(const X, Y, R: CFloat): Boolean;
-    // function CircleFillOnlyFP(const X, Y, R: CFloat): Boolean;
+    // function CircleBorderFP(const X, Y, R : CFloat) : Boolean;
+    // function CircleFilledFP(const X, Y, R : CFloat) : Boolean;
+    // function CircleFillOnlyFP(const X, Y, R : CFloat) : Boolean;
 
   {
     Ellipse[X]: Axis Aligned Ellipse.
   }
 
-    procedure TEllipseVertices(var PArr: TSDLFPointDynArray;
-      const X, Y, RX, RY: CFloat; QuadPoints: Integer = -1);
+    procedure TEllipseVertices(var PArr : TSDLFPointDynArray;
+      const X, Y, RX, RY : CFloat; QuadPoints : Integer = -1);
 
-    function Ellipse(const X, Y, RX, RY: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean;
+    function Ellipse(const X, Y, RX, RY : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean;
+    function TEllipse(const X, Y, RX, RY : CFloat;
+      const BorderC, FillC : TSDL_FColor; const QuadPoints : Integer = -1)
+      : Boolean;
     {< Draw a filled Axis Aligned Ellipse and its border with different colors
       described by its center and radii.
 
@@ -1272,10 +1318,10 @@ type
       @param(FillC Color for fill.)
     }
 
-    function EllipseBorder(const X, Y: CFloat; RX, RY: CFloat): Boolean;
+    function EllipseBorder(const X, Y : CFloat; RX, RY : CFloat) : Boolean;
       overload;
-    function TEllipseBorder(const X, Y, RX, RY: CFloat;
-      const QuadPoints : Integer = -1): Boolean; overload;
+    function TEllipseBorder(const X, Y, RX, RY : CFloat;
+      const QuadPoints : Integer = -1) : Boolean; overload;
     {< Draw an Axis Aligned Ellipse border with current draw color
       described by its center and radii.
 
@@ -1285,10 +1331,10 @@ type
       @param(RY Vertical radius of the ellipse.)
     }
 
-    function EllipseFilled(const X, Y: CFloat; RX, RY: CFloat): Boolean;
+    function EllipseFilled(const X, Y : CFloat; RX, RY : CFloat) : Boolean;
       overload;
-    function TEllipseFilled(const X, Y, RX, RY: CFloat;
-      const QuadPoints : Integer = -1): Boolean; overload;
+    function TEllipseFilled(const X, Y, RX, RY : CFloat;
+      const QuadPoints : Integer = -1) : Boolean; overload;
     {< Draw a filled Axis Aligned Ellipse with current draw color
       described by its center and radii.
 
@@ -1298,7 +1344,9 @@ type
       @param(RY Vertical radius of the ellipse.)
     }
 
-    function EllipseFillOnly(const X, Y: CFloat; RX, RY: CFloat): Boolean;
+    function EllipseFillOnly(const X, Y : CFloat; RX, RY : CFloat) : Boolean;
+    function TEllipseFillOnly(const X, Y : CFloat; RX, RY : CFloat;
+      const QuadPoints : Integer = -1) : Boolean;
     {< Draw the fill of an Axis Aligned Ellipse with current draw color
       described by its center and radii.
 
@@ -1308,14 +1356,20 @@ type
       @param(RY Vertical radius of the ellipse.)
     }
 
-    // function EllipseBorderFP(const X, Y, RX, RY: CFloat)
-    // function EllipseFilledFP(const X, Y, RX, RY: CFloat)
-    // function EllipseFillOnlyFP(const X, Y, RX, RY: CFloat)
+    // function EllipseBorderFP(const X, Y, RX, RY : CFloat)
+    // function EllipseFilledFP(const X, Y, RX, RY : CFloat)
+    // function EllipseFillOnlyFP(const X, Y, RX, RY : CFloat)
 
-    function EllipseInRect(const aRect: TSDL_FRect;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    function EllipseInRect(const X, Y, W, H: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
+    function EllipseInRect(const aRect : TSDL_FRect;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function EllipseInRect(const X, Y, W, H : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    function TEllipseInRect(const aRect : TSDL_FRect;
+      const BorderC, FillC : TSDL_FColor; const QuadPoints : Integer = -1)
+      : Boolean; overload; inline;
+    function TEllipseInRect(const X, Y, W, H : CFloat;
+      const BorderC, FillC : TSDL_FColor; const QuadPoints : Integer = -1)
+      : Boolean; overload;
     {<< Draw a filled Axis Aligned Ellipse and its border with different colors
       described by the rectagle where is inside.
 
@@ -1333,9 +1387,13 @@ type
       @param(FillC Color for fill.)
     }
 
-    function EllipseInRectBorder(const aRect: TSDL_FRect): Boolean;
+    function EllipseInRectBorder(const aRect : TSDL_FRect) : Boolean;
       overload; inline;
-    function EllipseInRectBorder(X, Y, W, H: CFloat): Boolean; overload;
+    function EllipseInRectBorder(X, Y, W, H : CFloat) : Boolean; overload;
+    function TEllipseInRectBorder(const aRect : TSDL_FRect;
+      const QuadPoints : Integer = -1) : Boolean; overload; inline;
+    function TEllipseInRectBorder(X, Y, W, H : CFloat;
+      const QuadPoints : Integer = -1) : Boolean; overload;
     {<< Draw an Axis Aligned Ellipse border with current draw color
       described by the rectagle where is inside.
 
@@ -1350,9 +1408,13 @@ type
       @param(aRect Rect where the ellipse is inside)
     }
 
-    function EllipseInRectFilled(const aRect: TSDL_FRect): Boolean;
+    function EllipseInRectFilled(const aRect : TSDL_FRect) : Boolean;
       overload; inline;
-    function EllipseInRectFilled(X, Y, W, H: CFloat): Boolean; overload;
+    function EllipseInRectFilled(X, Y, W, H : CFloat) : Boolean; overload;
+    function TEllipseInRectFilled(const aRect : TSDL_FRect;
+      const QuadPoints : Integer = -1) : Boolean; overload; inline;
+    function TEllipseInRectFilled(X, Y, W, H : CFloat;
+      const QuadPoints : Integer = -1) : Boolean; overload;
     {<< Draw a filled Axis Aligned Ellipse with current draw color
       described by the rectagle where is inside.
 
@@ -1367,9 +1429,13 @@ type
       @param(aRect Rect where the ellipse is inside)
     }
 
-    function EllipseInRectFillOnly(const aRect: TSDL_FRect): Boolean;
+    function EllipseInRectFillOnly(const aRect : TSDL_FRect) : Boolean;
       overload; inline;
-    function EllipseInRectFillOnly(X, Y, W, H: CFloat): Boolean; overload;
+    function EllipseInRectFillOnly(X, Y, W, H : CFloat) : Boolean; overload;
+    function TEllipseInRectFillOnly(const aRect : TSDL_FRect;
+      const QuadPoints : Integer = -1) : Boolean; overload; inline;
+    function TEllipseInRectFillOnly(X, Y, W, H : CFloat;
+      const QuadPoints : Integer = -1) : Boolean; overload;
     {<< Draw the fill of an Axis Aligned Ellipse with current draw color
       described by the rectagle where is inside.
 
@@ -1384,28 +1450,29 @@ type
       @param(aRect Rect where the ellipse is inside)
     }
 
-    // function EllipseInRectFP(const aRect: TSDL_FRect;
-    //   const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    // function EllipseInRectFP(const X, Y, W, H: CFloat;
-    //   const BorderC, FillC: TSDL_FColor): Boolean; overload;
-    // function EllipseInRectBorderFP(const aRect: TSDL_FRect): Boolean;
+    // function EllipseInRectFP(const aRect : TSDL_FRect;
+    //   const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    // function EllipseInRectFP(const X, Y, W, H : CFloat;
+    //   const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    // function EllipseInRectBorderFP(const aRect : TSDL_FRect) : Boolean;
     //   overload; inline;
-    // function EllipseInRectBorderFP(X, Y, W, H: CFloat): Boolean; overload;
-    // function EllipseInRectFilledFP(const aRect: TSDL_FRect): Boolean;
+    // function EllipseInRectBorderFP(X, Y, W, H : CFloat) : Boolean; overload;
+    // function EllipseInRectFilledFP(const aRect : TSDL_FRect) : Boolean;
     //   overload; inline;
-    // function EllipseInRectFilledFP(X, Y, W, H: CFloat): Boolean; overload;
-    // function EllipseInRectFillOnlyFP(const aRect: TSDL_FRect): Boolean;
+    // function EllipseInRectFilledFP(X, Y, W, H : CFloat) : Boolean; overload;
+    // function EllipseInRectFillOnlyFP(const aRect : TSDL_FRect) : Boolean;
     //   overload; inline;
-    // function EllipseInRectFillOnlyFP(X, Y, W, H: CFloat): Boolean; overload;
+    // function EllipseInRectFillOnlyFP(X, Y, W, H : CFloat) : Boolean;
+    //   overload;
 
   {
     RndRect[x]: Axis aligned rectangle with rounded corners.
   }
 
-    function RndRectC(const aRect: TSDL_FRect; const R: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload; inline;
-    function RndRectC(const X, Y, W, H, R: CFloat;
-      const BorderC, FillC: TSDL_FColor): Boolean; overload;
+    function RndRectC(const aRect : TSDL_FRect; const R : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function RndRectC(const X, Y, W, H, R : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
     {<< Draw a filled Axis Aligned Rectangle with rounded corners with a Circle
       and its border with different colors.
 
@@ -1418,39 +1485,39 @@ type
       @param(FillC Color for fill.)
     }
 
-    function RndRectCBorder(const aRect: TSDL_FRect; const R: CFloat): Boolean;
-      overload; inline;
-    function RndRectCBorder(X, Y, W, H, R: CFloat): Boolean; overload;
-    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
-      with a Circle.
-
-      @param(aRect Rectangle to Draw.)
-
-      @param(X Horizontal position of the top left "corner".)
-      @param(Y Vertical position of the top left "corner".)
-      @param(W Width of the rectangle.)
-      @param(H Height of the rectangle.)
-      @param(R Radius of the corners.)
-    }
-
-    function RndRectCFilled(const aRect: TSDL_FRect; const R: CFloat): Boolean;
-      overload; inline;
-    function RndRectCFilled(X, Y, W, H, R: CFloat): Boolean; overload;
-    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
-      with a Circle.
-
-      @param(aRect Rectangle to Draw.)
-
-      @param(X Horizontal position of the top left "corner".)
-      @param(Y Vertical position of the top left "corner".)
-      @param(W Width of the rectangle.)
-      @param(H Height of the rectangle.)
-      @param(R Radius of the corners.)
-    }
-
-    function RndRectCFillOnly(const aRect: TSDL_FRect; const R: CFloat)
+    function RndRectCBorder(const aRect : TSDL_FRect; const R : CFloat)
       : Boolean; overload; inline;
-    function RndRectCFillOnly(X, Y, W, H, R: CFloat): Boolean; overload;
+    function RndRectCBorder(X, Y, W, H, R : CFloat) : Boolean; overload;
+    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
+      with a Circle.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+      @param(R Radius of the corners.)
+    }
+
+    function RndRectCFilled(const aRect : TSDL_FRect; const R : CFloat)
+      : Boolean; overload; inline;
+    function RndRectCFilled(X, Y, W, H, R : CFloat) : Boolean; overload;
+    {<< Draw the border of a Axis Aligned Rectangle with rounded corners
+      with a Circle.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+      @param(R Radius of the corners.)
+    }
+
+    function RndRectCFillOnly(const aRect : TSDL_FRect; const R : CFloat)
+      : Boolean; overload; inline;
+    function RndRectCFillOnly(X, Y, W, H, R : CFloat) : Boolean; overload;
     {<< Draw the border of a Axis Aligned Rectangle with rounded corners
       with a Circle.
 
@@ -1467,10 +1534,10 @@ type
     DebugText[F]
   }
     // ToDo: ¿Overload with the same name?
-    function DebugText(const X, Y: CFloat; const aStr: String): Boolean;
+    function DebugText(const X, Y : CFloat; const aStr : String) : Boolean;
       inline;
-    function DebugTextF(const X, Y: CFloat; const aFmtStr: String;
-      const Args: Array of Const): Boolean;
+    function DebugTextF(const X, Y : CFloat; const aFmtStr : String;
+      const Args : Array of Const) : Boolean;
 
   end;
 
@@ -1478,8 +1545,8 @@ implementation
 
 // Create
 
-constructor cCHXSDL3Renderer.Create(const PSDLWindow: PSDL_Window;
-  const Drivers: PAnsiChar);
+constructor cCHXSDL3Renderer.Create(const PSDLWindow : PSDL_Window;
+  const Drivers : PAnsiChar);
 begin
   if not Assigned(PSDLWindow) then
   begin
@@ -1490,8 +1557,8 @@ begin
   Self.Create(SDL_CreateRenderer(PSDLWindow, Drivers), True);
 end;
 
-constructor cCHXSDL3Renderer.Create(const PSDLRenderer: PSDL_Renderer;
-  const FreeOnDestroy: Boolean);
+constructor cCHXSDL3Renderer.Create(const PSDLRenderer : PSDL_Renderer;
+  const FreeOnDestroy : Boolean);
 begin
   if not Assigned(PSDLRenderer) then
   begin
@@ -1519,12 +1586,6 @@ begin
   inherited;
 end;
 
-{$MACRO ON}
-{.$DEFINE InvertDraw }
-// Crazy hack:
-//   In my tests, drawing left and right or down to up is faster than
-//   usual way.
-
 {
   In an attempt to keep organized, implementations are in files to be
   included in `CHXSDL3Renderer` directory.
@@ -1546,14 +1607,14 @@ end;
 
 // DebugText[F]
 
-function cCHXSDL3Renderer.DebugText(const X, Y: CFloat; const aStr: String)
+function cCHXSDL3Renderer.DebugText(const X, Y : CFloat; const aStr : String)
   : Boolean;
 begin
   Result := SDL_RenderDebugText(Self.SDLRenderer, X, Y, PAnsiChar(aStr));
 end;
 
-function cCHXSDL3Renderer.DebugTextF(const X, Y: CFloat;
-  const aFmtStr: String; const Args: Array of Const): Boolean;
+function cCHXSDL3Renderer.DebugTextF(const X, Y : CFloat;
+  const aFmtStr : String; const Args : Array of Const) : Boolean;
 begin
   // It's not that easy :,-(
   // Result := SDL_RenderDebugTextFormat(Self.SDLRenderer, X, Y, 

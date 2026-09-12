@@ -2,22 +2,19 @@ program TestClear;
 {<
   A simple program with cCHXSDL3Engine for testing cCHXSDL3Engine.Clear.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderH = 200;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -65,25 +62,25 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
   if ToggleClear then
     Render.Clear(ClearColor);
 
   // Draw something
-  Render.SetDrawColor(1, 1, 1);
+  Render.SetDrawColor(Random, Random, Random);
   Render.Point(Random * kRenderW, Random * kRenderH);
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change clear color.');
   Render.DebugText(0, 30, '[T] Toggle clear.');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -99,20 +96,16 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+      SDLK_F1: ShowHelp := not ShowHelp;
 
-        SDLK_C: ClearColor.Init(Random, Random, Random);
+      SDLK_C: ClearColor.Init(Random, Random, Random);
 
-        SDLK_T: ToggleClear := not ToggleClear;
+      SDLK_T: ToggleClear := not ToggleClear;
 
-        SDLK_Q: ExitProg := True;
+      SDLK_Q: ExitProg := True;
 
-      otherwise
-        Handled := False;
-      end;
+      otherwise Handled := False;
     end;
-  otherwise
-    ;
   end;
 end;
 
@@ -128,7 +121,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -138,7 +131,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

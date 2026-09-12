@@ -4,8 +4,8 @@ Collection of programs to test drawing primitives of `cCHXSDL3Renderer`.
 
 ## Information
 
-Many of the programs are simple test of random drawing and filling, or
-some specific tests (compare Circle algorithm vs Ellipse one).
+Many of the programs are simple test of drawing and filling of the primitive,
+other are specific tests (compare Circle algorithm vs Ellipse one).
 
 ## Compiling
 
@@ -70,7 +70,6 @@ By default some keys are assigned:
 Each program can have its own keys listed with **[F1]**, but in general:
 
 - **[C]**: Change used colors.
-- **[F]**: Change primitive filling between: _Full Fill_ and
-  _Border + Internal Fill_.
+- **[F]**: Change primitive draw and filling.
 - **[P]**: Change points.
 - **[R]**: Change rects.

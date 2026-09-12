@@ -2,23 +2,21 @@ program TestPointMirror;
 {<
   A simple program with cCHXSDL3Engine for testing Point Mirror primitives.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
   kMoveStep = 0.25;
 
-  kRenderW = 50; { Renderer width. }
-  kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH ; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -62,7 +60,7 @@ begin
   stPoint: sState := 'Point';
   stHMirror: sState := 'H Mirror';
   stVMirror: sState := 'V Mirror';
-  stHVMirror: sState := 'HV Mirror';
+  stHVMirror: sState := 'HV Mirror (No Fill)';
   stHVMirrorF: sState := 'HV Mirror Filled';
   otherwise
     ;
@@ -98,12 +96,11 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0.01);
+  Render.Clear(0.05);
 
   Render.SetDrawColor(1, 0.3);
   Render.Line(X0, 0, X0, kRenderH);
-  Render.Line(0, Y0, kRenderH, Y0);
+  Render.Line(0, Y0, kRenderW, Y0);
 
   Render.SetDrawColor(Color1);
   case State of
@@ -129,21 +126,22 @@ begin
     otherwise ;
   end;
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugTextF(0, 0, '%s', [sState]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[F] Change mode');
-  Render.DebugText(0, 30, '[C] Change colors');
-  Render.DebugText(0, 40, '[ARROWS] Move point');
-  Render.DebugText(0, 50, '[H] Horizontal lines');
-  Render.DebugText(0, 60, '[V] Vertical lines');
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[C] Change colors');
+  Render.DebugText(0, 50, '[ARROWS] Move point');
+  Render.DebugText(0, 60, '[H] Horizontal lines');
+  Render.DebugText(0, 70, '[V] Vertical lines');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -195,7 +193,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -205,7 +203,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

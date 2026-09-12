@@ -1,3 +1,10 @@
+## 2026-09-12 17:52
+
+- Changed _CHXSDL3Engine_ tests to use new `cCHXSDL3Engine.Create` to
+  compile again.
+- Added `CSCHXVec3.md`, cheat sheet for `cCHXVec3[x]` methods.
+- Added some methods for segments in _CHXSDL3Renderer_.
+
 ## 2026-09-08 15:51
 
 - Changed the format of `Cheatsheet.md` and updated.

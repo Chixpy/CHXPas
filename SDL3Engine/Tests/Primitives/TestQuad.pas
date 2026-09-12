@@ -2,25 +2,26 @@ program TestQuad;
 {<
   A simple program with cCHXSDL3Engine for testing Quad(rilateral) primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
+  1. Draw many quads on screen.
+    1. Changed to be like other primitive tests, one only at low resolution.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNPoints = 40;
-
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.1';
 
 type
+
+  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -35,13 +36,15 @@ type
 
   public
     ShowHelp: Boolean;
-    Points: Array of TSDL_FPoint;
-    Colors: Array of TSDL_FColor;
-    FillMode: Boolean;
+    State: TState; sState: String;
+    Color1, Color2: TSDL_FColor;
+
+    Points: Array[0..3] of TSDL_FPoint;
 
     procedure InitPoints;
-    procedure InitColors;
 
+    procedure ChangeState;
+    procedure InitColors;
     procedure DrawHelp;
   end;
 
@@ -55,24 +58,38 @@ begin
     Points[i].Init(Random * kRenderW, Random * kRenderH);
 end;
 
-procedure cSDL3Eng.InitColors;
-var
-  i: Integer;
+procedure cSDL3Eng.ChangeState;
 begin
-  for i := Low(Colors) to High(Colors) do
-    Colors[i].Init(Random, Random, Random, Random);
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+    stBorFill : sState := 'Border + Only Fill';
+    stTBorFill : sState := 'Triangles Border + Only Fill';
+    stBorder : sState := 'Border';
+    stTBorder : sState := 'Triangles Border';
+    stFilled : sState := 'Full Filled';
+    stTFilled : sState := 'Triangles Filled';
+  otherwise
+    sState := '<Undefined>';
+  end;
+end;
+
+procedure cSDL3Eng.InitColors;
+begin
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-
-  SetLength(Points, kNPoints);
-  InitPoints;
-  SetLength(Colors, kNPoints);
+  State := High(TState); ChangeState;
   InitColors;
 
-  FillMode := False;
+  InitPoints;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -86,40 +103,41 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
-var
-  i: Integer;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.05);
+  Render.SetDrawColor(Color1);
 
-  i := 0;
-  while i < (High(Points) - 3) do
-  begin
-    if  FillMode then
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.QuadFilled(Points[i], Points[i + 1], Points[i + 2],
-        Points[i + 3]);
-    end
-    else
-      Render.Quad(Points[i], Points[i + 1], Points[i + 2], Points[i + 3],
-        Colors[i], Colors[i + 1]);
-    Inc(i, 4);
-  end;
+  case State of
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+    stBorFill : Render.Quad(Points[0], Points[1], Points[2], Points[3],
+      Color1, Color2);
+
+    //stTBorFill : Render.TQuad(Points[0], Points[1], Points[2], Points[3]);
+
+    stBorder : Render.QuadBorder(Points[0], Points[1], Points[2], Points[3]);
+
+    //stTBorder : Render.TQuadBorder(Points[0], Points[1], Points[2], Points[3]);
+
+    stFilled : Render.QuadFilled(Points[0], Points[1], Points[2], Points[3]);
+
+    //stTFilled : Render.TQuadFilled(Points[0], Points[1], Points[2], Points[3]);
+
+  end; // case State of
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s', [sState]);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change color');
   Render.DebugText(0, 30, '[P] Change points');
   Render.DebugText(0, 40, '[F] Change mode');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -141,7 +159,7 @@ begin
 
         SDLK_P: InitPoints;
 
-        SDLK_F: FillMode := not FillMode;
+        SDLK_F: ChangeState;
 
         SDLK_Q: ExitProg := True;
 
@@ -164,7 +182,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -174,7 +192,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

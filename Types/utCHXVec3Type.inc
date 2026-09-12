@@ -147,10 +147,10 @@ type
     Sigma = 0 means use default sigma value for TRealType.
   }
 
-    function IsZero3D(const Sigma: TRealType = 0): Boolean; inline; overload;
-    function IsZeroXY(const Sigma: TRealType = 0): Boolean; inline; overload;
-    function IsZeroXZ(const Sigma: TRealType = 0): Boolean; inline; overload;
-    function IsZeroZY(const Sigma: TRealType = 0): Boolean; inline; overload;
+    function IsZero3D(const Sigma: TRealType = 0): Boolean; inline;
+    function IsZeroXY(const Sigma: TRealType = 0): Boolean; inline;
+    function IsZeroXZ(const Sigma: TRealType = 0): Boolean; inline;
+    function IsZeroZY(const Sigma: TRealType = 0): Boolean; inline;
 
     function IsEqual3D(const aVector: TCHXVec3Type; const Sigma: TRealType = 0)
       : Boolean; inline;

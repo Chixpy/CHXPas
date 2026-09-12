@@ -5,22 +5,21 @@ program TestPointVsRect;
 
   @note(I suspect that SDL actually use Rects to draw points.)
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
+  ToDo: Filled Rects with negative width and height.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 100; // Renderer width.
-  kRenderH = 100; // Renderer height.
-  kWindowScale = 8; // Scale of the Window.
-  kFullScree = False;
-  kUseGPU = False; // Soft or GPU renderer
+  kRenderH = 100;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
+  kFullScreen = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
   kNPoints = 2000;
 
@@ -41,19 +40,39 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    Color: TSDL_FColor;
     ShowHelp: Boolean;
+    State: TState; sState: String;
+    Color: TSDL_FColor;
 
-    State: TState;
     Points: TSDLFPointDynArray;
     Rects: TSDLFRectDynArray;
 
-    procedure InitColors;
     procedure InitPoints;
+
+    procedure ChangeState;
+    procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  stPoint: sState := 'Individual Points';
+  stPoints: sState := 'Array of Points';
+  stRectPoint: sState := 'Individual Points to Rect';
+  stRectsPoints: sState := 'Array of Points to Array of Rects';
+  stRectRects: sState := 'Individual Rects';
+  stRectsRects: sState := 'Array of Rects';
+  otherwise sState := '<Undefined>';
+  end; // case State of
+end;
 
 procedure cSDL3Eng.InitColors;
 begin
@@ -75,14 +94,11 @@ end;
 
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
-
-  State := Low(TState);
-
+  ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
   InitColors;
-  InitPoints;
 
-  ShowHelp := True;
+  InitPoints;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -100,42 +116,27 @@ var
   aPoint: TSDL_FPoint;
   aRect: TSDL_FRect;
   i: Integer;
-  sMode: String;
 begin
-  // To show framerate at very small render size (2)
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.01);
 
   Render.SetDrawColor(Color);
-
   case State of
   stPoint:
-  begin
-    sMode := 'Individual Points';
     for aPoint in Points do
       SDL_RenderPoint(SDLRenderer, aPoint.X, aPoint.Y);
-  end;
 
   stPoints:
-  begin
-    sMode := 'Array of Points';
     SDL_RenderPoints(SDLRenderer, @Points[0], Length(Points));
-  end;
 
   stRectPoint:
-  begin
-    sMode := 'Individual Points to Rect';
     for aPoint in Points do
     begin
       aRect := SDLFRect(aPoint.X, aPoint.Y, 1, 1);
       SDL_RenderFillRect(SDLRenderer, @aRect);
     end;
-  end;
 
   stRectsPoints:
   begin
-    sMode := 'Array of Points to Array of Rects';
     SetLength(Rects, 0);
     SetLength(Rects, Length(Points));
     for i := 0 to (Length(Points) - 1) do
@@ -145,33 +146,28 @@ begin
   end;
 
   stRectRects:
-  begin
-    sMode := 'Individual Rects';
     for aRect in Rects do
       SDL_RenderFillRect(SDLRenderer, @aRect);
-  end;
 
   stRectsRects:
-  begin
-    sMode := 'Array of Rects';
     SDL_RenderFillRects(SDLRenderer, @Rects[0], Length(Rects));
-  end;
 
-  otherwise
-    ;
-  end;
+  end;// case State of
 
-  // To show framerate at very small render size (1)
-  Window.SetRenderSize(400, 400);
-  if ShowHelp then
-  begin
-    Render.SetDrawColor(1, 0, 1);
-    Render.DebugText(0, 0, PAnsiChar(sMode));
-    Render.DebugText(0, 10, '[F1] Toggle help');
-    Render.DebugText(0, 20, '[C] Change color');
-    Render.DebugText(0, 30, '[P] Change Points');
-    Render.DebugText(0, 40, '[M] Change Mode');
-  end;
+  if ShowHelp then DrawHelp;
+end;
+
+procedure cSDL3Eng.DrawHelp;
+begin
+  Window.PushRenderSize(400, 400);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugText(0, 0, PAnsiChar(sState));
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[P] Change Points');
+  Render.DebugText(0, 40, '[M] Change Mode');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -193,11 +189,7 @@ begin
 
         SDLK_P: InitPoints;
 
-        SDLK_M:
-          if State = High(TState) then
-            State := Low(TState)
-          else
-            Inc(State);
+        SDLK_M: ChangeState;
 
         SDLK_Q: ExitProg := True;
 
@@ -220,7 +212,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -230,7 +222,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScree, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

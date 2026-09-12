@@ -1,11 +1,16 @@
 # CHXSDL3Engine test programs
 
-Programs to test `CHXSDLEngine` and its components.
+Programs to test `SDL3`, `cCHXSDLEngine` and its components.
 
 ## Compiling
 
-First of all, you need SDL3-for-Pascal units.
+First of all, you need _SDL3-for-Pascal_ units.
 
 From this folder, it should be as easy as:
 
-> `fpc @fp.cfg -Fu<SDL3-for-PascalDir>/units <TestProgram>.pas`
+> `build.[sh|bat] -Fu<SDL3-for-PascalDir>/units <TestProgram>.pas`
+
+The executable file will be created at `bin` directory.
+
+SDL3 library must be installed or in the same directory of the program
+to run it.

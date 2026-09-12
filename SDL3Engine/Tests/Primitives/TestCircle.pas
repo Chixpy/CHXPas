@@ -2,24 +2,21 @@ program TestCircle;
 {<
   A simple program with cCHXSDL3Engine for testing Circle primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 150; { Renderer width. }
-  kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH; { Scale of the Window. }
-  kFullScreen = False;
-  kUseGPU = False;
-
   kRadiusStep = 0.25;
+
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
+  kFullScreen = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -37,26 +34,18 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    Color1, Color2: TSDL_FColor;
-    Radius: CFloat;
+    ShowHelp : Boolean;
+    State : TState; sState : String;
+    Color1, Color2 : TSDL_FColor;
 
-    State: TState;
-    sState: String;
+    Radius : CFloat;
 
-    procedure InitColors;
     procedure ChangeState;
+    procedure InitColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
-
-
-procedure cSDL3Eng.InitColors;
-begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
-end;
 
 procedure cSDL3Eng.ChangeState;
 begin
@@ -66,22 +55,27 @@ begin
     Inc(State);
 
   case State of
-    stAll: sState := 'Border + OnlyFill';
-    stBorder: sState := 'Border';
-    stTBorder: sState := 'Triangle Border';
-    stFilled: sState := 'Filled';
-    stTFilled: sState := 'Triangle Filled';
-  otherwise
-    ;
+  stAll : sState := 'Border + Only Fill';
+  stBorder : sState := 'Border';
+  stTBorder : sState := 'Triangles Border';
+  stFilled : sState := 'Full Filled';
+  stTFilled : sState := 'Triangles Filled';
+  otherwise sState := '<Undefined>';
   end;
+end;
+
+procedure cSDL3Eng.InitColors;
+begin
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
   InitColors;
-  State := High(TState);
-  ChangeState;
+
   Radius := kRenderH * 0.40;
 end;
 
@@ -97,43 +91,39 @@ end;
 
 procedure cSDL3Eng.Draw;
 var
-  X, Y: CFloat;
+  X, Y : CFloat;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0.05);
-  Render.SetDrawColor(1);
+  Render.Clear(0.01);
 
-  X := kRenderW * 0.5; Y := kRenderW * 0.5;
+  X := kRenderW * 0.5; Y := kRenderH * 0.5;
+
   Render.SetDrawColor(Color1);
-
   case State of
-  stAll: Render.Circle(X, Y, Radius, Color1, Color2);
+  stAll : Render.Circle(X, Y, Radius, Color1, Color2);
 
-  stBorder: Render.CircleBorder(X, Y, Radius);
+  stBorder : Render.CircleBorder(X, Y, Radius);
 
-  stTBorder: Render.TCircleBorder(X, Y, Radius);
+  stTBorder : Render.TCircleBorder(X, Y, Radius);
 
-  stFilled: Render.CircleFilled(X, Y, Radius);
+  stFilled : Render.CircleFilled(X, Y, Radius);
 
-  stTFilled: Render.TCircleFilled(X, Y, Radius);
-
-  otherwise
-    ;
+  stTFilled : Render.TCircleFilled(X, Y, Radius);
   end;
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(400, 400);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugTextF(0, 0, '%s - Radius: %g', [sState, Radius]);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change color');
   Render.DebugText(0, 30, '[F] Change mode');
   Render.DebugText(0, 40, '[UP] [DOWN] Change radius');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -149,38 +139,35 @@ begin
       case aEvent.key.key of
       // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-      SDLK_F1: ShowHelp := not ShowHelp;
+      SDLK_F1 : ShowHelp := not ShowHelp;
 
-      SDLK_C: InitColors;
+      SDLK_C : InitColors;
 
-      SDLK_F: ChangeState;
+      SDLK_F : ChangeState;
 
-      SDLK_UP: Radius += kRadiusStep;
+      SDLK_UP : Radius += kRadiusStep;
 
-      SDLK_DOWN: Radius -= kRadiusStep;
+      SDLK_DOWN : Radius -= kRadiusStep;
 
-      SDLK_Q: ExitProg := True;
+      SDLK_Q : ExitProg := True;
 
-      otherwise
-        Handled := False;
+      otherwise Handled := False;
       end;
     end;
-  otherwise
-    ;
-  end;
+  end; // case aEvent.type_ of
 end;
 
   { Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -190,7 +177,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

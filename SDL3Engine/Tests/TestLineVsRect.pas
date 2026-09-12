@@ -9,38 +9,39 @@ program TestLineVsRect;
     down to up than the usual way, both Lines and Rects (with negative W
     and H)**, but seems not to be worth of changing a whole array every frame.
 
+    In CHXSDL3Renderer, there is a preprocesor conditional to invert lines
+      and rects. If it's set, it will force "inverted" drawing.
+
     Additional notes:
 
-    - Line overdraw if `Abs(Length) < 2`.
-    - Rect Border overdraws always as they have 1 of width. Much more if
+    - Line overdraw endpoints if `Abs(Length) < 2`.
+    - Rect Border overdraws always as they have 1 of border width. Much more if
       `Abs(Length) < 2`.
-    - Filled Rectys don't overdraw.
+    - Filled Rects don't overdraw (never?).
     - `1` must be added to `Length` when working with rects, this is how Rects
       works.
     - Line and Border Rect draw a full pixel if `Abs(Length) < 1`.
     - Fill Rects draws subpixel rects with `Abs(Length) < 1`
-      (wich maybe is a desired effect) and `1` must be _substracted_ if
+      (that maybe it's a desired effect) and `1` must be _substracted_ if
       `Length < 0`.
   )
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 100; // Renderer width.
-  kRenderH = 100; // Renderer height.
-  kWindowScale = 8; // Scale of the Window.
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = True; // Soft or GPU renderer
+  kRDriver = '';
+  kProgVersion = '1.1';
 
-  kNLines = 2000;
+  kNLines = 1000;
+  kLenStep = 0.25;
 
 type
 
@@ -60,30 +61,28 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    Color: TSDL_FColor;
+
     ShowHelp: Boolean;
+    State: TState; sState: String;
+    Color: TSDL_FColor;
 
-    State: TState;
     LineDir: TLineDir;
-
-    sState, sLineDir: String;
-
+    sLineDir: String;
+    LineLength: CFloat;
     LinesOrig: TSDLFPointDynArray; // Origin points of the lines
     LinesDst: TSDLFPointDynArray; // End points of the lines
     Rects: TSDLFRectDynArray; // Rects
 
-    LineLength: CFloat;
-
-    procedure InitColors;
     procedure InitLines;
     procedure InitAuxArrays;
-
     procedure ChangeLineDir;
+
     procedure ChangeState;
+    procedure InitColors;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
-
 
 procedure cSDL3Eng.InitColors;
 begin
@@ -115,7 +114,7 @@ begin
     for i := 0 to (Length(LinesOrig) - 1) do
     begin
       LinesDst[i].Init(LinesOrig[i].X + LineLength, LinesOrig[i].Y);
-      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, 1 + LineLength, 1);
+      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, LineLength + 1, 1);
     end;
   end;
 
@@ -124,7 +123,7 @@ begin
     for i := 0 to (Length(LinesOrig) - 1) do
     begin
       LinesDst[i].Init(LinesOrig[i].X, LinesOrig[i].Y + LineLength);
-      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, 1, 1 + LineLength);
+      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, 1, LineLength + 1);
     end;
   end;
 
@@ -133,7 +132,12 @@ begin
     for i := 0 to (Length(LinesOrig) - 1) do
     begin
       LinesDst[i].Init(LinesOrig[i].X - LineLength, LinesOrig[i].Y);
-      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, 1 - LineLength, 1);
+      if (State = stRectBorder) then
+        Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y,
+          -LineLength + 1, 1)
+      else // Fix for filled rects
+        Rects[i] := SDLFRect(LinesOrig[i].X + 1, LinesOrig[i].Y,
+          -LineLength - 1, 1);
     end;
   end;
 
@@ -141,10 +145,13 @@ begin
     for i := 0 to (Length(LinesOrig) - 1) do
     begin
       LinesDst[i].Init(LinesOrig[i].X, LinesOrig[i].Y - LineLength);
-      Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y, 1, 1 - LineLength);
+      if (State = stRectBorder) then
+        Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y,
+          1, -LineLength + 1)
+      else // Fix for filled rects
+        Rects[i] := SDLFRect(LinesOrig[i].X, LinesOrig[i].Y + 1,
+          1, -LineLength - 1);
     end;
-    
-  otherwise ;
   end;
 end;
 
@@ -160,7 +167,7 @@ begin
   ldVer: sLineDir := 'Vertical';
   ldHorInv: sLineDir := 'Inverted Horizontal';
   ldVerInv: sLineDir := 'Inverted Vertical';
-  otherwise ;
+  otherwise sLineDir :='<Undefined>';
   end;
 
   InitAuxArrays;
@@ -180,7 +187,7 @@ begin
   stCHXLine: sState := '(CHX) Line';
   stCHXFilledRect: sState := '(CHX) FilledRect';
   stCHXFilledRectsInv: sState := '(CHX) FilledRects Inverted';
-  otherwise;
+  otherwise sState :='<Undefined>';
   end;
 
   // stCHXFilledRectsInv changes the arrays
@@ -188,18 +195,14 @@ begin
 end;
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
-
-  State := High(TState);
-  ChangeState; // Sets sState
-  LineDir:= High(TLineDir);
-  ChangeLineDir; // Sets sLineDir
-  LineLength:= 2; // To check overdraw easily with < 2
-
+  ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
   InitColors;
-  InitLines; // Updates Aux arrays too
 
-  ShowHelp := True;
+  LineDir:= High(TLineDir);
+  ChangeLineDir; // Sets sLineDir too
+  LineLength:= 2; // To check overdraw easily with < 2
+  InitLines; // Updates Aux arrays too
 end;
 
 procedure cSDL3Eng.Finish;
@@ -216,13 +219,9 @@ procedure cSDL3Eng.Draw;
 var
   i: Integer;
 begin
-  // To show framerate at very small render size (2)
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.01);
 
   Render.SetDrawColor(Color);
-
   case State of
   stLine:
     for i := 0 to High(LinesOrig) do
@@ -238,51 +237,50 @@ begin
       Render.Line(LinesOrig[i].X, LinesOrig[i].Y,
         LinesDst[i].X, LinesDst[i].Y);
 
-  stCHXFilledRect:
-    for i := 0 to High(Rects) do
-      Render.RectFilled(Rects[i]);
+  stCHXFilledRect: Render.RectsFilled(Rects);
 
   stCHXFilledRectsInv:
   begin
-    // Inverting al Rects
+    // Creating inverted Rects every frame
     if ((LineDir = ldHor) and (LineLength > 0))
-      or  ((LineDir = ldHorInv) and (LineLength < 0)) then
+        or ((LineDir = ldHorInv) and (LineLength < 0)) then
       for i := 0 to High(Rects) do
       begin
-          Rects[i].X := LinesOrig[i].X + 1 + LineLength;
+          Rects[i].X := LinesOrig[i].X + LineLength + 1;
           Rects[i].Y := LinesOrig[i].Y + 1;
           Rects[i].W := -LineLength - 1;
           Rects[i].H := -1;
       end
     else if ((LineDir = ldVer) and (LineLength > 0))
-      or ((LineDir = ldVerInv) and (LineLength < 0)) then
+        or ((LineDir = ldVerInv) and (LineLength < 0)) then
       for i := 0 to High(Rects) do
       begin
           Rects[i].X := LinesOrig[i].X + 1;
-          Rects[i].Y := LinesOrig[i].Y + 1 + LineLength;
+          Rects[i].Y := LinesOrig[i].Y + LineLength + 1;
           Rects[i].W := -1;
           Rects[i].H := -LineLength - 1;
       end;
 
     Render.RectsFilled(Rects, 0);
   end;
+  end; // case State of
 
-  otherwise ;
-  end;
+  if ShowHelp then DrawHelp;
+end;
 
-  // To show framerate at very small render size (1)
-  Window.SetRenderSize(400, 400);
-  if ShowHelp then
-  begin
-    Render.SetDrawColor(1, 0, 1);
-    Render.DebugTextF(0, 0, '%s %s - Size: %g', [sLineDir, sState, LineLength]);
-    Render.DebugText(0, 10, '[F1] Toggle help');
-    Render.DebugText(0, 20, '[C] Change color');
-    Render.DebugText(0, 30, '[L] Change Lines');
-    Render.DebugText(0, 40, '[M] Change Mode');
-    Render.DebugText(0, 50, '[D] Change Direction');
-    Render.DebugText(0, 60, '[ARROWS] Change Length');
-  end;
+procedure cSDL3Eng.DrawHelp;
+begin
+  Window.PushRenderSize(400, 400);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s %s - Size: %g', [sLineDir, sState, LineLength]);
+  Render.DebugText(0, 10, '[F1] Toggle help');
+  Render.DebugText(0, 20, '[C] Change color');
+  Render.DebugText(0, 30, '[L] Change Lines');
+  Render.DebugText(0, 40, '[M] Change Mode');
+  Render.DebugText(0, 50, '[D] Change Direction');
+  Render.DebugText(0, 60, '[ARROWS] Change Length');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -310,13 +308,13 @@ begin
 
         SDLK_UP, SDLK_RIGHT:
         begin
-          LineLength += 0.25;
+          LineLength += kLenStep;
           InitAuxArrays;
         end;
 
         SDLK_DOWN, SDLK_LEFT:
         begin
-          LineLength -= 0.25;
+          LineLength -= kLenStep;
           InitAuxArrays;
         end;
 
@@ -341,7 +339,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -351,7 +349,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

@@ -2,23 +2,21 @@ program TestLine;
 {<
   A simple program with cCHXSDL3Engine for testing Line primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
   kNPoints = 200;
-  // In actual programs use Window.Render[Width/Height]
-  kRenderW = 200; { Renderer width. }
-  kRenderH = 200; { Renderer height. }
-  kWindowScale = 4; { Scale of the Window. }
+
+  kRenderH = 200;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
@@ -34,9 +32,9 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    PointColor: TSDL_FColor;
-    Points: Array of TSDL_FPoint;
+    ShowHelp : Boolean;
+    LineColor : TSDL_FColor;
+    Points : Array of TSDL_FPoint;
 
     procedure InitPoints;
     procedure DrawHelp;
@@ -46,7 +44,7 @@ type
 
 procedure cSDL3Eng.InitPoints;
 var
-  i: Integer;
+  i : Integer;
 begin
   for i := Low(Points) to High(Points) do
     Points[i].Init(Random * kRenderW, Random * kRenderH);
@@ -56,7 +54,7 @@ procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
 
-  PointColor.Init(Random, Random, Random, Random * 0.5 + 0.5);
+  LineColor.Init(Random, Random, Random, Random * 0.5 + 0.5);
 
   SetLength(Points, kNPoints);
   InitPoints;
@@ -74,30 +72,30 @@ end;
 
 procedure cSDL3Eng.Draw;
 var
-  i: Integer;
+  i : Integer;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.01);
 
-  Render.SetDrawColor(PointColor);
+  Render.SetDrawColor(LineColor);
   i := 0;
   while i < (High(Points) - 1) do
   begin
     Render.Line(Points[i], Points[i + 1]);
     Inc(i, 2);
   end;
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugText(0, 10, '[F1] Toggle help');
   Render.DebugText(0, 20, '[C] Change color');
   Render.DebugText(0, 30, '[P] Change points');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -113,13 +111,13 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_C: PointColor.Init(Random, Random, Random, Random);
+        SDLK_C : LineColor.Init(Random, Random, Random, Random);
 
-        SDLK_P: InitPoints;
+        SDLK_P : InitPoints;
 
-        SDLK_Q: ExitProg := True;
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
@@ -134,13 +132,13 @@ end;
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -150,7 +148,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

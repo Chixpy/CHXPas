@@ -1,4 +1,3 @@
-#!/bin/bash
 @echo off
 setlocal enabledelayedexpansion
 chcp 65001 > nul

@@ -2,27 +2,26 @@ program TestTriangle;
 {<
   A simple program with cCHXSDL3Engine for testing Triangle primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
+  1. Draw many triangles on screen.
+    1. Changed to be like other primitive tests, one only at low resolution.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNPoints = 60;
-
-  kRenderW = 100; { Renderer width. }
-  kRenderH = 100; { Renderer height. }
-  kWindowScale = 800 div kRenderH; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.1';
 
 type
 
-  TState = (stNormal, stFilled, stBorderFilled);
+  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -37,17 +36,15 @@ type
 
   public
     ShowHelp: Boolean;
+    State: TState; sState: String;
+    Color1, Color2: TSDL_FColor;
 
-    Points: Array of TSDL_FPoint;
-    Colors: Array of TSDL_FColor;
-
-    State: TState;
-    sState: String;
+    Points: Array[0..2] of TSDL_FPoint;
 
     procedure InitPoints;
-    procedure InitColors;
-    procedure ChangeState;
 
+    procedure ChangeState;
+    procedure InitColors;
     procedure DrawHelp;
   end;
 
@@ -61,14 +58,6 @@ begin
     Points[i].Init(Random * kRenderW, Random * kRenderH);
 end;
 
-procedure cSDL3Eng.InitColors;
-var
-  i: Integer;
-begin
-  for i := Low(Colors) to High(Colors) do
-    Colors[i].Init(Random, Random, Random, Random);
-end;
-
 procedure cSDL3Eng.ChangeState;
 begin
   if State = High(TState) then
@@ -77,26 +66,30 @@ begin
     Inc(State);
 
   case State of
-  stNormal: sState := 'Border + OnlyFill';
-  stFilled: sState := 'Filled';
-  stBorderFilled: sState := 'Border + Filled';
+    stBorFill : sState := 'Border + Only Fill';
+    stTBorFill : sState := 'Triangles Border + Only Fill';
+    stBorder : sState := 'Border';
+    stTBorder : sState := 'Triangles Border';
+    stFilled : sState := 'Full Filled';
+    stTFilled : sState := 'Triangles Filled';
   otherwise
-    ;
+    sState := '<Undefined>';
   end;
 end;
 
+procedure cSDL3Eng.InitColors;
+begin
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
+end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-
-  SetLength(Points, kNPoints);
-  InitPoints;
-  SetLength(Colors, kNPoints);
+  State := High(TState); ChangeState;
   InitColors;
 
-  State := High(TState);
-  ChangeState; // Set sState
+  InitPoints;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -110,67 +103,41 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
-var
-  i: Integer;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.SetDrawColor(1, 1, 1);
-  Render.Clear(0, 0, 0);
+  Render.Clear(0.05);
+  Render.SetDrawColor(Color1);
 
   case State of
-  stNormal:
-  begin
-    i := 0;
-    while i < (High(Points) - 2) do
-    begin
-      Render.Triangle(Points[i], Points[i + 1], Points[i + 2],
-              Colors[i], Colors[i + 1]);
-      Inc(i, 3);
-    end;
-  end;
 
-  stFilled:
-  begin
-    i := 0;
-    while i < (High(Points) - 2) do
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.TriangleFilled(Points[i], Points[i + 1], Points[i + 2]);
-      Inc(i, 3);
-    end;
+    stBorFill : Render.Triangle(Points[0], Points[1], Points[2],
+      Color1, Color2);
 
-  end;
+    // stTBorFill : Render.TTriangle(Points[0], Points[1], Points[2]);
 
-  stBorderFilled:
-  begin
-    i := 0;
-    while i < (High(Points) - 2) do
-    begin
-      Render.SetDrawColor(Colors[i]);
-      Render.TriangleBorder(Points[i], Points[i + 1], Points[i + 2]);
-      Render.SetDrawColor(Colors[i + 1]);
-      Render.TriangleFilled(Points[i], Points[i + 1], Points[i + 2]);
-      Inc(i, 3);
-    end;
-  end;
+    stBorder : Render.TriangleBorder(Points[0], Points[1], Points[2]);
 
-  otherwise
-    ;
-  end;
+    // stTBorder : Render.TTriangleBorder(Points[0], Points[1], Points[2]);
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+    stFilled : Render.TriangleFilled(Points[0], Points[1], Points[2]);
+
+    // stTFilled : Render.TTriangleFilled(Points[0], Points[1], Points[2]);
+
+  end; // case State of
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
-  Render.DebugText(0, 0, sState);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[P] Change points');
-  Render.DebugText(0, 40, '[F] Change mode');
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[P] Change points');
+  Render.DebugText(0, 50, '[F] Change mode');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -215,7 +182,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -225,7 +192,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

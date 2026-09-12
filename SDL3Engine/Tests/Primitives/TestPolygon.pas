@@ -2,27 +2,25 @@ program TestPolygon;
 {<
   A simple program with cCHXSDL3Engine for testing Polygon primitive.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kRenderW = 50; { Renderer width. }
-  kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH; { Scale of the Window. }
-  kFullScreen = False;
-  kUseGPU = False;
-
   kNPoints = 10;
+
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
+  kFullScreen = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
-  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
+  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -37,15 +35,15 @@ type
 
   public
     ShowHelp: Boolean;
-    State: TState;
-    sState: String;
+    State: TState; sState: String;
     Color1, Color2: TSDL_FColor;
 
     Points: Array of TSDL_FPoint;
 
     procedure InitPoints;
-    procedure InitColors;
+
     procedure ChangeState;
+    procedure InitColors;
     procedure DrawHelp;
   end;
 
@@ -59,12 +57,6 @@ begin
     Points[i].Init(Random * kRenderW, Random * kRenderH);
 end;
 
-procedure cSDL3Eng.InitColors;
-begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
-end;
-
 procedure cSDL3Eng.ChangeState;
 begin
   if State = High(TState) then
@@ -73,22 +65,28 @@ begin
     Inc(State);
 
   case State of
-    stAll: sState := 'Border + OnlyFill';
-    stBorder: sState := 'Border';
-    stTBorder: sState := 'Triangle Border';
-    stFilled: sState := 'Filled';
-    stTFilled: sState := 'Triangle Filled';
+    stBorFill : sState := 'Border + Only Fill';
+    stTBorFill : sState := 'Triangles Border + Only Fill';
+    stBorder : sState := 'Border';
+    stTBorder : sState := 'Triangles Border';
+    stFilled : sState := 'Full Filled';
+    stTFilled : sState := 'Triangles Filled';
   otherwise
-    ;
+    sState := '<Undefined>';
   end;
+end;
+
+procedure cSDL3Eng.InitColors;
+begin
+  Color1.Init(Random, Random, Random, Random);
+  Color2.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
   InitColors;
-  State := High(TState);
-  ChangeState;
 
   SetLength(Points, kNPoints);
   InitPoints;
@@ -106,38 +104,39 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0.05);
-
+ Render.Clear(0.05);
   Render.SetDrawColor(Color1);
+
   case State of
-  stAll: Render.Polygon(Points, Color1, Color2);
 
-  stBorder: Render.PolygonBorder(Points);
+    stBorFill : Render.Polygon(Points, Color1, Color2);
 
-  stTBorder: Render.TPolygonBorder(Points);
+    //stTBorFill : Render.
 
-  stFilled: Render.PolygonFilled(Points);
+    stBorder : Render.PolygonBorder(Points);
 
-  stTFilled: Render.TPolygonFilled(Points);
+    stTBorder : Render.TPolygonBorder(Points);
 
-  otherwise
-    ;
-  end;
+    stFilled : Render.PolygonFilled(Points);
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+    stTFilled : Render.TPolygonFilled(Points);
+
+  end; // case State of
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(400, 400);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugTextF(0, 0, '%s ', [sState]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[P] Change points');
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[F] Change mode');
+  Render.DebugText(0, 50, '[P] Change points');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -182,7 +181,7 @@ begin
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -192,7 +191,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally

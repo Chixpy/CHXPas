@@ -2,15 +2,13 @@ program CHXSDL3Renderer;
 {<
   Little program with to test cCHXSDL3Renderer (without cCHXSDL3Window
   or cCHXSDL3Engine) with some random test while developing it.
-
-  ToDo: A dedicated program to test primitives must be done.
 }
 {$mode objfpc}{$H+}
 
 uses
   SysUtils, CTypes, // FPC RTL
   SDL3, // SDL3
-  uCHXSDL3TypeHelpers, ucCHXSDL3Renderer; //CHXSDL3Engine
+  uCHXSDL3TypeHelpers, ucCHXSDL3Renderer; //Test without CHXSDL3Engine
 
 const
   WinW = 800;

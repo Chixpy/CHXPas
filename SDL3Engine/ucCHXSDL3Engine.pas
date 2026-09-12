@@ -185,6 +185,10 @@ begin
   aComp.BGColor := DefCompBGColor;
   aComp.BDColor := DefCompBDColor;
   aComp.HLColor := DefCompHLColor;
+
+  SDL_GetRenderLogicalPresentation(SDLRenderer, @aComp.LogPresW,
+    @aComp.LogPresH, @aComp.LogPresMode);
+
   aComp.Setup;
   aComp.UnSetFocus;
 

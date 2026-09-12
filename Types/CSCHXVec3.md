@@ -1,0 +1,84 @@
+# TCHXVec3[x] Cheatsheet
+
+- [x] is component type (`TRealType`):
+  - "S" = `Single`; "D" = `Double`; "E" = `Extended`; "R" = `Real`
+
+## TCHXVec3Type[x]
+
+- Fields:
+  - **X** or **R** or **Comp[0]** : TRealType
+  - **Y** or **G** or **Comp[1]** : TRealType
+  - **Z** or **B** or **Comp[2]** : TRealType
+- Methods:
+  - Initialization:
+    - **Init3D** (X, Y, Z)
+    - **InitXY** (X, Y)
+    - **InitXZ** (X, Z)
+    - **InitZY** (Z, Y)
+    - **InitRandom3D** (MinX, MaxX, MinY, MaxY, MinZ, MaxZ)
+    - **InitRandomXY** (MinX, MaxX, MinY, MaxY)
+    - **InitRandomXZ** (MinX, MaxX, MinZ, MaxZ)
+    - **InitRandomZY** (MinZ, MaxZ, MinY, MaxY)
+    - **InitPolar3D** (Mag, Yaw, Pitch)
+    - **InitPolar[XY|XZ|ZY]** (Mag, Angle)
+    - **InitRndPolar[3D|XY|XZ|ZY]** (Mag)
+  - Polar coordinates:
+    - **GetAngles3D** (_Yaw_, _aPitch_)
+    - **GetAngle[XY|XZ|ZY]** : TRealType
+    - **SetAngles3D** (Yaw, aPitch)
+    - **SetAngle[XY|XZ|ZY]** (Angle)
+    - **GetSqrMag[3D|XY|XZ|ZY]** : TRealType
+    - **GetMagnitude[3D|XY|XZ|ZY]** : TRealType
+    - **SetMagnitude** (Mag)
+    - **Normalize**
+    - **GetNormalized** : TCHXVec3Type
+  - Comparisons: (`Sigma = 0` means use default for TRealType)
+    - **IsZero[3D|XY|XZ|ZY]** (Sigma): Boolean
+    - **IsEqual[3D|XY|XZ|ZY]** (Vector, Sigma): Boolean
+    - **IsOpposite** (Vector, Sigma): Boolean
+    - **IsParallel** (Vector, Sigma): Boolean
+    - **IsCoaligned** (Vector, Sigma): Boolean
+    - **IsAntiParallel** (Vector, Sigma): Boolean
+    - **IsPerpendicular** (Vector, Sigma): Boolean
+  - Self operations:
+    - **Negate**
+    - **Add** (Vector)
+    - **Subtract** (Vector)
+    - **Multiply** (Scale)
+    - **Scale** (Vector)
+    - **Divide** (Scale)
+    - **DivInv** (Scale)
+  - Other operations:
+    - **Move** (dX, dY, dZ)
+    - **Scale** (sX, sY, sZ)
+    - **Rotate[XY|XZ|ZY]** (Angle)
+      - (Angle, Center)
+    - **VectProd** (Vector) : TCHXVec3Type
+    - **ScalProd** (Vector) : TRealType
+    - **SqrDistance** (Point) : TRealType
+    - **Distance** (Point) : TRealType
+    - **InDistance[3D|XY|XZ|ZY]** (Point, Distance, IncEqual) : Boolean
+    - **MidPoint** (Point) : TCHXVec3Type
+    - **Reflect** (Normal) : TCHXVec3Type
+    - **Refract** (Normal, RefIdx) : TCHXVec3Type
+  - Integer conversion:
+    - **Ceil** : TCHXVec3Type
+    - **Truncate** : TCHXVec3Type
+    - **Floor** : TCHXVec3Type
+    - **Round** : TCHXVec3Type
+    - **FracCeil** : TCHXVec3Type
+    - **FracTrunc** : TCHXVec3Type
+    - **FracFloor** : TCHXVec3Type
+  - Operators:
+    - **=** (Vec1, Vec2) : Boolean
+    - **+** (Vec1, Vec2) : TCHXVec3Type
+    - **-** (Vector) : TCHXVec3Type
+    - **-** (Vec1, Vec2) : TCHXVec3Type
+    - __*__ (Vec1, Vec2) : TCHXVec3Type
+    - __*__ (Vector, Scale) : TCHXVec3Type
+    - __*__ (Scale, Vector) : TCHXVec3Type
+    - **/** (Vector, aScale) : TCHXVec3Type
+    - **/** (Scale, Vector) : TCHXVec3Type
+  - Strings:
+    - **ToString** (Delim) : String
+    - **ToStringFmt** (FmtStr) : String

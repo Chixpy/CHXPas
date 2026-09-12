@@ -16,22 +16,25 @@ program TestPoints;
   In personal tests, both 2 and 4 are a very little faster than 1 and 3, but
   not _clearly_. Other users results may vary.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kProgVersion = '1.0';
   kNPoints = 10000;
+
+  kRenderH = 200;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
+  kFullScreen = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
-  TPointMode = (pmPixel, pmArray, pmPixelAdd, pmArrayAdd);
+  TState = (pmPixel, pmArray, pmPixelAdd, pmArrayAdd);
 
   { cSDL3Eng }
 
@@ -46,11 +49,15 @@ type
 
   public
     ShowHelp: Boolean;
-    PointsMode: TPointMode;
+    State: TState; sState: String;
+
     Points: TSDLFPointDynArray;
     Alpha: CFloat;
 
     procedure InitArray;
+
+    procedure ChangeState;
+    procedure DrawHelp;
   end;
 
 { cSDL3Eng }
@@ -66,12 +73,28 @@ begin
     Points[i].Init(Random * Window.Width - 5, Random * Window.Height - 5);
 end;
 
+procedure cSDL3Eng.ChangeState;
+begin
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  pmPixel: sState := 'Individual points';
+  pmArray: sState := 'Array of points';
+  pmPixelAdd: sState := 'Individual points + Offset';
+  pmArrayAdd: sState := 'Creating array with offset';
+  otherwise sState := '<undefined>';
+  end;
+end;
+
 procedure cSDL3Eng.Setup;
 begin
-  ShowFrameRate := True;
+  ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
+
   InitArray;
-  ShowHelp := True;
-  PointsMode := Low(TPointMode);
   Alpha := 1;
 end;
 
@@ -90,21 +113,16 @@ var
   i: Integer;
   TmpPoints: TSDLFPointDynArray;
 begin
-  Render.Clear(0, 0, 0);
-  Render.SetDrawColor(1, 1, 1, Alpha);
+  Render.Clear(0.01);
 
-  case PointsMode of
+  Render.SetDrawColor(0.5, Alpha);
 
-  pmArray:
-  begin
-    SDL_RenderPoints(SDLRenderer, @Points[0], Length(Points));
-  end;
+  case State of
+  pmArray: SDL_RenderPoints(SDLRenderer, @Points[0], Length(Points));
 
   pmPixelAdd:
-  begin
     for i := Low(Points) to High(Points) do
       SDL_RenderPoint(SDLRenderer, Points[i].X + 4, Points[i].Y + 4);
-  end;
 
   pmArrayAdd:
   begin
@@ -122,18 +140,22 @@ begin
   otherwise // pmPixel1
     for i := Low(Points) to High(Points) do
       SDL_RenderPoint(SDLRenderer, Points[i].X, Points[i].Y);
-  end;
+  end; // case PointsMode of
 
-  Render.SetDrawColor(1, 0, 1);
-  Render.DebugText(0, 0, IntToStr(Ord(PointsMode)));
+  if ShowHelp then DrawHelp;
+end;
 
-  if ShowHelp then
-  begin
-    Render.DebugText(0, 10, '[F1] Toggle this Help');
-    Render.DebugText(0, 20, '[M] Change Mode');
-    Render.DebugText(0, 30, '[R] Change Points');
-    Render.DebugText(0, 40, '[C] Change color Alpha');
-  end;
+procedure cSDL3Eng.DrawHelp;
+begin
+  Window.PushRenderSize(400, 400);
+  Render.PushDrawColor(1, 0, 1);
+  Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugText(0, 10, '[F1] Toggle this Help');
+  Render.DebugText(0, 20, '[M] Change Mode');
+  Render.DebugText(0, 30, '[R] Change Points');
+  Render.DebugText(0, 40, '[C] Change color Alpha');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -159,16 +181,11 @@ begin
 
       SDLK_R: InitArray;
 
-      SDLK_M:
-        if PointsMode = High(TPointMode) then
-          PointsMode := Low(TPointMode)
-        else
-          Inc(PointsMode);
+      SDLK_M: ChangeState;
 
       SDLK_Q: ExitProg := True;
 
-      otherwise
-        Handled := False;
+      otherwise Handled := False;
       end;
     end;
   otherwise
@@ -196,11 +213,9 @@ begin
     'https://github.com/Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
-  SDL3Eng := cSDL3Eng.Create(ChangeFileExt(ProgName, ''), IniName);
+  SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
+    kWinScale, kFullScreen, kRDriver);
   try
-    // Create an initial config file
-    if not FileExists(IniName) then
-      SDL3Eng.Config.SaveToFile('', False);
     SDL3Eng.Run;
   finally
     SDL3Eng.Free;

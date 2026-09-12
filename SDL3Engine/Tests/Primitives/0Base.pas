@@ -2,25 +2,23 @@ program <Program Name>;
 {<
   A simple program with cCHXSDL3Engine for testing primitives.
 
-  cCHXSDL3Engine descendant is declared and implemented here.
-  A better practice is that it is implemented in it's own unit.
-
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-{$mode ObjFPC}{$H+}
+{$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
 uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kRenderW = 200; { Renderer width. }
-  kRenderH = kRenderW; { Renderer height. }
-  kWindowScale = 900 div kRenderH ; { Scale of the Window. }
+  kRenderH = 50;
+  kRenderW = kRenderH * 4 div 3;
+  kWinScale = 900 div kRenderH;
   kFullScreen = False;
-  kUseGPU = False;
+  kRDriver = '';
+  kProgVersion = '1.0';
 
 type
 
-  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
+  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
 
   { cSDL3Eng }
 
@@ -34,9 +32,9 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    State: TState; sState: String;
-    Color1, Color2: TSDL_FColor;
+    ShowHelp : Boolean;
+    State : TState; sState : String;
+    Color1, Color2 : TSDL_FColor;
 
     procedure ChangeState;
     procedure InitColors;
@@ -53,13 +51,14 @@ begin
     Inc(State);
 
   case State of
-  stAll: sState := 'Border + Only Fill';
-  stBorder: sState := 'Border';
-  stTBorder: sState := 'Triangles Border';
-  stFilled: sState := 'Full filled';
-  stTFilled: sState := 'Triangles Filled';
+    stBorFill : sState := 'Border + Only Fill';
+    stTBorFill : sState := 'Triangles Border + Only Fill';
+    stBorder : sState := 'Border';
+    stTBorder : sState := 'Triangles Border';
+    stFilled : sState := 'Full Filled';
+    stTFilled : sState := 'Triangles Filled';
   otherwise
-    ;
+    sState := '<Undefined>';
   end;
 end;
 
@@ -90,39 +89,38 @@ end;
 
 procedure cSDL3Eng.Draw;
 begin
-  Window.SetRenderSize(kRenderW, kRenderH);
-  Render.Clear(0.01);
-
+  Render.Clear(0.05);
   Render.SetDrawColor(Color1);
 
   case State of
 
-  stAll: Render.
+    stBorFill : Render.
 
-  stBorder: Render.
+    stTBorFill : Render.
 
-  stTBorder: Render.
+    stBorder : Render.
 
-  stFilled: Render.
+    stTBorder : Render.
 
-  stTFilled: Render.
+    stFilled : Render.
 
-  otherwise
-    ;
-  end;
+    stTFilled : Render.
 
-  // Render size and color for FPS and Help
-  Window.SetRenderSize(400, 400);
-  Render.SetDrawColor(1, 0, 1);
+  end; // case State of
+
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
+  Render.PushDrawColor(1, 0, 1);
   Render.DebugTextF(0, 0, '%s', [sState]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[F] Change mode');
-  Render.DebugText(0, 30, '[C] Change colors');
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[C] Change colors');
+  Render.PopDrawColor;
+  Window.PopRenderSize;
 end;
 
 procedure cSDL3Eng.HandleEvent(const aEvent : TSDL_Event;
@@ -136,36 +134,34 @@ begin
     begin
       Handled := True;
       case aEvent.key.key of
-        // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+      // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_F: ChangeState;
+        SDLK_F : ChangeState;
 
-        SDLK_C: InitColors;
+        SDLK_C : InitColors;
 
-        SDLK_Q: ExitProg := True;
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
-      end;
+      end; // case aEvent.key.key of
     end;
-  otherwise
-    ;
-  end;
+  end; // case aEvent.type_ of
 end;
 
 { Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));
 
   // Aplication metadata
-  SDL_SetAppMetadata(PAnsiChar(ProgName), '1.0',
+  SDL_SetAppMetadata(PAnsiChar(ProgName), kProgVersion,
     PAnsiChar('com.chixpy.' + ProgName));
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_CREATOR_STRING, 'Chixpy');
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_COPYRIGHT_STRING,
@@ -175,7 +171,7 @@ begin
   SDL_SetAppMetadataProperty(SDL_PROP_APP_METADATA_TYPE_STRING, 'application');
 
   SDL3Eng := cSDL3Eng.Create(ExtractFileName(ParamStr(0)), kRenderW, kRenderH,
-    kWindowScale, kFullScreen, kUseGPU);
+    kWinScale, kFullScreen, kRDriver);
   try
     SDL3Eng.Run;
   finally
