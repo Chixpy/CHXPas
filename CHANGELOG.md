@@ -1,3 +1,10 @@
+## 2026-09-14 20:15
+
+Fast one. Added `RndRectE[x]` methods to `cCHXSDL3Renderer `for drawing an
+Axis Aligned Rectagle with corners rounded with an ellipse.
+
+Next commit will be an huge renaming of renderer methods...
+
 ## 2026-09-12 17:52
 
 - Changed _CHXSDL3Engine_ tests to use new `cCHXSDL3Engine.Create` to

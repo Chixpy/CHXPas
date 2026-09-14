@@ -1,4 +1,4 @@
-- Changed _CHXSDL3Engine_ tests to use new `cCHXSDL3Engine.Create` to
-  compile again.
-- Added `CSCHXVec3.md`, cheat sheet for `cCHXVec3[x]` methods.
-- Added some methods for segments in _CHXSDL3Renderer_.
+Fast one. Added `RndRectE[x]` methods to `cCHXSDL3Renderer `for drawing an
+Axis Aligned Rectagle with corners rounded with an ellipse.
+
+Next commit will be an huge renaming of renderer methods...

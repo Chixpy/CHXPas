@@ -1476,11 +1476,15 @@ type
     {<< Draw a filled Axis Aligned Rectangle with rounded corners with a Circle
       and its border with different colors.
 
+      @param(aRect Rectangle to Draw.)
+
       @param(X Horizontal position of the top left "corner".)
       @param(Y Vertical position of the top left "corner".)
       @param(W Width of the rectangle.)
       @param(H Height of the rectangle.)
+
       @param(R Radius of the corners.)
+
       @param(BorderC Color of the border.)
       @param(FillC Color for fill.)
     }
@@ -1497,6 +1501,7 @@ type
       @param(Y Vertical position of the top left "corner".)
       @param(W Width of the rectangle.)
       @param(H Height of the rectangle.)
+
       @param(R Radius of the corners.)
     }
 
@@ -1512,6 +1517,7 @@ type
       @param(Y Vertical position of the top left "corner".)
       @param(W Width of the rectangle.)
       @param(H Height of the rectangle.)
+
       @param(R Radius of the corners.)
     }
 
@@ -1527,7 +1533,80 @@ type
       @param(Y Vertical position of the top left "corner".)
       @param(W Width of the rectangle.)
       @param(H Height of the rectangle.)
+
       @param(R Radius of the corners.)
+    }
+
+    function RndRectE(const aRect : TSDL_FRect; const RX, RY : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload; inline;
+    function RndRectE(const X, Y, W, H, RX, RY : CFloat;
+      const BorderC, FillC : TSDL_FColor) : Boolean; overload;
+    {<< Draw a filled Axis Aligned Rectangle with rounded corners with an
+      Ellipse and its border with different colors.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+
+      @param(RX Radius of the corners in the X axis.)
+      @param(RY Radius of the corners in the Y axis.)
+
+      @param(BorderC Color of the border.)
+      @param(FillC Color for fill.)
+    }
+
+    function RndRectEBorder(const aRect : TSDL_FRect; const RX, RY : CFloat)
+      : Boolean; overload; inline;
+    function RndRectEBorder(X, Y, W, H, RX, RY : CFloat) : Boolean; overload;
+    {<< Draw the border of Axis Aligned Rectangle with rounded corners with an
+      Ellipse.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+
+      @param(RX Radius of the corners in the X axis.)
+      @param(RY Radius of the corners in the Y axis.)
+    }
+
+    function RndRectEFilled(const aRect : TSDL_FRect; const RX, RY : CFloat)
+      : Boolean; overload; inline;
+    function RndRectEFilled(X, Y, W, H, RX, RY : CFloat) : Boolean; overload;
+    {<< Draw a filled Axis Aligned Rectangle with rounded corners with an
+      Ellipse.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+
+      @param(RX Radius of the corners in the X axis.)
+      @param(RY Radius of the corners in the Y axis.)
+    }
+
+    function RndRectEFillOnly(const aRect : TSDL_FRect; const RX, RY : CFloat)
+      : Boolean; overload; inline;
+    function RndRectEFillOnly(X, Y, W, H, RX, RY : CFloat) : Boolean; overload;
+    {<< Draw the fill of a Axis Aligned Rectangle with rounded corners with an
+      Ellipse.
+
+      @param(aRect Rectangle to Draw.)
+
+      @param(X Horizontal position of the top left "corner".)
+      @param(Y Vertical position of the top left "corner".)
+      @param(W Width of the rectangle.)
+      @param(H Height of the rectangle.)
+
+      @param(RX Radius of the corners in the X axis.)
+      @param(RY Radius of the corners in the Y axis.)
     }
 
   {
