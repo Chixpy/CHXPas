@@ -2,6 +2,9 @@ program TestCircle;
 {<
   A simple program with cCHXSDL3Engine for testing Circle primitive.
 
+  1. Initial test program.
+    1. TState changed to TDrawMode and TFillMode.
+
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 {$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
@@ -16,11 +19,13 @@ const
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
   kRDriver = '';
-  kProgVersion = '1.0';
+  kProgVersion = '1.1';
 
 type
 
-  TState = (stAll, stBorder, stTBorder, stFilled, stTFilled);
+  TDrawMode = (dmDefault, dmSubPixel, dmFullPixel);
+
+  TFillMode = (fmBorder, fmFilled, fmBorFill, fmAll);
 
   { cSDL3Eng }
 
@@ -35,48 +40,69 @@ type
 
   public
     ShowHelp : Boolean;
-    State : TState; sState : String;
-    Color1, Color2 : TSDL_FColor;
+    DrawMode : TDrawMode; sDrawMode : String;
+    FillMode : TFillMode; sFillMode : String;
+    BorderColor, FillColor : TSDL_FColor;
 
-    Radius : CFloat;
+    CenterX, CenterY, Radius : CFloat;
 
-    procedure ChangeState;
-    procedure InitColors;
+    procedure ChangeDrawMode;
+    procedure ChangeFillMode;
+    procedure ChangeColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.ChangeState;
+procedure cSDL3Eng.ChangeDrawMode;
 begin
-  if State = High(TState) then
-    State := Low(TState)
+  if DrawMode = High(TDrawMode) then
+    DrawMode := Low(TDrawMode)
   else
-    Inc(State);
+    Inc(DrawMode);
 
-  case State of
-  stAll : sState := 'Border + Only Fill';
-  stBorder : sState := 'Border';
-  stTBorder : sState := 'Triangles Border';
-  stFilled : sState := 'Full Filled';
-  stTFilled : sState := 'Triangles Filled';
-  otherwise sState := '<Undefined>';
+  case DrawMode of
+    dmDefault : sDrawMode := 'Default';
+    dmSubPixel : sDrawMode := 'Subpixel';
+    dmFullPixel : sDrawMode := 'Full Pixel';
+  otherwise
+    sDrawMode := '<Undefined>';
   end;
 end;
 
-procedure cSDL3Eng.InitColors;
+procedure cSDL3Eng.ChangeFillMode;
 begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  if FillMode = High(TFillMode) then
+    FillMode := Low(TFillMode)
+  else
+    Inc(FillMode);
+
+  case FillMode of
+    fmBorder : sFillMode := 'Border';
+    fmFilled : sFillMode := 'Filled';
+    fmBorFill : sFillMode := 'Fill Only with Border';
+    fmAll: sFillMode := 'All';
+  otherwise
+    sFillMode := '<Undefined>';
+  end;
+end;
+
+procedure cSDL3Eng.ChangeColors;
+begin
+  BorderColor.Init(Random, Random, Random, Random);
+  FillColor.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-  State := High(TState); ChangeState;
-  InitColors;
+  DrawMode := High(TDrawMode); ChangeDrawMode;
+  FillMode := High(TFillMode); ChangeFillMode;
+  ChangeColors;
 
-  Radius := kRenderH * 0.40;
+  CenterX := kRenderW * 0.5;
+  CenterY := kRenderH * 0.5;
+  Radius := kRenderH * 0.4;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -90,38 +116,53 @@ begin
 end;
 
 procedure cSDL3Eng.Draw;
-var
-  X, Y : CFloat;
 begin
-  Render.Clear(0.01);
+  Render.Clear(0.05);
 
-  X := kRenderW * 0.5; Y := kRenderH * 0.5;
-
-  Render.SetDrawColor(Color1);
-  case State of
-  stAll : Render.Circle(X, Y, Radius, Color1, Color2);
-
-  stBorder : Render.CircleBorder(X, Y, Radius);
-
-  stTBorder : Render.TCircleBorder(X, Y, Radius);
-
-  stFilled : Render.CircleFilled(X, Y, Radius);
-
-  stTFilled : Render.TCircleFilled(X, Y, Radius);
+  if (FillMode = fmBorder) then
+  begin
+    Render.SetDrawColor(BorderColor);
+    case DrawMode of
+      dmDefault : Render.CircleBorder(CenterX, CenterY, Radius);
+      dmSubPixel : Render.SPCircleBorder(CenterX, CenterY, Radius);
+      // dmFullPixel : Render.FPCircleBorder(CenterX, CenterY, Radius);
+    end;
   end;
+
+  if (FillMode = fmFilled) or (FillMode = fmAll) then
+  begin
+    Render.SetDrawColor(FillColor);
+    case DrawMode of
+      dmDefault : Render.CircleFilled(CenterX, CenterY, Radius);
+      dmSubPixel : Render.SPCircleFilled(CenterX, CenterY, Radius);
+      // dmFullPixel : Render.FPCircleFilled(CenterX, CenterY, Radius);
+    end;
+  end;
+
+  if (FillMode = fmBorFill) or (FillMode = fmAll) then
+    case DrawMode of
+      dmDefault : Render.Circle(CenterX, CenterY, Radius,
+        BorderColor, FillColor);
+      dmSubPixel : Render.SPCircle(CenterX, CenterY, Radius, 
+        BorderColor, FillColor);
+      // dmFullPixel : Render.FPCircle(CenterX, CenterY, Radius,
+      //   BorderColor, FillColor);
+    end;
 
   if ShowHelp then DrawHelp;
 end;
 
 procedure cSDL3Eng.DrawHelp;
 begin
-  Window.PushRenderSize(400, 400);
+  Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
-  Render.DebugTextF(0, 0, '%s - Radius: %g', [sState, Radius]);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, '[C] Change color');
-  Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[UP] [DOWN] Change radius');
+  Render.DebugTextF(0, 0, '%s %s', [sDrawMode, sFillMode]);
+  Render.DebugTextF(0, 10, 'Radius = %g', [Radius]);
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[M] Change draw mode');
+  Render.DebugText(0, 50, '[F] Change fill mode');
+  Render.DebugText(0, 60, '[UP] [DOWN] Change radius');
   Render.PopDrawColor;
   Window.PopRenderSize;
 end;
@@ -133,27 +174,29 @@ begin
   if ExitProg or Handled then Exit;
 
   case aEvent.type_ of
-    SDL_EVENT_KEY_DOWN:
+    SDL_EVENT_KEY_DOWN :
     begin
       Handled := True;
       case aEvent.key.key of
-      // ESC, F10, F11, F12 handled by cCHXSDL3Engine
+        // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-      SDLK_F1 : ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-      SDLK_C : InitColors;
+        SDLK_C : ChangeColors;
 
-      SDLK_F : ChangeState;
+        SDLK_M : ChangeDrawMode;
 
-      SDLK_UP : Radius += kRadiusStep;
+        SDLK_F : ChangeFillMode;
 
-      SDLK_DOWN : Radius -= kRadiusStep;
+        SDLK_UP : Radius += kRadiusStep;
+        SDLK_DOWN : Radius -= kRadiusStep;
 
-      SDLK_Q : ExitProg := True;
+        SDLK_Q: ExitProg := True;
 
-      otherwise Handled := False;
-      end;
-    end;
+      otherwise
+        Handled := False;
+      end; // case aEvent.key.key of
+    end; // SDL_EVENT_KEY_DOWN :
   end; // case aEvent.type_ of
 end;
 

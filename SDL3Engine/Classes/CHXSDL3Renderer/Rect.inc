@@ -5,58 +5,38 @@
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 
-// Rect[angle]
-
-function cCHXSDL3Renderer.Rect(const X, Y, W, H: CFloat;
-  const BorderC, FillC: TSDL_FColor): Boolean;
-var
-  aRect: TSDL_FRect;
-begin
-  aRect := SDLFRect(X, Y, W, H);
-  Result := Rect(aRect, BorderC, FillC);
-end;
+{
+  Rect[x]
+}
 
 function cCHXSDL3Renderer.Rect(const aRect: TSDL_FRect;
   const BorderC, FillC: TSDL_FColor): Boolean;
-var
-  TempColor: TSDL_FColor;
 begin
-  Result := GetDrawColor(TempColor);
+  Result := PushDrawColor(FillC);
 
-  // Same color for border and fill
   if BorderC = FillC then
   begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and RectFilled(aRect);
-    // Try to restore previous color anyway
-    Exit(SetDrawColor(TempColor) and Result);
+    Result := RectFilled(aRect)
+      and Result;
+    Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(FillC)
-      and RectFillOnly(aRect);
-  end;
+    Result := RectFillOnly(aRect)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and RectBorder(aRect);
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and RectBorder(aRect)
+      and Result;
 
-  // Try to restore previous color anyway
-  Result := SetDrawColor(TempColor) and Result;
+  Result := PopDrawColor and Result;
 end;
 
-function cCHXSDL3Renderer.RectBorder(const X, Y, W, H: CFloat): Boolean;
-var
-  aRect: TSDL_FRect;
+function cCHXSDL3Renderer.Rect(const X, Y, W, H: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
 begin
-  aRect := SDLFRect(X, Y, W, H);
-  Result := RectBorder(aRect);
+  Result := Rect(SDLFRect(X, Y, W, H), BorderC, FillC);
 end;
 
 function cCHXSDL3Renderer.RectBorder(aRect: TSDL_FRect): Boolean;
@@ -73,34 +53,12 @@ begin
   Result := SDL_RenderRect(SDLRenderer, @aRect);
 end;
 
-function cCHXSDL3Renderer.TRectBorder(const X, Y, W, H: CFloat): Boolean;
+function cCHXSDL3Renderer.RectBorder(const X, Y, W, H: CFloat): Boolean;
 var
   aRect: TSDL_FRect;
 begin
   aRect := SDLFRect(X, Y, W, H);
   Result := RectBorder(aRect);
-end;
-
-function cCHXSDL3Renderer.TRectBorder(aRect: TSDL_FRect): Boolean;
-begin
-  {$IFDEF InvertDraw}
-  // Crazy hack:
-  //   In my tests, drawing with negative Rects is faster that normalized ones.
-  if aRect.W > 0 then
-    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
-  if aRect.H > 0 then
-    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
-  {$ENDIF}
-
-  Result := SDL_RenderRect(SDLRenderer, @aRect);
-end;
-
-function cCHXSDL3Renderer.RectFilled(const X, Y, W, H: CFloat): Boolean;
-var
-  aRect: TSDL_FRect;
-begin
-  aRect := SDLFRect(X, Y, W, H);
-  Result := RectFilled(aRect);
 end;
 
 function cCHXSDL3Renderer.RectFilled(aRect: TSDL_FRect): Boolean;
@@ -117,34 +75,12 @@ begin
   Result := SDL_RenderFillRect(SDLRenderer, @aRect);
 end;
 
-function cCHXSDL3Renderer.TRectFilled(const X, Y, W, H: CFloat): Boolean;
+function cCHXSDL3Renderer.RectFilled(const X, Y, W, H: CFloat): Boolean;
 var
   aRect: TSDL_FRect;
 begin
   aRect := SDLFRect(X, Y, W, H);
   Result := RectFilled(aRect);
-end;
-
-function cCHXSDL3Renderer.TRectFilled(aRect: TSDL_FRect): Boolean;
-begin
-  {$IFDEF InvertDraw}
-  // Crazy hack:
-  //   In my tests, drawing with negative Rects is faster that normalized ones.
-  if aRect.W > 0 then
-    begin aRect.X += aRect.W; aRect.W := -aRect.W end;
-  if aRect.H > 0 then
-    begin aRect.Y += aRect.H; aRect.H := -aRect.H end;
-  {$ENDIF}
-
-  Result := SDL_RenderFillRect(SDLRenderer, @aRect);
-end;
-
-function cCHXSDL3Renderer.RectFillOnly(const X, Y, W, H: CFloat): Boolean;
-var
-  aRect: TSDL_FRect;
-begin
-  aRect := SDLFRect(X, Y, W, H);
-  Result := RectFillOnly(aRect);
 end;
 
 function cCHXSDL3Renderer.RectFillOnly(aRect: TSDL_FRect): Boolean;
@@ -170,13 +106,70 @@ begin
   Result := SDL_RenderFillRect(SDLRenderer, @aRect);
 end;
 
-// Rect[angle]s
+function cCHXSDL3Renderer.RectFillOnly(const X, Y, W, H: CFloat): Boolean;
+var
+  aRect: TSDL_FRect;
+begin
+  aRect := SDLFRect(X, Y, W, H);
+  Result := RectFillOnly(aRect);
+end;
 
 {
-  ToDo: ¿"Optimize" Rects?
-  It doesn't seem to be worth copying and modifying an array.
-  But more testing is needed.
+  SPRect[x]
 }
+
+function cCHXSDL3Renderer.SPRect(const aRect: TSDL_FRect;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := Rect(aRect, BorderC, FillC); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRect(const X, Y, W, H: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := Rect(X, Y, W, H, BorderC, FillC); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectBorder(const aRect: TSDL_FRect): Boolean;
+begin
+  Result := RectBorder(aRect); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectBorder(const X, Y, W, H: CFloat): Boolean;
+begin
+  Result := RectBorder(X, Y, W, H); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectFilled(const aRect: TSDL_FRect): Boolean;
+begin
+  Result := RectFilled(aRect); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectFilled(const X, Y, W, H: CFloat): Boolean;
+begin
+  Result := RectFilled(X, Y, W, H); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectFillOnly(const aRect: TSDL_FRect): Boolean;
+begin
+  Result := RectFillOnly(aRect); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPRectFillOnly(const X, Y, W, H: CFloat): Boolean;
+begin
+  Result := RectFillOnly(X, Y, W, H); // Same as default
+end;
+
+(*
+  Rects
+
+  ToDo:
+
+  - ¿"Optimize" Rects with {.$IFDEF InvertDraw}?
+    It doesn't seem to be worth copying and modifying an array.
+    But more testing is needed.
+  - SP and FP methods.
+*)
 
 function cCHXSDL3Renderer.RectsBorderUnsafe(const RArr: TSDLFRectDynArray;
   const idxFirst, Count: Integer): Boolean;

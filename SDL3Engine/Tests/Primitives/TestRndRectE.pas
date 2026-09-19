@@ -3,6 +3,9 @@ program TestRndRectE;
   A simple program with cCHXSDL3Engine for testing Rounded Rectangle with
     Ellipse primitive.
 
+  1. Initial test program.
+    1. TState changed to TDrawMode and TFillMode.
+
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 {$mode ObjFPC}{$H+}{$INLINE ON}{$WARN 6058 OFF}
@@ -18,11 +21,13 @@ const
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
   kRDriver = '';
-  kProgVersion = '1.0';
+  kProgVersion = '1.1';
 
 type
 
-  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
+  TDrawMode = (dmDefault, dmSubPixel, dmFullPixel);
+
+  TFillMode = (fmBorder, fmFilled, fmBorFill, fmAll);
 
   { cSDL3Eng }
 
@@ -36,54 +41,74 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    State: TState; sState: String;
-    Color1, Color2: TSDL_FColor;
+    ShowHelp : Boolean;
+    DrawMode : TDrawMode; sDrawMode : String;
+    FillMode : TFillMode; sFillMode : String;
+    BorderColor, FillColor : TSDL_FColor;
 
-    ShowGuide: Boolean;
-    RWidth, RHeight, RadiusX, RadiusY: CFloat;
+    ShowGuide : Boolean;
+    Rect : TSDL_FRect;
+    CenterX, CenterY, RadiusX, RadiusY: CFloat;
 
-    procedure ChangeState;
-    procedure InitColors;
+    procedure ChangeDrawMode;
+    procedure ChangeFillMode;
+    procedure ChangeColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.ChangeState;
+procedure cSDL3Eng.ChangeDrawMode;
 begin
-  if State = High(TState) then
-    State := Low(TState)
+  if DrawMode = High(TDrawMode) then
+    DrawMode := Low(TDrawMode)
   else
-    Inc(State);
+    Inc(DrawMode);
 
-  case State of
-    stBorFill : sState := 'Border + Only Fill';
-    stTBorFill : sState := 'Triangles Border + Only Fill';
-    stBorder : sState := 'Border';
-    stTBorder : sState := 'Triangles Border';
-    stFilled : sState := 'Full Filled';
-    stTFilled : sState := 'Triangles Filled';
+  case DrawMode of
+    dmDefault : sDrawMode := 'Default';
+    dmSubPixel : sDrawMode := 'Subpixel';
+    dmFullPixel : sDrawMode := 'Full Pixel';
   otherwise
-    sState := '<Undefined>';
+    sDrawMode := '<Undefined>';
   end;
 end;
 
-procedure cSDL3Eng.InitColors;
+procedure cSDL3Eng.ChangeFillMode;
 begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  if FillMode = High(TFillMode) then
+    FillMode := Low(TFillMode)
+  else
+    Inc(FillMode);
+
+  case FillMode of
+    fmBorder : sFillMode := 'Border';
+    fmFilled : sFillMode := 'Filled';
+    fmBorFill : sFillMode := 'Fill Only with Border';
+    fmAll : sFillMode := 'All';
+  otherwise
+    sFillMode := '<Undefined>';
+  end;
+end;
+
+procedure cSDL3Eng.ChangeColors;
+begin
+  BorderColor.Init(Random, Random, Random, Random);
+  FillColor.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-  State := High(TState); ChangeState;
-  InitColors;
+  DrawMode := High(TDrawMode); ChangeDrawMode;
+  FillMode := High(TFillMode); ChangeFillMode;
+  ChangeColors;
 
   ShowGuide := False;
-  RWidth := kRenderW * 0.8;
-  RHeight := kRenderH * 0.6;
+  CenterX := (kRenderW - 1) * 0.5;
+  CenterY := (kRenderH - 1) * 0.5;
+  // Centered automatically in Compute
+  Rect.Init(0, 0, kRenderW * 0.8, kRenderH * 0.7);
   RadiusX := kRenderH * 0.25;
   RadiusY := kRenderH * 0.15;
 end;
@@ -95,89 +120,129 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-
+  // We can calculate only when something changed...
+  Rect.Init((kRenderW - Rect.W) * 0.5, (kRenderH - Rect.H) * 0.5,
+    Rect.W, Rect.H);
 end;
 
 procedure cSDL3Eng.Draw;
-var
-  aRect: TSDL_FRect;
-  CX, CY: CFloat;
 begin
   Render.Clear(0.05);
-  Render.SetDrawColor(Color1);
 
-  aRect := SDLFRect((kRenderW - RWidth) * 0.5,
-    (kRenderH - RHeight) * 0.5, RWidth, RHeight);
-  CX := (kRenderW - 1) * 0.5; CY := (kRenderH - 1) * 0.5;
+  if (FillMode = fmBorder) then
+  begin
+    Render.SetDrawColor(BorderColor);
+    case DrawMode of
+      // dmDefault :
+      // begin
+      //   Render.RndRectEBorder(Rect, RadiusX, RadiusY);
+      //   if ShowGuide then
+      //   begin
+      //     Render.SetDrawColor(1, 0.2);
+      //     Render.RectBorder(Rect);
+      //     Render.EllipseBorder(CenterX, CenterY, RadiusX, RadiusY);
+      //   end;
+      // end;
 
-  case State of
-
-    stBorFill :
-    begin
-      Render.RndRectE(aRect, RadiusX, RadiusY, Color1, Color2);
-      if ShowGuide then
+      dmSubPixel :
       begin
-        Render.Rect(aRect, SDLFColor(1, 0.4), SDLFColor(1, 0.3));
-        Render.Ellipse(CX, CY, RadiusX, RadiusY,
-          SDLFColor(1, 0.4), SDLFColor(1, 0.3));
+        Render.SPRndRectEBorder(Rect, RadiusX, RadiusY);
+        if ShowGuide then
+        begin
+          Render.SetDrawColor(1, 0.2);
+          Render.SPRectBorder(Rect);
+          Render.SPEllipseBorder(CenterX, CenterY, RadiusX, RadiusY);
+        end;
       end;
+
+      // dmFullPixel :
+      // begin
+      //   Render.FPRndRectEBorder(Rect, RadiusX, RadiusY);
+      //   if ShowGuide then
+      //   begin
+      //     Render.SetDrawColor(1, 0.2);
+      //     Render.FPRectBorder(Rect);
+      //     Render.FPEllipseBorder(CenterX, CenterY, RadiusX, RadiusY);
+      //   end;
+      // end;
     end;
+  end;
 
-    // stTBorFill :
-    // begin
-    //   Render.TRndRectE(aRect, RadiusX, RadiusY, Color1, Color2);
-    //   if ShowGuide then
-    //   begin
-    //     Render.TRect(aRect, Color1, Color2);
-    //     Render.TEllipse(CX, CY, Radius, Color1, Color2);
-    //   end;
-    // end;
+  if (FillMode = fmFilled) or (FillMode = fmAll) then
+  begin
+    Render.SetDrawColor(FillColor);
+    case DrawMode of
+      // dmDefault :
+      // begin
+      //   Render.RndRectEFilled(Rect, RadiusX, RadiusY);
+      //   if ShowGuide then
+      //   begin
+      //     Render.SetDrawColor(1, 0.2);
+      //     Render.RectFilled(Rect);
+      //     Render.EllipseFilled(CenterX, CenterY, RadiusX, RadiusY);
+      //   end;
+      // end;
 
-    stBorder :
-    begin
-      Render.RndRectEBorder(aRect, RadiusX, RadiusY);
-      if ShowGuide then
+      dmSubPixel :
       begin
-        Render.SetDrawColor(1, 0.3);
-        Render.RectBorder(aRect);
-        Render.EllipseBorder(CX, CY, RadiusX, RadiusY);
+        Render.SPRndRectEFilled(Rect, RadiusX, RadiusY);
+        if ShowGuide then
+        begin
+          Render.SetDrawColor(1, 0.2);
+          Render.SPRectFilled(Rect);
+          Render.SPEllipseFilled(CenterX, CenterY, RadiusX, RadiusY);
+        end;
       end;
+
+      // dmFullPixel :
+      // begin
+      //   Render.FPRndRectEFilled(Rect, RadiusX, RadiusY);
+      //   if ShowGuide then
+      //   begin
+      //     Render.SetDrawColor(1, 0.2);
+      //     Render.FPRectFilled(Rect);
+      //     Render.FPEllipseFilled(CenterX, CenterY, RadiusX, RadiusY);
+      //   end;
+      // end;
     end;
+  end;
 
-    // stTBorder :
-    // begin
-    //   Render.TRndRectEBorder(aRect, RadiusX, RadiusY);
-    //   if ShowGuide then
-    //   begin
-    //     Render.SetDrawColor(1, 0.3);
-    //     Render.TRectBorder(aRect);
-    //     Render.TEllipseBorder(CX, CY, RadiusX, RadiusY);
-    //   end;
-    // end;
+  if (FillMode = fmBorFill) or (FillMode = fmAll) then
+    case DrawMode of
+      // dmDefault :
+      // begin
+      //   Render.RndRectE(Rect, RadiusX, RadiusY, BorderColor, FillColor);
+      //   if ShowGuide then
+      //   begin
+      //     Render.Rect(Rect, SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+      //     Render.Ellipse(CenterX, CenterY, RadiusX, RadiusY,
+      //       SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+      //   end;
+      // end;
 
-    stFilled :
-    begin
-      Render.RndRectEFilled(aRect, RadiusX, RadiusY);
-      if ShowGuide then
+      dmSubPixel :
       begin
-        Render.SetDrawColor(1, 0.3);
-        Render.RectFilled(aRect);
-        Render.EllipseFilled(CX, CY, RadiusX, RadiusY);
+        Render.SPRndRectE(Rect, RadiusX, RadiusY, BorderColor, FillColor);
+        if ShowGuide then
+        begin
+          Render.SPRect(Rect, SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+          Render.SPEllipse(CenterX, CenterY, RadiusX, RadiusY,
+            SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+        end;
       end;
+
+      // dmFullPixel :
+      // begin
+      //   Render.FPRndRectE(RectInt, RadiusX, RadiusY, BorderColor, FillColor);
+      //   if ShowGuide then
+      //   begin
+      //     Render.SetDrawColor(1, 0.2);
+      //     Render.FPRect(RectInt, SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+      //     Render.FPEllipse(CenterX, CenterY, RadiusX, RadiusY,
+      //       SDLFColor(1, 0.2), SDLFColor(1, 0.4));
+      //   end;
+      // end;
     end;
-
-    // stTFilled :
-    // begin
-    //   Render.TRndRectEFilled(aRect, RadiusX, RadiusY);
-    //   if ShowGuide then
-    //   begin
-    //     Render.SetDrawColor(1, 0.3);
-    //     Render.TRectFilled(aRect);
-    //     Render.TEllipseFilled(CX, CY, RadiusX, RadiusY);
-    //   end;
-    // end;
-
-  end; // case State of
 
   if ShowHelp then DrawHelp;
 end;
@@ -186,14 +251,14 @@ procedure cSDL3Eng.DrawHelp;
 begin
   Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
-  Render.DebugTextF(0, 0, '%s', [sState]);
-  Render.DebugTextF(0,10, 'DX: %g DY: %g RX: %g RY: %g',
-    [RWidth, RHeight, RadiusX, RadiusY]);
+  Render.DebugTextF(0, 0, '%s %s', [sDrawMode, sFillMode]);
+  Render.DebugTextF(0, 10, 'DiamX = %.6g DiamY = %.6g RX = %.6g RY = %.6g',
+    [Rect.W, Rect.H, RadiusX, RadiusY]);
   Render.DebugText(0, 20, '[F1] Toggle help');
-  Render.DebugText(0, 30, '[F] Change mode');
-  Render.DebugText(0, 40, '[C] Change color');
-  Render.DebugText(0, 50, '[<=] [=>] Change width');
-  Render.DebugText(0, 60, '[UP] [DOWN] Change height');
+  Render.DebugText(0, 30, '[C] Change color');
+  Render.DebugText(0, 40, '[M] Change draw mode');
+  Render.DebugText(0, 50, '[F] Change fill mode');
+  Render.DebugText(0, 60, '[ARROWS] Change Rect size');
   Render.DebugText(0, 70, '[WASD] Change radius X and Y');
   Render.DebugText(0, 80, '[G] Toggle guides');
   Render.PopDrawColor;
@@ -207,52 +272,46 @@ begin
   if ExitProg or Handled then Exit;
 
   case aEvent.type_ of
-    SDL_EVENT_KEY_DOWN:
+    SDL_EVENT_KEY_DOWN :
     begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_UP: RHeight += kLenStep;
+        SDLK_C : ChangeColors;
 
-        SDLK_DOWN: RHeight -= kLenStep;
+        SDLK_M : ChangeDrawMode;
 
-        SDLK_RIGHT: RWidth += kLenStep;
+        SDLK_F : ChangeFillMode;
 
-        SDLK_LEFT: RWidth -= kLenStep;
+        SDLK_UP : Rect.H += kLenStep;
+        SDLK_DOWN : Rect.H -= kLenStep;
+        SDLK_RIGHT : Rect.W += kLenStep;
+        SDLK_LEFT : Rect.W -= kLenStep;
 
-        SDLK_W: RadiusY += kRadStep;
+        SDLK_W : RadiusY += kRadStep;
+        SDLK_S : RadiusY -= kRadStep;
+        SDLK_A : RadiusX += kRadStep;
+        SDLK_D : RadiusX -= kRadStep;
 
-        SDLK_S: RadiusY -= kRadStep;
+        SDLK_G : ShowGuide := not ShowGuide;
 
-        SDLK_A: RadiusX += kRadStep;
-
-        SDLK_D: RadiusX -= kRadStep;
-
-        SDLK_C: InitColors;
-
-        SDLK_F: ChangeState;
-
-        SDLK_G: ShowGuide := not ShowGuide;
-
-        SDLK_Q: ExitProg := True;
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
-      end;
-    end;
-  otherwise
-    ;
-  end;
+      end; // case aEvent.key.key of
+    end; // SDL_EVENT_KEY_DOWN :
+  end; // case aEvent.type_ of
 end;
 
   { Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));

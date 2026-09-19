@@ -1,4 +1,4 @@
-{ RndRect[x] methods.
+{ Rounded Axix Aligned Rectangle methods.
 
   This file is part of ucCHXSDL3Renderer.
 
@@ -6,47 +6,46 @@
 }
 
 {
-  RndRectC[x]
+  SPRndRectC[x]
 }
 
-function cCHXSDL3Renderer.RndRectC(const aRect : TSDL_FRect; const R : CFloat;
+function cCHXSDL3Renderer.SPRndRectC(const aRect : TSDL_FRect; const R : CFloat;
   const BorderC, FillC : TSDL_FColor) : Boolean;
 begin
-  Result := RndRectC(aRect.X, aRect.Y, aRect.W, aRect.H, R, BorderC, FillC);
+  Result := SPRndRectC(aRect.X, aRect.Y, aRect.W, aRect.H, R, BorderC, FillC);
 end;
 
-function cCHXSDL3Renderer.RndRectC(const X, Y, W, H, R : CFloat;
+function cCHXSDL3Renderer.SPRndRectC(const X, Y, W, H, R : CFloat;
   const BorderC, FillC : TSDL_FColor) : Boolean;
 begin
+  Result := PushDrawColor(FillC);
+
   if BorderC = FillC then
   begin
-    Result := PushDrawColor(BorderC)
-      and RndRectCFilled(X, Y, W, H, R);
+    Result := SPRndRectCFilled(X, Y, W, H, R)
+      and Result;
     Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := PushDrawColor(FillC)
-      and RndRectCFillOnly(X, Y, W, H, R);
-    Result := PopDrawColor and Result;
-  end;
+    Result := SPRndRectCFillOnly(X, Y, W, H, R)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := PushDrawColor(BorderC)
-      and RndRectCBorder(X, Y, W, H, R);
-    Result := PopDrawColor and Result;
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and SPRndRectCBorder(X, Y, W, H, R)
+      and Result;
+
+  Result := PopDrawColor and Result;
 end;
 
-function cCHXSDL3Renderer.RndRectCBorder(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectCBorder(const aRect : TSDL_FRect;
   const R : CFloat) : Boolean;
 begin
-  Result := RndRectCBorder(aRect.X, aRect.Y, aRect.W, aRect.H, R);
+  Result := SPRndRectCBorder(aRect.X, aRect.Y, aRect.W, aRect.H, R);
 end;
 
-function cCHXSDL3Renderer.RndRectCBorder(X, Y, W, H, R : CFloat) : Boolean;
+function cCHXSDL3Renderer.SPRndRectCBorder(X, Y, W, H, R : CFloat) : Boolean;
 // Jesko's method for corners + adaptation to Logical Presentation
 var
   t1, t2, CurrX, CurrY : CFloat; // Circle algorithm vars
@@ -62,11 +61,11 @@ begin
 
   // Rectangle size check
   if (W < 2) or (H < 2) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Radius check.
   CurrX := Abs(R);
-  if CurrX < 1 then Exit(RectBorder(X, Y, W, H));
+  if CurrX < 1 then Exit(SPRectBorder(X, Y, W, H));
 
   // Checking if radius is too big and setting integer R.
   CurrX := Floor(Min(Min(CurrX, (H - 1) * 0.5), (W - 1) * 0.5));
@@ -76,10 +75,10 @@ begin
   OffSetX := W2 - CurrX; OffSetY := H2 - CurrX;
 
   // Rect sides
-  Result := PointMirrorHFilled(OffSetX, Y, CX)
-    and PointMirrorHFilled(OffSetX, Y + H - 1, CX)
-    and PointMirrorVFilled(X, OffSetY, CY)
-    and PointMirrorVFilled(X + W - 1, OffSetY, CY);
+  Result := SPPointMirrorHFilled(OffSetX, Y, CX)
+    and SPPointMirrorHFilled(OffSetX, Y + H - 1, CX)
+    and SPPointMirrorVFilled(X, OffSetY, CY)
+    and SPPointMirrorVFilled(X + W - 1, OffSetY, CY);
 
   // Little devil trick for negative radius
   if R < 0 then
@@ -96,8 +95,8 @@ begin
     // This way we don't repeat previous code
     if CurrX <= CurrY then Break;
 
-    Result := PointMirrorHV(OffSetX + CurrX, OffSetY + CurrY, CX, CY)
-          and PointMirrorHV(OffSetX + CurrY, OffSetY + CurrX, CX, CY)
+    Result := SPPointMirrorHV(OffSetX + CurrX, OffSetY + CurrY, CX, CY)
+          and SPPointMirrorHV(OffSetX + CurrY, OffSetY + CurrX, CX, CY)
           and Result;
 
     CurrY += 1; t1 += CurrY; t2 := t1 - CurrX;
@@ -105,17 +104,17 @@ begin
 
   // Drawing 45°, etc. only once
   if SameValue(CurrX, CurrY) then
-    Result := PointMirrorHV(OffSetX + CurrX, OffSetY + CurrY, CX, CY)
+    Result := SPPointMirrorHV(OffSetX + CurrX, OffSetY + CurrY, CX, CY)
       and Result;
 end;
 
-function cCHXSDL3Renderer.RndRectCFilled(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectCFilled(const aRect : TSDL_FRect;
   const R : CFloat) : Boolean;
 begin
-  Result := RndRectCFilled(aRect.X, aRect.Y, aRect.W, aRect.H, R);
+  Result := SPRndRectCFilled(aRect.X, aRect.Y, aRect.W, aRect.H, R);
 end;
 
-function cCHXSDL3Renderer.RndRectCFilled(X, Y, W, H, R : CFloat) : Boolean;
+function cCHXSDL3Renderer.SPRndRectCFilled(X, Y, W, H, R : CFloat) : Boolean;
 // Jesko's method for corners + adaptation to Logical Presentation
 var
   t1, t2, CurrX, CurrY : CFloat; // Circle algorithm vars
@@ -131,11 +130,11 @@ begin
 
   // Rectangle size check
   if (W < 2) or (H < 2) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Radius check.
   CurrX := Abs(R);
-  if CurrX < 1 then Exit(RectFilled(X, Y, W, H));
+  if CurrX < 1 then Exit(SPRectFilled(X, Y, W, H));
 
   // Checking if radius is too big and setting integer R.
   CurrX := Floor(Min(Min(CurrX, (H - 1) * 0.5), (W - 1) * 0.5));
@@ -147,7 +146,7 @@ begin
   if R > 0 then // Filled Positive Radius
   begin
     // Rect sides
-    Result := RectFilled(X, Y + CurrX, W, H - CurrX - CurrX);
+    Result := SPRectFilled(X, Y + CurrX, W, H - CurrX - CurrX);
 
     OffSetX := W2 - CurrX; OffSetY := H2 - CurrX;
 
@@ -157,7 +156,7 @@ begin
     begin
       if t2 >= 0 then
       begin
-        Result := PointMirrorHVFilled(OffSetX + CurrY - 1, OffSetY + CurrX,
+        Result := SPPointMirrorHVFilled(OffSetX + CurrY - 1, OffSetY + CurrX,
             True, False, CX, CY)
           and Result;
         t1 := t2; CurrX -= 1;
@@ -165,7 +164,7 @@ begin
 
       if CurrX <= CurrY then Break;
 
-      Result := PointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
           True, False, CX, CY)
         and Result;
 
@@ -174,14 +173,14 @@ begin
 
     // Drawing 45°, etc. only once
     if SameValue(CurrX, CurrY) then
-      Result := PointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
         True, False, CX, CY)
         and Result;
   end
   else // Filled Negative Radius
   begin
     // Rect sides
-    Result := RectFilled(X, Y + CurrX - 1, W, H - CurrX - CurrX + 2);
+    Result := SPRectFilled(X, Y + CurrX - 1, W, H - CurrX - CurrX + 2);
 
     OffSetX := -W2 - 1; OffSetY := -H2 - 1;
 
@@ -192,14 +191,14 @@ begin
       if t2 >= 0 then
       begin
         t1 := t2; CurrX -= 1;
-        Result := PointMirrorHVFilled(OffSetX + CurrY, OffSetY + CurrX,
+        Result := SPPointMirrorHVFilled(OffSetX + CurrY, OffSetY + CurrX,
             True, False, CX, CY)
           and Result;
       end;
 
       if CurrX <= CurrY then Break;
 
-      Result := PointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
           True, False, CX, CY)
         and Result;
 
@@ -208,13 +207,13 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.RndRectCFillOnly(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectCFillOnly(const aRect : TSDL_FRect;
   const R : CFloat) : Boolean;
 begin
-  Result := RndRectCFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H, R);
+  Result := SPRndRectCFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H, R);
 end;
 
-function cCHXSDL3Renderer.RndRectCFillOnly(X, Y, W, H, R : CFloat) : Boolean;
+function cCHXSDL3Renderer.SPRndRectCFillOnly(X, Y, W, H, R : CFloat) : Boolean;
 // Jesko's method for corners + adaptation to Logical Presentation
 var
   t1, t2, CurrX, CurrY : CFloat; // Circle algorithm vars
@@ -230,11 +229,11 @@ begin
 
   // Rectangle size check
   if (W < 3) or (H < 3) then
-    Exit(RectFillOnly(X, Y, W, H));
+    Exit(SPRectFillOnly(X, Y, W, H));
 
   // Radius check.
   CurrX := Abs(R);
-  if CurrX < 1 then Exit(RectFillOnly(X, Y, W, H));
+  if CurrX < 1 then Exit(SPRectFillOnly(X, Y, W, H));
 
   // Checking if radius is too big and setting integer R.
   CurrX := Floor(Min(Min(CurrX, (H - 1) * 0.5), (W - 1) * 0.5));
@@ -246,7 +245,7 @@ begin
   if R > 0 then // Fill Only Positive Radius
   begin
     // Rect sides
-    Result := RectFilled(X + 1, Y + CurrX, W - 2, H - CurrX - CurrX);
+    Result := SPRectFilled(X + 1, Y + CurrX, W - 2, H - CurrX - CurrX);
 
     OffSetX := W2 - CurrX; OffSetY := H2 - CurrX;
 
@@ -257,14 +256,14 @@ begin
       if t2 >= 0 then
       begin
         t1 := t2; CurrX -= 1;
-        Result := PointMirrorHVFilled(OffSetX + CurrY - 1, OffSetY + CurrX,
+        Result := SPPointMirrorHVFilled(OffSetX + CurrY - 1, OffSetY + CurrX,
             True, False, CX, CY)
           and Result;
       end;
 
       if CurrX <= CurrY then Break;
 
-      Result := PointMirrorHVFilled(OffSetX + CurrX - 1, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX - 1, OffSetY + CurrY,
           True, False, CX, CY)
         and Result;
 
@@ -274,7 +273,7 @@ begin
   else // Fill Only Negative Radius
   begin
     // Rect sides
-    Result := RectFilled(X + 1, Y + CurrX, W - 2, H - CurrX - CurrX);
+    Result := SPRectFilled(X + 1, Y + CurrX, W - 2, H - CurrX - CurrX);
 
     OffSetX := -W2 - 1; OffSetY := -H2 - 1;
 
@@ -290,7 +289,7 @@ begin
     begin
       if t2 >= 0 then
       begin
-        Result := PointMirrorHVFilled(OffSetX + CurrY, OffSetY + CurrX,
+        Result := SPPointMirrorHVFilled(OffSetX + CurrY, OffSetY + CurrX,
             True, False, CX, CY)
           and Result;
         t1 := t2; CurrX -= 1;
@@ -298,7 +297,7 @@ begin
 
       //if CurrX <= CurrY then Break;
 
-      Result := PointMirrorHVFilled(OffSetX + CurrX + 1, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX + 1, OffSetY + CurrY,
           True, False, CX, CY)
         and Result;
 
@@ -307,55 +306,54 @@ begin
 
     // Drawing 45°, etc. only once
     if SameValue(CurrX, CurrY) then
-      Result := PointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
+      Result := SPPointMirrorHVFilled(OffSetX + CurrX, OffSetY + CurrY,
           True, False, CX, CY)
         and Result;
   end;
 end;
 
 {
-  RndRectE[x]
+  SPRndRectE[x]
 }
 
-function cCHXSDL3Renderer.RndRectE(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectE(const aRect : TSDL_FRect;
   const Rx, RY : CFloat; const BorderC, FillC : TSDL_FColor) : Boolean;
 begin
-  Result := RndRectE(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY,
+  Result := SPRndRectE(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY,
     BorderC, FillC);
 end;
 
-function cCHXSDL3Renderer.RndRectE(const X, Y, W, H, RX, RY : CFloat;
+function cCHXSDL3Renderer.SPRndRectE(const X, Y, W, H, RX, RY : CFloat;
   const BorderC, FillC : TSDL_FColor) : Boolean;
 begin
+  Result := PushDrawColor(FillC);
+
   if BorderC = FillC then
   begin
-    Result := PushDrawColor(BorderC)
-      and RndRectEFilled(X, Y, W, H, RX, RY);
+    Result := SPRndRectEFilled(X, Y, W, H, RX, RY)
+      and Result;
     Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := PushDrawColor(FillC)
-      and RndRectEFillOnly(X, Y, W, H, RX, RY);
-    Result := PopDrawColor and Result;
-  end;
+    Result := SPRndRectEFillOnly(X, Y, W, H, RX, RY)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := PushDrawColor(BorderC)
-      and RndRectEBorder(X, Y, W, H, RX, RY);
-    Result := PopDrawColor and Result;
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and SPRndRectEBorder(X, Y, W, H, RX, RY)
+      and Result;
+
+  Result := PopDrawColor and Result;
 end;
 
-function cCHXSDL3Renderer.RndRectEBorder(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectEBorder(const aRect : TSDL_FRect;
   const RX, RY : CFloat) : Boolean;
 begin
-  Result := RndRectEBorder(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
+  Result := SPRndRectEBorder(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
 end;
 
-function cCHXSDL3Renderer.RndRectEBorder(X, Y, W, H, RX, RY : CFloat)
+function cCHXSDL3Renderer.SPRndRectEBorder(X, Y, W, H, RX, RY : CFloat)
   : Boolean;
 { Modification of my modificaction of my modification of Alois Zingl's
   implementation (https://zingl.github.io) of Bresenham's algorithm:
@@ -375,12 +373,12 @@ begin
 
   // Rectangle size check
   if (W < 2) or (H < 2) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   RectX := Abs(RX); RectY := Abs(RY); // Temp usage for absolute radii
   // Not rounded corners
   if (RectX < 1) or (RectY < 1) then
-    Exit(RectBorder(X, Y, W, H));
+    Exit(SPRectBorder(X, Y, W, H));
 
   // Checking maximum posible radii
   RX := Min(RectX, W * 0.5);
@@ -404,10 +402,10 @@ begin
 
     // 1st Iteration: Left and right rectangle borders
     if IsZero(RectY) then
-      Result := PointMirrorH(W, CY, CX)
+      Result := SPPointMirrorH(W, CY, CX)
     else
-      Result := RectFilled(CX - W, CY - RectY, 1, 2 * RectY + 1)
-          and RectFilled(CX + W, CY - RectY, 1, 2 * RectY + 1);
+      Result := SPRectFilled(CX - W, CY - RectY, 1, 2 * RectY + 1)
+          and SPRectFilled(CX + W, CY - RectY, 1, 2 * RectY + 1);
 
     // Main Loop
     while CurrX < 0 do
@@ -424,17 +422,18 @@ begin
 
       if CurrX >= 0 then Break;
 
-      Result := PointMirrorHV(CurrX - RectX, CurrY + RectY, CX, CY) and Result;
+      Result := SPPointMirrorHV(CurrX - RectX, CurrY + RectY, CX, CY)
+        and Result;
     end;
 
     // Finish vertical ellipse
     if CurrY < (RY - 1) then
-      Result := LineMirrorHV(CurrX - RectX, CurrY + RectY,
+      Result := SPLineMirrorHV(CurrX - RectX, CurrY + RectY,
         CurrX - RectX, H - 1, CX, CY) and Result;
 
     // Top and bottom rectangle borders
-    Result := RectFilled(CX - RectX, CY - H, 2 * RectX + 1, 1)
-      and RectFilled(CX - RectX, CY + H, 2 * RectX + 1, 1)
+    Result := SPRectFilled(CX - RectX, CY - H, 2 * RectX + 1, 1)
+      and SPRectFilled(CX - RectX, CY + H, 2 * RectX + 1, 1)
       and Result;
 
   except
@@ -448,13 +447,13 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.RndRectEFilled(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectEFilled(const aRect : TSDL_FRect;
   const RX, RY : CFloat) : Boolean;
 begin
-  Result := RndRectEFilled(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
+  Result := SPRndRectEFilled(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
 end;
 
-function cCHXSDL3Renderer.RndRectEFilled(X, Y, W, H, RX, RY : CFloat)
+function cCHXSDL3Renderer.SPRndRectEFilled(X, Y, W, H, RX, RY : CFloat)
   : Boolean;
 { Modification of my modificaction of my modification of Alois Zingl's
   implementation (https://zingl.github.io) of Bresenham's algorithm:
@@ -474,12 +473,12 @@ begin
 
   // Rectangle size check
   if (W < 2) or (H < 2) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Not rounded corners
   RectX := Abs(RX); RectY := Abs(RY); // Temp usage for absolute radii
   if (RectX < 1) or (RectY < 1) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Checking maximum posible radii
   RX := Min(RectX, W * 0.5);
@@ -503,9 +502,9 @@ begin
 
     // 1st Iteration: Central rectangle
     if IsZero(RectY) then
-      Result := PointMirrorHFilled(W, CY, CX)
+      Result := SPPointMirrorHFilled(W, CY, CX)
     else
-      Result := RectFilled(CX - W, CY - RectY, 2 * W + 1, 2 * RectY + 1);
+      Result := SPRectFilled(CX - W, CY - RectY, 2 * W + 1, 2 * RectY + 1);
 
     // Main Loop
     while CurrX < 0 do
@@ -518,7 +517,7 @@ begin
       if e2 <= dY then
       begin
         CurrY += 1; dY += RX2; err += dY;
-        Result := PointMirrorHVFilled(CurrX - RectX, CurrY + RectY,
+        Result := SPPointMirrorHVFilled(CurrX - RectX, CurrY + RectY,
           True, False, CX, CY)
           and Result;
       end;
@@ -526,9 +525,9 @@ begin
 
     // Top and bottom on very thin
     if CurrY < (RY - 1) then
-      Result := RectFilled(CX + CurrX - RectX, CY - H,
+      Result := SPRectFilled(CX + CurrX - RectX, CY - H,
           (-CurrX + RectX) * 2 + 1, Floor(RY - CurrY))
-        and RectFilled(CX + CurrX - RectX, CY + RectY + CurrY + 1,
+        and SPRectFilled(CX + CurrX - RectX, CY + RectY + CurrY + 1,
           (-CurrX + RectX) * 2 + 1, Floor(RY - CurrY))
         and Result;
 
@@ -543,13 +542,13 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.RndRectEFillOnly(const aRect : TSDL_FRect;
+function cCHXSDL3Renderer.SPRndRectEFillOnly(const aRect : TSDL_FRect;
   const RX, RY : CFloat) : Boolean;
 begin
-  Result := RndRectEFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
+  Result := SPRndRectEFillOnly(aRect.X, aRect.Y, aRect.W, aRect.H, RX, RY);
 end;
 
-function cCHXSDL3Renderer.RndRectEFillOnly(X, Y, W, H, RX, RY : CFloat)
+function cCHXSDL3Renderer.SPRndRectEFillOnly(X, Y, W, H, RX, RY : CFloat)
   : Boolean;
 { Modification of my modificaction of my modification of Alois Zingl's
   implementation (https://zingl.github.io) of Bresenham's algorithm:
@@ -569,12 +568,12 @@ begin
 
   // Rectangle size check
   if (W < 2) or (H < 2) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Not rounded corners
   RectX := Abs(RX); RectY := Abs(RY); // Temp usage for absolute radii
   if (RectX < 1) or (RectY < 1) then
-    Exit(RectFilled(X, Y, W, H));
+    Exit(SPRectFilled(X, Y, W, H));
 
   // Checking maximum posible radii
   RX := Min(RectX, W * 0.5);
@@ -597,7 +596,7 @@ begin
     RX2 := dY * 2; RY2 := RY2 * 2;
 
     // Central rectangle
-    Result := RectFilled(CX - W + 1, CY - RectY,
+    Result := SPRectFilled(CX - W + 1, CY - RectY,
         2 * W - 1, 2 * RectY + 1);
 
     // Skip 1st iteration
@@ -617,7 +616,7 @@ begin
       e2 := err * 2;
       if e2 <= dY then
       begin
-        Result := PointMirrorHVFilled(CurrX - RectX + 1, CurrY + RectY,
+        Result := SPPointMirrorHVFilled(CurrX - RectX + 1, CurrY + RectY,
           True, False, CX, CY)
           and Result;
         CurrY += 1; dY += RX2; err += dY;

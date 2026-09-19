@@ -18,14 +18,11 @@ begin
 end;
 
 function cCHXSDL3Renderer.Clear(const R, G, B, A: CFloat): Boolean;
-var
-  TempColor: TSDL_FColor;
 begin
-  Result := GetDrawColor(TempColor)
-    and SetDrawColor(R, G, B, A)
+  Result := PushDrawColor(R, G, B, A)
     and SDL_RenderClear(SDLRenderer);
-  // Try to restore color if something failed
-  Result := SetDrawColor(TempColor) and Result;
+    
+  Result := PopDrawColor and Result;
 end;
 
 function cCHXSDL3Renderer.Clear(const Grey, A: CFloat): Boolean;

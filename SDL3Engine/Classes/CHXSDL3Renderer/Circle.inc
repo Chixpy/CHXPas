@@ -4,29 +4,31 @@
 
   ToDo:
 
-  - Negative radious see RndRect.
-  - We can simplify a little see RndRect too (and Ellipse maybe)
+  - We can simplify SP a little, see SPRndRect too (and SPEllipse maybe)
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
 
-// Circle[X]
+{
+  Circle[x]
+}
 
-procedure cCHXSDL3Renderer.TCircleVertices(var PArr: TSDLFPointDynArray;
-  const X, Y, R: CFloat; OctPoints: Integer);
-const
-  kMinTCircle = 0; // Additional vertices for each octant of the circle
-  kMaxTCircle = 7; //
-  kTCircleRatio = {2 * } Pi / 8;
+procedure cCHXSDL3Renderer.CircleVertices(var PArr : TSDLFPointDynArray;
+  const X, Y, R : CFloat; OctPoints : Integer);
 var
-  Angle, dAng, aSin, aCos: CFloat;
-  i, k: Integer;
+  Angle, dAng, aSin, aCos : CFloat;
+  i, k : Integer;
 begin
-  if OctPoints < kMinTCircle then
-    OctPoints := Round(kTCircleRatio * SqRt(Abs(R)));
+  // ToDo: Use only 4 points for R < 1|2|3?
+  
+  // Maybe check pixel size on this cases
+  if (OctPoints < MinOctCircleVertices) then
+    OctPoints := Round(AutoOctCircleVerticesRatio * SqRt(Abs(R)));
 
-  if OctPoints < kMinTCircle then OctPoints := kMinTCircle
-  else if OctPoints > kMaxTCircle then OctPoints := kMaxTCircle;
+  if OctPoints < MinOctCircleVertices then
+    OctPoints := MinOctCircleVertices
+  else if OctPoints > MaxOctCircleVertices then
+    OctPoints := MaxOctCircleVertices;
 
   SetLength(PArr, (OctPoints + 1) * 8);
 
@@ -68,53 +70,130 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.Circle(const X, Y, R: CFloat;
-  const BorderC, FillC: TSDL_FColor): Boolean;
-var
-  TempColor: TSDL_FColor;
+function cCHXSDL3Renderer.Circle(const X, Y, R : CFloat;
+  const BorderC, FillC : TSDL_FColor; const OctPoints : Integer) : Boolean;
 begin
-  Result := GetDrawColor(TempColor);
+  Result := PushDrawColor(FillC);
 
-  // Same color for border and fill
   if BorderC = FillC then
   begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and CircleFilled(X, Y, R);
-    // Try to restore previous color anyway
-    Exit(SetDrawColor(TempColor) and Result);
+    Result := CircleFilled(X, Y, R, OctPoints)
+      and Result;
+    Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(FillC)
-      and CircleFillOnly(X, Y, R);
-  end;
+    Result := CircleFillOnly(X, Y, R, OctPoints)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and CircleBorder(X, Y, R);
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and CircleBorder(X, Y, R, OctPoints)
+      and Result;
 
-  // Try to restore previous color anyway
-  Result := SetDrawColor(TempColor) and Result;
+  Result := PopDrawColor and Result;
 end;
 
-function cCHXSDL3Renderer.CircleBorder(const X, Y: CFloat;
-  R: CFloat): Boolean;
+
+function cCHXSDL3Renderer.CircleBorder(const X, Y, R : CFloat;
+  const OctPoints : Integer) : Boolean;
+var
+  PArr : TSDLFPointDynArray;
+begin
+  CircleVertices(PArr, X, Y, R, OctPoints);
+  Result := PolygonBorder(PArr);
+end;
+
+function cCHXSDL3Renderer.CircleFilledRaw(const X, Y, R : CFloat;
+  const OctPoints : Integer) : Boolean;
+var
+  PArr : TSDLFPointDynArray;
+  Indices : Array of Byte;
+  FColor : TSDL_FColor;
+  i, j : Integer;
+begin
+  // Adding border size
+  CircleVertices(PArr, X, Y, R, OctPoints);
+
+  SetLength(Indices, Length(PArr) * 3);
+
+  // Adding center point for creating triangles
+  SetLength(PArr, Length(PArr) + 1);
+  PArr[High(PArr)] := SDLFPoint(X, Y);
+
+  for i := 0 to (High(PArr) - 2) do
+  begin
+    j := i * 3;
+    Indices[j] := High(PArr);
+    Indices[j + 1] := i;
+    Indices[j + 2] := i + 1;
+  end;
+  j := (High(PArr) - 1) * 3;
+  Indices[j] := High(PArr);
+  Indices[j + 1] := High(PArr) - 1;
+  Indices[j + 2] := Low(PArr);
+
+  Result := GetDrawColor(FColor)
+    and SDL_RenderGeometryRaw(SDLRenderer, nil,
+      @PArr[0], SizeOf(TSDL_FPoint), // Puntos
+      @FColor, 0, // Colores
+      nil, 0, // uv
+      Length(PArr), @Indices[0], Length(Indices), 1); // Indices
+end;
+
+function cCHXSDL3Renderer.CircleFilled(const X, Y, R : CFloat;
+  const OctPoints : Integer) : Boolean;
+begin
+  Result := CircleFilledRaw(X + 0.5, Y + 0.5, R + 0.5, OctPoints);
+end;
+
+function cCHXSDL3Renderer.CircleFillOnly(const X, Y, R : CFloat;
+  const OctPoints : Integer) : Boolean;
+begin
+  Result := CircleFilledRaw(X + 0.5, Y + 0.5, R - 0.5, OctPoints);
+end;
+
+{
+  SPCircle[x]
+}
+
+function cCHXSDL3Renderer.SPCircle(const X, Y, R : CFloat;
+  const BorderC, FillC : TSDL_FColor) : Boolean;
+begin
+  Result := PushDrawColor(FillC);
+
+  if BorderC = FillC then
+  begin
+    Result := SPCircleFilled(X, Y, R)
+      and Result;
+    Exit(PopDrawColor and Result);
+  end;
+
+  if FillC.A > 0 then
+    Result := SPCircleFillOnly(X, Y, R)
+      and Result;
+
+  if BorderC.A > 0 then
+    Result := SetDrawColor(BorderC) // Don't Push
+      and SPCircleBorder(X, Y, R)
+      and Result;
+
+  Result := PopDrawColor and Result;
+end;
+
+function cCHXSDL3Renderer.SPCircleBorder(const X, Y : CFloat; R : CFloat)
+  : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing pixels at cardinal/diagonal angles.
   - Minor initialization optimization.
   - Adapted to subpixels of Logical Presentation.
 }
 var
-  t1, t2, CurrX, CurrY: Integer;
-  FracR: CFloat; // Subpixel Radius Offset.
+  t1, t2, CurrX, CurrY : Integer;
+  FracR : CFloat; // Subpixel Radius Offset.
 begin
   R := Abs(R);
+  // ToDo: Draw a rect
   if R < 1 then Exit(Point(X, Y));
   CurrX := Floor(R);
   FracR := R - CurrX;
@@ -155,16 +234,7 @@ begin
     Result := PointMirrorHV(CurrX + FracR, CurrY + FracR, X, Y) and Result;
 end;
 
-function cCHXSDL3Renderer.TCircleBorder(const X, Y, R: CFloat;
-  const OctPoints: Integer): Boolean;
-var
-  PArr: TSDLFPointDynArray;
-begin
-  TCircleVertices(PArr, X, Y, R, OctPoints);
-  Result := TPolygonBorder(PArr);
-end;
-
-function cCHXSDL3Renderer.CircleFilled(const X, Y: CFloat; R: CFloat)
+function cCHXSDL3Renderer.SPCircleFilled(const X, Y : CFloat; R : CFloat)
   : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing lines already drawn.
@@ -173,8 +243,8 @@ function cCHXSDL3Renderer.CircleFilled(const X, Y: CFloat; R: CFloat)
   - Adapted to subpixels of Logical Presentation.
 }
 var
-  t1, t2, CurrX, CurrY: Integer;
-  FracR: CFloat; // Subpixel Radius Offset.
+  t1, t2, CurrX, CurrY : Integer;
+  FracR : CFloat; // Subpixel Radius Offset.
 begin
   R := Abs(R);
   if R < 1 then Exit(Point(X, Y));
@@ -223,45 +293,7 @@ begin
       True, False, X, Y) and Result;
 end;
 
-function cCHXSDL3Renderer.TCircleFilled(const X, Y, R: CFloat;
-  const OctPoints : Integer): Boolean;
-var
-  PArr: TSDLFPointDynArray;
-  Indices: Array of Byte;
-  FColor: TSDL_FColor;
-  i, j: Integer;
-begin
-  // Adding border size
-  TCircleVertices(PArr, X + 0.5, Y + 0.5, R + 0.5, OctPoints);
-
-  SetLength(Indices, Length(PArr) * 3);
-
-  // Adding center point for creating triangles
-  SetLength(PArr, Length(PArr) + 1);
-  PArr[High(PArr)] := SDLFPoint(X, Y);
-
-  for i := 0 to (High(PArr) - 2) do
-  begin
-    j := i * 3;
-    Indices[j] := High(PArr);
-    Indices[j + 1] := i;
-    Indices[j + 2] := i + 1;
-  end;
-  j := (High(PArr) - 1) * 3;
-  Indices[j] := High(PArr);
-  Indices[j + 1] := High(PArr) - 1;
-  Indices[j + 2] := Low(PArr);
-
-  Result := GetDrawColor(FColor)
-    and SDL_RenderGeometryRaw(SDLRenderer, nil,
-      @PArr[0], SizeOf(TSDL_FPoint), // Puntos
-      @FColor, 0, // Colores
-      nil, 0, // uv
-      Length(PArr), @Indices[0], Length(Indices), 1); // Indices
-end;
-
-
-function cCHXSDL3Renderer.CircleFillOnly(const X, Y: CFloat; R: CFloat)
+function cCHXSDL3Renderer.SPCircleFillOnly(const X, Y : CFloat; R : CFloat)
   : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing lines already drawn.
@@ -270,9 +302,9 @@ function cCHXSDL3Renderer.CircleFillOnly(const X, Y: CFloat; R: CFloat)
   - Adapted to subpixels of Logical Presentation.
 }
 var
-  t1, t2, CurrX, CurrY: Integer;
-  DrawLine: Boolean;
-  FracR: CFloat; // Subpixel Radius Offset.
+  t1, t2, CurrX, CurrY : Integer;
+  DrawLine : Boolean;
+  FracR : CFloat; // Subpixel Radius Offset.
 begin
   R := Abs(R);
   if R < 1 then Exit(True); // Nothing to fill
@@ -319,12 +351,17 @@ begin
 end;
 
 (*
-function cCHXSDL3Renderer.CircleBorderFP(const X, Y, R: CFloat): Boolean;
+
+{
+  FPCircle
+}
+
+function cCHXSDL3Renderer.CircleBorderFP(const X, Y, R : CFloat) : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing pixels at cardinal/diagonal angles.
   - Minor initialization optimization. }
 var
-  IntX, IntY, t1, t2, CurrX, CurrY: Integer;
+  IntX, IntY, t1, t2, CurrX, CurrY : Integer;
 begin
   CurrX := Abs(Round(R));
   if CurrX < 1 then Exit(Point(X, Y));
@@ -362,14 +399,14 @@ end;
 *)
 
 (*
-function cCHXSDL3Renderer.CircleFilledFP(const X, Y, R: CFloat): Boolean;
+function cCHXSDL3Renderer.CircleFilledFP(const X, Y, R : CFloat) : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing lines already drawn.
   - Minor initialization optimization.
   - Fill the circle with horizontal lines.
 }
 var
-  IntX, IntY, t1, t2, CurrX, CurrY: Integer;
+  IntX, IntY, t1, t2, CurrX, CurrY : Integer;
 begin
   CurrX := Abs(Round(R));
   if R < 1 then Exit(Point(X, Y));
@@ -409,15 +446,15 @@ begin
       and Result;
 end;
 
-function cCHXSDL3Renderer.CircleFillOnlyFP(const X, Y, R: CFloat)
-  : Boolean;
+function cCHXSDL3Renderer.CircleFillOnlyFP(const X, Y, R : CFloat)
+   : Boolean;
 { Uses Jesko's method for circle rasterization with some modifications:
   - Avoid redrawing lines already drawn.
   - Minor initialization optimization.
   - Fill the circle with horizontal lines without border. }
 var
-  IntX, IntY, t1, t2, CurrX, CurrY: Integer;
-  DrawLine: Boolean;
+  IntX, IntY, t1, t2, CurrX, CurrY : Integer;
+  DrawLine : Boolean;
 begin
   CurrX := Abs(Round(R));
   if R < 1 then Exit(True); // Nothing to fill

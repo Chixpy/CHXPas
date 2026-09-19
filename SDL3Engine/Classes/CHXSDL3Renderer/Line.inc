@@ -7,14 +7,20 @@
 
 {
   Line
+
+  ToDo:
+
+  - Make pixelated lines for SPPoint[s] and FPPoint[s].
+    - SPLineMirror[x] too
+  - Add width parameter to default methods, and draw it with 2 triangles.
 }
 
-function cCHXSDL3Renderer.Line(const P1, P2: TSDL_FPoint): Boolean;
+function cCHXSDL3Renderer.Line(const P1, P2 : TSDL_FPoint) : Boolean;
 begin
   Result := Line(P1.X, P1.Y, P2.X, P2.Y);
 end;
 
-function cCHXSDL3Renderer.Line(const X1, Y1, X2, Y2: CFloat): Boolean;
+function cCHXSDL3Renderer.Line(const X1, Y1, X2, Y2 : CFloat) : Boolean;
 {
   Renderer Logical Presentation draw it _smooth_, with 1 logical
   pixel of width. If Lenght < 2, 2 logical pixels will overlap their
@@ -30,16 +36,18 @@ begin
       Exit(RectFilled(X1, Y1, 1, Y2 - Y1 + 1))
     else
       Exit(RectFilled(X1, Y1 + 1, 1, Y2 - Y1 - 1));
-  end
-  else if SameValue(Y1, Y2) then // Horizontal Line
+  end;
+
+  if SameValue(Y1, Y2) then // Horizontal Line
   begin
     if X1 < X2 then
       Exit(RectFilled(X1, Y1, X2 - X1 + 1, 1))
     else
       Exit(RectFilled(X1 + 1, Y1, X2 - X1 - 1, 1));
-  end
-  else // Diagonal line
-    Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
+  end;
+
+  // Diagonal line
+  Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
 end;
 
 function cCHXSDL3Renderer.Line(const Seg : TCHXSDLFSegment) : Boolean;
@@ -48,53 +56,58 @@ begin
 end;
 
 {
-  TLine
+  SPLine
 }
 
-function cCHXSDL3Renderer.TLine(const P1, P2: TSDL_FPoint): Boolean;
+function cCHXSDL3Renderer.SPLine(const P1, P2 : TSDL_FPoint) : Boolean;
 begin
-  Result := Line(P1.X, P1.Y, P2.X, P2.Y);
+  Result := SPLine(P1.X, P1.Y, P2.X, P2.Y);
 end;
 
-function cCHXSDL3Renderer.TLine(const X1, Y1, X2, Y2: CFloat): Boolean;
+function cCHXSDL3Renderer.SPLine(const X1, Y1, X2, Y2 : CFloat) : Boolean;
 {
-  Renderer Logical Presentation draw it _smooth_, with 1 logical
-  pixel of width. If Lenght < 2, 2 logical pixels will overlap their
-  opacity. This was fixed for Horizontal and Vertical lines.
+  ToDo: Make pixelated line with subpixel adaptation.
 }
 begin
   if SameValue(X1, X2) then // Vertical Line
   begin
     if SameValue(Y1, Y2) then // Actually a Point
-      Exit(TPoint(X1, Y2));
+      Exit(SPPoint(X1, Y2));
 
     if Y1 < Y2 then
-      Exit(TRectFilled(X1, Y1, 1, Y2 - Y1 + 1))
+      Exit(SPRectFilled(X1, Y1, 1, Y2 - Y1 + 1))
     else
-      Exit(TRectFilled(X1, Y1 + 1, 1, Y2 - Y1 - 1));
-  end
-  else if SameValue(Y1, Y2) then // Horizontal Line
+      Exit(SPRectFilled(X1, Y1 + 1, 1, Y2 - Y1 - 1));
+  end;
+
+  if SameValue(Y1, Y2) then // Horizontal Line
   begin
     if X1 < X2 then
-      Exit(TRectFilled(X1, Y1, X2 - X1 + 1, 1))
+      Exit(SPRectFilled(X1, Y1, X2 - X1 + 1, 1))
     else
-      Exit(TRectFilled(X1 + 1, Y1, X2 - X1 - 1, 1));
-  end
-  else // Diagonal line
-    Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
+      Exit(SPRectFilled(X1 + 1, Y1, X2 - X1 - 1, 1));
+  end;
+
+  // Diagonal line
+  Result := SDL_RenderLine(SDLRenderer, X1, Y1, X2, Y2);
 end;
 
-function cCHXSDL3Renderer.TLine(const Seg : TCHXSDLFSegment) : Boolean;
+function cCHXSDL3Renderer.SPLine(const Seg : TCHXSDLFSegment) : Boolean;
 begin
-  Result := TLine(Seg.P1.X, Seg.P1.Y, Seg.P2.X, Seg.P2.Y);
+  Result := SPLine(Seg.P1.X, Seg.P1.Y, Seg.P2.X, Seg.P2.Y);
 end;
+
+{
+  FPLine
+}
+
 
 {
   Lines
 }
 
-function cCHXSDL3Renderer.LinesUnsafe(const PArr: TSDLFPointDynArray;
-  const idxFirst, Count: Integer): Boolean;
+function cCHXSDL3Renderer.LinesUnsafe(const PArr : TSDLFPointDynArray;
+  const idxFirst, Count : Integer) : Boolean;
 { Notes about SDL_RenderLines:
 
   - It doesn't draw anything with `Count <= 0`.
@@ -103,11 +116,12 @@ function cCHXSDL3Renderer.LinesUnsafe(const PArr: TSDLFPointDynArray;
     "invalid" data (usually 0,0). No error, but this time is logical.
 }
 begin
+  // ToDo: Use pixelated SPLine
   Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
 end;
 
-function cCHXSDL3Renderer.Lines(const PArr: TSDLFPointDynArray;
-  const idxFirst: Integer; Count: Integer): Boolean;
+function cCHXSDL3Renderer.Lines(const PArr : TSDLFPointDynArray;
+  const idxFirst : Integer; Count : Integer) : Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
@@ -121,11 +135,13 @@ begin
 end;
 
 {
-  TLines
+  SPLines
+
+  Todo: Draw them pixelated.
 }
 
-function cCHXSDL3Renderer.TLinesUnsafe(const PArr: TSDLFPointDynArray;
-  const idxFirst, Count: Integer): Boolean;
+function cCHXSDL3Renderer.SPLinesUnsafe(const PArr : TSDLFPointDynArray;
+  const idxFirst, Count : Integer) : Boolean;
 { Notes about SDL_RenderLines:
 
   - It doesn't draw anything with `Count <= 0`.
@@ -137,26 +153,30 @@ begin
   Result := SDL_RenderLines(SDLRenderer, @PArr[idxFirst], Count)
 end;
 
-function cCHXSDL3Renderer.TLines(const PArr: TSDLFPointDynArray;
-  const idxFirst: Integer; Count: Integer): Boolean;
+function cCHXSDL3Renderer.SPLines(const PArr : TSDLFPointDynArray;
+  const idxFirst : Integer; Count : Integer) : Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
 
   if Count <= 0 then Exit;
-  
+
   // Try to draw although Result = False
   if Count = 1 then
-    Exit(TPoint(PArr[idxFirst]) and Result);
+    Exit(Point(PArr[idxFirst]) and Result);
 
-  Result := TLinesUnsafe(PArr, idxFirst, Count) and Result;
+  Result := LinesUnsafe(PArr, idxFirst, Count) and Result;
 end;
 
 {
   LineMirror[x]
+
+  ToDo:
+
+  - FP versions.
 }
 
-function cCHXSDL3Renderer.LineMirrorH(const X1, Y1, X2, Y2, OffsetX: CFloat)
+function cCHXSDL3Renderer.LineMirrorH(const X1, Y1, X2, Y2, OffsetX : CFloat)
   : Boolean;
 begin
   if SameValue(X1, X2) and SameValue(Y1, Y2) then
@@ -166,7 +186,7 @@ begin
         and Line(OffsetX + X1, Y1, OffsetX + X2, Y2);
 end;
 
-function cCHXSDL3Renderer.LineMirrorV(const X1, Y1, X2, Y2, OffsetY: CFloat)
+function cCHXSDL3Renderer.LineMirrorV(const X1, Y1, X2, Y2, OffsetY : CFloat)
   : Boolean;
 begin
   if SameValue(X1, X2) and SameValue(Y1, Y2) then
@@ -177,9 +197,9 @@ begin
 end;
 
 function cCHXSDL3Renderer.LineMirrorHV(
-  const X1, Y1, X2, Y2, OffsetX, OffsetY: CFloat): Boolean;
+  const X1, Y1, X2, Y2, OffsetX, OffsetY : CFloat) : Boolean;
 var
-  P1XL, P1XR, P1YU, P1YD, P2XL, P2XR, P2YU, P2YD: CFloat;
+  P1XL, P1XR, P1YU, P1YD, P2XL, P2XR, P2YU, P2YD : CFloat;
 begin
   if SameValue(X1, X2) and SameValue(Y1, Y2) then
     Exit(PointMirrorHV(X1, Y2, OffsetX, OffsetY));
@@ -191,6 +211,31 @@ begin
 
   Result := Line(P1XL, P1YU, P2XL, P2YU) and Line(P1XR, P1YU, P2XR, P2YU)
         and Line(P1XL, P1YD, P2XL, P2YD) and Line(P1XR, P1YD, P2XR, P2YD);
+end;
+
+{
+  SPLineMirror[x]
+}
+
+function cCHXSDL3Renderer.SPLineMirrorH(const X1, Y1, X2, Y2, OffsetX : CFloat)
+  : Boolean;
+begin
+  // ToDo: Draw pixelized lines
+  Result := LineMirrorH(X1, Y1, X2, Y2, OffsetX);
+end;
+
+function cCHXSDL3Renderer.SPLineMirrorV(const X1, Y1, X2, Y2, OffsetY : CFloat)
+  : Boolean;
+begin
+  // ToDo: Draw pixelized lines
+  Result := LineMirrorV(X1, Y1, X2, Y2, OffsetY);
+end;
+
+function cCHXSDL3Renderer.SPLineMirrorHV(
+  const X1, Y1, X2, Y2, OffsetX, OffsetY : CFloat): Boolean;
+begin
+  // ToDo: Draw pixelized lines
+  Result := LineMirrorHV(X1, Y1, X2, Y2, OffsetX, OffsetY);
 end;
 
 {
@@ -232,7 +277,7 @@ end;
 function cCHXSDL3Renderer.Segments(const PArr : TSDLFPointDynArray;
   const idxFirst : Integer; PairCount : Integer) : Boolean;
 var
-  MaxCount: integer;
+  MaxCount : integer;
 begin
   Result := True;
   if Length(PArr) <= 0 then

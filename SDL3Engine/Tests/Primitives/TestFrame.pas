@@ -1,6 +1,9 @@
 program TestFrame;
 {<
-  A simple program with cCHXSDL3Engine for testing primitives.
+  A simple program with cCHXSDL3Engine for testing Frame primitives.
+
+  1. Initial version
+    1. TState changed to TDrawMode and TFillMode.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
@@ -9,18 +12,20 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kStepSize = 1;
+  kLenStep = 0.25;
 
   kRenderH = 50;
   kRenderW = kRenderH * 4 div 3;
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
   kRDriver = '';
-  kProgVersion = '1.0';
+  kProgVersion = '1.1';
 
 type
 
-  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
+  TDrawMode = (dmDefault, dmSubPixel, dmFullPixel);
+
+  TFillMode = (fmBorder, fmFilled, fmBorFill, fmAll);
 
   { cSDL3Eng }
 
@@ -34,53 +39,70 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    State: TState; sState: String;
-    Color1, Color2: TSDL_FColor;
+    ShowHelp : Boolean;
+    DrawMode : TDrawMode; sDrawMode : String;
+    FillMode : TFillMode; sFillMode : String;
+    BorderColor, FillColor : TSDL_FColor;
 
-    Width, Height, BorderW: CFloat;
-    Rectangle: TSDL_FRect;
+    FWidth, FHeight, BorderW: CFloat;
+    aRect: TSDL_FRect;
 
-    procedure ChangeState;
-    procedure InitColors;
+    procedure ChangeDrawMode;
+    procedure ChangeFillMode;
+    procedure ChangeColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.ChangeState;
+procedure cSDL3Eng.ChangeDrawMode;
 begin
-  if State = High(TState) then
-    State := Low(TState)
+  if DrawMode = High(TDrawMode) then
+    DrawMode := Low(TDrawMode)
   else
-    Inc(State);
+    Inc(DrawMode);
 
-  case State of
-    stBorFill : sState := 'Border + Only Fill';
-    stTBorFill : sState := 'Triangles Border + Only Fill';
-    stBorder : sState := 'Border';
-    stTBorder : sState := 'Triangles Border';
-    stFilled : sState := 'Full Filled';
-    stTFilled : sState := 'Triangles Filled';
+  case DrawMode of
+    dmDefault : sDrawMode := 'Default';
+    dmSubPixel : sDrawMode := 'Subpixel';
+    dmFullPixel : sDrawMode := 'Full Pixel';
   otherwise
-    sState := '<Undefined>';
+    sDrawMode := '<Undefined>';
   end;
 end;
 
-procedure cSDL3Eng.InitColors;
+procedure cSDL3Eng.ChangeFillMode;
 begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  if FillMode = High(TFillMode) then
+    FillMode := Low(TFillMode)
+  else
+    Inc(FillMode);
+
+  case FillMode of
+    fmBorder : sFillMode := 'Border';
+    fmFilled : sFillMode := 'Filled';
+    fmBorFill : sFillMode := 'Fill Only with Border';
+    fmAll: sFillMode := 'All';
+  otherwise
+    sFillMode := '<Undefined>';
+  end;
+end;
+
+procedure cSDL3Eng.ChangeColors;
+begin
+  BorderColor.Init(Random, Random, Random, Random);
+  FillColor.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-  State := High(TState); ChangeState;
-  InitColors;
+  DrawMode := High(TDrawMode); ChangeDrawMode;
+  FillMode := High(TFillMode); ChangeFillMode;
+  ChangeColors;
 
-  Width := kRenderW * 0.75;
-  Height := kRenderH * 0.50;
+  FWidth := kRenderW * 0.75;
+  FHeight := kRenderH * 0.50;
   BorderW := kRenderH * 0.10;
 end;
 
@@ -91,30 +113,40 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-  Rectangle.Init((kRenderW - Width) * 0.5,
-      (kRenderH - Height) * 0.5, Width, Height);
+  aRect.Init((kRenderW - FWidth) * 0.5,
+      (kRenderH - FHeight) * 0.5, FWidth, FHeight);
 end;
 
 procedure cSDL3Eng.Draw;
 begin
   Render.Clear(0.05);
-  Render.SetDrawColor(Color1);
 
-  case State of
+  if (FillMode = fmBorder) then
+  begin
+    Render.SetDrawColor(BorderColor);
+    case DrawMode of
+      dmDefault : Render.FrameBorder(aRect, BorderW);
+      dmSubPixel : Render.SPFrameBorder(aRect, BorderW);
+      // dmFullPixel : Render.FPFrameBorder(aRectInt, BorderWInt);
+    end;
+  end;
 
-    stBorFill : Render.Frame(Rectangle, BorderW, Color1, Color2);
+  if (FillMode = fmFilled) or (FillMode = fmAll) then
+  begin
+    Render.SetDrawColor(FillColor);
+    case DrawMode of
+      dmDefault : Render.FrameFilled(aRect, BorderW);
+      dmSubPixel : Render.SPFrameFilled(aRect, BorderW);
+      // dmFullPixel : Render.FPFrameFilled(aRectInt, BorderWInt);
+    end;
+  end;
 
- //   stTBorFill : Render.
-
-    stBorder : Render.FrameBorder(Rectangle, BorderW);
-
-//    stTBorder : Render.
-
-    stFilled : Render.FrameFilled(Rectangle, BorderW);
-
-//    stTFilled : Render.
-
-  end; // case State of
+  if (FillMode = fmBorFill) or (FillMode = fmAll) then
+    case DrawMode of
+      dmDefault : Render.Frame(aRect, BorderW, BorderColor, FillColor);
+      dmSubPixel : Render.SPFrame(aRect, BorderW, BorderColor, FillColor);
+      // dmFullPixel : Render.FPFrame(aRect, BorderW, BorderColor, FillColor);
+    end;
 
   if ShowHelp then DrawHelp;
 end;
@@ -123,14 +155,14 @@ procedure cSDL3Eng.DrawHelp;
 begin
   Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
-  Render.DebugTextF(0, 0, '%s', [sState]);
-  Render.DebugTextF(0, 10, 'W: %g H: %g R: %g', [Width, Height, BorderW]);
+  Render.DebugTextF(0, 0, '%s %s', [sDrawMode, sFillMode]);
+  Render.DebugTextF(0, 10, 'W: %g H: %g Border: %g',
+    [FWidth, FHeight, BorderW]);
   Render.DebugText(0, 30, '[F1] Toggle help');
   Render.DebugText(0, 40, '[F] Change mode');
   Render.DebugText(0, 50, '[C] Change color');
-  Render.DebugText(0, 60, '[<=] [=>] Change width');
-  Render.DebugText(0, 70, '[UP] [DOWN] Change height');
-  Render.DebugText(0, 80, '[A] [Z] Change Border width');
+  Render.DebugText(0, 60, '[ARROWS] Change size');
+  Render.DebugText(0, 70, '[A] [Z] Change border');
   Render.PopDrawColor;
   Window.PopRenderSize;
 end;
@@ -142,46 +174,46 @@ begin
   if ExitProg or Handled then Exit;
 
   case aEvent.type_ of
-    SDL_EVENT_KEY_DOWN:
+    SDL_EVENT_KEY_DOWN :
     begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_F: ChangeState;
+        SDLK_C : ChangeColors;
 
-        SDLK_C: InitColors;
+        SDLK_M : ChangeDrawMode;
 
-        SDLK_Q: ExitProg := True;
+        SDLK_F : ChangeFillMode;
 
-        SDLK_UP: Height += kStepSize;
+        SDLK_UP: FHeight += kLenStep;
 
-        SDLK_DOWN: Height -= kStepSize;
+        SDLK_DOWN: FHeight -= kLenStep;
 
-        SDLK_RIGHT: Width += kStepSize;
+        SDLK_RIGHT: FWidth += kLenStep;
 
-        SDLK_LEFT: Width -= kStepSize;
+        SDLK_LEFT: FWidth -= kLenStep;
 
-        SDLK_A: BorderW += kStepSize;
+        SDLK_A: BorderW += kLenStep;
 
-        SDLK_Z: BorderW -= kStepSize;
+        SDLK_Z: BorderW -= kLenStep;
+
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
-      end;
-    end;
-  otherwise
-    ;
-  end;
+      end; // case aEvent.key.key of
+    end; // SDL_EVENT_KEY_DOWN :
+  end; // case aEvent.type_ of
 end;
 
 { Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));

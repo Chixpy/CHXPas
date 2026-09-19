@@ -3,43 +3,41 @@
   This file is part of ucCHXSDL3Renderer.
 
   (C) 2026 Chixpy https://github.com/Chixpy
+
+  ToDo:
+
+  - When optimized Fill and OnlyFill for triangles (¿and Quad?) is done.
+    Use it.
+  - Default Fill and FillOnly, it uses SP/FP filling.
+  - SP/FP Border, they use default smooth one.
 }
 
-// Polygon.
+{
+  Polygon
+}
 
 function cCHXSDL3Renderer.PolygonUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
-var
-  TempColor: TSDL_FColor;
 begin
-  Result := GetDrawColor(TempColor);
+  Result := PushDrawColor(FillC);
 
-  // Same color for border and fill
   if BorderC = FillC then
   begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and PolygonFilledUnsafe(PArr, idxFirst, Count);
-    // Try to restore previous color anyway
-    Exit(SetDrawColor(TempColor) and Result);
+    Result := PolygonFilledUnsafe(PArr, idxFirst, Count)
+      and Result;
+    Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(FillC)
-      and PolygonFillOnlyUnsafe(PArr, idxFirst, Count);
-  end;
+    Result := PolygonFillOnlyUnsafe(PArr, idxFirst, Count)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and PolygonBorderUnsafe(PArr, idxFirst, Count);
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and PolygonBorderUnsafe(PArr, idxFirst, Count)
+      and Result;
 
-  // Try to restore previous color anyway
-  Result := SetDrawColor(TempColor) and Result;
+  Result := PopDrawColor and Result;
 end;
 
 function cCHXSDL3Renderer.Polygon(const PArr: TSDLFPointDynArray;
@@ -57,23 +55,8 @@ begin
   Result := Polygon(PArr, 0, 0, BorderC, FillC);
 end;
 
-// PolygonBorder
-
 function cCHXSDL3Renderer.PolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
-var
-  PArr2: TSDLFPointDynArray;
-begin
-  // Closing the polygon
-  PArr2 := Copy(PArr, idxFirst, Count);
-  SetLength(PArr2, Length(PArr2) + 1);
-  PArr2[High(PArr2)] := PArr2[0];
-  Result := LinesUnsafe(PArr2, 0, Length(PArr2));
-end;
-
-function cCHXSDL3Renderer.TPolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
-  const idxFirst, Count: Integer): Boolean;
-{ ToDo: Probar si dibujar triangulo es mas rapido que las lineas }
 var
   PArr2: TSDLFPointDynArray;
 begin
@@ -89,36 +72,148 @@ function cCHXSDL3Renderer.PolygonBorder(const PArr: TSDLFPointDynArray;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
-  if Count <= 0 then Exit(Result);
+  if Count <= 0 then Exit(Result); // It can return True
 
   case Count of
   // 0: Exit(True); It can't happen
   1: Result := Point(PArr[idxFirst]);
-  2: Result := LinesUnsafe(PArr, idxFirst, Count);
+  2: Result := Lines(PArr, idxFirst, Count);
   otherwise
     Result := PolygonBorderUnsafe(PArr, idxFirst, Count);
   end;
 end;
 
-function cCHXSDL3Renderer.TPolygonBorder(const PArr: TSDLFPointDynArray;
+function cCHXSDL3Renderer.PolygonFilledUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean;
+begin
+  // ToDo: Make a proper PolygonFilledUnsafe
+  Result := SPPolygonFilledUnsafe(PArr, idxFirst, Count);
+end;
+
+function cCHXSDL3Renderer.PolygonFilled(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
     {$I %LINE%}, {$I %CURRENTROUTINE%});
-  if Count <= 0 then Exit(Result);
+  if Count <= 0 then Exit(Result); // It can be True
 
   case Count of
-  // 0: Exit(True); It can't happen
-  1: Result := TPoint(PArr[idxFirst]);
-  2: Result := TLines(PArr, idxFirst, Count);
+  // 0: Exit(Result); // It can't happen
+
+  1: Result := SPPoint(PArr[idxFirst]);
+
+  2: Result := SPLinesUnsafe(PArr, idxFirst, 2);
+
+  // ToDo: Use optimized SPTriangleFilledUnsafe when optimized.
+  // 3: Result := SPTriangleFilledUnsafe(PArr, idxFirst);
+
+  // ToDo: ¿Quads can have an optimized fill too?
+  // 4:  Result := SPQuadFilledUnsafe(PArr, idxFirst);
   otherwise
-    Result := TPolygonBorderUnsafe(PArr, idxFirst, Count);
+    // ToDo: Make a proper default filled
+    Result := PolygonFilledUnsafe(PArr, idxFirst, Count);
   end;
 end;
 
-// PolygonFilled
+function cCHXSDL3Renderer.PolygonFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean;
+begin
+  // ToDo: Make a proper Polygon Only Fill
+  Result := SPPolygonFillOnlyUnsafe(PArr, idxFirst, Count);
+end;
 
-function cCHXSDL3Renderer.PolygonFilledUnsafe(const PArr: TSDLFPointDynArray;
+function cCHXSDL3Renderer.PolygonFillOnly(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+  // `Count <= 2` includes:
+  //  - Result = False
+  //  - 1, 2: Point or line, nothing to fill inside.
+  if Count <= 2 then Exit(Result);
+
+  // ToDo: If TriangleFillOnly has an optimized method...
+  // if Count = 3 then
+  //   Exit(TriangleFillOnlyUnsafe(PArr, idxFirst));
+
+  // ToDo: ¿Optimized Quads too?
+
+  // ToDo: Make a proper Polygon Only Fill
+  Result := SPPolygonFillOnlyUnsafe(PArr, idxFirst, Count);
+end;
+
+{
+  SPPolygon
+}
+
+function cCHXSDL3Renderer.SPPolygonUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer; const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := PushDrawColor(FillC);
+
+  if BorderC = FillC then
+  begin
+    Result := SPPolygonFilledUnsafe(PArr, idxFirst, Count)
+      and Result;
+    Exit(PopDrawColor and Result);
+  end;
+
+  if FillC.A > 0 then
+    Result := SPPolygonFillOnlyUnsafe(PArr, idxFirst, Count)
+      and Result;
+
+  if BorderC.A > 0 then
+    Result := SetDrawColor(BorderC) // Don't Push
+      and SPPolygonBorderUnsafe(PArr, idxFirst, Count)
+      and Result;
+
+  Result := PopDrawColor and Result;
+end;
+
+function cCHXSDL3Renderer.SPPolygon(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer; const BorderC, FillC: TSDL_FColor)
+  : Boolean; overload;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+  Result := Result and SPPolygonUnsafe(PArr, idxFirst, Count, BorderC, FillC);
+end;
+
+function cCHXSDL3Renderer.SPPolygon(const PArr: TSDLFPointDynArray;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := SPPolygon(PArr, 0, 0, BorderC, FillC);
+end;
+
+function cCHXSDL3Renderer.SPPolygonBorderUnsafe(const PArr: TSDLFPointDynArray;
+  const idxFirst, Count: Integer): Boolean;
+var
+  PArr2: TSDLFPointDynArray;
+begin
+  // Closing the polygon
+  PArr2 := Copy(PArr, idxFirst, Count);
+  SetLength(PArr2, Length(PArr2) + 1);
+  PArr2[High(PArr2)] := PArr2[0];
+  Result := SPLinesUnsafe(PArr2, 0, Length(PArr2));
+end;
+
+function cCHXSDL3Renderer.SPPolygonBorder(const PArr: TSDLFPointDynArray;
+  const idxFirst: Integer; Count: Integer): Boolean;
+begin
+  Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
+    {$I %LINE%}, {$I %CURRENTROUTINE%});
+  if Count <= 0 then Exit(Result); // It can be True
+
+  case Count of
+  // 0: Exit(True); It can't happen here
+  1: Result := SPPoint(PArr[idxFirst]);
+  2: Result := SPLinesUnsafe(PArr, idxFirst, Count);
+  otherwise
+    Result := SPPolygonBorderUnsafe(PArr, idxFirst, Count);
+  end;
+end;
+
+function cCHXSDL3Renderer.SPPolygonFilledUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
 { Algorithm rationale & theoretical breakdown:
 
@@ -194,7 +289,7 @@ begin
     if P2.Y > MaxY then MaxY := P2.Y;
 
     // Don't add horizontal edges.
-    // ToDo: use a sigma ~ 0.5?
+    // ToDo: ¿Use sigma ~ 0.5?
     if SameValue(P1.Y, P2.Y) then
     begin
       // Removing last position, previous values are kept.
@@ -211,7 +306,7 @@ begin
 
   // ToDo: Not really sure how to handle vertical subpixel
 
-  CurrY := MinY + 1;
+  CurrY := MinY;
   while CurrY < MaxY do
   begin
     SetLength(XList, 0); // Removing previous intersections
@@ -237,7 +332,7 @@ begin
         // Calculate precise X intersection point
         xIntersect := P1.X + (CurrY - P1.Y) * (P2.X - P1.X) / (P2.Y - P1.Y);
 
-        // Simple sorted insertion (maybe is slow)
+        // Simple sorted insertion (maybe it is slow)
         aIndex := 0;
         while (aIndex <= High(XList)) and (XList[aIndex] < xIntersect) do
           Inc(aIndex);
@@ -245,6 +340,7 @@ begin
       end;
     end;
 
+    // ToDo: ¿It can happen?, we can remove it
     Result := not Odd(Length(XList)) and Result;
     if not Result then // Parity check warning
       SDL_SetError('%s(%s) %s: Odd number of intersections in scanline %d',
@@ -258,10 +354,8 @@ begin
       X1 := XList[aIndex];
       X2 := XList[aIndex + 1];
 
-      if X1 < X2 then
-        Result := Line(X1, CurrY, X2, CurrY) and Result
-      else // X1 = X2
-        Result := Point(X1, CurrY) and Result;
+      if X1 <= X2 then
+        Result := Line(X1, CurrY, X2, CurrY) and Result;
 
       Inc(aIndex, 2);
     end;
@@ -270,7 +364,7 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.PolygonFilled(const PArr: TSDLFPointDynArray;
+function cCHXSDL3Renderer.SPPolygonFilled(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
@@ -280,31 +374,23 @@ begin
   case Count of
   // 0: Exit(Result); // It can't happen
 
-  1: Result := Point(PArr[idxFirst]);
+  1: Result := SPPoint(PArr[idxFirst]);
 
-  2: Result := LinesUnsafe(PArr, idxFirst, 2);
+  2: Result := SPLinesUnsafe(PArr, idxFirst, 2);
 
-  3: Result := TriangleFilledUnsafe(PArr, idxFirst);
+  // ToDo: Use optimized SPTriangleFilledUnsafe when optimized.
+  // 3: Result := SPTriangleFilledUnsafe(PArr, idxFirst);
 
-  //4: ToDo: This can have an optimized fill too?
-  //   Result := QuadFilledUnsafe(PArr, idxFirst);
+  // ToDo: ¿Quads can have an optimized fill too?
+  // 4:  Result := SPQuadFilledUnsafe(PArr, idxFirst);
   otherwise
-    Result := PolygonFilledUnsafe(PArr, idxFirst, Count);
+    Result := SPPolygonFilledUnsafe(PArr, idxFirst, Count);
   end;
 end;
 
-function cCHXSDL3Renderer.TPolygonFilled(const PArr: TSDLFPointDynArray;
-  const idxFirst: Integer; Count: Integer): Boolean;
-begin
-  // ToDo: Make a proper Triangle Polygon Filled
-  Result := PolygonFilled(PArr, idxFirst, Count);
-end;
-
-// PolygonFillOnly
-
-function cCHXSDL3Renderer.PolygonFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
+function cCHXSDL3Renderer.SPPolygonFillOnlyUnsafe(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
-{ See `cCHXSDL3Renderer.PolygonFilledUnsafe`
+{ See `cCHXSDL3Renderer.SPPolygonFilledUnsafe`
 
   Modified to draw only interior without borders and Floats.
 }
@@ -356,7 +442,7 @@ begin
 
   // ToDo: Not really sure how to handle vertical subpixel
 
-  CurrY := MinY + 1;
+  CurrY := MinY + 1; // Skip border
   while CurrY < MaxY do
   begin
     SetLength(XList, 0); // Removing previous intersections
@@ -389,6 +475,7 @@ begin
       end;
     end;
 
+    // ToDo: ¿It can happen?
     Result := not Odd(Length(XList)) and Result;
     if not Result then // Parity check warning
       SDL_SetError('%s(%s) %s: Odd number of intersections in scanline %d',
@@ -402,7 +489,7 @@ begin
       X1 := XList[aIndex] + 1;
       X2 := XList[aIndex + 1] - 1;
 
-      if X1 < X2 then
+      if X1 <= X2 then
         Result := Self.Line(X1, CurrY, X2, CurrY) and Result;
 
       Inc(aIndex, 2);
@@ -412,7 +499,7 @@ begin
   end;
 end;
 
-function cCHXSDL3Renderer.PolygonFillOnly(const PArr: TSDLFPointDynArray;
+function cCHXSDL3Renderer.SPPolygonFillOnly(const PArr: TSDLFPointDynArray;
   const idxFirst: Integer; Count: Integer): Boolean;
 begin
   Result := IsValidArrayRange(Length(PArr), idxFirst, Count,
@@ -422,17 +509,23 @@ begin
   //  - 1, 2: Point or line, nothing to fill inside.
   if Count <= 2 then Exit(Result);
 
-  // If TriangleFillOnly has an optimized method...
-  if Count = 3 then
-    Exit(TriangleFillOnlyUnsafe(PArr, idxFirst));
+  // ToDo: If TriangleFillOnly has an optimized method...
+  // if Count = 3 then
+  //   Exit(TriangleFillOnlyUnsafe(PArr, idxFirst));
 
-  Result := PolygonFillOnlyUnsafe(PArr, idxFirst, Count);
+  // ToDo: ¿Optimized Quads too?
+
+  Result := SPPolygonFillOnlyUnsafe(PArr, idxFirst, Count);
 end;
+
+{
+  FPPolygon
+}
 
 (*
 function cCHXSDL3Renderer.PolygonFilledUnsafeFP(const PArr: TSDLFPointDynArray;
   const idxFirst, Count: Integer): Boolean;
-{ See `cCHXSDL3Renderer.PolygonFilledUnsafe`
+{ See `cCHXSDL3Renderer.SPPolygonFilledUnsafe`
 
   Using rounded coordinates.
 }
@@ -544,7 +637,7 @@ end;
 
 function cCHXSDL3Renderer.PolygonFillOnlyUnsafeFP(
   const PArr: TSDLFPointDynArray; const idxFirst, Count: Integer): Boolean;
-{ See `cCHXSDL3Renderer.PolygonFilledUnsafe`
+{ See `cCHXSDL3Renderer.SPPolygonFilledUnsafe`
 
   Using rounded coordinates.
 

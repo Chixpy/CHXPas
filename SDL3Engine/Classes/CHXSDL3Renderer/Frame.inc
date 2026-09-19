@@ -3,43 +3,38 @@
   This file is part of ucCHXSDL3Renderer.
 
   (C) 2026 Chixpy https://github.com/Chixpy
+
+  ToDo:
+
+  - FP methods.
 }
 
-// Frame[X]
+{
+  Frame[X]
+}
 
 function cCHXSDL3Renderer.Frame(const aRect: TSDL_FRect; const BWidth: CFloat;
   const BorderC, FillC: TSDL_FColor): Boolean;
-var
-  TempColor: TSDL_FColor;
 begin
-  Result := GetDrawColor(TempColor);
+  Result := PushDrawColor(FillC);
 
-  // Same color for border and fill
   if BorderC = FillC then
   begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and FrameFilled(aRect, BWidth);
-    // Try to restore previous color anyway
-    Exit(SetDrawColor(TempColor) and Result);
+    Result := FrameFilled(aRect, BWidth)
+      and Result;
+    Exit(PopDrawColor and Result);
   end;
 
   if FillC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(FillC)
-      and FrameFillOnly(aRect, BWidth);
-  end;
+    Result := FrameFillOnly(aRect, BWidth)
+      and Result;
 
   if BorderC.A > 0 then
-  begin
-    Result := Result
-      and SetDrawColor(BorderC)
-      and FrameBorder(aRect, BWidth);
-  end;
+    Result := SetDrawColor(BorderC) // Don't Push
+      and FrameBorder(aRect, BWidth)
+      and Result;
 
-  // Try to restore previous color anyway
-  Result := SetDrawColor(TempColor) and Result;
+  Result := PopDrawColor and Result;
 end;
 
 function cCHXSDL3Renderer.Frame(const X, Y, W, H, BWidth: CFloat;
@@ -111,6 +106,59 @@ function cCHXSDL3Renderer.FrameFillOnly(const X, Y, W, H, BWidth: CFloat)
 begin
   Result := FrameFillOnly(SDLFRect(X, Y, W, H), BWidth);
 end;
+
+{
+  SPFrame[X]
+}
+
+function cCHXSDL3Renderer.SPFrame(const aRect: TSDL_FRect; const BWidth: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := Frame(aRect, BWidth, BorderC, FillC); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrame(const X, Y, W, H, BWidth: CFloat;
+  const BorderC, FillC: TSDL_FColor): Boolean;
+begin
+  Result := Frame(X, Y, W, H, BWidth, BorderC, FillC); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameBorder(const aRect: TSDL_FRect;
+  const BWidth: CFloat): Boolean;
+begin
+  Result := FrameBorder(aRect, BWidth); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameBorder(const X, Y, W, H, BWidth: CFloat)
+  : Boolean;
+begin
+  Result := FrameBorder(X, Y, W, H, BWidth); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameFilled(const aRect: TSDL_FRect;
+  BWidth: CFloat): Boolean;
+begin
+  Result := FrameFilled(aRect, BWidth); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameFilled(const X, Y, W, H, BWidth: CFloat)
+  : Boolean;
+begin
+  Result := FrameFilled(X, Y, W, H, BWidth); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameFillOnly(aRect: TSDL_FRect;
+  const BWidth: CFloat): Boolean;
+begin
+  Result := FrameFillOnly(aRect, BWidth); // Same as default
+end;
+
+function cCHXSDL3Renderer.SPFrameFillOnly(const X, Y, W, H, BWidth: CFloat)
+  : Boolean;
+begin
+  Result := FrameFillOnly(X, Y, W, H, BWidth);  // Same as default
+end;
+
 {< This source is free software; you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free
   Software Foundation; either version 3 of the License, or (at your option)

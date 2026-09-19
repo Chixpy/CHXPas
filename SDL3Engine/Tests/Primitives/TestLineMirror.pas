@@ -1,6 +1,6 @@
-program TestPoints;
+program TestLineMirror;
 {<
-  A simple program with cCHXSDL3Engine for testing Points primitive.
+  A simple program with cCHXSDL3Engine for testing Line Mirror primitives.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
@@ -9,9 +9,9 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kNPoints = 200;
+  kMoveStep = 0.2;
 
-  kRenderH = 50;
+  kRenderH = 20;
   kRenderW = kRenderH * 4 div 3;
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
@@ -19,6 +19,8 @@ const
   kProgVersion = '1.0';
 
 type
+
+  TState = (stLine, stHMirror, stVMirror, stHVMirror);
 
   { cSDL3Eng }
 
@@ -32,32 +34,51 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    PointColor: TSDL_FColor;
-    Points: Array of TSDL_FPoint;
+    ShowHelp : Boolean;
+    State : TState; sState : String;
+    Color : TSDL_FColor;
 
-    procedure InitPoints;
+    X1, Y1, X2, Y2 : CFloat;
+    X0, Y0, ProjX1, ProjY1, ProjX2, ProjY2 : CFloat;
+
+    procedure ChangeState;
+    procedure InitColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.InitPoints;
-var
-  i: Integer;
+procedure cSDL3Eng.ChangeState;
 begin
-  for i := Low(Points) to High(Points) do
-    Points[i].Init(Random * kRenderW, Random * kRenderH);
+  if State = High(TState) then
+    State := Low(TState)
+  else
+    Inc(State);
+
+  case State of
+  stLine : sState := 'Line';
+  stHMirror : sState := 'H Mirror';
+  stVMirror : sState := 'V Mirror';
+  stHVMirror : sState := 'HV Mirror';
+  otherwise
+    ;
+  end;
+end;
+
+procedure cSDL3Eng.InitColors;
+begin
+  Color.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
+  State := High(TState); ChangeState;
+  InitColors;
 
-  PointColor.Init(Random, Random, Random, Random * 0.5 + 0.5);
-
-  SetLength(Points, kNPoints);
-  InitPoints;
+  X0 := kRenderW * 0.5; Y0 := kRenderH * 0.5;
+  X1 := kRenderW * 0.25; Y1 := kRenderH * 0.25;
+  X2 := kRenderW * 0.15; Y2 := kRenderH * 0.15;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -67,15 +88,31 @@ end;
 
 procedure cSDL3Eng.Compute(var ExitProg : Boolean);
 begin
-
+  ProjX1 := X0 + X1; ProjY1 := Y0 + Y1;
+  ProjX2 := X0 + X2; ProjY2 := Y0 + Y2;
 end;
 
 procedure cSDL3Eng.Draw;
 begin
   Render.Clear(0.05);
 
-  Render.SetDrawColor(PointColor);
-  Render.Points(Points);
+  // Axis
+  Render.SetDrawColor(1, 0.3);
+  Render.Line(X0, 0, X0, kRenderH);
+  Render.Line(0, Y0, kRenderW, Y0);
+
+  Render.SetDrawColor(Color);
+  case State of
+    stLine : Render.Line(ProjX1, ProjY1, ProjX2, ProjY2);
+
+    stHMirror: Render.LineMirrorH(X1, ProjY1, X2, ProjY2, X0);
+
+    stVMirror: Render.LineMirrorV(ProjX1, Y1, ProjX2, Y2, Y0);
+
+    stHVMirror : Render.LineMirrorHV(X1, Y1, X2, Y2, X0, Y0);
+
+    otherwise ;
+  end;
 
   if ShowHelp then DrawHelp;
 end;
@@ -84,9 +121,13 @@ procedure cSDL3Eng.DrawHelp;
 begin
   Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
-  Render.DebugText(0, 10, '[F1] Toggle help');
-  Render.DebugText(0, 20, ' [C] Change color');
-  Render.DebugText(0, 30, ' [P] Change points');
+  Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugTextF(0, 10, 'X1: %g Y1: %g X2: %g Y3: %g', [X1, Y1, X2, Y2]);
+  Render.DebugText(0, 20, '[F1] Toggle help');
+  Render.DebugText(0, 30, '[F] Change mode');
+  Render.DebugText(0, 40, '[C] Change colors');
+  Render.DebugText(0, 50, '[ARROWS] Move point 1');
+  Render.DebugText(0, 60, '[WASD] Move point 2');
   Render.PopDrawColor;
   Window.PopRenderSize;
 end;
@@ -104,13 +145,23 @@ begin
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_C: PointColor.Init(Random, Random, Random, Random);
+        SDLK_F : ChangeState;
 
-        SDLK_P: InitPoints;
+        SDLK_C : InitColors;
 
-        SDLK_Q: ExitProg := True;
+        SDLK_UP : Y1 -= kMoveStep;
+        SDLK_DOWN : Y1 += kMoveStep;
+        SDLK_LEFT : X1 -= kMoveStep;
+        SDLK_RIGHT : X1 += kMoveStep;
+
+        SDLK_W : Y2 -= kMoveStep;
+        SDLK_S : Y2 += kMoveStep;
+        SDLK_A : X2 -= kMoveStep;
+        SDLK_D : X2 += kMoveStep;
+
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
@@ -121,11 +172,11 @@ begin
   end;
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));

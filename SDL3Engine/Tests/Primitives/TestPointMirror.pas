@@ -9,9 +9,9 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kMoveStep = 0.25;
+  kMoveStep = 0.2;
 
-  kRenderH = 50;
+  kRenderH = 20;
   kRenderW = kRenderH * 4 div 3;
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
@@ -134,6 +134,7 @@ begin
   Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
   Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugTextF(0, 10, 'X: %g Y: %g', [X, Y]);
   Render.DebugText(0, 20, '[F1] Toggle help');
   Render.DebugText(0, 30, '[F] Change mode');
   Render.DebugText(0, 40, '[C] Change colors');

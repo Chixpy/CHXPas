@@ -4,10 +4,11 @@
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
-function cCHXSDL3Renderer.IsValidArrayRange(const ArrLength, idxFirst: Integer;
-  var Count: Integer; const LineNumber, FuncName: String): Boolean;
+function cCHXSDL3Renderer.IsValidArrayRange(
+  const ArrLength, idxFirst : Integer; var Count : Integer;
+  const LineNumber, FuncName : String) : Boolean;
 var
-  MaxCount: Integer;
+  MaxCount : Integer;
 begin
   if ArrLength <= 0 then
   begin

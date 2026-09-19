@@ -3,7 +3,9 @@ program TestTriangle;
   A simple program with cCHXSDL3Engine for testing Triangle primitive.
 
   1. Draw many triangles on screen.
-    1. Changed to be like other primitive tests, one only at low resolution.
+    1. Changed to be like other primitive tests, one triangle at low
+      resolution.
+    2. TState changed to TDrawMode and TFillMode.
 
   (C) 2026 Chixpy https://github.com/Chixpy
 }
@@ -12,16 +14,18 @@ uses
   SysUtils, CTypes, SDL3, ucCHXSDL3Engine, uCHXSDL3TypeHelpers;
 
 const
-  kRenderH = 50;
+  kRenderH = 25;
   kRenderW = kRenderH * 4 div 3;
   kWinScale = 900 div kRenderH;
   kFullScreen = False;
   kRDriver = '';
-  kProgVersion = '1.1';
+  kProgVersion = '1.2';
 
 type
 
-  TState = (stBorFill, stTBorFill, stBorder, stTBorder, stFilled, stTFilled);
+  TDrawMode = (dmDefault, dmSubPixel, dmFullPixel);
+
+  TFillMode = (fmBorder, fmFilled, fmBorFill, fmAll);
 
   { cSDL3Eng }
 
@@ -35,61 +39,78 @@ type
       var ExitProg : Boolean); override; { It's virtual. }
 
   public
-    ShowHelp: Boolean;
-    State: TState; sState: String;
-    Color1, Color2: TSDL_FColor;
+    ShowHelp : Boolean;
+    DrawMode : TDrawMode; sDrawMode : String;
+    FillMode : TFillMode; sFillMode : String;
+    BorderColor, FillColor : TSDL_FColor;
 
-    Points: Array[0..2] of TSDL_FPoint;
+    Points : Array[0..2] of TSDL_FPoint;
 
-    procedure InitPoints;
+    procedure ChangePoints;
 
-    procedure ChangeState;
-    procedure InitColors;
+    procedure ChangeDrawMode;
+    procedure ChangeFillMode;
+    procedure ChangeColors;
     procedure DrawHelp;
   end;
 
 { cSDL3Eng }
 
-procedure cSDL3Eng.InitPoints;
+procedure cSDL3Eng.ChangePoints;
 var
-  i: Integer;
+  i : Integer;
 begin
   for i := Low(Points) to High(Points) do
     Points[i].Init(Random * kRenderW, Random * kRenderH);
 end;
 
-procedure cSDL3Eng.ChangeState;
+procedure cSDL3Eng.ChangeDrawMode;
 begin
-  if State = High(TState) then
-    State := Low(TState)
+  if DrawMode = High(TDrawMode) then
+    DrawMode := Low(TDrawMode)
   else
-    Inc(State);
+    Inc(DrawMode);
 
-  case State of
-    stBorFill : sState := 'Border + Only Fill';
-    stTBorFill : sState := 'Triangles Border + Only Fill';
-    stBorder : sState := 'Border';
-    stTBorder : sState := 'Triangles Border';
-    stFilled : sState := 'Full Filled';
-    stTFilled : sState := 'Triangles Filled';
+  case DrawMode of
+    dmDefault : sDrawMode := 'Default';
+    dmSubPixel : sDrawMode := 'Subpixel';
+    dmFullPixel : sDrawMode := 'Full Pixel';
   otherwise
-    sState := '<Undefined>';
+    sDrawMode := '<Undefined>';
   end;
 end;
 
-procedure cSDL3Eng.InitColors;
+procedure cSDL3Eng.ChangeFillMode;
 begin
-  Color1.Init(Random, Random, Random, Random);
-  Color2.Init(Random, Random, Random, Random);
+  if FillMode = High(TFillMode) then
+    FillMode := Low(TFillMode)
+  else
+    Inc(FillMode);
+
+  case FillMode of
+    fmBorder : sFillMode := 'Border';
+    fmFilled : sFillMode := 'Filled';
+    fmBorFill : sFillMode := 'Fill Only with Border';
+    fmAll: sFillMode := 'All';
+  otherwise
+    sFillMode := '<Undefined>';
+  end;
+end;
+
+procedure cSDL3Eng.ChangeColors;
+begin
+  BorderColor.Init(Random, Random, Random, Random);
+  FillColor.Init(Random, Random, Random, Random);
 end;
 
 procedure cSDL3Eng.Setup;
 begin
   ShowFrameRate := True; ShowHelp := True;
-  State := High(TState); ChangeState;
-  InitColors;
+  DrawMode := High(TDrawMode); ChangeDrawMode;
+  FillMode := High(TFillMode); ChangeFillMode;
+  ChangeColors;
 
-  InitPoints;
+  ChangePoints;
 end;
 
 procedure cSDL3Eng.Finish;
@@ -105,24 +126,33 @@ end;
 procedure cSDL3Eng.Draw;
 begin
   Render.Clear(0.05);
-  Render.SetDrawColor(Color1);
 
-  case State of
+  if (FillMode = fmBorder) then
+  begin
+    Render.SetDrawColor(BorderColor);
+    case DrawMode of
+      dmDefault : Render.TriangleBorder(Points);
+      dmSubPixel : Render.SPTriangleBorder(Points);
+      // dmFullPixel : Render.FPTriangleBorder(PointsInt);
+    end;
+  end;
 
-    stBorFill : Render.Triangle(Points[0], Points[1], Points[2],
-      Color1, Color2);
+  if (FillMode = fmFilled) or (FillMode = fmAll) then
+  begin
+    Render.SetDrawColor(FillColor);
+    case DrawMode of
+      dmDefault : Render.TriangleFilled(Points);
+      dmSubPixel : Render.SPTriangleFilled(Points);
+      // dmFullPixel : Render.FPTriangleFilled(PointsInt);
+    end;
+  end;
 
-    // stTBorFill : Render.TTriangle(Points[0], Points[1], Points[2]);
-
-    stBorder : Render.TriangleBorder(Points[0], Points[1], Points[2]);
-
-    // stTBorder : Render.TTriangleBorder(Points[0], Points[1], Points[2]);
-
-    stFilled : Render.TriangleFilled(Points[0], Points[1], Points[2]);
-
-    // stTFilled : Render.TTriangleFilled(Points[0], Points[1], Points[2]);
-
-  end; // case State of
+  if (FillMode = fmBorFill) or (FillMode = fmAll) then
+    case DrawMode of
+      dmDefault : Render.Triangle(Points, BorderColor, FillColor);
+      dmSubPixel : Render.SPTriangle(Points, BorderColor, FillColor);
+      // dmFullPixel : Render.FPTriangle(PointsInt, BorderColor, FillColor);
+    end;
 
   if ShowHelp then DrawHelp;
 end;
@@ -131,11 +161,12 @@ procedure cSDL3Eng.DrawHelp;
 begin
   Window.PushRenderSize(Window.WindowWidth div 2, Window.WindowHeight div 2);
   Render.PushDrawColor(1, 0, 1);
-  Render.DebugTextF(0, 0, '%s', [sState]);
+  Render.DebugTextF(0, 0, '%s %s', [sDrawMode, sFillMode]);
   Render.DebugText(0, 20, '[F1] Toggle help');
   Render.DebugText(0, 30, '[C] Change color');
-  Render.DebugText(0, 40, '[P] Change points');
-  Render.DebugText(0, 50, '[F] Change mode');
+  Render.DebugText(0, 40, '[M] Change draw mode');
+  Render.DebugText(0, 50, '[F] Change fill mode');
+  Render.DebugText(0, 60, '[P] Change points');
   Render.PopDrawColor;
   Window.PopRenderSize;
 end;
@@ -147,36 +178,36 @@ begin
   if ExitProg or Handled then Exit;
 
   case aEvent.type_ of
-    SDL_EVENT_KEY_DOWN:
+    SDL_EVENT_KEY_DOWN :
     begin
       Handled := True;
       case aEvent.key.key of
         // ESC, F10, F11, F12 handled by cCHXSDL3Engine
 
-        SDLK_F1: ShowHelp := not ShowHelp;
+        SDLK_F1 : ShowHelp := not ShowHelp;
 
-        SDLK_C: InitColors;
+        SDLK_C : ChangeColors;
 
-        SDLK_P: InitPoints;
+        SDLK_M : ChangeDrawMode;
 
-        SDLK_F: ChangeState;
+        SDLK_F : ChangeFillMode;
 
-        SDLK_Q: ExitProg := True;
+        SDLK_P : ChangePoints;
+
+        SDLK_Q : ExitProg := True;
 
       otherwise
         Handled := False;
-      end;
-    end;
-  otherwise
-    ;
-  end;
+      end; // case aEvent.key.key of
+    end; // SDL_EVENT_KEY_DOWN :
+  end; // case aEvent.type_ of
 end;
 
-  { Main program }
+{ Main program }
 
 var
   SDL3Eng : cSDL3Eng;
-  ProgName: String;
+  ProgName : String;
 begin
   ProgName := ExtractFileName(ParamStr(0));
   ChDir(ExtractFilePath(ParamStr(0)));
