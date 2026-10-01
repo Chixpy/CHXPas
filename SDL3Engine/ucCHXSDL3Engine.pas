@@ -76,6 +76,8 @@ type
     SDLWindow: PSDL_Window; //< Window.PSDLWindow shorcut.
 
     FPSMng: cCHXSDL3FPSManager; //< FPS manager
+    LastComputeTime : CUInt64;
+    LastIdleTime : CInt64;
 
     CompList: cSDL3ComponentList;
     //< List of component
@@ -130,6 +132,7 @@ type
     Title: String;
 
     Config: cCHXSDL3Config;
+
     property Window: cCHXSDL3Window read FWindow write SetWindow;
     property Render: cCHXSDL3Renderer read FRender write SetRender;
 
@@ -322,7 +325,7 @@ begin
   case aEvent.type_ of
     // Handled in by Window in Run method
     // SDL_WINDOWEVENT: // (window: TSDL_WindowEvent)
-    
+
     SDL_EVENT_KEY_DOWN: // (key: TSDL_KeyboardEvent)
     begin
 (*
@@ -551,7 +554,7 @@ procedure cCHXSDL3Engine.Run;
 var
   ProgExit, HandledEvent: Boolean;
   aEvent, LPEvent: TSDL_Event;
-  ComputeBegin, ComputeTime: CUInt64; //< Actual Compute only time.
+  ComputeBegin: CUInt64; //< Actual Compute only time.
   CursorX, i: Integer;
   aComp: caCHXSDL3Component;
 begin
@@ -580,10 +583,10 @@ begin
         aComp.Compute(FPSMng.LastFullTime, ProgExit);
       end;
 
-      ComputeTime := SDL_GetTicks - ComputeBegin;
+      LastComputeTime := SDL_GetTicks - ComputeBegin;
 
-      // Wait to next frame. Result not needed.
-      FPSMng.Delay;
+      // Wait to next frame.
+      LastIdleTime := FPSMng.Delay;
 
       // Don't draw if minimized
       if not Window.Minimized then
@@ -593,7 +596,8 @@ begin
 
         for aComp in CompList do
         begin
-          Window.PushRenderSize(aComp.LogPresW, aComp.LogPresH, aComp.LogPresH);
+          Window.PushRenderSize(aComp.LogPresW, aComp.LogPresH,
+            aComp.LogPresH);
           aComp.Draw(Render);
           Window.PopRenderSize;
         end;
@@ -606,9 +610,9 @@ begin
             SDL_LOGICAL_PRESENTATION_DISABLED);
           Render.PushDrawColor(1, 0, 1, 1);
           SDL_RenderDebugTextFormat(SDLRenderer,
-            Window.WindowWidth - 192, Window.WindowHeight - 8,
-            '[F11] %4d / %4d / %4d',
-            [FPSMng.LastFullTime, FPSMng.LastBusyTime, ComputeTime]);
+            Window.WindowWidth - 144, Window.WindowHeight - 8,
+            '%4d (%4d) / %4d',
+            [FPSMng.LastFullTime, LastIdleTime, LastComputeTime]);
           Render.PopDrawColor;
           Window.PopRenderSize;
 

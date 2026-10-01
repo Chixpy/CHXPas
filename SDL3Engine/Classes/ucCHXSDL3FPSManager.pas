@@ -1,6 +1,6 @@
 unit ucCHXSDL3FPSManager;
 {<
-  cCHXSDL3FPSManager unit. 
+  cCHXSDL3FPSManager unit.
 
   _SDL_gfx_ has some unexpected behaviours:
 
@@ -31,38 +31,38 @@ uses
 type
   cCHXSDL3FPSManager = class //(TPersistent)
   private
-    IntFC: CUInt64;    //< Internal frame counter for interpolation.
-    BaseTick: CUInt64; //< Initial tick for interpolation.
-    RateTicks: CFloat; //< Ticks per frame for interpolation.
-    LastTick: CUInt64; //< Last time that Delay was executed.
+    IntFC : CUInt64;    //< Internal frame counter for interpolation.
+    BaseTick : CUInt64; //< Initial tick for interpolation.
+    RateTicks : CFloat; //< Ticks per frame for interpolation.
+    LastTick : CUInt64; //< Last time that Delay was executed.
 
-    FFrameCount: CUInt64;
-    FFPS: CUInt16;
-    FLastFullTime: CUInt64;
-    FLastBusyTime: CUInt64;
+    FFrameCount : CUInt64;
+    FFPS : CUInt16;
+    FLastFullTime : CUInt64;
+    FLastBusyTime : CUInt64;
 
   protected
-    procedure SetFPS(const aFPS: CUInt16);
+    procedure SetFPS(const aFPS : CUInt16);
 
   public
-    property FrameCount: CUInt64 read FFrameCount;
+    property FrameCount : CUInt64 read FFrameCount;
     //< Current (absolute) frame number or number of Delay calls.
-    property FPS: CUInt16 read FFPS write SetFPS;
+    property FPS : CUInt16 read FFPS write SetFPS;
     //< FPS desired to achieve.
-    property LastFullTime: CUInt64 read FLastFullTime;
+    property LastFullTime : CUInt64 read FLastFullTime;
     //< Total last frame time in miliseconds (with Delay).
-    property LastBusyTime: CUInt64 read FLastBusyTime;
+    property LastBusyTime : CUInt64 read FLastBusyTime;
     //< Actual time between Delay calls (without Delay).
 
-    constructor Create(const aFPS: CUInt16 = 30);
+    constructor Create(const aFPS : CUInt16 = 30);
 
-    function TimePassed: CUInt64; inline;
+    function TimePassed : CUInt64; inline;
     {<
       Returns miliseconds passed since last call of Delay. It can be used to
         put a time limit in iterations: `while FPSMang.TimePassed < 10 do ...`
     }
 
-    function Delay: CInt64;
+    function Delay : CInt64;
     {<
       Waits for next frame window and returns time delayed, in other words
         milisecond ahead (positive) o behind (negative) of frame window.
@@ -76,13 +76,13 @@ type
 
 implementation
 
-constructor cCHXSDL3FPSManager.Create(const aFPS: CUInt16);
+constructor cCHXSDL3FPSManager.Create(const aFPS : CUInt16);
 begin
   FFrameCount := 0;
   FPS := aFPS; // Configure all with its setter
 end;
 
-procedure cCHXSDL3FPSManager.SetFPS(const aFPS: CUInt16);
+procedure cCHXSDL3FPSManager.SetFPS(const aFPS : CUInt16);
 begin
   if aFPS = FFPS then
     Exit;
@@ -96,14 +96,14 @@ begin
   LastTick := BaseTick;
 end;
 
-function cCHXSDL3FPSManager.TimePassed: CUInt64;
+function cCHXSDL3FPSManager.TimePassed : CUInt64;
 begin
   Result := SDL_GetTicks - LastTick;
 end;
 
-function cCHXSDL3FPSManager.Delay: CInt64;
+function cCHXSDL3FPSManager.Delay : CInt64;
 var
-  TargetTick, CurrTick: CInt64; //< Yes, Signed Int64
+  TargetTick, CurrTick : CInt64; //< Yes, Signed Int64
 begin
   Inc(FFrameCount); Inc(IntFC);
 

@@ -20,7 +20,7 @@ unit utCHXVec3R;
 {$define cCHXVec3List := cCHXVec3RList }
 //< ID for a generic list descendant.
 
-{$define UnitsUsed := , Math; }
+{$define UnitsUsed := , Types, Math; }
 {<
   Units needed for TRealType, compare and mathematical functions.
   if no unit needed, must be ';'.
@@ -38,5 +38,9 @@ unit utCHXVec3R;
 //< function ArcTan2Data(Y, X): TRealType;
 {$define ArcSinData := Math.ArcSin }
 //< function ArcSinData(Angle): TRealType;
+
+{$define Proj2DPType := TPointF }
+//< Type of 2D Point (with X and Y fields) for Proj[x] methods' Result.
+// ToDo: TPointF.X and TPointF.Y are Single, not Real.
 
 {$I 'utCHXVec3Type.inc'}

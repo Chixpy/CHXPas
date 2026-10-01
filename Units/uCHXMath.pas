@@ -5,16 +5,13 @@ unit uCHXMath;
   @unorderedlist(
     @item(Constants: PI related, Roots, Golden Ratios, Fractal Dimensions,
       Mathematical, Physics, etc.)
-    @item(Fastests Factorial and Fibonacci "functions".)
-    @unorderedlist(
-      @item(Actually, they are static arrays.)
-    )
+    @item(Fastests Factorial and Fibonacci "functions". Actually, they are
+      static arrays.)
     @item(Greatest Common Divisor and Least Common Multiples.)
     @item(Interpolation and Cycles.)
-    @item(Regular poligon calculus.)
-    @unorderedlist(
-      @item(`NSides >= 3` is not test for inlining.)
-    )
+    @item(Regular poligon calculus (`NSides >= 3` is not test for inlining.))
+    @item(3D: FocalLength )
+    @item(Permutations)
   )
 
   (C) 2024-2026 Chixpy https://github.com/Chixpy
@@ -24,7 +21,7 @@ unit uCHXMath;
 
 interface
 
-uses Math;
+uses Types, Math;
 
 const
 {<
@@ -33,10 +30,12 @@ const
   Double type stores ~15 decimals, 20 are provided.
   - Actual Pi    = 3.14159 26535 89793 23846 26433 82795 028
   - Pi in Double = 3.14159 26535 89793 11599 79634
+
+  Single type stores about 4 decimals
 }
 
 {
-  Pi related
+  Pi
 }
 
   //kPi = Pi; //< Pi is actually an internal function
@@ -44,10 +43,15 @@ const
   kHalfPi = Pi * 0.5;
   kQuarterPi = Pi * 0.25;
   k360Degree = Pi / 180;
-  k400Degree = Pi / 400; // Yep, this exists 
+  k400Degree = Pi / 200; // Yep, this exists
+
+  kRad2Deg = 180 / Pi; // 1 / k360Degree
+  kRad2Gra = 200 / Pi; // 1 / k400Degree
 
 {
   Roots and Inverses
+
+  ToDo: ¿Change them to actual operations? kSqRt2 = SqRt(2)
 }
 
   kSqRt2 = 1.41421356237309504880; //< = SqRt(2)
@@ -84,7 +88,7 @@ const
   kSilverRatio    = 2.41421356237309504880; //< SrRt(2) + 1
 
 {
-  ### Fractal Dimensions
+  Fractal Dimensions
 }
 
   kDimCantor     = 0.63092975357145743709;
@@ -332,6 +336,109 @@ function RPSideLCC(const NSides: Integer; const CCRad: Double): Double;
   @param CCRad Circumscribed Circle Radius.
 }
 
+{
+  3D
+}
+
+function FocalLengthV(const Height: Double): Double; inline;
+{< Shortcut for a "good looking" Focal Length for 3D in any screen.
+
+  Using a vertical FOV of 50 - 60, adapts automatically a good FOV any
+  aspect ratio screen.
+
+  @param(Height Height of the viewport.)
+  @param(Degrees Degrees of Field Of View. Range: (0º..360º).)
+}
+
+function FocalLengthDeg(const Size, Degrees: Double): Double; inline;
+{< Focal Length for 3D projections.
+
+
+  @param(Size Width (or Height for vertical Focal Length) of the viewport.)
+  @param(Degrees Degrees of Field Of View. Range: (0º..360º).)
+}
+function FocalLengthRad(const Size, Radians: Double): Double; inline;
+{< Focal Length for 3D projections.
+
+  @param(Size Width (or Height for vertical Focal Length) of the viewport.)
+  @param(Radians of Field Of View. Range: (0..2Pi).)
+}
+
+{
+  Permutations
+}
+procedure SwapArrayItems(var OrderList : TIntegerDynArray; const i, j: Integer);
+  inline;
+{< Auxiliar procedure for swapping two items in OrderList.
+
+  @warning(No range check is performed for inlining.)
+
+  @param(OrderList Array to iterate next permutation and the permutation
+    returned.)
+  @param(i,j Item indices to swap.)
+}
+
+procedure PermutateRandSwap(var OrderList : TIntegerDynArray; NSwaps: Integer = 1);
+{< Generate a new permutation of OrderList, swaping random items.
+
+  @param(OrderList Array to iterate next permutation and the permutation
+    returned.)
+  @param(NSwaps Number of pair swaps to do.)
+}
+
+procedure PermutateShuffle(var OrderList : TIntegerDynArray);
+
+function PermutateLexOrd(var OrderList : TIntegerDynArray;
+  const CyclicEq : Boolean = False): Boolean;
+{< Get the next Lexical Order Permutation of OrderList.
+
+  Uses Narayana Pandita's Lexical Order Algorithm.
+
+  Returns @true, when it's called with the last permutation, not when the
+  last permutation is generated. To be used with:
+
+  '''
+  repeat
+    [Process Permutation]
+  until PermutateLexOrd(...);
+  '''
+
+  @note(Using `while` may require proccess initial permutation before
+    entering the loop:
+
+    '''
+    [Process Permutation]
+    while not PermutateLexOrd(...) do
+    begin
+      [Process Permutation]
+    end;
+    '''
+
+    This is why Boolean Result is set for using with an `until` loop in mind.
+  )
+
+  When finished, returns last permutation again; it doesn't revert OrderList
+  to initial permutation.
+
+  @warning(
+    Any loop with an OrderList with more than 6~7 items will take
+    very long time. It's recommended to add any other means to break the
+    loop.
+  )
+
+  @param(OrderList
+    Array to iterate next permutation and the permutation returned.
+  )
+  @param(CyclicEq
+    If @true, it doesn't generate Cyclic order permutations
+    ([1, 2, 3] is equivalent to [2, 3, 1]). First item will be the same
+    always.
+  )
+
+  @returns(@true if it's finished, @false if there a more permutations.)
+  @returns(OrderList with the next permutation, or last one if finished.)
+}
+
 implementation
 
 function GCD(aValue1, aValue2: Int64): Int64;
@@ -482,6 +589,98 @@ end;
 function RPSideLCC(const NSides: Integer; const CCRad: Double): Double;
 begin
   Result := 2.0 * CCRad * sin(Pi / NSides);
+end;
+
+{
+  3D
+}
+
+function FocalLengthV(const Height: Double): Double; inline;
+begin
+  Result := Height * 0.866025403; // 60º Vertical FOV
+end;
+
+function FocalLengthDeg(const Size, Degrees: Double): Double;
+begin
+  Result := FocalLengthRad(Size, Degrees * k360Degree);
+end;
+
+function FocalLengthRad(const Size, Radians: Double): Double;
+begin
+  Result := Size * 0.5 / Tan(Radians * 0.5);
+end;
+
+{
+  Permutations
+}
+
+procedure SwapArrayItems(var OrderList : TIntegerDynArray; const i, j: Integer);
+var
+  Temp: Integer;
+begin
+  Temp := OrderList[i];
+  OrderList[i] := OrderList[j];
+  OrderList[j] := Temp;
+end;
+
+procedure PermutateRandSwap(var OrderList : TIntegerDynArray; NSwaps: Integer);
+begin
+  while NSwaps > 0 do
+  begin
+    SwapArrayItems(OrderList, RandomRange(0, Length(OrderList)),
+      RandomRange(0, Length(OrderList)));
+    Dec(NSwaps);
+  end;
+end;
+
+procedure PermutateShuffle(var OrderList : TIntegerDynArray);
+var
+  TempArray : TIntegerDynArray;
+  i, j : Integer;
+begin
+  TempArray := Copy(OrderList, 0, Length(OrderList));
+
+  i := 0;
+  while Length(TempArray) > 0 do
+  begin
+    j := RandomRange(0, Length(TempArray));
+    OrderList[i] := TempArray[j];
+    Delete(TempArray, j, 1);
+    Inc(i);
+  end;
+end;
+
+function PermutateLexOrd(var OrderList : TIntegerDynArray;
+  const CyclicEq : Boolean): Boolean;
+var
+  i, j : integer;
+begin
+  i := High(OrderList) - 1;
+  if CyclicEq then j := 1 // j := IfThen(CyclicEq, 1, 0);
+    else j := 0;
+
+  while (i >= j) and (OrderList[i] >= OrderList[i + 1]) do
+    Dec(i);
+
+  Dec(j);
+  if i = j then
+    Exit(True);
+
+  Result := False;
+
+  j := High(OrderList);
+  while (OrderList[i] >= OrderList[j]) do // OrderList[i + 1] at least
+    Dec(j);
+
+  SwapArrayItems(OrderList, i, j);
+
+  Inc(i);
+  j := High(OrderList);
+  while i < j do
+  begin
+    SwapArrayItems(OrderList, i, j);
+    Inc(i); Dec(j);
+  end;
 end;
 
 end.
